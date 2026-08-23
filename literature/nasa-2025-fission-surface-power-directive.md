@@ -1,7 +1,7 @@
 # NASA 2025 - Directive on Fission Surface Power (FSP) Development
 ## Comprehensive Technical Summary
 
-Page attributions below were fully re-audited 2026-08-22 against the source PDF's own three extracted pages. All 42 page-attribution instances in this file were checked; 23 were corrected and 19 were already right. The audit record, including the per-page fingerprints that proved the extraction before any attribution was checked, is at `cr_scratch/step37_engineer_pdf_audit.md`. The prior warning header is retired because the count it named as unchecked is now zero.
+Page attributions below were fully re-audited 2026-08-22 against the source PDF's own three extracted pages. All 42 page-attribution instances in this file were checked; 23 were corrected and 19 were already right. The prior warning header is retired because the count it named as unchecked is now zero.
 
 
 ## Citation

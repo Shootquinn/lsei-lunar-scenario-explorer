@@ -536,7 +536,7 @@
   /* SLUGS declares identity and containment once. Every title a reader sees and every
      parent-child relation the app renders is derived from this table rather than from a key,
      so the grouped object and the ledger tab cannot drift apart the way the two artifacts
-     this step merges did. Generated from SLUGS.md at fold time; SLUGS.md stays the source. */
+     this step merges did. Generated from the slug register at fold time, which stays the source. */
   var SLUGS = {
  "water-anchor": {
   "kind": "claim",
@@ -1142,7 +1142,7 @@
   "unit": "kg/kWe/km",
   "source": "Power transmission cabling mass from generation to load, a composite reading across five sources, none stating 10 directly: Gordon 2001's eight rendered DC transmission cases bracket 10 kg/kWe/km from both sides across their voltage and power range; Oleson 2022's Figure 13 conductor-only optimum and its companion COMPASS slide read 0.97 to 1.84 kg/kWe/km at 1 to 3 km; Csank 2022's branched-microgrid minimums read 7.0 to 8.6 kg/kWe/km; Kerslake 2007's four delivered point designs, cable plus step-up and step-down converters plus control cable plus spool and deployer, read 55.1 to 91.3 kg/kWe/km; the 2026-08-19 LSEI stand-up transcript reports a demonstrated 1.2 kg/kWe/km lower bound on Orbital Mining Corporation's Watts on the Moon cable, at an inferred 2 kWe. Adopted value sits above the conductor-only cluster and above Csank's band, below Kerslake's delivered range, on the argument that a flown lunar cable carries the same subsystem content Kerslake's and Oleson's own breakdowns describe, not a bare optimized conductor. This claim is settled in full against the five items above, and carries no open counter-case. See [[transmission-coefficient]].",
   "status": "SOURCED",
-  "note": "Applies identically on the fission and solar branches, added to M_power as its own term, never folded into fFis or fSol. Live this step at transDistKm = 3 km by default, ticket D02 ACCEPT (Quinn, 2026-08-21); overridable by the Advanced slider. The Space Resources Engineer's memo (Space Resources Engineer, Step 33, Part 3.1) is the source for the wording above."
+  "note": "Applies identically on the fission and solar branches, added to M_power as its own term, never folded into fFis or fSol. Live this step at transDistKm = 3 km by default, ticket D02 ACCEPT (Quinn, 2026-08-21); overridable by the Advanced slider. The wording above is this project's own."
  },
  "phiC0": {
   "value": 0.1,
@@ -2360,7 +2360,7 @@
    "claims": []
   },
   "TRANS-DIST": {
-   "text": "Two standoffs are sourced and they price different things. About 1 km prices reactor-to-crew radiation shielding at a 5 rem per year dose limit and full occupancy, which only binds where a crew lives beside the reactor. About 3 to 5 km prices reactor-to-mining-site separation, siting the excavation site at the cold trap or crater where the ice is, a distance the source itself states has no engineering rationale beyond the resource's location. This model has no crew habitat term and sites its load at the resource, so the mining-site standoff is the one that applies here. The Space Resources Engineer's proposed default is 3 km, the low end of that band, chosen because the source gives no finer reason to prefer any other point inside it (ticket D02, ACCEPT, Quinn 2026-08-21). Live at 3 km by default this step.",
+   "text": "Two standoffs are sourced and they price different things. About 1 km prices reactor-to-crew radiation shielding at a 5 rem per year dose limit and full occupancy, which only binds where a crew lives beside the reactor. About 3 to 5 km prices reactor-to-mining-site separation, siting the excavation site at the cold trap or crater where the ice is, a distance the source itself states has no engineering rationale beyond the resource's location. This model has no crew habitat term and sites its load at the resource, so the mining-site standoff is the one that applies here. The proposed default is 3 km, the low end of that band, chosen because the source gives no finer reason to prefer any other point inside it (ticket D02, ACCEPT, Quinn 2026-08-21). Live at 3 km by default this step.",
    "claims": []
   },
   "PHIC0-ACTIVE": {
@@ -2406,7 +2406,7 @@
 ];
 
   /* ============================================================
-     THE EVIDENCE AND THE ARGUMENT. Step 38, The Engineer.
+     THE EVIDENCE AND THE ARGUMENT.
 
      Until this block existed the app was an index of an evidence ledger rather than the
      ledger. A reader could learn from it what the model asserts, and to learn why he had
@@ -6461,7 +6461,7 @@
        added, none dropped, and the nine-cell water set reproduces off the rendered hero at
        1.64, 14.06, 74.25, 0.33, 2.54, 4.61, 1.64, 142.15 and 710.76.
        Previous pin 14b8db09, from the Step 38 evidence migration. */
-    __pin: "5d6ff1bd"
+    __pin: "99375342"
   };
 
   root.KNOB_DATA = KNOB_DATA;
@@ -6522,7 +6522,7 @@
    literal here is therefore not the rule but the rule's OUTPUT, declared one row at a
    time with the reason that put each row in it, so a reader of this file learns why a
    name is on the list instead of finding five names and no argument. The rule is written
-   and run at cr_scratch/_e38_filescope.js, which holds both buffers.
+   and run outside this file, against both buffers.
 
    Run against this artifact the rule SELECTS TWO of the five, and the two are not the two
    anyone predicted. movesOnBuffer below records what the rule measured. The other three are
@@ -7125,12 +7125,11 @@ function runTests(fileText){
 
   // ---- Step 36 rebuild: TRAP3-01A/B, split-exemption spec ----
   // History: Step 33 shipped this gate with a location-keyed exemption on
-  // SECTIONS["envelope-agency-pilot"]/SECTIONS["water-agency-pilot"] (prose, not a computation, per
-  // cr_scratch/step33_manager_close.md). Step 34 retired that exemption
+  // SECTIONS["envelope-agency-pilot"]/SECTIONS["water-agency-pilot"] (prose, not a computation).
+  // Step 34 retired that exemption
   // outright once the prose it carved out for moved, making the gate a
-  // plain, unconditional byte-absence check with no exemption of any kind
-  // (cr_scratch/step34_engineer_install.md). Step 36 narrows it again, on
-  // purpose, per cr_scratch/step36_softwareengineer_testsuite.md Section 1:
+  // plain, unconditional byte-absence check with no exemption of any kind.
+  // Step 36 narrows it again, on purpose, per its written specification:
   // the 40 kWe branch (TRAP3-01A) stays exactly as unconditional as Step 34
   // left it, because Oleson's 40 kWe is disqualified as a reactor quantum
   // by Quinn's own ruling (its own design closed 67.4 percent over its own
@@ -7150,8 +7149,7 @@ function runTests(fileText){
   // All decoys are assembled from joined pieces so this test's
   // own source never carries a trigger substring contiguously (the same
   // self-scan discipline E2-guard already uses); verified empirically
-  // against this file's own source before shipping
-  // (cr_scratch/step36_engineer_install.md).
+  // against this file's own source before shipping.
   {
     if (typeof fileText === 'string' && fileText.length){
       const scanBase = fileText + JSON.stringify(KNOB_DATA);
@@ -7445,9 +7443,8 @@ function runTests(fileText){
   }
 
   // ---- Step 36 Wave-2 fix: RC-01/RC-02/RC-03 ----
-  // instantiated exactly per cr_scratch/step36_softwareengineer_testsuite.md
-  // Sections 2 and 3, after the Systems Engineer found all five specified
-  // but never registered in the shipped runTests() (a control test,
+  // instantiated exactly per their written specification, after review found
+  // all five specified but never registered in the shipped runTests() (a control test,
   // TRAP3-01A, was confirmed present twice; these five were confirmed
   // present zero times, against 121 total rec() calls in the file).
 
@@ -8856,8 +8853,8 @@ function runBlurbTests(fileText){
   // status shapes (bare VERIFIED, a compound multi-clause status, and an
   // UNVERIFIED-pending status), confirmed by composing a blurb and checking
   // the migrated SECTIONS fields resolve identically to what composeBlurb's
-  // own claim set names (the DOM click handler itself is verified live in
-  // cr_scratch/_step33_dom_harness.js; this is the DOM-free half of that
+  // own claim set names (the DOM click handler itself is verified live in a
+  // separate DOM harness; this is the DOM-free half of that
   // same contract, that the underlying data the handler reads is correct).
   {
     const sample = ['energy-per-tonne','sintering-specific-energy','offtake-record'];
@@ -8872,7 +8869,7 @@ function runBlurbTests(fileText){
         ok && shapesDiffer, detail.join('  '));
   }
   // MIG-05: the grouped-block count. The Evidence Ledger's own '## '
-  // headings measure 20 at build time (cr_scratch/_step33_gen_claimblocks.js);
+  // headings measure 20 at build time, verified by the generator;
   // a DOM-free island has no filesystem access to re-read the ledger file
   // itself at either browser or this Node sidecar's own invocation (new
   // Function receives only KNOB_DATA, not fs), so the ledger figure is the
@@ -9333,9 +9330,8 @@ function runDerivationTests(fileText){
   // those two "always empty", which was the false premise reaching a fourth file: one of the
   // two owns claims by its own text and the other is modeled by live coefficients in three of
   // its five sections (data-level: CLAIMS key count and uniqueness; the
-  // DOM render itself was verified live in cr_scratch/_step33_dom_harness.js
-  // against the pre-Step-36 20-block state, a check the Systems Engineer's
-  // Wave 2 pass re-runs against the current 18). Source-presence proxy for
+  // DOM render itself was verified live in a separate DOM harness against
+  // the earlier 20-block state, a check review re-runs against the current 18). Source-presence proxy for
   // the render wiring, since this island has no DOM: renderNotesPanel must
   // exist and read CLAIMS.
   {
@@ -9370,8 +9366,8 @@ function runDerivationTests(fileText){
   // truncation marker), checked here by replicating the app-layer's own
   // sentence-split rule against 5 claim sources known to exceed 2 sentences,
   // and confirming a real split point exists (the live rendered excerpt
-  // itself is verified in cr_scratch/_step33_dom_harness.js against the
-  // actual _notesExcerpt() function; this DOM-free copy proves the DATA
+  // itself is verified in a separate DOM harness against the actual
+  // _notesExcerpt() function; this DOM-free copy proves the DATA
   // supports truncation on real content, not that the two implementations
   // are byte-identical, since this island cannot call an app-layer function).
   {
@@ -9503,8 +9499,7 @@ function runDerivationTests(fileText){
    but would fade the smallest of them by 0.167, which no reader perceives. A
    fade nobody can see teaches a reader that the graying means nothing, which is
    the failure this feature exists to prevent. Decisive when it fires beats
-   frequent and invisible. The tradeoff table is in
-   cr_scratch/step38_engineerC_build.md.
+   frequent and invisible. The tradeoff table is held with the build record.
 
    One property of this instrument a maintainer will otherwise assume away: every
    knob is a detent slider, so the deviation domain is discrete and the smallest
@@ -9523,12 +9518,12 @@ const ABSTRACT_FADE_RULING = {
    discrete threshold it is rather than as a point on a continuum. */
 const ABSTRACT_MIN_REACHABLE_DEVIATION = 0.25;
 
-/* ---- The Writer's composed text, installed verbatim from
-   cr_scratch/step38_writer_outline.md Sections 9.3, 9.4 and 9.5. Nine sentences,
+/* ---- The composed scenario text, installed verbatim from its outline.
+   Nine sentences,
    three per scenario, no digits and no hedges. Every sentence is true at all
    three eras of its own scenario, which is what lets the fade stay blind to era
    without the prose going stale. Do not edit this block; it is prose under
-   another persona's authority. ---- */
+   separate authority. ---- */
 const ABSTRACTS = {
   artemis: {
     label: 'Agency Led Baseline',
@@ -10276,7 +10271,7 @@ if (typeof window !== 'undefined'){
    Nothing about the artifact requires it now. It is recorded here as a choice with a
    reason and a date rather than converted, because converting 616 lines to buy consistency
    would move code the view-restoration gate covers for no result a reader can see.
-   Recorded 2026-08-23, The Engineer, against the Systems Engineer's ticket SE38-08.
+   Recorded 2026-08-23 against ticket SE38-08.
    ============================================================ */
 <!-- ===== CR38-REGION-C:END ===== -->
 </script>
@@ -10363,7 +10358,7 @@ document.addEventListener('click', e=>{
 
 /* ============================================================
    THE EXCLUSION ENTRIES (Step 38, sub-step 3). An exclusion is a visible
-   named entry and never an absence. The Systems Engineer's Section 4.7
+   named entry and never an absence. The architecture ruling's Section 4.7
    specifies five fields; slug, title, state and ruling date come from the
    register, and the two prose sentences come from the Writer's Section 3.2
    verbatim. Nothing here is composed at render time, because a generated
@@ -10376,7 +10371,7 @@ document.addEventListener('click', e=>{
    shorter list. A shorter list printed cleanly is how eleven claims went
    missing under two totals that both read fifty.
    ============================================================ */
-/* EXCLUSION_PROSE moved into the data island (Step 38, The Engineer). It is read
+/* EXCLUSION_PROSE moved into the data island. It is read
    from there through the same KNOB_DATA the rest of the content comes through. */
 const EXCLUSION_PROSE = KNOB_DATA.EXCLUSIONS;
 function excludedSlugs(){ return Object.keys(SLUGREG).filter(k=>SLUGREG[k].state==='excluded'); }
@@ -11657,9 +11652,9 @@ function userFacingText(){
    surviving internal keys, read out of the live objects rather than copied into the guard. */
 
 /* ============================================================
-   THE RETIREMENT COVERAGE GATE. Step 38, The Engineer, against SE38-15.
+   THE RETIREMENT COVERAGE GATE.
 
-   `Gameplan.md` makes the retirement of the three Scenario Treatments and the executive
+   The plan of record makes the retirement of the three Scenario Treatments and the executive
    abstract conditional on a coverage audit that names, per section, where the app carries
    the same material and by what path. The evidence ledger is the one document in the
    retiring set that never had that gate applied to it, and it is the document this whole
@@ -11675,7 +11670,7 @@ function userFacingText(){
    LEDG-02 takes the artifact's own data in its pre-migration shape, which is the shape
    where LEDGER and LEDGER_JOIN do not exist, and requires the coverage function to fail
    over it and to NAME what is missing. The same gate is also run externally against the
-   real pre-migration file, `cr_scratch/step38_final_v2.html`, and that run is recorded in
+   real pre-migration file, and that run is recorded in
    the migration report rather than asserted here.
    ============================================================ */
 function ledgerCoverage(data){
@@ -11860,7 +11855,7 @@ function runLedgerTests(){
     /* DECOY and GUARD, proved every run. The decoy is the exact construction this sweep was
        written for, a working-file path inside a reason field, and the guard is a sentence that
        names a file-shaped thing that is not a path so the rule cannot be a bare dot-match. */
-    const decoyFires = PATHRE.test('cr_scratch/step38_systemsengineer_architecture.md 4.4, no displacement term exists');
+    const decoyFires = PATHRE.test('cr_scratch/planted_decoy_note.md 4.4, no displacement term exists');
     const guardFires = PATHRE.test('The workbook duty convention is a shared duty sub-flag.');
     const ok = hits.length === 0 && decoyFires && !guardFires;
     rec('LEDG-08','GATE',
@@ -12125,7 +12120,7 @@ function pathCheck(){
   });
   const host = document.getElementById('ledgerPanel');
   const probe = document.createElement('p');
-  probe.textContent = 'ruled at cr_scratch/step38_systemsengineer_architecture.md 4.4';
+  probe.textContent = 'ruled at cr_scratch/planted_decoy_note.md 4.4';
   host.appendChild(probe);
   selectTab('ledger');
   RE.lastIndex = 0;

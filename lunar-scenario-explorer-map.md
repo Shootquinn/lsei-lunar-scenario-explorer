@@ -24,29 +24,21 @@ file, including in this paragraph, makes it exit non-zero and print the offset o
 byte. That is the decoy the design is built to catch, and it is why the map can be trusted without
 being read end to end.
 
-Three tables below are wrapped in `<!-- REGISTER-RENDER ... -->` comment lines. Those are
-for a second instrument rather than for a reader. Each pair names the `NAMES.md` table the
-region reproduces and the columns of it that reach the page, so `tools/rename_gate.js` can
-tell a retired name the register itself publishes from a stale reference somebody left behind. The
-gate allows a retired name inside a region only where the token carrying it reproduces a register
-value exactly, so the sentinels suppress nothing on their own.
-
 ## Provenance, and the two stamps are not the same kind of thing
 
 | item | value | kind of stamp |
 |---|---|---|
-| Source artifact | `context/gold star outputs THE BEST/Lunar_Scenario_Explorer.html` | path, derived from the `app` row of NAMES.md |
-| Artifact md5 | `7af4034e83c8fb34c1eae7a1db6e8576` | VERIFIED MATCH. The generator reads the file, derives the digest, compares it against the value it carries, and refuses on disagreement |
-| Artifact bytes on disk | 874,716 | measured at this build |
-| Data island pin | `5d6ff1bd` | RECORDED OBSERVATION. Read out of the artifact. It is FNV-1a over CONFIG, CLAIMS, VALUE and LANDED_COST, and there is nothing here to compare it against |
+| Source artifact | `index.html` | the app in this repository |
+| Artifact md5 | `37e1e9b5f0c80fe9790f19a7224796c5` | DERIVED. The generator reads the file and derives the digest at this build. It holds no expected value to compare against, since the pin was removed so the generator runs against any build on any machine |
+| Artifact bytes on disk | 874,032 | measured at this build |
+| Data island pin | `99375342` | RECORDED OBSERVATION. Read out of the artifact. It is FNV-1a over CONFIG, CLAIMS, VALUE and LANDED_COST, and there is nothing here to compare it against |
 | Generator | `tools/build_map.js` | this file names it and it names this file |
-| Artifact register | `NAMES.md`, 24 artifact rows | read at this build |
-| Identity register | `SLUGS.md`, 86 slug rows | read at this build |
 
-The digest line is a check and the pin line is a reading. The generator derives the digest itself and
-has an expected value to compare it against, so a wrong artifact stops the build. The pin has no
-expected value here, so it is reported rather than verified. Printed side by side without that
-distinction, two stamps would read as two checks and one of them is not.
+Neither stamp is a check, and that is a change from how this file used to read. The generator
+derives the digest from whatever file it is pointed at and holds no expected value to compare
+it against, so a wrong artifact produces a map describing that artifact rather than a refusal.
+The pin is read out of the artifact the same way. Both are measurements of what was built, and
+what makes them useful is that they name the build rather than that they guard it.
 
 ## Totals, each produced by this build
 
@@ -945,114 +937,15 @@ Nothing decides these, so they are recorded unresolved rather than assigned by p
 
 References nothing cites, 6: `lsei-workbook-2026`, `scenario-treatment-s1-2026`, `scenario-treatment-s2-2026`, `scenario-treatment-s3-2026`, `card-2023`, `lsei-standup-transcript-2026`.
 
-## The derived-copy graph
+## What this map leaves out, and why
 
-A derived copy is a deliverable a builder produces from a source. The join is the builder, and it is
-a join a machine can follow: change the source, rerun the builder, and the copy is current again.
-Read from the artifact register, which is where artifact identity is declared.
+Three sections of this map are omitted from the published build. They describe how this
+project files and rebuilds its own working copies: which deliverable derives from which, where
+each registered artifact sits on a working disk, and which documents restate a coefficient the
+app owns. All three are about a working tree that is not in this repository, so a reader here
+could not act on any of them, and two of them name folders and filenames that do not ship.
 
-<!-- REGISTER-RENDER BEGIN table=ARTIFACTS columns=key,display,source,builder,status -->
-| deliverable | display name | derives from | builder | status |
-|---|---|---|---|---|
-| `technical-note-docx` | Scenario Knob Explorer Technical Note | `technical-note-md` | `tools/build_technote_docx.js` | retired |
-| `trade-study-docx` | LSEI Rigorous Trade Study | `trade-study-md` | `cr_scratch/build_scenario_treatment_docx.js` | live |
-| `delta-summary-docx` | LSEI Trade Study Delta Executive Summary | `delta-summary-md` | `tools/build_delta_docx.js` | live |
-| `treatment-agency-docx` | Scenario Treatment, Agency Led Baseline | `treatment-agency-md` | `cr_scratch/build_scenario_treatment_docx.js` | retired |
-| `treatment-mars-docx` | Scenario Treatment, Early Shift to Mars | `treatment-mars-md` | `cr_scratch/build_scenario_treatment_docx.js` | retired |
-| `treatment-commercial-docx` | Scenario Treatment, The Commercial Break | `treatment-commercial-md` | `cr_scratch/build_scenario_treatment_docx.js` | retired |
-| `scenarios-docx` | Scenarios | `scenarios-md` | `tools/build_scenarios_lock_docx.js` | retired |
-| `stakeholder-bios-docx` | LSEI Stakeholder Bios and Capability Mapping | `stakeholder-bios-md` | `tools/build_bio_docx.js` | frozen |
-| `deploy-index` | Lunar Scenario Explorer, published page | `app` | `tools/build_deploy.js` | live |
-<!-- REGISTER-RENDER END table=ARTIFACTS -->
-
-The artifacts no builder produces, each with the reason.
-
-<!-- REGISTER-RENDER BEGIN table=ARTIFACTS columns=key,display,status -->
-| deliverable | display name | status | why it has no builder |
-|---|---|---|---|
-| `app` | Lunar Scenario Explorer | live | the app is written rather than built, and it is the authority the rest derives from |
-| `knob-data` | Knob Explorer Data Island | retired | it is authored directly and nothing is built from it |
-| `state-blurbs` | Lunar Scenario Explorer State Blurbs | retired | it is authored directly and nothing is built from it |
-| `evidence-ledger` | Scenario Knob Explorer Evidence Ledger | retired | it is authored directly and nothing is built from it |
-| `technical-note-md` | Scenario Knob Explorer Technical Note | retired | it is a source rather than a product, and `technical-note-docx` is built from it |
-| `trade-study-md` | LSEI Rigorous Trade Study | live | it is a source rather than a product, and `trade-study-docx` is built from it |
-| `delta-summary-md` | LSEI Trade Study Delta Executive Summary | live | it is a source rather than a product, and `delta-summary-docx` is built from it |
-| `treatment-agency-md` | Scenario Treatment, Agency Led Baseline | retired | it is a source rather than a product, and `treatment-agency-docx` is built from it |
-| `treatment-mars-md` | Scenario Treatment, Early Shift to Mars | retired | it is a source rather than a product, and `treatment-mars-docx` is built from it |
-| `treatment-commercial-md` | Scenario Treatment, The Commercial Break | retired | it is a source rather than a product, and `treatment-commercial-docx` is built from it |
-| `scenarios-md` | Scenarios | retired | it is a source rather than a product, and `scenarios-docx` is built from it |
-| `capability-map-docx` | ISRU Technology to Capability Area Map | human-owned | a person authors it, so a builder would overwrite the author |
-| `stakeholder-bios-md` | LSEI Stakeholder Bios and Capability Mapping | frozen | it is a source rather than a product, and `stakeholder-bios-docx` is built from it |
-| `isru-history-docx` | Lunar ISRU History | human-owned | a person authors it, so a builder would overwrite the author |
-| `goldstar-readme` | Gold Star Outputs README | live | it is authored directly and nothing is built from it |
-<!-- REGISTER-RENDER END table=ARTIFACTS -->
-
-## The register against the disk
-
-The register declares where each artifact lives. This table is that declaration measured against the
-filesystem at this build. An absent file is not necessarily a fault, since a rename can be declared
-before it executes, but it is always worth printing, because a register nobody checks against the
-disk is a copy of the filesystem rather than a description of it.
-
-<!-- REGISTER-RENDER BEGIN table=ARTIFACTS columns=key,status,filename,predecessor-filename -->
-| deliverable | status | registered filename | on disk |
-|---|---|---|---|
-| `app` | live | `Lunar_Scenario_Explorer.html` | present |
-| `knob-data` | retired | `knob_data.js` | present |
-| `state-blurbs` | retired | `Lunar_Scenario_Explorer_State_Blurbs.md` | present |
-| `evidence-ledger` | retired | `Scenario_Knob_Explorer_Evidence_Ledger.md` | present |
-| `technical-note-md` | retired | `Scenario_Knob_Explorer_Technical_Note.md` | present |
-| `technical-note-docx` | retired | `Scenario_Knob_Explorer_Technical_Note.docx` | present |
-| `trade-study-md` | live | `LSEI_Rigorous_Trade_Study.md` | present |
-| `trade-study-docx` | live | `LSEI_Rigorous_Trade_Study.docx` | present |
-| `delta-summary-md` | live | `LSEI_Trade_Study_Delta_Executive_Summary.md` | present |
-| `delta-summary-docx` | live | `LSEI_Trade_Study_Delta_Executive_Summary.docx` | present |
-| `treatment-agency-md` | retired | `Scenario_Treatment_S1_Agency_Led_Baseline.md` | present |
-| `treatment-agency-docx` | retired | `Scenario_Treatment_S1_Agency_Led_Baseline.docx` | present |
-| `treatment-mars-md` | retired | `Scenario_Treatment_S2_Early_Shift_to_Mars.md` | present |
-| `treatment-mars-docx` | retired | `Scenario_Treatment_S2_Early_Shift_to_Mars.docx` | present |
-| `treatment-commercial-md` | retired | `Scenario_Treatment_S3_Commercial_Break.md` | present |
-| `treatment-commercial-docx` | retired | `Scenario_Treatment_S3_Commercial_Break.docx` | present |
-| `scenarios-md` | retired | `Scenarios.md` | present |
-| `scenarios-docx` | retired | `Scenarios.docx` | present |
-| `capability-map-docx` | human-owned | `ISRU_Technology_to_Capability_Area_Map.docx` | present |
-| `stakeholder-bios-md` | frozen | `LSEI_Stakeholder_Bios_and_Capability_Mapping.md` | present |
-| `stakeholder-bios-docx` | frozen | `LSEI_Stakeholder_Bios_and_Capability_Mapping.docx` | present |
-| `isru-history-docx` | human-owned | `Lunar-ISRU-History.docx` | present |
-| `goldstar-readme` | live | `README.md` | present |
-| `deploy-index` | live | `index.html` | present |
-<!-- REGISTER-RENDER END table=ARTIFACTS -->
-
-## Declared manual dependencies
-
-A manual dependency is a deliverable that restates a number or a claim the app owns, with no builder
-behind the restatement. Nothing reruns when the app moves, so nothing catches the drift. These cannot
-be read off the register, so they are declared in the generator and derived here.
-
-The declaration is not taken on trust. Each row names an artifact key that must resolve in the
-artifact register, a slug that must resolve in the identity register, and a string that must still be
-present in the named file. A row whose string has gone away means the dependency already moved, and
-the build stops rather than printing a dependency that is no longer there.
-
-| deliverable | status | restates | owned by | what is restated | found at this build |
-|---|---|---|---|---|---|
-| `trade-study-md` | live | `CONFIG.E1` | `energy-per-tonne` | the water installed-energy constant, restated as a figure | 2 occurrences in the registered file |
-| `trade-study-md` | live | `CONFIG.kExc` | `throughput-coefficient` | the throughput coefficient, restated by symbol | 5 occurrences in the registered file |
-| `delta-summary-md` | live | `CONFIG.fFis` | `fission-specific-power` | the fission specific mass, restated as a figure | 1 occurrence in the registered file |
-| `delta-summary-md` | live | `CONFIG.phiC0` | `productive-mass-fraction` | the productive-mass fraction, restated as a figure | 1 occurrence in the registered file |
-| `treatment-agency-md` | retired | `CONFIG.fFis` | `fission-specific-power` | the fission specific mass, restated as a figure | 4 occurrences in the registered file |
-| `treatment-agency-md` | retired | `CONFIG.kExc` | `throughput-coefficient` | the throughput coefficient, restated by symbol | 7 occurrences in the registered file |
-| `treatment-mars-md` | retired | `CONFIG.fFis` | `fission-specific-power` | the fission specific mass, restated as a figure | 2 occurrences in the registered file |
-| `treatment-mars-md` | retired | `CONFIG.E1` | `energy-per-tonne` | the water installed-energy constant, restated as a figure | 8 occurrences in the registered file |
-| `treatment-mars-md` | retired | `CONFIG.kExc` | `throughput-coefficient` | the throughput coefficient, restated by symbol | 8 occurrences in the registered file |
-| `treatment-commercial-md` | retired | `CONFIG.fFis` | `fission-specific-power` | the fission specific mass, restated as a figure | 4 occurrences in the registered file |
-| `treatment-commercial-md` | retired | `CONFIG.kExc` | `throughput-coefficient` | the throughput coefficient, restated by symbol | 7 occurrences in the registered file |
-| `state-blurbs` | retired | `CONFIG.fFis` | `fission-specific-power` | the fission specific mass, restated as a figure and already drifted to 0.15 elsewhere in the same file | 3 occurrences in the registered file |
-| `state-blurbs` | retired | `CONFIG.kExc` | `throughput-coefficient` | the throughput coefficient, restated by symbol | 5 occurrences in the registered file |
-
-Every row above is a place where a coefficient move becomes a sweep. The report generator in the same
-folder as this file exists so that these documents can be regenerated from the app rather than
-maintained against it.
+Nothing about the app is omitted. Every section above is generated from the artifact itself.
 
 ## What this map does not do
 

@@ -12,7 +12,7 @@ Publisher URL: not printed in source.
 
 Document type: single-page RFI context/positioning document, prepared by a company (SpaceDIRT Inc.) for outreach to space and non-space companies responding to a CSA RFI · Not a peer-reviewed or open-access publication · Effective date printed on the document: 2026-08-10.
 
-**Duplicate file note.** A second file, `Lunar_Capabilities_OnePager_RFI_Rev2_qmod junk.pdf` (in `incoming/`), was checked against this Rev 2 document. Both the extracted plain text and the extracted tables are byte-identical between the two files (zero-line diff on both the `.txt` and `_tables.txt` outputs); the two files differ only in MD5 hash and file modification timestamp, not in content. It is treated as the same source and not summarized separately.
+**Duplicate file note.** A second file, `Lunar_Capabilities_OnePager_RFI_Rev2_qmod junk.pdf`, was checked against this Rev 2 document. Both the extracted plain text and the extracted tables are byte-identical between the two files (zero-line diff on both the `.txt` and `_tables.txt` outputs); the two files differ only in MD5 hash and file modification timestamp, not in content. It is treated as the same source and not summarized separately.
 
 ---
 
