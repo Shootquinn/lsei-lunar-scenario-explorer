@@ -1,7 +1,42 @@
-# LSEI Scenario Knob Explorer
+# Lunar Scenario Explorer
 
-Interactive scenario explorer for the Canadian Space Agency Lunar Surface Exploration Initiative (LSEI) ISRU Architecture Study. Set ice grade, funding posture, and mission phase; water production and construction output are computed from a model calibrated to the study's proposal numbers.
+*Published from the Lunar Scenario Explorer, build of 23 August 2026.*
 
-**Live:** https://shootquinn.github.io/lsei-scenario-knob-explorer/
+The Lunar Scenario Explorer is a single self-contained web page that models three lunar ISRU scenarios across three eras: Agency Led Baseline, Early Shift to Mars, and The Commercial Break. Moving a slider for ice grade, landed mass, power share or construction share recomputes water production and construction output live from the page's own coefficients. Nothing on screen is a stored number.
 
-Single self-contained, offline HTML file (`index.html`), no dependencies. Every model coefficient is sourced or flagged as an assumption on the in-app *Equations & sources* page.
+The page is live at https://shootquinn.github.io/lsei-lunar-scenario-explorer/. Cloning this repository and opening `index.html` directly from disk runs the identical page. There is no build step, no external dependency, and no network call of any kind; the file that runs on GitHub Pages is the same file that runs offline.
+
+## Repository layout
+
+- `index.html`: the app itself.
+- `literature/`: this project's own summaries of the published sources the app's evidence ledger cites, all at one level with no subfolders.
+- `writing-guides/`: five vendored style and structure guides used when generating a document from the app; `writing-guides/SOURCE.md` records where they came from.
+- `report-generator-prompt.md`: a prompt, described below, that a capable model session runs against the app to produce a document.
+- `lunar-scenario-explorer-map.md`: a generated reference to the app's own claims, sections and coefficients, for a session that needs to navigate the app's structure without holding the whole page in context.
+- `repo-context-map.md`: an inventory of every file in this repository and where it came from, checked against the tree so that nothing here is undeclared.
+- `README.md`: this file.
+- `LICENSE`: the Unlicense, verbatim.
+- `NOTICE.md`: the one named exception to the Unlicense dedication, described below.
+- `.gitattributes` and `.nojekyll`: repository configuration. The former keeps line endings from being rewritten; the latter tells GitHub Pages to serve the files as they are rather than run them through Jekyll.
+
+## License
+
+This repository is released under the Unlicense, a dedication to the public domain. The dedication covers this project's own work: the app, its evidence ledger and coefficients, the summaries in `literature/`, `lunar-scenario-explorer-map.md`, and `report-generator-prompt.md`.
+
+The dedication does not extend to the sources those summaries describe, and cannot. Each file in `literature/` is this project's own summary of a published work it does not own; the source is identified by citation and DOI, so a reader reaches the original through its publisher. No third-party PDF, page image or extracted source text is in this repository.
+
+The dedication carries one named exception. `writing-guides/signs_of_ai_writing.md` is a derivative of the English Wikipedia page "Wikipedia:Signs of AI writing" and stays under that page's own licence, CC BY-SA 4.0, rather than the Unlicense; a share-alike licence and a public-domain dedication cannot both govern the same file. See `NOTICE.md` for the full accounting.
+
+## Claims, evidence and arguments
+
+Every claim in the app carries a statement, numbered evidence with citations, an argument that states its own counter-evidence and what stays open, and a tier. The app holds twenty Claims arranged across sixty-six sections, with the sources they rest on identified by citation and DOI.
+
+Where the ledger holds a claim the app does not model, the app says so, names the claim, and gives the reason in its own terms, so that an exclusion is never mistaken for an omission.
+
+Advanced mode reveals the sensitivity sliders together with the Equations, Notes, Definitions and Evidence Ledger tabs. Appending `?selfcheck` to the URL runs the page's own test suite in the browser.
+
+## Generating a document
+
+`report-generator-prompt.md` is a prompt for a capable model session to run against the app, producing a document such as a scenario write-up or a dossier on a single claim. The prompt reads `lunar-scenario-explorer-map.md` to navigate the app's structure without holding the whole page in context.
+
+This repository holds no static copy of the documents the prompt can produce. The app is the authority on the model, the claims and the evidence; a generated document is a rendering of what the app already says, not a second copy of it kept here to drift out of date.
