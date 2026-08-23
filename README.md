@@ -13,7 +13,6 @@ The page is live at https://shootquinn.github.io/lsei-lunar-scenario-explorer/. 
 - `writing-guides/`: five vendored style and structure guides used when generating a document from the app; `writing-guides/SOURCE.md` records where they came from.
 - `report-generator-prompt.md`: a prompt, described below, that a capable model session runs against the app to produce a document.
 - `lunar-scenario-explorer-map.md`: a generated reference to the app's own claims, sections and coefficients, for a session that needs to navigate the app's structure without holding the whole page in context.
-- `repo-context-map.md`: an inventory of every file in this repository and where it came from, checked against the tree so that nothing here is undeclared.
 - `README.md`: this file.
 - `LICENSE`: the Unlicense, verbatim.
 - `NOTICE.md`: the one named exception to the Unlicense dedication, described below.
