@@ -126,7 +126,7 @@ order them by is the failure this whole architecture exists to remove.
 | Era, value economics | `VALUE`, `VALUE_TRACE` and `LANDED_COST`, with `DERIVATION.honesty` for the framing |
 | Era, derivation and evidence | `DERIVATION.equations` and the `LEDGER` bodies of the sections named above |
 | Era, regime notes | `DERIVATION.notes`, the binding-regime entries |
-| Scenario limitations | `EXCLUSIONS`, plus the counter-case field of every section the document traces |
+| Scenario limitations | `EXCLUSIONS`, plus `SECTIONS[slug].counterCase` for every section the document traces |
 | References | `SECTION_REFS` for the sections traced, resolved through `REFERENCES` |
 
 The eras are the prospecting, pilot and sustained rows of that scenario's envelope and water-output
@@ -167,7 +167,7 @@ Everything the app holds on one Claim, or on one section, in one document.
 | Statement | `LEDGER[slug].statement` |
 | Evidence | `LEDGER[slug].evidence`, every item with its full citation |
 | Argument | `LEDGER[slug].argument`, every item with its id, head and role |
-| Counter-case | the `counterCase` field, joined through `COUNTER_JOIN` |
+| Counter-case | `SECTIONS[slug].counterCase`, joined through `COUNTER_JOIN` |
 | What stays open | the argument items whose role is not support, and the extras block where one exists |
 | Coefficients governed | every `DERIVATION.coeff` row whose claim pointer is this slug |
 | Links out | every bracketed slug inside this node's own text |
@@ -192,11 +192,17 @@ on the executive note, then gives each scenario its four subsections in this ord
 | section | where the content comes from |
 |---|---|
 | Executive note on the phi_c term | `DERIVATION.coeff.phi_c` and the claim it points at, `PRESETS` for the share each scenario actually declares, and the ledger section that states the water-equals-cap identity at water-primary posture |
-| Scenario, Baseline Conditions | `PRESETS` for the scenario's own rails, `BLURB` for the narrative framing, and the counter-case field where a baseline claim carries one |
+| Scenario, Baseline Conditions | `PRESETS` for the scenario's own rails, `BLURB` for the narrative framing, and `SECTIONS[slug].counterCase` where the section carries one |
 | Scenario, Quantitative Parameters | the three eras' `envelope-` sections for power, mass and fission posture, and the three eras' `water-` sections computed against `CONFIG`, collapsed into one three-column table per scenario rather than three per-era tables |
 | Scenario, The Operational Picture | `DERIVATION.notes` binding-regime entries and the `LEDGER` bodies of the envelope and water sections traced, in narrative rather than tabular form |
 | Scenario, Scenario Design Signals | not app-derived, and the subsection declares this itself: an `<!-- not app-derived -->` comment sits on its own line immediately under the subsection heading. This subsection is strategic framing for Canada's position, the one place in the document that is analysis rather than a report of what the app holds, and the declaration is what the verifier reads to carry no trace requirement for exactly that reason, rather than trusting the instruction in this sentence |
 | References | `SECTION_REFS` for every section traced in that scenario, resolved through `REFERENCES` |
+
+**Every field named in these tables is written with the object that carries it, and that is not
+pedantry.** `counterCase` lives on `SECTIONS`, not on `LEDGER`, and a generator that searched `LEDGER`
+for it found nothing and reported the field as non-existent when fifty sections carry one. A field name
+without its object sends a reader to whichever container they guessed, and the failure is silent
+because an absent field and an empty field look identical.
 
 **Two coefficients in this app differ by a suffix and mean unrelated things, and conflating them is
 the most common error made against this data.** `phi_c` is the construction share, the fraction of
@@ -606,7 +612,7 @@ function prove(docPath, appPath) {
     if (u.exempt && !/\[\[/.test(u.text) && good.indexOf(u.text) >= 0) { exemptTarget = u; break; }
   }
   if (!exemptTarget || scopeSlugs.length === 0) {
-    out.push({ id: 'DECOY-EXEMPT-TRACE-INSERTED', expect: 'a mutation applies', got: 'MUTATION DID NOT APPLY, no untraced exempt unit or no real slug available', pass: false });
+    out.push({ id: 'DECOY-EXEMPT-TRACE-INSERTED', expect: 'a mutation applies where the document declares an exemption', got: 'NOT APPLICABLE, this document declares no exemption, so there is no exempt unit to plant a trace into', pass: true, na: true });
   } else {
     const realSlug = scopeSlugs[0];
     const at = good.indexOf(exemptTarget.text);
@@ -623,7 +629,7 @@ function prove(docPath, appPath) {
      previously-exempted units revert to plain claim-bearing units the backward check now
      requires a trace on, exactly as it would have before this mechanism existed. */
   if (base.exemptMarkers === 0) {
-    out.push({ id: 'DECOY-MARKER-STRIPPED', expect: 'a mutation applies', got: 'MUTATION DID NOT APPLY, the document declares no exemption to strip', pass: false });
+    out.push({ id: 'DECOY-MARKER-STRIPPED', expect: 'a mutation applies where the document declares an exemption', got: 'NOT APPLICABLE, this document declares no exemption to strip', pass: true, na: true });
   } else {
     const stripped2 = good.replace(/^[ \t]*<!--\s*not app-derived\s*-->[ \t]*\r?\n/gim, '');
     const r8 = check(stripped2, app, null);
@@ -641,10 +647,23 @@ function prove(docPath, appPath) {
   out.push({ id: 'DECOY-ALL-EXEMPT', expect: 'a document with every section declared exempt is a FAIL, ALL CLAIM-BEARING CONTENT EXEMPT, rather than a vacuous PASS',
     got: r9.allExempt ? 'reported ALL CLAIM-BEARING CONTENT EXEMPT, ' + r9.findings + ' finding(s)' : 'REPORTED CLEAN OR EMPTY, allExempt=' + r9.allExempt, pass: r9.allExempt && r9.findings > 0 });
 
+  /* A proof whose mutation cannot apply to THIS document is not a pass and not a failure, and
+     collapsing it into either is how a proof total stops meaning anything. The exemption decoys
+     have nothing to bite on in a document that declares no exemption, which is a property of the
+     document rather than a defect in the check. So they print as N/A, are counted apart, and the
+     total names both numbers. What is NOT allowed is silence: an inapplicable proof still prints
+     its own line saying why it could not run, because a proof that disappears is indistinguishable
+     from one that passed. Any other mutation that fails to apply is still a failure, per the
+     standing rule, since it means the document's shape is not what the decoy was built against. */
   const w = Math.max(...out.map(o => o.id.length));
-  let bad = 0;
-  for (const o of out) { if (!o.pass) bad++; process.stdout.write((o.pass ? 'PASS  ' : 'FAIL  ') + o.id.padEnd(w) + '  expected ' + o.expect + '  |  got ' + o.got + '\n'); }
-  process.stdout.write('\n' + (out.length - bad) + ' of ' + out.length + ' proofs pass\n');
+  let bad = 0, na = 0;
+  for (const o of out) {
+    if (o.na) na++; else if (!o.pass) bad++;
+    process.stdout.write((o.na ? 'N/A   ' : o.pass ? 'PASS  ' : 'FAIL  ') + o.id.padEnd(w) + '  expected ' + o.expect + '  |  got ' + o.got + '\n');
+  }
+  const applicable = out.length - na;
+  process.stdout.write('\n' + (applicable - bad) + ' of ' + applicable + ' applicable proofs pass'
+    + (na ? ', ' + na + ' not applicable to this document and named above' : '') + '\n');
   process.exit(bad ? 1 : 0);
 }
 
