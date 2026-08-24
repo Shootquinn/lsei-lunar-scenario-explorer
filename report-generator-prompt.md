@@ -195,7 +195,7 @@ on the executive note, then gives each scenario its four subsections in this ord
 | Scenario, Baseline Conditions | `PRESETS` for the scenario's own rails, `BLURB` for the narrative framing, and the counter-case field where a baseline claim carries one |
 | Scenario, Quantitative Parameters | the three eras' `envelope-` sections for power, mass and fission posture, and the three eras' `water-` sections computed against `CONFIG`, collapsed into one three-column table per scenario rather than three per-era tables |
 | Scenario, The Operational Picture | `DERIVATION.notes` binding-regime entries and the `LEDGER` bodies of the envelope and water sections traced, in narrative rather than tabular form |
-| Scenario, Scenario Design Signals | not app-derived. This subsection is strategic framing for Canada's position, the one place in the document that is analysis rather than a report of what the app holds, and it carries no trace requirement for exactly that reason |
+| Scenario, Scenario Design Signals | not app-derived, and the subsection declares this itself: an `<!-- not app-derived -->` comment sits on its own line immediately under the subsection heading. This subsection is strategic framing for Canada's position, the one place in the document that is analysis rather than a report of what the app holds, and the declaration is what the verifier reads to carry no trace requirement for exactly that reason, rather than trusting the instruction in this sentence |
 | References | `SECTION_REFS` for every section traced in that scenario, resolved through `REFERENCES` |
 
 **Two coefficients in this app differ by a suffix and mean unrelated things, and conflating them is
@@ -268,6 +268,26 @@ carrying none of them, which is a property of the sentence rather than a judgeme
 superset over-selects deliberately. A sentence wrongly called claim-bearing costs one trace. A
 sentence wrongly excused costs the whole control.
 
+**A subsection can declare itself out of scope, and the check can see the declaration.** Some
+subsections, class four's Scenario Design Signals among them, are strategic framing rather than a
+report of what the app holds, and a trace on that content would be a fabricated provenance, worse
+than no trace at all. That subsection declares this in its own bytes rather than in an instruction
+the check has no way to see: an `<!-- not app-derived -->` comment on its own line, immediately
+under the subsection heading. The declaration holds until the next heading of any level, so it
+covers the one subsection it sits under and nothing past it, and it needs no closing marker
+because it cannot leak into the next section. It is counted and reported, never silent. A run
+prints how many claim-bearing-shaped units sat inside a declared exemption, beside the number it
+actually checked, so a reader sees the size of what was not checked, not just a smaller
+denominator. It runs in both directions like everything else here: a unit inside a declared
+exemption that nonetheless carries a trace is a FAIL, because a citation to the app from content
+declared not app-derived is exactly the fabricated provenance the exemption exists to prevent. A
+document where every claim-bearing unit ends up inside a declared exemption is its own FAIL, ALL
+CLAIM-BEARING CONTENT EXEMPT, because an exemption that swallows the whole checked population
+leaves nothing behind for the control to check, the same failure in spirit as the empty-population
+case below for a document with no claim-bearing content anywhere. A declaration with no
+claim-bearing content following it before the next heading costs nothing and is not a failure;
+there is nothing there for it to hide.
+
 **Run `--prove` before you believe a green result on a document you have not verified before.** It
 takes the document that just passed, breaks it a set number of ways, asserts the check fires on each,
 and prints its own total at the end rather than having one restated here. The
@@ -280,6 +300,15 @@ the constructed one. That has happened on this project.
 
 The document ends with a provenance block. It names what the document was made from, not what it
 was checked against, and it carries no digests.
+
+**The fence around it is load-bearing and it is not decoration.** The block carries dates and counts,
+so an unfenced provenance block is claim-bearing by the verifier's own definition and the document
+fails its own check on the four lines that describe the check. Worse, the failure is circular: the
+block records the verifier's result, and adding the block changes the result it records, so an
+unfenced stamp can never be accurate about the document that contains it. Fenced, the stamp sits
+outside the checked population and the numbers it prints stay true. This is stated here because a
+generator following the example above without knowing why the fence is there will drop it the first
+time a format seems tidier without it, which has already happened once.
 
 ```
 Generated from the Lunar Scenario Explorer.
@@ -338,6 +367,26 @@ against.
  * trace with the sentence it belongs to. A trace placed after the full stop attaches to the NEXT
  * sentence, which is a silent misattribution, so the placement is a rule rather than a style.
  *
+ * A SUBSECTION CAN DECLARE ITSELF NOT APP-DERIVED, AND THE CHECK CAN SEE THE DECLARATION. Some
+ * sections, class four's Scenario Design Signals among them, are strategic framing rather than a
+ * report of what the app holds, and a trace on that content would be a fabricated provenance, not
+ * a real one. A subsection makes this declaration in its own bytes, an HTML comment reading
+ * exactly `<!-- not app-derived -->` on its own line immediately under the subsection heading.
+ * The declaration holds until the next heading of any level, so it covers the one subsection it
+ * sits under and nothing past it; it does not need a closing marker because it cannot leak into
+ * the next section. It is counted and reported, never silent: the report states how many
+ * claim-bearing-shaped units sat inside a declared exemption, beside the number it actually
+ * checked, so a reader sees the size of what was not checked. It runs in both directions like
+ * everything else here: a unit inside a declared exemption that nonetheless carries a trace is a
+ * FAIL, because a citation to the app from content declared not app-derived is exactly the
+ * fabricated provenance the exemption exists to prevent. And a document where every claim-bearing
+ * unit sits inside a declared exemption is its own FAIL, ALL CLAIM-BEARING CONTENT EXEMPT,
+ * because an exemption that swallows the whole checked population leaves nothing for the control
+ * to check; this is the sibling of the EMPTY POPULATION failure below, for the case where
+ * claim-bearing content exists but all of it opted out rather than none existing at all. A
+ * declaration with no claim-bearing content following it before the next heading is not a
+ * failure; there is nothing there for it to hide.
+ *
  * WHAT IT DOES NOT DO, written here rather than left to be discovered. It checks that a trace
  * RESOLVES. It does not check that the section at the other end SUPPORTS the sentence. A lifted
  * fact carrying a plausible trace to a slug that does not support it passes every check in this
@@ -379,26 +428,28 @@ function loadApp(appPath) {
 
 const TRACE = /\[\[([a-z0-9-]+)\]\]/g;
 const SPLIT = /(?<=[.!?])\s+(?=[A-Z(\[])/;
+const EXEMPT_MARKER = /^<!--\s*not app-derived\s*-->$/i;
 
 function unitsOf(text) {
   const lines = text.split(/\r?\n/), units = [];
-  let fence = false;
+  let fence = false, exempt = false, exemptMarkers = 0;
   for (let i = 0; i < lines.length; i++) {
     const t = lines[i].trim();
     if (/^```/.test(t)) { fence = !fence; continue; }
     if (fence || t === '') continue;
-    if (/^#{1,6}\s/.test(t)) continue;
+    if (/^#{1,6}\s/.test(t)) { exempt = false; continue; }
+    if (EXEMPT_MARKER.test(t)) { exempt = true; exemptMarkers++; continue; }
     if (t.indexOf('|') >= 0 && /^\|?[\s:|-]+\|[\s:|-]*$/.test(t)) continue;
-    if (/^\|/.test(t)) { units.push({ line: i + 1, kind: 'row', text: t }); continue; }
-    for (const p of t.split(SPLIT)) if (p.trim()) units.push({ line: i + 1, kind: 'sentence', text: p.trim() });
+    if (/^\|/.test(t)) { units.push({ line: i + 1, kind: 'row', text: t, exempt }); continue; }
+    for (const p of t.split(SPLIT)) if (p.trim()) units.push({ line: i + 1, kind: 'sentence', text: p.trim(), exempt });
   }
-  return units;
+  return { units, exemptMarkers };
 }
 
 function check(docText, app, scope) {
-  const units = unitsOf(docText);
-  const forward = [], backward = [], outside = [];
-  let claimBearing = 0, framing = 0, traced = 0, traceCount = 0;
+  const { units, exemptMarkers } = unitsOf(docText);
+  const forward = [], backward = [], outside = [], exemptViolation = [];
+  let claimBearing = 0, exemptClaimBearing = 0, framing = 0, traced = 0, traceCount = 0;
   const seen = new Set();
   for (const u of units) {
     const tr = []; TRACE.lastIndex = 0;
@@ -409,6 +460,7 @@ function check(docText, app, scope) {
       if (!app.SLUGS.has(t)) forward.push({ line: u.line, slug: t, text: u.text.slice(0, 100) });
       else if (scope && scope.indexOf(t) < 0) outside.push({ line: u.line, slug: t });
     }
+    if (u.exempt && tr.length > 0) exemptViolation.push({ line: u.line, text: u.text.slice(0, 110) });
     const bare = u.text.replace(TRACE, ' ');
     const words = bare.split(/[^A-Za-z0-9_%$]+/);
     const why = [];
@@ -417,14 +469,16 @@ function check(docText, app, scope) {
     for (const w of words) if (app.SOURCES.has(w)) { why.push('source ' + w); break; }
     for (const w of words) if (app.UNITS.has(w)) { why.push('unit ' + w); break; }
     if (why.length === 0) { framing++; continue; }
+    if (u.exempt) { exemptClaimBearing++; continue; }
     claimBearing++;
     if (tr.length === 0) backward.push({ line: u.line, why: why.join(', '), text: u.text.slice(0, 110) });
     else traced++;
   }
   const unused = scope ? scope.filter(s => !seen.has(s)) : [];
-  const empty = claimBearing === 0;
-  const findings = forward.length + backward.length + outside.length + unused.length + (empty ? 1 : 0);
-  return { units, forward, backward, outside, unused, empty, claimBearing, framing, traced, traceCount, seen, findings };
+  const empty = claimBearing === 0 && exemptClaimBearing === 0;
+  const allExempt = claimBearing === 0 && exemptClaimBearing > 0;
+  const findings = forward.length + backward.length + outside.length + unused.length + exemptViolation.length + (empty ? 1 : 0) + (allExempt ? 1 : 0);
+  return { units, forward, backward, outside, unused, exemptViolation, empty, allExempt, claimBearing, exemptClaimBearing, exemptMarkers, framing, traced, traceCount, seen, findings };
 }
 
 /* ---------------------------------------------------------------- report */
@@ -434,8 +488,10 @@ function report(docPath, appPath, r, scope) {
   W('VERIFY  ' + docPath);
   W('  app                    ' + appPath);
   W('  checkable units        ' + r.units.length);
-  W('  claim-bearing units    ' + r.claimBearing + '   a numeral, a unit token, a coefficient name or a named source');
+  W('  claim-bearing units    ' + r.claimBearing + '   a numeral, a unit token, a coefficient name or a named source, checked');
+  W('  exempt units           ' + r.exemptClaimBearing + '   claim-bearing shaped, inside a declared not-app-derived section, not checked backward');
   W('  framing units          ' + r.framing + '   none of the four markers, so exempt by property rather than by judgement');
+  W('  exemption markers      ' + r.exemptMarkers);
   W('  traces present         ' + r.traceCount + ' across ' + r.seen.size + ' distinct targets');
   W('  traced claim-bearing   ' + r.traced + ' of ' + r.claimBearing);
   W('');
@@ -445,8 +501,13 @@ function report(docPath, appPath, r, scope) {
   W('');
   W('BACKWARD  every claim-bearing unit carries at least one trace');
   if (r.empty) W('  FAIL  EMPTY POPULATION, nothing in this document is claim-bearing, which is not a result this check reports as clean');
+  else if (r.allExempt) W('  FAIL  ALL CLAIM-BEARING CONTENT EXEMPT, ' + r.exemptClaimBearing + ' of ' + r.exemptClaimBearing + ' claim-bearing units sit inside a declared exemption and none remain for this check to check');
   else if (r.backward.length === 0) W('  PASS  0 untraced claim-bearing units');
   else { W('  FAIL  ' + r.backward.length + ' untraced'); for (const f of r.backward.slice(0, 25)) W('    line ' + f.line + '  [' + f.why + ']  ' + f.text); }
+  W('');
+  W('EXEMPT    a declared not-app-derived section carries no trace of its own');
+  if (r.exemptViolation.length === 0) W('  PASS  0 exempt units carrying a trace');
+  else { W('  FAIL  ' + r.exemptViolation.length + ' exempt unit(s) carry a trace'); for (const f of r.exemptViolation.slice(0, 25)) W('    line ' + f.line + '  ' + f.text); }
   if (scope) {
     W('');
     W('SCOPE     every trace falls inside the declared scope, and every declared slug is used');
@@ -477,23 +538,26 @@ function prove(docPath, appPath) {
   const out = [];
   out.push({ id: 'CONTROL', expect: 'the unmodified document passes', got: base.findings === 0 ? 'passes' : base.findings + ' finding(s)', pass: base.findings === 0 });
 
-  /* The decoy has to strike a CLAIM-BEARING unit. Stripping a trace off a framing sentence is a
-     correct non-event, and a decoy that lands there proves the check works on nothing. So the
-     target is chosen by re-running the classifier rather than by taking the first trace found. */
+  /* The decoy has to strike a CLAIM-BEARING unit outside any declared exemption, so that this
+     proof keeps demonstrating the ordinary backward check rather than the exemption's own
+     reverse-direction check below. Stripping a trace off a framing sentence is a correct
+     non-event, and a decoy that lands there proves the check works on nothing. So the target is
+     chosen by re-running the classifier rather than by taking the first trace found. */
   let target = null;
   for (const u of base.units) {
+    if (u.exempt) continue;
     const bare = u.text.replace(TRACE, ' ');
     const words = bare.split(/[^A-Za-z0-9_%$]+/);
     const bearing = /\d/.test(bare) || words.some(w => app.COEFFS.has(w) || app.SOURCES.has(w) || app.UNITS.has(w));
     const t = /\[\[([a-z0-9-]+)\]\]/.exec(u.text);
     if (bearing && t && good.indexOf(u.text) >= 0) { target = { unit: u, trace: t[0], slug: t[1] }; break; }
   }
-  if (!target) out.push({ id: 'DECOY-TRACE-REMOVED', expect: 'a mutation applies', got: 'MUTATION DID NOT APPLY, no claim-bearing unit carries a locatable trace', pass: false });
+  if (!target) out.push({ id: 'DECOY-TRACE-REMOVED', expect: 'a mutation applies', got: 'MUTATION DID NOT APPLY, no claim-bearing unit outside any exemption carries a locatable trace', pass: false });
   else {
     const at = good.indexOf(target.unit.text);
     const stripped = good.slice(0, at) + target.unit.text.replace(target.trace, '') + good.slice(at + target.unit.text.length);
     const r1 = check(stripped, app, null);
-    out.push({ id: 'DECOY-TRACE-REMOVED', expect: 'BACKWARD fires when one claim-bearing sentence loses its trace, which is the shape a fabricated sentence takes',
+    out.push({ id: 'DECOY-TRACE-REMOVED', expect: 'BACKWARD fires when one claim-bearing sentence outside any exemption loses its trace, which is the shape a fabricated sentence takes, and the exemption changes nothing about this path',
       got: r1.backward.length > base.backward.length ? 'caught, ' + (r1.backward.length - base.backward.length) + ' new finding' : 'NOT CAUGHT', pass: r1.backward.length > base.backward.length });
     const broken = good.slice(0, at) + target.unit.text.replace(target.trace, '[[' + target.slug + 'x]]') + good.slice(at + target.unit.text.length);
     const r2 = check(broken, app, null);
@@ -503,7 +567,7 @@ function prove(docPath, appPath) {
 
   const fabricated = good + '\nThe plant delivers 4,096 t of water per year at a landed cost of 12 USD per kg.\n';
   const r3 = check(fabricated, app, null);
-  out.push({ id: 'DECOY-FABRICATED-SENTENCE', expect: 'BACKWARD fires on an appended figure-bearing sentence carrying no trace',
+  out.push({ id: 'DECOY-FABRICATED-SENTENCE', expect: 'BACKWARD fires on an appended figure-bearing sentence carrying no trace, appended after the last heading in the document so it sits outside any declared exemption',
     got: r3.backward.length > base.backward.length ? 'caught, ' + (r3.backward.length - base.backward.length) + ' new finding' : 'NOT CAUGHT', pass: r3.backward.length > base.backward.length });
 
   const scopeSlugs = [...base.seen];
@@ -523,6 +587,50 @@ function prove(docPath, appPath) {
   const r6 = check(framingOnly, app, null);
   out.push({ id: 'DECOY-EMPTY-POPULATION', expect: 'an all-framing document is reported as an empty population rather than as clean',
     got: r6.empty ? 'reported empty' : 'REPORTED CLEAN', pass: r6.empty && r6.findings > 0 });
+
+  /* The exemption's own reverse direction: a unit sitting inside a declared exemption must not
+     carry a trace, because a citation to the app from content declared not app-derived is the
+     fabricated provenance the exemption exists to prevent. Find an exempt unit that carries no
+     trace yet, and insert a real slug's trace into the real document's own bytes at that unit. */
+  let exemptTarget = null;
+  for (const u of base.units) {
+    if (u.exempt && !/\[\[/.test(u.text) && good.indexOf(u.text) >= 0) { exemptTarget = u; break; }
+  }
+  if (!exemptTarget || scopeSlugs.length === 0) {
+    out.push({ id: 'DECOY-EXEMPT-TRACE-INSERTED', expect: 'a mutation applies', got: 'MUTATION DID NOT APPLY, no untraced exempt unit or no real slug available', pass: false });
+  } else {
+    const realSlug = scopeSlugs[0];
+    const at = good.indexOf(exemptTarget.text);
+    const m2 = /[.!?]$/.exec(exemptTarget.text);
+    const traced = m2 ? exemptTarget.text.slice(0, -1) + ' [[' + realSlug + ']]' + exemptTarget.text.slice(-1) : exemptTarget.text + ' [[' + realSlug + ']]';
+    const withExemptTrace = good.slice(0, at) + traced + good.slice(at + exemptTarget.text.length);
+    const r7 = check(withExemptTrace, app, null);
+    out.push({ id: 'DECOY-EXEMPT-TRACE-INSERTED', expect: 'EXEMPT fires when a unit inside a declared not-app-derived section carries a trace, since that is a fabricated provenance regardless of whether the trace itself resolves',
+      got: r7.exemptViolation.length > base.exemptViolation.length ? 'caught, ' + (r7.exemptViolation.length - base.exemptViolation.length) + ' new finding' : 'NOT CAUGHT', pass: r7.exemptViolation.length > base.exemptViolation.length });
+  }
+
+  /* The exemption must not change any count on a document that declares none of it. Strip every
+     declared marker out of the real document's own bytes, one mutation, and confirm the
+     previously-exempted units revert to plain claim-bearing units the backward check now
+     requires a trace on, exactly as it would have before this mechanism existed. */
+  if (base.exemptMarkers === 0) {
+    out.push({ id: 'DECOY-MARKER-STRIPPED', expect: 'a mutation applies', got: 'MUTATION DID NOT APPLY, the document declares no exemption to strip', pass: false });
+  } else {
+    const stripped2 = good.replace(/^[ \t]*<!--\s*not app-derived\s*-->[ \t]*\r?\n/gim, '');
+    const r8 = check(stripped2, app, null);
+    out.push({ id: 'DECOY-MARKER-STRIPPED', expect: 'a document that declares no exemption gets the full, unexempted count: BACKWARD findings rise by exactly the ' + base.exemptClaimBearing + ' units the exemption was covering',
+      got: r8.exemptMarkers === 0 && r8.backward.length === base.backward.length + base.exemptClaimBearing ? 'confirmed, ' + r8.backward.length + ' untraced with no markers left' : 'MISMATCH, ' + r8.backward.length + ' untraced, ' + r8.exemptMarkers + ' markers remain',
+      pass: r8.exemptMarkers === 0 && r8.backward.length === base.backward.length + base.exemptClaimBearing });
+  }
+
+  /* The other declared-explicitly case: every section exempt at once. One mutation, a single
+     global substitution inserting the marker after every heading in the real document, so the
+     declaration follows every heading including the ones that reset it. This should swallow the
+     whole checked population and the control should refuse to call that clean. */
+  const allEx = good.replace(/^(#{1,6} .+)$/gm, '$1\n\n<!-- not app-derived -->');
+  const r9 = check(allEx, app, null);
+  out.push({ id: 'DECOY-ALL-EXEMPT', expect: 'a document with every section declared exempt is a FAIL, ALL CLAIM-BEARING CONTENT EXEMPT, rather than a vacuous PASS',
+    got: r9.allExempt ? 'reported ALL CLAIM-BEARING CONTENT EXEMPT, ' + r9.findings + ' finding(s)' : 'REPORTED CLEAN OR EMPTY, allExempt=' + r9.allExempt, pass: r9.allExempt && r9.findings > 0 });
 
   const w = Math.max(...out.map(o => o.id.length));
   let bad = 0;
