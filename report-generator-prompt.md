@@ -176,6 +176,27 @@ Everything the app holds on one Claim, or on one section, in one document.
 
 A dossier on a Claim carries every section under it, in the order the slug table gives.
 
+### Class four, the combined Scenarios digest
+
+One executive note on the phi_c term, then all three scenarios side by side, four subsections each.
+This is the shape of the document Step 38 retired, `Scenarios.md`. It is not a shorter version of a
+class-one run and it is not three class-one runs stapled under one cover. Class one's per-scenario,
+per-era template does not change; class four exists beside it as a different document for a different
+reader, one built for someone who wants three scenarios compared at a glance rather than the complete
+derivation chain for one.
+
+Use the full canonical scenario names everywhere, exactly as class one requires. The document opens
+on the executive note, then gives each scenario its four subsections in this order.
+
+| section | where the content comes from |
+|---|---|
+| Executive note on the phi_c term | `DERIVATION.coeff` rows governing the construction split, `CONFIG.phiC0`, and the ledger section that states the water-equals-cap identity at water-primary posture |
+| Scenario, Baseline Conditions | `PRESETS` for the scenario's own rails, `BLURB` for the narrative framing, and the counter-case field where a baseline claim carries one |
+| Scenario, Quantitative Parameters | the three eras' `envelope-` sections for power, mass and fission posture, and the three eras' `water-` sections computed against `CONFIG`, collapsed into one three-column table per scenario rather than three per-era tables |
+| Scenario, The Operational Picture | `DERIVATION.notes` binding-regime entries and the `LEDGER` bodies of the envelope and water sections traced, in narrative rather than tabular form |
+| Scenario, Scenario Design Signals | not app-derived. This subsection is strategic framing for Canada's position, the one place in the document that is analysis rather than a report of what the app holds, and it carries no trace requirement for exactly that reason |
+| References | `SECTION_REFS` for every section traced in that scenario, resolved through `REFERENCES` |
+
 ## What this file does not give you
 
 **It does not hand you an archived document as an exemplar.** That was scoped and then withdrawn the
