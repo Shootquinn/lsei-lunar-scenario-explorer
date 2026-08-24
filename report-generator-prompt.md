@@ -24,21 +24,23 @@ A selection from the menu, which is a class plus whatever that class needs.
 The writing guides at `writing-guides/`, vendored inside this repository rather than fetched. If they
 are not on disk, you stop. That is a refusal and it is specified below rather than left to judgement.
 
-## Step 1, pin the app, and this stamp is a verified match
+## Step 1, read the app and say which one you read
 
-Read the app file, derive its md5, and compare it against the digest the request carries. If the
-request carries no digest, derive the digest and print it, and treat the derived value as the pin for
-this run. If the request carries a digest and it disagrees with the file, stop. Do not generate
-against an artifact you cannot identify.
+Read the app file. Confirm its data island loads and publishes `KNOB_DATA` with a populated slug
+table, because a file that does not load is the one failure worth stopping on, and print how many
+slugs it carried so the next reader can see the read happened.
 
 ```bash
-md5sum <app.html>
-node -e "const s=require('fs').readFileSync(process.argv[1],'utf8');const a=s.indexOf('/* ===== DATA-ISLAND:START'),b=s.indexOf('/* ===== DATA-ISLAND:END');const r=s.slice(a,b);const v=require('vm'),x={root:{}};v.createContext(x);v.runInContext(r.slice(r.indexOf('(function (root)')).replace(/\}\)\(typeof window[\s\S]*$/,'})(root);'),x);console.log('pin',x.root.KNOB_DATA.__pin,'slugs',Object.keys(x.root.KNOB_DATA.SLUGS).length)" <app.html>
+node -e "const s=require('fs').readFileSync(process.argv[1],'utf8');const a=s.indexOf('/* ===== DATA-ISLAND:START'),b=s.indexOf('/* ===== DATA-ISLAND:END');const r=s.slice(a,b);const v=require('vm'),x={root:{}};v.createContext(x);v.runInContext(r.slice(r.indexOf('(function (root)')).replace(/\}\)\(typeof window[\s\S]*$/,'})(root);'),x);console.log('slugs',Object.keys(x.root.KNOB_DATA.SLUGS).length)" <app.html>
 ```
 
-The data island also publishes its own pin, an FNV-1a digest over the coefficient and claim objects.
-Record it beside the md5. It moves whenever text inside those objects moves, whether or not a number
-did, so it is a change detector rather than a value statement.
+**This step used to derive a digest and refuse on disagreement, and that apparatus is removed, ruled
+by Quinn on 2026-08-24.** It broke more often than it caught anything. A digest compared against an
+expected value is a claim about history rather than about the artifact, the expected value goes stale
+on its own schedule, and the published tree does not even carry one to compare against. What a reader
+of a generated document actually needs is the name of the app it came from and the date it was made,
+both of which are cheap and neither of which rots. Comparing two live copies of a file against each
+other is a different thing and it stays, in the build tools where it belongs.
 
 ## Step 2, read the writing guides' vendor stamp, and this stamp is an observation rather than a check
 
@@ -66,14 +68,13 @@ on disk, stop and say so. Do not write from memory of the guides, and above all 
 you did not read from `SOURCE.md`. Recording an unread sha converts a gap into a false assurance,
 which is worse than the gap, because the next reader has no way to tell the two apart.
 
-**The two stamps are not the same kind of thing and the document says which is which.** The app pin
-is a verified match: read, derive, compare, refuse on disagreement. The guides stamp is a recorded
-observation, a vendor-time sha copied from `SOURCE.md` rather than a live comparison against a
-branch, because this repository carries no network dependency for these five files at all. Printed
-side by side undifferentiated, two stamps read as two checks and one of them is not.
+**The guides stamp is a recorded observation and the document says so.** It is a vendor-time sha
+copied from `SOURCE.md` rather than a live comparison against a branch, because this repository
+carries no network dependency for these five files at all. A stamp printed without saying what kind
+of stamp it is reads as a check, and this one is not one.
 
-**The guides stamp matters more than the app pin, not less.** A drifted figure is recoverable by
-recomputation, because the app still holds the right number and anyone can rerun the comparison. A
+**The guides stamp is the one stamp that cannot be skipped.** A drifted figure is recoverable by
+recomputation, because the app still holds the right number and anyone can rerun the model. A
 drifted register is detectable by nothing mechanical at all. Nothing in this file or anywhere else
 can measure whether a document reads like this project's work. For register, the stamp is the only
 evidence there will ever be, so it is the one stamp that cannot be skipped.
@@ -109,10 +110,10 @@ for readers holding an archived copy.
 things.** The shape is the section order below, which is what makes the regenerated document
 recognizable as the one that was retired. The current content is whatever the app holds today at the
 slugs each section names. Regenerating proves nothing was lost. It does not prove nothing changed.
-Where a figure has moved, the regenerated document shows the moved figure, and the change stays
-visible because the archived copy and the regenerated one each carry the pin they were built from.
-Two documents disagreeing with their pins printed is a legible history. Two documents disagreeing
-without them is the failure this whole architecture exists to remove.
+Where a figure has moved, the regenerated document shows the moved figure, and the reader can tell
+which is which because each copy says which app it was generated from and on what date. Two documents
+disagreeing with their dates printed is a legible history. Two documents disagreeing with nothing to
+order them by is the failure this whole architecture exists to remove.
 
 **Scenario Treatment template.** Three eras, and each era carries the same five subsections.
 
@@ -266,12 +267,12 @@ the constructed one. That has happened on this project.
 
 ## Step 6, stamp it
 
-The document ends with a provenance block. Both stamps appear and each says what kind of stamp it is.
+The document ends with a provenance block. It names what the document was made from, not what it
+was checked against, and it carries no digests.
 
 ```
 Generated from the Lunar Scenario Explorer.
-App md5           <digest>            verified match, derived and compared
-Data island pin   <pin>               recorded observation, read from the artifact
+Source            <app filename>, <n> slugs read
 Writing guides    vendored at <sha> on <date>   recorded observation, vendored at generation
 Verifier          forward <n>/<n>, backward <n>/<n>, run after generation
 Generated         <date>
