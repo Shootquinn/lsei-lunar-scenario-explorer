@@ -191,12 +191,23 @@ on the executive note, then gives each scenario its four subsections in this ord
 
 | section | where the content comes from |
 |---|---|
-| Executive note on the phi_c term | `DERIVATION.coeff` rows governing the construction split, `CONFIG.phiC0`, and the ledger section that states the water-equals-cap identity at water-primary posture |
+| Executive note on the phi_c term | `DERIVATION.coeff.phi_c` and the claim it points at, `PRESETS` for the share each scenario actually declares, and the ledger section that states the water-equals-cap identity at water-primary posture |
 | Scenario, Baseline Conditions | `PRESETS` for the scenario's own rails, `BLURB` for the narrative framing, and the counter-case field where a baseline claim carries one |
 | Scenario, Quantitative Parameters | the three eras' `envelope-` sections for power, mass and fission posture, and the three eras' `water-` sections computed against `CONFIG`, collapsed into one three-column table per scenario rather than three per-era tables |
 | Scenario, The Operational Picture | `DERIVATION.notes` binding-regime entries and the `LEDGER` bodies of the envelope and water sections traced, in narrative rather than tabular form |
 | Scenario, Scenario Design Signals | not app-derived. This subsection is strategic framing for Canada's position, the one place in the document that is analysis rather than a report of what the app holds, and it carries no trace requirement for exactly that reason |
 | References | `SECTION_REFS` for every section traced in that scenario, resolved through `REFERENCES` |
+
+**Two coefficients in this app differ by a suffix and mean unrelated things, and conflating them is
+the most common error made against this data.** `phi_c` is the construction share, the fraction of
+plant capacity sent to sintered product rather than water, which all three scenarios declare at 0.05
+and which is what this document's executive note is about. `phiC0` is the non-productive downmass
+allocation, roughly 0.10 of raw landed mass reserved for consumables, spares, crew support, science
+payload and tourism before any plant mass is counted. One divides output between two products and the
+other subtracts mass before there is any output to divide. A document that cites the second while
+naming the first is wrong by a factor that looks plausible, which is why this warning sits here rather
+than in a note nobody reads.
+
 
 ## What this file does not give you
 
