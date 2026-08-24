@@ -29,8 +29,8 @@ being read end to end.
 | item | value | kind of stamp |
 |---|---|---|
 | Source artifact | `index.html` | the app in this repository |
-| Artifact md5 | `c6909e139dae8bb4fd4ff8b6b8d0c892` | DERIVED. The generator reads the file and derives the digest at this build. It holds no expected value to compare against, since the pin was removed so the generator runs against any build on any machine |
-| Artifact bytes on disk | 890,910 | measured at this build |
+| Artifact md5 | `a1acb7c4701b0989be2d739a7790cc79` | DERIVED. The generator reads the file and derives the digest at this build. It holds no expected value to compare against, since the pin was removed so the generator runs against any build on any machine |
+| Artifact bytes on disk | 895,544 | measured at this build |
 | Data island pin | `ca689ef3` | RECORDED OBSERVATION. Read out of the artifact. It is FNV-1a over CONFIG, CLAIMS, VALUE and LANDED_COST, and there is nothing here to compare it against |
 | Generator | `tools/build_map.js` | this file names it and it names this file |
 
@@ -52,7 +52,7 @@ what makes them useful is that they name the build rather than that they guard i
 | Sections joined onto another section's ledger body | 16 | a per-cell section sharing a heading with its siblings |
 | Nodes ruled modeled | 76 | a node the live model computes on |
 | Nodes ruled excluded | 10 | a node the model does not carry, recorded rather than absent |
-| Link occurrences | 528 | one bracketed slug in one string, counted across the island with the SECTIONS alias excluded |
+| Link occurrences | 529 | one bracketed slug in one string, counted across the island with the SECTIONS alias excluded |
 | Distinct link targets | 67 | a slug something points at |
 | Nodes nothing points at | 19 | measured backward, which is the direction this project keeps missing |
 | Nodes pointing at nothing | 28 | measured forward |
@@ -243,7 +243,7 @@ Its earlier display title was "The Avoided-Cost Side: Value Identity, Mass Lever
 |---|---|---|---|---|---|---|---|---|
 | `net-value-identity` | The Net Value Identity | modeled | - | - | 18 from 9 | 0 to 0 | 2 | its own |
 | `propellant-mass-leverage` | Propellant Mass Leverage | excluded | - | - | 1 from 1 | 1 to 1 | 7 | its own |
-| `productive-mass-fraction` | The Productive-Mass Fraction | modeled | - | - | 1 from 1 | 1 to 1 | 3 | its own |
+| `productive-mass-fraction` | The Productive-Mass Fraction | modeled | - | - | 2 from 2 | 1 to 1 | 3 | its own |
 | `falling-launch-price` | The Falling Launch Price | modeled | - | - | 5 from 4 | 0 to 0 | 2 | its own |
 | `mars-campaign-conditional` | The Mars Campaign Conditional | excluded | - | - | 1 from 1 | 0 to 0 | 6 | its own |
 
@@ -467,7 +467,7 @@ square brackets is an island object rather than a node.
 | `water-primary-default` | `construction-reference` x5, `shared-capacity-split` x2, `water-primary-default` x3 |
 | `net-value-identity` | `amortized-plant-identity`, `break-even-sales-price`, `delivered-cargo-record` x2, `industrial-plant-price` x2, `iron-production-energy` x3, `ladder-range-and-floor` x2, `leo-to-surface-multiplier` x3, `offtake-record` x3, `propellant-operating-floor` |
 | `propellant-mass-leverage` | `productive-mass-fraction` |
-| `productive-mass-fraction` | [CONFIG.phiC0] |
+| `productive-mass-fraction` | [CONFIG.phiC0], [DERIVATION.coeff] |
 | `falling-launch-price` | `break-even-sales-price`, `industrial-plant-price`, `ladder-range-and-floor`, `leo-to-surface-multiplier` x2 |
 | `mars-campaign-conditional` | `propellant-mass-leverage` |
 | `polar-cold-trap-water` | `bound-oxygen-mare` x2, `cadence-cryogenic-break`, `habitat-water-terrain` x5, `ice-grade-evidence` x2, `industrial-plant-price` x2, `iron-production-energy`, `offtake-record`, `product-payback-ranking`, `propellant-operating-floor` |

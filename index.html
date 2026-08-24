@@ -2249,7 +2249,7 @@
    "label": "non-productive downmass phi_c0",
    "claim": null,
    "kind": "config",
-   "claimNote": "No ledger claim. Design ruling by Quinn, 2026-08-20, per the Coefficient register. Stated plainly rather than a manufactured citation."
+   "claimNote": "No numbered ledger claim states this figure. Its home in the register is [[productive-mass-fraction]], which the Step 38 reconciliation assigned and which records the quantity as modeled. The value is a design ruling by Quinn, 2026-08-20, stated plainly rather than given a manufactured citation. Corrected 2026-08-24 by AGREE-01, which found this note denying a home that section was already holding."
   },
   "decayRate": {
    "label": "equipment decay rate (declining balance)",
@@ -8917,6 +8917,68 @@ function runBlurbTests(fileText){
     const decoyFires = !(seeded.source && seeded.source.trim());
     rec('MIG-02','GATE','every claim resolves to a non-empty .status and .source (DECOY: a blanked source is confirmed to fail first)',
         ok && decoyFires, bad.length?('missing on: '+bad.join(',')):'all 50 resolve');
+  }
+  // AGREE-01: a coefficient's own record and the section that governs it may not contradict
+  // each other. Added after the shape was found twice
+  // independently in one step. CONFIG.phiC0's own prose said no node carried its quantity while
+  // productive-mass-fraction's record said it was exactly that quantity; one level under it, the
+  // ledger body keyed to that same slug is the parent claim's and never mentions the allocation.
+  // Both misled a generation run that had no way to tell which half of the app to believe.
+  //
+  // The property, stated once so the two directions below are readings of it rather than two
+  // rules: where a section names a coefficient as its own subject, that coefficient must point
+  // back at the section, and no coefficient may deny having a home that a section is holding.
+  //
+  // Built against the semantic class rather than one spelling, per the standing rule that has now
+  // landed three times here, most recently on SRC-02 today. A section names a coefficient by
+  // writing CONFIG.<key> anywhere in its own source or reason text. A coefficient points back
+  // either through a non-null .claim or through a [[slug]] pointer inside .claimNote; both are
+  // machine-followable and either satisfies the property, because which one is used is a
+  // schema choice rather than a claim about the world.
+  {
+    const D = (DERIVATION && DERIVATION.coeff) || {};
+    const NAMES_A_COEFF = /CONFIG\.([A-Za-z_][A-Za-z0-9_]*)/g;
+    const DENIES_A_HOME = /\bno\s+(?:\w+\s+){0,3}claim\b|\bzero\s+hits\b|\bstates\s+no\b|\bno\s+node\b/i;
+    function textOf(o){ return [o && o.source, o && o.reason].filter(Boolean).join(' '); }
+    function pointsBack(row, slug){
+      if(!row) return false;
+      if(row.claim) return true;
+      return typeof row.claimNote === 'string' && row.claimNote.indexOf('[['+slug+']]') !== -1;
+    }
+    // Forward: every section that names a coefficient is pointed back at.
+    const pairs = [];
+    Object.keys(SECTIONS).forEach(function(slug){
+      const t = textOf(SECTIONS[slug]); let m;
+      NAMES_A_COEFF.lastIndex = 0;
+      const seenHere = {};
+      while((m = NAMES_A_COEFF.exec(t)) !== null){ if(seenHere[m[1]]) continue; seenHere[m[1]] = 1; pairs.push({slug: slug, key: m[1]}); }
+    });
+    const orphans = pairs.filter(function(pr){ return !pointsBack(D[pr.key], pr.slug); })
+                         .map(function(pr){ return pr.key+' named by '+pr.slug; });
+    // Backward: no coefficient denies a home that a section is in fact holding.
+    const held = {}; pairs.forEach(function(pr){ held[pr.key] = pr.slug; });
+    const denials = Object.keys(D).filter(function(k){
+      const note = typeof D[k].claimNote === 'string' ? D[k].claimNote : '';
+      const src  = (CONFIG[k] && typeof CONFIG[k].source === 'string') ? CONFIG[k].source : '';
+      return held[k] && DENIES_A_HOME.test(note + ' ' + src) && !pointsBack(D[k], held[k]);
+    }).map(function(k){ return k+' denies a home that '+held[k]+' holds'; });
+    // A population of zero is reported as a population of zero. This sweep looks at a small,
+    // real set and a future edit could empty it by rewording every section; a green over nothing
+    // would then read exactly like a green over agreement, which is the failure this whole file
+    // exists to prevent.
+    const empty = pairs.length === 0;
+    // DECOY, applied to the real objects rather than to a constructed string: take a pair that
+    // currently agrees, blank the coefficient's pointers, and confirm the property fails on it.
+    let decoyFires = false;
+    if(pairs.length){
+      const pr = pairs[0];
+      const mutated = Object.assign({}, D[pr.key], {claim: null, claimNote: ''});
+      decoyFires = !pointsBack(mutated, pr.slug);
+    }
+    const ok = !empty && orphans.length === 0 && denials.length === 0 && decoyFires;
+    rec('AGREE-01','GATE','no coefficient record contradicts the section that governs it, run in both directions (DECOY: blanking a real pointer is confirmed to fail first; EMPTY POPULATION is reported, never passed)',
+        ok, empty ? 'EMPTY POPULATION: no section names a coefficient, so this zero means nothing'
+                  : (orphans.concat(denials).join('; ') || pairs.length+' section-coefficient pairs agree in both directions'));
   }
   // MIG-03: a section carrying claim content carries a counter-case. It is not required to be
   // non-trivial text, only present and typed as a string. A section the reconciliation returned
