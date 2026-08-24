@@ -29,9 +29,9 @@ being read end to end.
 | item | value | kind of stamp |
 |---|---|---|
 | Source artifact | `index.html` | the app in this repository |
-| Artifact md5 | `37e1e9b5f0c80fe9790f19a7224796c5` | DERIVED. The generator reads the file and derives the digest at this build. It holds no expected value to compare against, since the pin was removed so the generator runs against any build on any machine |
-| Artifact bytes on disk | 874,032 | measured at this build |
-| Data island pin | `99375342` | RECORDED OBSERVATION. Read out of the artifact. It is FNV-1a over CONFIG, CLAIMS, VALUE and LANDED_COST, and there is nothing here to compare it against |
+| Artifact md5 | `9574f0b21be67c2bc0625175d1fe4e69` | DERIVED. The generator reads the file and derives the digest at this build. It holds no expected value to compare against, since the pin was removed so the generator runs against any build on any machine |
+| Artifact bytes on disk | 889,683 | measured at this build |
+| Data island pin | `f95dfeaa` | RECORDED OBSERVATION. Read out of the artifact. It is FNV-1a over CONFIG, CLAIMS, VALUE and LANDED_COST, and there is nothing here to compare it against |
 | Generator | `tools/build_map.js` | this file names it and it names this file |
 
 Neither stamp is a check, and that is a change from how this file used to read. The generator

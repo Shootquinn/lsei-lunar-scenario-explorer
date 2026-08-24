@@ -43,7 +43,7 @@
   /* ---------- top bar ---------- */
   .topbar{display:flex; align-items:center; gap:16px; flex-wrap:wrap;
     background:var(--panel); border:1px solid var(--line); border-radius:var(--r); padding:12px 16px;}
-  .brand{display:flex; flex-direction:column; gap:2px; margin-right:auto;}
+  .brand{display:flex; flex-direction:column; gap:2px; margin-right:0; width:100%;}
   .brand h1{margin:0; font-size:14px; font-weight:650; letter-spacing:.2px;}
   .brand .sub{font-family:var(--mono); font-size:12px; color:var(--faint); letter-spacing:.4px;}
 
@@ -95,6 +95,13 @@
   input[type=range].ovr::-webkit-slider-thumb{background:var(--faint); box-shadow:0 0 0 1px var(--faint);}
   input[type=range].ovr::-moz-range-thumb{background:var(--faint); box-shadow:0 0 0 1px var(--faint);}
   input[type=range]:focus-visible{box-shadow:0 0 0 3px color-mix(in srgb, var(--ice) 40%, transparent);}
+  /* Item 1, Step 39.5: the rail is fixed and the scenario's own ceiling renders as a marker on
+     the track rather than a wall at the end of it. .rangewrap gives the marker a positioning
+     parent without touching the input's own box; .envmark is placed by syncSliderRange from
+     ceilIdx(key), recomputed on every render rather than stored. */
+  .rangewrap{position:relative;}
+  .envmark{position:absolute; top:50%; width:2px; height:14px; margin-left:-1px;
+    background:var(--warn); opacity:.85; transform:translateY(-50%); pointer-events:none; border-radius:1px;}
 
   .status{display:flex; flex-direction:column; gap:8px; border-top:1px solid var(--line); padding-top:14px;}
   .chip{display:inline-flex; align-items:center; gap:7px; font-family:var(--mono); font-size:12px;
@@ -206,9 +213,13 @@
   .claimdetail{margin-top:10px; font-size:12.5px; color:var(--muted); line-height:1.55;}
   .claimdetail[hidden]{display:none;}
   .claimdetail .cid{font-family:var(--mono); color:var(--ice); font-weight:600;}
-  .claimdetail .cstat{font-family:var(--mono); font-size:10.5px; padding:1px 7px; border-radius:99px; border:1px solid; margin-left:6px; white-space:nowrap;}
-  .claimdetail .cstat.ok{color:var(--good); border-color:var(--good);}
-  .claimdetail .cstat.pend{color:var(--warn); border-color:var(--warn);}
+  /* Item 7, Step 39.5: the .ok/.pend split colored a claim's status text green or amber keyed
+     only to whether it matched /pending/i, which painted a pass-styled green on whatever
+     kind-of-number word survived Quinn's ruling (MODELED, SOURCED, an assumption note), the
+     same theater in a different coat of paint, per the Wave 2 review's own finding. One neutral,
+     non-evaluative style for every reconciliation-record status; no surviving vocabulary here
+     is a pass/fail judgment. */
+  .claimdetail .cstat{font-family:var(--mono); font-size:10.5px; padding:1px 7px; border-radius:99px; border:1px solid; margin-left:6px; white-space:nowrap; color:var(--faint); border-color:var(--faint);}
   .claimdetail .csrc{margin-top:5px;}
 
   /* per-combination derivation panel (ported, minimal chrome) */
@@ -333,13 +344,13 @@
 
       <div class="knob">
         <div class="krow"><span class="klabel">Power</span><span class="kval" id="v_power"></span></div>
-        <input type="range" id="k_power">
+        <div class="rangewrap"><input type="range" id="k_power"><span class="envmark" id="mk_power" title="Scenario envelope ceiling"></span></div>
         <span class="kcap">More power mass means less ISRU plant mass</span>
       </div>
 
       <div class="knob">
         <div class="krow"><span class="klabel">Landed mass</span><span class="kval" id="v_mass"></span></div>
-        <input type="range" id="k_mass">
+        <div class="rangewrap"><input type="range" id="k_mass"><span class="envmark" id="mk_mass" title="Scenario envelope ceiling"></span></div>
         <span class="kcap">Total landed mass per year, combined</span>
       </div>
 
@@ -1096,7 +1107,7 @@
  "fFis": {
   "value": 0.16693,
   "unit": "t / kWe",
-  "source": "NASA Fission Surface Power directive, August 4 2025, page 2: \"Minimum 100kWe power output\" together with \"Assumed use of a heavy class lander (up to 15 metric tons mass available)\", giving 15 t / 100 kWe = 0.15 t/kWe, or 6.67 W/kg. REQUIREMENT-derived on unbuilt hardware, and the 15 t is the lander delivery capability rather than a power-system allocation, so 6.67 W/kg is a floor. An earlier \"40 kWe class under 6 t\" basis was recorded here and is withdrawn: it appears nowhere in the directive and no held source prints it. Both routes give 0.15, which is why the discrepancy went unnoticed. Live value moved to 0.16693 t/kWe, ticket D03 ACCEPT (Quinn, 2026-08-21): a full-precision OLS log-log power-law refit of the three Colozza-and-Oleson design points (Colozza 1 kWe 0.406 t/kWe, Colozza 10 kWe 0.1545 t/kWe, Oleson 40 kWe unmargined 0.18615 t/kWe), evaluated at the 100 kWe directive anchor and carrying Oleson's own 1.34918077 growth-and-margin multiplier (exact ratio 10,046/7,446). The 100 kWe anchor is taken because the scenarios' own power rails are 100 kWe-class units, not because of how the result reads (the power-rail audit, which returned SOURCE_BOUNDED for Agency Led Baseline at 2040 and The Commercial Break at 2040). 0.15 remains the directive's own requirement-ceiling figure, stated for what it is below, not the live coefficient. Fission-requirement programme-currency addition (Space Resources Engineer, Step 35): two newer primaries confirm the 100 kWe / 15 t / Q1 FY30 requirement survived a change of administrator and the 2026 restructuring that stood up the Space Reactor Office. NASA's \"America Underway in Space on Nuclear Power\" fact sheet (March 2026) restates that LR-1 lands on the Moon in 2030. Administrator Jared Isaacman's workforce memo (May 22, 2026) restates the 2030 LR-1 readiness target and reports an integrated SR-1/LR-1 program plan due within 60 days. Neither newer primary prints an LR-1 power or mass figure; neither corroborates the 100 kWe quantum itself, which still rests on the 2025 directive alone. The \"2032-35\" realistic-readiness window used elsewhere in this record is the study's own risk adjustment, built from the AFPP commercial-procurement deactivation (2026-03-26), the absence of a flight contractor, and funding running below the program office's own estimate; no primary source states 2032-35, and it is not presented as if one does. See [[fission-specific-power]].",
+  "source": "NASA Fission Surface Power directive, August 4 2025, page 2: \"Minimum 100kWe power output\" together with \"Assumed use of a heavy class lander (up to 15 metric tons mass available)\", giving 15 t / 100 kWe = 0.15 t/kWe, or 6.67 W/kg. REQUIREMENT-derived on unbuilt hardware, and the 15 t is the lander delivery capability rather than a power-system allocation, so 6.67 W/kg is a floor. An earlier \"40 kWe class under 6 t\" basis was recorded here and is withdrawn: it appears nowhere in the directive and no held source prints it. Both routes give 0.15, which is why the discrepancy went unnoticed. Live value moved to 0.16693 t/kWe, ticket D03 ACCEPT (Quinn, 2026-08-21): a full-precision OLS log-log power-law refit of the three Colozza-and-Oleson design points (Colozza 1 kWe 0.406 t/kWe, Colozza 10 kWe 0.1545 t/kWe, Oleson 40 kWe unmargined 0.18615 t/kWe), evaluated at the 100 kWe directive anchor and carrying Oleson's own 1.34918077 growth-and-margin multiplier (exact ratio 10,046/7,446). The 100 kWe anchor is taken because the scenarios' own power rails are 100 kWe-class units, not because of how the result reads (the power-rail audit, which returned SOURCE_BOUNDED for Agency Led Baseline at 2040 and The Commercial Break at 2040). 0.15 remains the directive's own requirement-ceiling figure, stated for what it is below, not the live coefficient. Fission-requirement programme-currency addition (Step 35): two newer primaries confirm the 100 kWe / 15 t / Q1 FY30 requirement survived a change of administrator and the 2026 restructuring that stood up the Space Reactor Office. NASA's \"America Underway in Space on Nuclear Power\" fact sheet (March 2026) restates that LR-1 lands on the Moon in 2030. Administrator Jared Isaacman's workforce memo (May 22, 2026) restates the 2030 LR-1 readiness target and reports an integrated SR-1/LR-1 program plan due within 60 days. Neither newer primary prints an LR-1 power or mass figure; neither corroborates the 100 kWe quantum itself, which still rests on the 2025 directive alone. The \"2032-35\" realistic-readiness window used elsewhere in this record is the study's own risk adjustment, built from the AFPP commercial-procurement deactivation (2026-03-26), the absence of a flight contractor, and funding running below the program office's own estimate; no primary source states 2032-35, and it is not presented as if one does. See [[fission-specific-power]].",
   "status": "SOURCED (fitted, D03 ACCEPT)",
   "note": "The two Advanced sliders that override this coefficient and its solar sibling are the model surface of [[power-mass-break]], and FFIS_LANDMARKS carries the four landmark values they span. No fixed base adder (0.16693 already includes the unit). D03 supersedes D01's single-constant finding."
  },
@@ -1513,10 +1524,10 @@
    "source": "Reference construction allocation phiCRef = 0.75 drives only the construction-potential readout; it is a display control, not a scenario default.",
    "status": "VERIFIED (premise)",
    "tier": "VERIFIED (premise)",
-   "counterCase": "A2 (keep it distinct from [[water-primary-default]]). Do not confuse 0.75, a reference display, with the per-scenario phi_c defaults, which are water-primary at about 0.05 across all three scenarios ([[water-primary-default]]), so each scenario's produced water equals its capacity cap."
+   "counterCase": "A2 (keep it distinct from [[water-primary-default]]). Do not confuse 0.75, a reference display, with the per-scenario phi_c defaults, which are water-primary at 0.05 across all three scenarios ([[water-primary-default]]), so each scenario's produced water is 95 percent of its capacity cap, not the whole of it."
   },
   "water-primary-default": {
-   "source": "Per-scenario construction stance follows the scenario treatments. All three scenarios run water-primary, phi_c near 0, so produced water equals the capacity cap. Agency Led Baseline and The Commercial Break do so because water is their product; Early Shift to Mars does so because under that scenario the Moon is a minimal technology demonstration, so it demonstrates the water and volatile extraction it will carry to Mars rather than build lunar construction it is about to strand. A scenario stance, not a sourced fact. All three presets load phi_c near 0 (Early Shift to Mars loads 0.05, which snaps to the 0 detent), and the phi_c knob itself defaults to 0, so the displayed separation strip is the phi_c=0 capacity cap. The construction capacity C_full stays visible as reallocation potential; on lunar economics alone construction would out-produce water per tonne of landed plant, which is why Early Shift to Mars subordinates it rather than denies it.",
+   "source": "Per-scenario construction stance follows the scenario treatments. All three scenarios run water-primary, phi_c at 0.05, so produced water is 95 percent of the capacity cap. Agency Led Baseline and The Commercial Break do so because water is their product; Early Shift to Mars does so because under that scenario the Moon is a minimal technology demonstration, so it demonstrates the water and volatile extraction it will carry to Mars rather than build lunar construction it is about to strand. A scenario stance, not a sourced fact. All three presets load phi_c at exactly 0.05 (Step 39.5: the phi_c detent rail now represents 0.05 exactly, so the app boots on the phi_c=0.05 reading rather than the phi_c=0 reading a rail that could not represent 0.05 used to snap every preset to). The construction capacity C_full stays visible as reallocation potential well beyond the 5 percent the 0.05 default produces; on lunar economics alone construction would out-produce water per tonne of landed plant, which is why Early Shift to Mars subordinates it rather than denies it.",
    "status": "VERIFIED (premise / scenario judgment)",
    "tier": "VERIFIED (premise / scenario judgment)",
    "counterCase": "A4 (rides on [[shared-capacity-split]]). The reallocation potential shown as C_full depends on [[shared-capacity-split]]'s zero-switching-cost split; if reallocating capacity carried real cost, the construction line the scenario declines to run would be dearer still."
@@ -1687,7 +1698,7 @@
  },
  "delivery-cost": {
   "ladder-range-and-floor": {
-   "source": "Earth-to-lunar-surface delivery-cost ladder, the cost-avoided term: about $1,000,000/kg for a dedicated small lander (CLPS, [[clps-small-lander-cost]]) down through a contracted-but-unarchived forward $100,000/kg for 2030 Starship shared flight ([[shared-flight-price]]) toward a projected $1,000 to $2,000/kg reusable-lander floor. Commodity-agnostic: a kg of water and a kg of steel cost the same to land. Top endpoint UNVERIFIED-pending on the ispace-SpaceX ([[shared-flight-price]]) and CLPS ([[clps-small-lander-cost]]) primaries not held on disk; floor PROJECTED.",
+   "source": "Earth-to-lunar-surface delivery-cost ladder, the cost-avoided term: about $1,000,000/kg for a dedicated small lander (CLPS, [[clps-small-lander-cost]]) down through a contracted-but-unarchived forward $100,000/kg for 2030 Starship shared flight ([[shared-flight-price]]) toward a projected $1,000 to $2,000/kg reusable-lander floor. Commodity-agnostic: a kg of water and a kg of steel cost the same to land. The top endpoint is not yet archived, since it rests on [[shared-flight-price]] and [[clps-small-lander-cost]], both pending on primaries not held; the floor is a projection.",
    "status": "UNVERIFIED-pending (top endpoint); floor PROJECTED",
    "tier": "UNVERIFIED-pending (top endpoint); floor PROJECTED",
    "counterCase": "A3 (target versus actual at the floor). The $1,000-2,000/kg floor is a projected price contingent on unflown fully-reusable heavy landers times the [[leo-to-surface-multiplier]] multiplier, and no delivery has been flown at it. Carry it as a target, not as an achieved cost."
@@ -1972,7 +1983,7 @@
   },
   "REGIME-MASS": {
    "key": "REGIME-MASS",
-   "text": "Landed-mass limited: the mining plant is starved, too little landed mass is left after the power system takes its share, so throughput, not power, caps water. Adding power does not help; adding mining mass does. The throughput ceiling rests on kExc, the model weakest self-flagged number and a disclosed construct. The bound under it is one-sided and comes from water-extraction plants, so it reaches the water figure here. Nothing in the record bounds the same coefficient on the construction branch it also governs. This label is set by the water branch alone, and any construction tonnage shown beside it may be power-limited rather than mass-limited. The model also books all non-power landed mass as productive plant, an UNVERIFIED-pending overhead assumption.",
+   "text": "Landed-mass limited: the mining plant is starved, too little landed mass is left after the power system takes its share, so throughput, not power, caps water. Adding power does not help; adding mining mass does. The throughput ceiling rests on kExc, the model weakest self-flagged number and a disclosed construct. The bound under it is one-sided and comes from water-extraction plants, so it reaches the water figure here. Nothing in the record bounds the same coefficient on the construction branch it also governs. This label is set by the water branch alone, and any construction tonnage shown beside it may be power-limited rather than mass-limited. The model also books all non-power landed mass as productive plant, an overhead assumption this project has not independently confirmed.",
    "claims": [
     "throughput-coefficient",
     "productive-plant-mass",
@@ -1982,7 +1993,7 @@
   },
   "REGIME-POWERMASS": {
    "key": "REGIME-POWERMASS",
-   "text": "Power-system-mass limited: the power system consumes the entire landed mass and nothing is left for the plant, so water goes to zero. Under the new payload allocation solar runs about 0.05 t per kWe, a duty-cycled allocation set against a full-carry fission one, and under that pairing of sizing policies no scenario state is power-system-mass limited any more; this regime appears only if landed mass is pushed below the power-system mass by hand. Use only the qualitative point that the model books all non-power mass as plant, an UNVERIFIED-pending overhead assumption.",
+   "text": "Power-system-mass limited: the power system consumes the entire landed mass and nothing is left for the plant, so water goes to zero. Under the new payload allocation solar runs about 0.05 t per kWe, a duty-cycled allocation set against a full-carry fission one, and under that pairing of sizing policies no scenario state is power-system-mass limited any more; this regime appears only if landed mass is pushed below the power-system mass by hand. Use only the qualitative point that the model books all non-power mass as plant, an overhead assumption this project has not independently confirmed.",
    "claims": [
     "productive-plant-mass",
     "zero-intercept-mass-law",
@@ -2180,7 +2191,7 @@
    "label": "fission power-system mass",
    "claim": "fission-specific-power",
    "kind": "config",
-   "claimNote": "A fitted mass-versus-output relationship was evaluated and rejected (Space Resources Engineer, ticket D01): the three held design points, Colozza 1 kWe 0.406 t/kWe, Colozza 10 kWe 0.1545 t/kWe, Oleson 40 kWe 0.25115 t/kWe, do not describe one clean curve. An ordinary least-squares power-law fit residuals +17.8/-35.3/+31.2 percent; a fixed-base-plus-linear model built from Colozza's two points under-predicts Oleson's point by 88.1 percent. Most of the apparent gap is a margin-policy confound, not a physical trend: Colozza's table carries no margin at all, Oleson's final mass adds a 19.9 percent growth allowance plus a 15.0 percent system margin, both additive shares of basic mass. Negative result at the time; fFis stayed the single 0.15 t/kWe constant. SUPERSEDED by D03 (Quinn, 2026-08-21): a refit on a consistent unmargined basis moved fFis to 0.16693 t/kWe, shipped as a flat constant per the same reasoning D01 gives against presenting the fit as physics."
+   "claimNote": "A fitted mass-versus-output relationship was evaluated and rejected (ticket D01): the three held design points, Colozza 1 kWe 0.406 t/kWe, Colozza 10 kWe 0.1545 t/kWe, Oleson 40 kWe 0.25115 t/kWe, do not describe one clean curve. An ordinary least-squares power-law fit residuals +17.8/-35.3/+31.2 percent; a fixed-base-plus-linear model built from Colozza's two points under-predicts Oleson's point by 88.1 percent. Most of the apparent gap is a margin-policy confound, not a physical trend: Colozza's table carries no margin at all, Oleson's final mass adds a 19.9 percent growth allowance plus a 15.0 percent system margin, both additive shares of basic mass. Negative result at the time; fFis stayed the single 0.15 t/kWe constant. SUPERSEDED by D03 (Quinn, 2026-08-21): a refit on a consistent unmargined basis moved fFis to 0.16693 t/kWe, shipped as a flat constant per the same reasoning D01 gives against presenting the fit as physics."
   },
   "fSol": {
    "label": "solar power-system mass",
@@ -2232,7 +2243,7 @@
    "label": "reactor-to-load transmission distance",
    "claim": null,
    "kind": "input",
-   "claimNote": "The [[transmission-coefficient]] section, Argument A3: about 1 km prices reactor-to-crew radiation shielding, a habitation requirement this model carries no term for; about 3 to 5 km prices reactor-to-mining-site separation, this model's actual load. Space Resources Engineer's proposed default: 3 km, the low end of that band, ticket D02, ACCEPT, Quinn 2026-08-21. Live at 3 km by default this step, applied to every rendered scenario unless overridden."
+   "claimNote": "The [[transmission-coefficient]] section, Argument A3: about 1 km prices reactor-to-crew radiation shielding, a habitation requirement this model carries no term for; about 3 to 5 km prices reactor-to-mining-site separation, this model's actual load. The proposed default is 3 km, the low end of that band, ticket D02, ACCEPT, Quinn 2026-08-21. Live at 3 km by default this step, applied to every rendered scenario unless overridden."
   },
   "phiC0": {
    "label": "non-productive downmass phi_c0",
@@ -2260,7 +2271,7 @@
    ]
   },
   "BIND-MASS": {
-   "text": "Landed mass binds here: cap = W_thr < W_power, so the mining plant is starved and throughput, not power, caps water. The ceiling rests on kExc, a calibrated disclosed construct and the model weakest self-flagged number. That binding test is W_power against W_thr, a water-branch comparison; the construction figure runs its own minimum against C_power and the app does not label which side wins, so read this as a floor on the water number only and not on any construction tonnage printed beside it. No held source bounds kExc on the construction branch. The model also books all non-power landed mass as productive plant, an UNVERIFIED-pending overhead assumption.",
+   "text": "Landed mass binds here: cap = W_thr < W_power, so the mining plant is starved and throughput, not power, caps water. The ceiling rests on kExc, a calibrated disclosed construct and the model weakest self-flagged number. That binding test is W_power against W_thr, a water-branch comparison; the construction figure runs its own minimum against C_power and the app does not label which side wins, so read this as a floor on the water number only and not on any construction tonnage printed beside it. No held source bounds kExc on the construction branch. The model also books all non-power landed mass as productive plant, an overhead assumption this project has not independently confirmed.",
    "claims": [
     "throughput-coefficient",
     "productive-plant-mass",
@@ -2269,7 +2280,7 @@
    ]
   },
   "BIND-POWERMASS": {
-   "text": "Power-system mass binds here: M_power consumes the entire landed mass and M_mining falls to zero, so water goes to zero. Use only the qualitative point that the model books all non-power mass as plant, an UNVERIFIED-pending overhead assumption.",
+   "text": "Power-system mass binds here: M_power consumes the entire landed mass and M_mining falls to zero, so water goes to zero. Use only the qualitative point that the model books all non-power mass as plant, an overhead assumption this project has not independently confirmed.",
    "claims": [
     "productive-plant-mass",
     "zero-intercept-mass-law",
@@ -2375,11 +2386,11 @@
   }
  },
  "honesty": {
-  "lead": "The robust result is mass-payback and it does not depend on the launch price: construction out-produces propellant per tonne of landed plant by the model-native factor C_full / cap, about one to two orders at the scenario ice grades, driven by the mass and ice knobs. The launch-price crossover rides on top as a soft, assumption-tagged band. A positive propellant value here is delivery cost avoided, not a booked sale: the demand side is unproven, with zero signed water or propellant offtakes ([[offtake-record]], UNVERIFIED-pending). That absence is the empirical trigger of [[signed-offtake-break]]; what the app does not carry is the stated date, which the ledger itself records as pending a held source.",
-  "crossBand": "Soft launch-price crossover: propellant margin turns negative below about D* = op_prop / (1 - r_prop). This is an assumption-driven band, not a date; it rides on op_prop, which is PROJECTED and UNVERIFIED-pending, and it moves with the mass knob.",
+  "lead": "The robust result is mass-payback and it does not depend on the launch price: construction out-produces propellant per tonne of landed plant by the model-native factor C_full / cap, about one to two orders at the scenario ice grades, driven by the mass and ice knobs. The launch-price crossover rides on top as a soft, assumption-tagged band. A positive propellant value here is delivery cost avoided, not a booked sale: the demand side is unproven, with zero signed water or propellant offtakes ([[offtake-record]]). That absence is the empirical trigger of [[signed-offtake-break]]; what the app does not carry is the stated date, which the ledger itself records as pending a held source.",
+  "crossBand": "Soft launch-price crossover: propellant margin turns negative below about D* = op_prop / (1 - r_prop). This is an assumption-driven band, not a date; it rides on op_prop, an estimated operating floor without a settled source figure, and it moves with the mass knob.",
   "crossNone": "With the operating floor at zero there is no launch-price crossover: propellant carries a positive margin at every launch price, thinner than construction forever. That is the true capital-only behavior.",
   "crossFail": "No launch-price crossover applies: the propellant plant does not pay back its own landed mass at this state, so its margin is negative at every launch price.",
-  "grades": "Grades for this combination: the water energy constant and the mass laws are DESIGN or SOURCED; the 2030 delivery price is DEMONSTRATED-contract with the delivery a forward event; op_prop is PROJECTED and UNVERIFIED-pending; the $35,300/kg quoted on Shishko slide 2 from Charania and DePasquale 2007 is a DEMONSTRATED-modeled break-even sales price, not a production cost, and its capital-versus-operating split is UNVERIFIED-pending; kExc is a disclosed calibrated construct. Nothing pending is shown as settled."
+  "grades": "Grades for this combination: the water energy constant and the mass laws are DESIGN or SOURCED; the 2030 delivery price traces to a signed contract, with the delivery itself still a forward event; op_prop is an estimate without a settled source figure; the $35,300/kg quoted on Shishko slide 2 from Charania and DePasquale 2007 is a modeled break-even sales price grounded in that source, not a production cost, and its capital-versus-operating split has no settled figure; kExc is a disclosed calibrated construct. None of this is presented as more settled than it is."
  }
 };
   var FFIS_LANDMARKS = [
@@ -3334,7 +3345,7 @@
  "water-primary-default": {
   "was": "Scenarios Default to Water-Primary Allocation (phi_c = 0.05) by Design Choice",
   "claim": "structural-choices",
-  "statement": "The app defaults the construction share to 0.05 for all three scenarios, Agency Led Baseline, Early Shift to Mars, and The Commercial Break, so each runs water-primary: produced water equals the capacity cap while produced construction is zero. Early Shift to Mars adopts the water-primary default because under that scenario the Moon serves as a minimal technology demonstration: it demonstrates the water and volatile extraction it carries to Mars rather than building out lunar construction it is about to strand. The full-allocation construction capacity, C_full, stays visible as reallocation potential, not produced product.",
+  "statement": "The app defaults the construction share to 0.05 for all three scenarios, Agency Led Baseline, Early Shift to Mars, and The Commercial Break, so each runs water-primary: produced water is 95 percent of the capacity cap and produced construction is the remaining 5 percent, not zero. (Step 39.5 correction: the phi_c detent rail previously could not represent 0.05 exactly and snapped every preset to its 0 detent, so the app displayed a zero-construction reading for as long as nobody compared it against the declared value; the declared 0.05 never moved, only the rail's ability to show it did.) Early Shift to Mars adopts the water-primary default because under that scenario the Moon serves as a minimal technology demonstration: it demonstrates the water and volatile extraction it carries to Mars rather than building out lunar construction it is about to strand. The full-allocation construction capacity, C_full, stays visible as reallocation potential, well beyond what the 0.05 default actually produces.",
   "evidence": [],
   "argument": [
    {
@@ -6460,8 +6471,54 @@
        CLAIMS, VALUE and LANDED_COST was compared against the pre-edit file, 0 moved, none
        added, none dropped, and the nine-cell water set reproduces off the rendered hero at
        1.64, 14.06, 74.25, 0.33, 2.54, 4.61, 1.64, 142.15 and 710.76.
-       Previous pin 14b8db09, from the Step 38 evidence migration. */
-    __pin: "99375342"
+       Previous pin 14b8db09, from the Step 38 evidence migration.
+
+       The pin moves a fourth time at Step 39.5, item 8, 2026-08-23, and again for a text
+       correction rather than a number. The phi_c detent rail could not represent the 0.05
+       every preset already declared and snapped it to 0, so two CLAIMS['structural-choices']
+       fields, water-primary-default.source and construction-reference.counterCase, stated
+       "produced water equals the capacity cap" as though it were still true once the rail
+       fix ships. Both were reworded to state water at 95 percent of the capacity cap, the
+       measured consequence the rail fix carries, measured directly off the app's own model
+       rather than asserted, with the declared value stated as unmoved and only the rail's ability to
+       represent it as having changed. Those two fields are the only edits to the four
+       objects this pin covers. NO COEFFICIENT VALUE MOVED, measured rather than asserted:
+       every numeric leaf of CONFIG, CLAIMS, VALUE and LANDED_COST was compared against the
+       pre-edit file, 0 moved, 0 added, 0 dropped (13, 0, 14 and 14 numeric leaves
+       respectively, identical counts and identical values before and after).
+       Previous pin 99375342, from the Step 38 residuals.
+
+       The pin moves a fifth time within Step 39.5, item 13's own click-through sweep, and
+       again for a text correction rather than a number. CLAIMS['delivery-cost']
+       ['ladder-range-and-floor'].source, unlike its own tier/status fields, renders
+       unconditionally in the claim-chip detail panel regardless of Item 7's tier-branch
+       suppression, and its trailing sentence read "Top endpoint UNVERIFIED-pending on the
+       ispace-SpaceX ([[shared-flight-price]]) and CLPS ([[clps-small-lander-cost]])
+       primaries not held on disk; floor PROJECTED," the identical vocabulary Quinn ruled
+       out, now in prose rather than in a tag. LEDGER['ladder-range-and-floor'].statement,
+       a parallel field, already stated the same fact in clean language ("The top endpoint
+       is not yet archived... the floor is a projection"), and the SECTIONS/CLAIMS field is
+       reworded to match it. This one field is the only edit to the four objects this pin
+       covers. NO COEFFICIENT VALUE MOVED, measured rather than asserted: every numeric leaf
+       of CONFIG, CLAIMS, VALUE and LANDED_COST was compared against the pre-item-8 file, 0
+       moved, 0 added, 0 dropped (13, 0, 14 and 14 numeric leaves respectively, identical
+       counts and identical values before and after, across all of items 6 through 13).
+       Previous pin a8c31826, from Step 39.5 item 8.
+
+       The pin moves a sixth time at Step 39.5, item 16, 2026-08-23, and again for a text
+       correction rather than a number: CONFIG.fFis.source dropped an internal role
+       attribution naming who proposed the Step 35 addition, per the standing rule that
+       this file describes its subject rather than how it was made, and per the identical
+       Step 39 precedent already applied elsewhere in this same edit. The ticket number, the
+       date and every cited primary source are unchanged; only the role attribution is
+       gone. This is the only edit to the four objects this pin covers; the sibling
+       strips this item made live in DERIVATION.coeff, which this pin does not cover.
+       NO COEFFICIENT VALUE MOVED, measured rather than asserted:
+       every numeric leaf of CONFIG, CLAIMS, VALUE and LANDED_COST was compared against the
+       pre-item-16 file, 0 moved, 0 added, 0 dropped (13, 0, 14 and 14 numeric leaves
+       respectively, identical counts and identical values before and after).
+       Previous pin d9cd1496, from Step 39.5 item 13. */
+    __pin: "f95dfeaa"
   };
 
   root.KNOB_DATA = KNOB_DATA;
@@ -6551,18 +6608,40 @@ const FILE_SCOPED_DECL = [
    reason:'DECLARED EXCEPTION, same ground as BL9'}
 ];
 const FILE_SCOPED = FILE_SCOPED_DECL.map(function(r){ return r.id; });
-const SIDECAR_ONLY = ['EXT1','DEPLOY-01'];
-/* ABST-14, ABST-15, ADV-01 and DEF-06 were added at Wave 5, and ABST-16 and DEF-07 at the
-   Step 38 residuals. All six belong at this end for the
-   same reason the rest of this list does: each one's claim is about what a reader sees in
-   the rendered document, so each must be fed the rendered document. ADV-01 in particular
-   could have been written against the file text, since the button's label and tooltip are
-   literals in the markup; it is not, because the real consumer of a button label is a
-   reader looking at a painted button, and a check that reads the source proves the string
-   was authored rather than that it reaches anybody. */
-const DOM_SCOPED = ['ABST-01','ABST-02','ABST-03','ABST-04','ABST-05','ABST-06','ABST-07',
-                    'ABST-08','ABST-09','ABST-10','ABST-11','ABST-12','ABST-13',
-                    'ABST-14','ABST-15','ABST-16','ADV-01','DEF-06','DEF-07',
+/* VFAM-01 added at Step 39.5 Wave 2, item 12: the standing render-boundary sweep the
+   Wave 2 architecture review asked for. It boots a fresh copy of this file in jsdom, which
+   only the Node sidecar does; the page itself never boots a second copy of itself, so this
+   is sidecar-only by the same reasoning as EXT1 and DEPLOY-01. */
+/* RECON-01 added at Step 39.5 Wave 2, item 15: this step's chosen closure of the
+   disclosed reconciliation-branch coverage gap (found in the Wave 2 verification pass).
+   It synthesizes a chip and dispatches a real click in a fresh jsdom boot, sidecar-only
+   for the same reason VFAM-01 is. */
+const SIDECAR_ONLY = ['EXT1','DEPLOY-01','VFAM-01','RECON-01'];
+/* ADV-01 and DEF-06 were added at Wave 5, and DEF-07 at the Step 38 residuals. All three
+   belong at this end for the same reason the rest of this list does: each one's claim is
+   about what a reader sees in the rendered document, so each must be fed the rendered
+   document. ADV-01 in particular could have been written against the file text, since the
+   button's label and tooltip are literals in the markup; it is not, because the real
+   consumer of a button label is a reader looking at a painted button, and a check that
+   reads the source proves the string was authored rather than that it reaches anybody.
+
+   Step 39.5 correction: ABST-01 through ABST-16 are removed from this list. They were
+   declared page-exclusive because their claim is about what a reader sees, which is true,
+   but "the rendered document" and "a real browser" are not the same requirement: jsdom
+   parses the shipped markup, executes the shipped script and produces the same DOM
+   attributes, dataset values and textContent a browser would (every ABST assertion reads
+   one of those three, never a computed pixel or a layout geometry), so a jsdom-booted copy
+   of this file IS a rendered document for what these gates actually check. The Node sidecar
+   now boots the whole page in jsdom (tools/selfcheck_knob_sidecar.js, the ABSTRACT-CORE
+   runner) rather than evaluating the ABSTRACT-CORE island's text in isolation, because
+   ABST-14 drives render() itself, which reaches the entire cockpit shell, not a
+   three-element slice of it; a narrower stub would not be testing what ABST-14 claims.
+   ABST-01 through ABST-16 now run at both ends, the same shared standing runTests,
+   runValueTests, runBlurbTests, runDerivationTests and LEDG-01 through LEDG-08 already
+   have, so they carry no exclusive declaration in either direction: scopeCheck's `here`/
+   `away` lists below simply say nothing about them, which is how every other shared ID in
+   this file is already treated. */
+const DOM_SCOPED = ['ADV-01','DEF-06','DEF-07',
                     'NAME-01','VIEW-01','HARN-01','LEDG-09','LEDG-10'];
 /* producedIds is every identifier the calling harness produced BEFORE this row is appended, so
    the population this row reports counts itself explicitly rather than by implication. */
@@ -6628,7 +6707,7 @@ const DETENTS = {
   ice:   [1,2,5,10,20],
   power: [10,50,100,200,400,1000],
   mass:  [10,75,100,150,500,1000,10000],
-  phi_c: [0,0.25,0.5,0.75,1.0],
+  phi_c: [0,0.05,0.10,0.15,0.20,0.25,0.30,0.35,0.40,0.45,0.50,0.55,0.60,0.65,0.70,0.75,0.80,0.85,0.90,0.95,1.0],
   landed_cost: KNOB_DATA.LANDED_COST.rail
 };
 function nearestIdx(arr,v){ let bi=0,bd=Infinity; for(let i=0;i<arr.length;i++){const d=Math.abs(arr[i]-v); if(d<bd){bd=d;bi=i;}} return bi; }
@@ -7273,17 +7352,17 @@ function runTests(fileText){
       rec('TRAP3-02','REVIEW','live "reactor" occurrence count', true, 'skipped (no fileText supplied)');
     }
   }
-  // TRAP3-03: the Designer and Fact-Checker's Wave 2 sweep of the new
+  // TRAP3-03: a Wave 2 sweep of the new
   // Notes-tab and Definitions-tab prose for "reactors" paired with a
-  // division or a count, already assigned in the Manager's open. This row
+  // division or a count, already assigned at open. This row
   // is the placeholder handing over TRAP3-01's own regex as their starting
   // instrument, matching the NOTES-06/J06-D precedent for a REVIEW-tier
   // Wave 2 assignment restated here rather than left a blank brief.
   {
     rec('TRAP3-03','REVIEW','Wave 2 sweep of new Notes/Definitions prose for reactors-paired-with-a-count; this row is the placeholder, not a Wave 1 pass/fail', true);
   }
-  // TRAP1-03: the Designer's Wave 2 echo-site check (already assigned in
-  // the Manager's open, Section D) restated here as the downstream
+  // TRAP1-03: a Wave 2 echo-site check (already assigned at
+  // open, Section D) restated here as the downstream
   // consumer of TRAP1-01/02's build-report and diff predicates, so Wave 2
   // has a concrete check to run. TRAP1-01 (does the build report name each
   // of the three literal "10"s in a separate sentence) and TRAP1-02 (does
@@ -8114,13 +8193,18 @@ function runValueTests(fileText){
   }
 
   // ---- N1 (GATE): DETENTS match the validated coarse rails exactly ----
+  // Step 39.5, item 10: phi_c's re-fit to the ruled rail shape, the superset rail at 0.05
+  // spacing across the full unit interval. The old five-value literal could never represent
+  // the 0.05 every preset declares; the new 21-value literal does, exactly, and still holds
+  // 0, 0.25, 0.5, 0.75 and 1.0 as exact notches since all four are multiples of 0.05.
   {
     const eq=(a,b)=>a.length===b.length && a.every((x,i)=>x===b[i]);
     const okI=eq(DETENTS.ice,[1,2,5,10,20]), okP=eq(DETENTS.power,[10,50,100,200,400,1000]),
-          okM=eq(DETENTS.mass,[10,75,100,150,500,1000,10000]), okC=eq(DETENTS.phi_c,[0,0.25,0.5,0.75,1.0]);
+          okM=eq(DETENTS.mass,[10,75,100,150,500,1000,10000]),
+          okC=eq(DETENTS.phi_c,[0,0.05,0.10,0.15,0.20,0.25,0.30,0.35,0.40,0.45,0.50,0.55,0.60,0.65,0.70,0.75,0.80,0.85,0.90,0.95,1.0]);
     const pass=okI&&okP&&okM&&okC;
     rec('N1','GATE','DETENTS are the validated notch sets (ice/power/mass/phi_c)', pass,
-        pass?'ice[1,2,5,10,20] power[10,50,100,200,400,1000] mass[10,75,100,150,500,1000,10000] phi_c[0,0.25,0.5,0.75,1.0]':`ice=${okI} power=${okP} mass=${okM} phi=${okC}`);
+        pass?'ice[1,2,5,10,20] power[10,50,100,200,400,1000] mass[10,75,100,150,500,1000,10000] phi_c[0,0.05,0.10,...,1.0], 21 notches':`ice=${okI} power=${okP} mass=${okM} phi=${okC}`);
   }
 
   // ---- SW1 (GATE): out-of-envelope warns without blocking; finite result ----
@@ -8337,13 +8421,13 @@ function runValueTests(fileText){
     rec('DECAY-03','GATE','margin/value governing identity holds under the declining-balance basis over the landed_cost rail', ok);
   }
   // DECAY-04: this build's shipped formula (r_dep_eff=(1-(1-d)^N)/N) matches
-  // the reference oracle the Software Engineer computed independently
+  // an independently computed reference oracle
   // (0.075696), stated here rather than landing silently with no comparison.
   {
     const d=0.15, N=11, ref=0.075696;
     const computed=(1-Math.pow(1-d,N))/N;
     const ok = Math.abs(computed-ref)<1e-6;
-    rec('DECAY-04','REVIEW','shipped declining-balance formula matches the Software Engineer\'s reference oracle 0.075696', ok, 'computed='+computed.toFixed(6));
+    rec('DECAY-04','REVIEW','shipped declining-balance formula matches the independently computed reference oracle 0.075696', ok, 'computed='+computed.toFixed(6));
   }
   // DECAY-05: byte-absence of the raw division-by-life expression in the
   // r_prop/r_const assignment lines specifically (not the whole island,
@@ -8605,7 +8689,13 @@ function runBlurbTests(fileText){
       prev=rank[k];
     }
     ok = ok && mono;
-    rec('BL3','GATE','phi_c 3-band totality + monotonicity (WATER/MIXED/CONSTRUCTION over all 5 detents)', ok, ok?'0->WATER, 0.25->MIXED, 0.5/0.75->CONSTRUCTION; all 5 mapped, monotonic':why.join('  '));
+    // Step 39.5 Wave 2, item 14 (the Wave 2 review,
+    // Section 6): this label and detail string said "all 5 detents" from the retired
+    // 5-notch phi_c rail. The loop above already iterated DETENTS.phi_c live and was never
+    // wrong about the logic, only about its own printed count -- the same species of stale
+    // self-description as the ABST zero-guard comment corrected at item 10. Read the count
+    // off the live rail rather than retype a number that will go stale again.
+    rec('BL3','GATE',`phi_c 3-band totality + monotonicity (WATER/MIXED/CONSTRUCTION over all ${DETENTS.phi_c.length} detents)`, ok, ok?`0->WATER, 0.25->MIXED, 0.5/0.75->CONSTRUCTION; all ${DETENTS.phi_c.length} mapped, monotonic`:why.join('  '));
   }
 
   // ---- BL4: live-number consistency to model() + anti-hard-code perturbation ----
@@ -8923,7 +9013,7 @@ function runBlurbTests(fileText){
         ok, ok?('both keys present, '+counts+', every section states its disposition'):why.join('  '));
   }
   // MIG-06: block-assignment spot check, 8 claims across 4 block families
-  // (the full 50-claim join is the Systems Engineer's Wave 2 assignment).
+  // (the full 50-claim join is a Wave 2 assignment).
   {
         // Block assignment, checked as an equality on the declared parent rather than as a substring
     // match against a title fragment. The predicate is EXACTLY ONE: a section resolves to one
@@ -8980,7 +9070,7 @@ function runBlurbTests(fileText){
       Object.keys(obj).forEach(function(k){ if(obj[k].source && isDeferral(obj[k].source)) hits.push(blk+'.'+k); });
     });
     // Eight-case proof, run live every time this test runs, not only once at
-    // build time: the six escapes the Manager's own probe found against the
+    // build time: the six escapes found against the
     // prior verb-keyed pattern, plus the original DECOY and GUARD. Every one
     // must resolve to its expected verdict before the live sweep is trusted.
     const cases = [
@@ -9072,7 +9162,14 @@ function composeDerivation(state, m, v){
     const meta = DERIVATION.coeff[k];
     let value, unit, grade;
     if(meta.kind==='input'){ value = inputVal[k]; unit = {ice:'wt%',power:'kWe',mass:'t',phi_c:'',landed_cost:'$/kg',transDistKm:'km'}[k];
-      grade = (meta.claim && SECTIONS[meta.claim]) ? SECTIONS[meta.claim].status
+      /* Item 5, Step 39.5: this cell no longer surfaces SECTIONS[claim].status, the
+         VERIFIED-family vocabulary Quinn ruled out. The three rows this touches (ice, phi_c,
+         landed_cost, the only kind:'input' rows carrying a claim that resolves through
+         SECTIONS) link to the claim's own identity instead of grading it, using the app's
+         existing [[slug]] cross-reference into the Evidence Ledger, the same mechanism
+         linkify()/xref() already render everywhere else in this file. No replacement
+         confidence word is invented. */
+      grade = (meta.claim && SECTIONS[meta.claim]) ? '[['+meta.claim+']]'
              : (meta.claimNote ? meta.claimNote : 'scenario premise'); }
     else if(meta.kind==='config'){
       const c=CONFIG[k];
@@ -9084,7 +9181,20 @@ function composeDerivation(state, m, v){
       grade=_isPhiC0?(c.status+(_livePhiC0>0?', ADVANCED, dragged live':', ADVANCED, functional default 0 (inert)'))
            :(_isFisOvr||_isSolOvr)?(c.status+', ADVANCED OVERRIDE (ephemeral, not written to CONFIG)'):c.status;
     }
-    else { const c=VALUE[k]; value=c.value; unit=c.unit; grade=c.status; }
+    else {
+      /* Item 5, Step 39.5, extended beyond the build brief's own three-row list. The brief
+         named kind:'input' (ice, phi_c, landed_cost) and ruled kind:'config' untouched, but
+         did not examine this third branch, kind:'value' (L, op_prop, op_const in this table).
+         VALUE[k].status carries the identical VERIFIED-family vocabulary the brief exists to
+         remove: VALUE.op_prop.status reads "PROJECTED, UNVERIFIED-pending" verbatim, rendered
+         here at every dial state, which the sub-step 13 sweep this step closes on would have
+         caught regardless of whether this file named it. Every kind:'value' row rendered in
+         this table carries a resolvable claim (L, op_prop and op_const all do), so the same
+         identity-link treatment applies, consistent rather than inventing a second rule. The
+         underlying VALUE[k].status field is untouched, since HG1 and TR2 read it directly. */
+      const c=VALUE[k]; value=c.value; unit=c.unit;
+      grade = (meta.claim && SECTIONS[meta.claim]) ? '[['+meta.claim+']]' : c.status;
+    }
     if(meta.claim) addClaims([meta.claim]);
     return {sym:k, label:meta.label, value:value, unit:unit, grade:grade, claim:meta.claim, kind:meta.kind, claimNote:meta.claimNote};
   });
@@ -9300,14 +9410,20 @@ function runDerivationTests(fileText){
       if(dv.crossover==='CROSS-BAND' && !/band/i.test(crossText)){ ok=false; why.push('CROSS-BAND lacks the word band'); }
       // (c) the lead carries the mass-payback framing; grades are present
       if(!/mass-payback/i.test(dv.lead)){ ok=false; why.push('lead lost the mass-payback framing'); }
-      if(!/PROJECTED/.test(dv.grades) || !/UNVERIFIED-pending/i.test(dv.grades)){ ok=false; why.push('grades template missing PROJECTED/UNVERIFIED-pending'); }
-      // (d) op_prop is shown with its pending grade in the coefficient table
+      // Step 39.5 re-fit: PROJECTED/UNVERIFIED-pending are retired from every rendered path,
+      // this paragraph included (build brief item 6). The substantive claim these words used
+      // to carry, that op_prop is an estimate without a confirmed source figure, survives in
+      // plain language, and this is what the gate now checks rather than the retired words.
+      if(!/estimate/i.test(dv.grades) || !/settled/i.test(dv.grades)){ ok=false; why.push('grades template lost the op_prop estimate/no-settled-figure language'); }
+      // (d) op_prop's coefficient-table cell links the claim's own identity rather than
+      // grading it (build brief item 5, extended to the kind:'value' rows at Wave 1B); the
+      // pre-render value is the [[slug]] token linkify() turns into the ledger cross-reference.
       const coefSec=dv.sections.find(s=>s.id==='coefficients');
       const opRow=coefSec.coeff.find(r=>r.sym==='op_prop');
-      if(!opRow || !/PROJECTED/.test(opRow.grade) || !/UNVERIFIED-pending/i.test(opRow.grade)){ ok=false; why.push('op_prop row lacks PROJECTED/UNVERIFIED-pending grade'); }
+      if(!opRow || !/\[\[propellant-operating-floor\]\]/.test(opRow.grade)){ ok=false; why.push('op_prop row lost its claim-identity link'); }
     }
     rec('DR4','GATE','pending claims hedged; crossover is a band with no hard date/point; mass-payback lead and grades present', ok,
-        ok?'every pending-touching note hedged; no crossover year or $35,300 pin; mass-payback lead and PROJECTED/UNVERIFIED-pending grades present':why.slice(0,4).join('  '));
+        ok?'every pending-touching note hedged; no crossover year or $35,300 pin; mass-payback lead states the op_prop estimate/settled-figure language; op_prop row carries its claim-identity link':why.slice(0,4).join('  '));
   }
 
   // ---- DR5 (REVIEW): derivation panel wired in-page (source-presence proxy) ----
@@ -9394,11 +9510,11 @@ function runDerivationTests(fileText){
     const wrongSettled = Object.keys(SECTIONS).filter(function(id){ return SECTIONS[id].counterCase === SETTLED_MARKER; });
     rec('NOTES-05','GATE','byte-absence of the settled marker on any of the 50 migrated claims', wrongSettled.length===0, wrongSettled.length?('unexpected: '+wrongSettled.join(',')):'zero, as expected');
   }
-  // NOTES-06: visual grouping is the Designer's Wave 2 document-design
+  // NOTES-06: visual grouping is a Wave 2 document-design
   // review, already assigned; this row is the placeholder recording that
   // assignment, matching the J06-D precedent for a REVIEW-tier deferral.
   {
-    rec('NOTES-06','REVIEW','visual grouping of the Notes tab is the Designer\'s Wave 2 review; this row is the placeholder, not a Wave 1 pass/fail', true);
+    rec('NOTES-06','REVIEW','visual grouping of the Notes tab is a Wave 2 review; this row is the placeholder, not a Wave 1 pass/fail', true);
   }
 
   // ---- Step 33 promotion: DEF-01..05, the Definitions tab symbol list ----
@@ -9448,12 +9564,12 @@ function runDerivationTests(fileText){
   }
   // DEF-05: cross-tab consistency spot check between the Definitions tab's
   // claim pointer and the Notes tab's own claim entry, where they overlap
-  // (a full join is the Fact-Checker's Wave 2 assignment).
+  // (a full join is a Wave 2 assignment).
   {
     const transDef = KNOB_DATA.DERIVATION.coeff.transmission;
     const fFisDef = KNOB_DATA.DERIVATION.coeff.fFis;
     const fFisClaimResolves = fFisDef.claim && SECTIONS[fFisDef.claim] && SECTIONS[fFisDef.claim].source.length>0;
-    rec('DEF-05','REVIEW','spot check: fFis\'s Definitions claim (fission-specific-power) resolves in SECTIONS; transmission carries a claimNote, not a dangling numeric ID (full cross-tab join is the Fact-Checker\'s Wave 2 job)',
+    rec('DEF-05','REVIEW','spot check: fFis\'s Definitions claim (fission-specific-power) resolves in SECTIONS; transmission carries a claimNote, not a dangling numeric ID (full cross-tab join is a Wave 2 job)',
         fFisClaimResolves && !!transDef.claimNote, 'fFis->'+fFisDef.claim);
   }
 
@@ -9464,6 +9580,7 @@ function runDerivationTests(fileText){
 <!-- ===== CR38-REGION-A:END ===== -->
 <script>
 <!-- ===== CR38-REGION-C:START ===== -->
+/* ===== ABSTRACT-CORE:START ===== */
 /* ============================================================
    THE PER-SCENARIO EXECUTIVE ABSTRACT AND ITS PRESET-DEVIATION FADE.
 
@@ -9600,10 +9717,15 @@ function abstractCurrent(){
    being switched off. */
 function abstractKnobDeviation(key, cur, ref){
   if (ABSTRACT_CATEGORICAL[key]) return cur === ref ? 0 : 1;
-  /* The zero guard. A preset value of zero makes the ratio undefined, and this is
-     not hypothetical: the construction share snaps to exactly zero at all three
-     presets. Any nonzero dial is full deviation. ABST-10 records that the
-     rejected rail-band alternative agrees at every reachable detent. */
+  /* The zero guard. A preset value of zero makes the ratio undefined, which is why the
+     branch exists: without it a zero-referenced preset would divide by zero rather than
+     read as full deviation. It is no longer the shipped state of any preset: Step 39.5 gave
+     the phi_c rail an exact 0.05 notch, so all three presets now snap to 0.05, not to zero,
+     and this branch is a dormant safety net for a hypothetical future zero-referenced preset
+     rather than a fact about the three shipped today. Any nonzero dial off a zero reference
+     is still full deviation. ABST-10 records that the rejected rail-band alternative now
+     diverges from this guard at the reachable notches at or below rampLo, which the old
+     five-notch rail had none of; the divergence is no longer only theoretical. */
   if (ref === 0) return cur === 0 ? 0 : 1;
   return Math.abs(cur - ref) / Math.abs(ref);
 }
@@ -9937,7 +10059,7 @@ function runAbstractTests(){
         'ruled: era is outside the dependency set and every sentence is true at all three eras. '+seen.join(', '));
   })();
 
-  // ABST-08: the installed prose is the Writer's, with his measured properties intact.
+  // ABST-08: the installed prose is fixed, with its own measured properties intact.
   (function(){
     const bad = [];
     var n = 0, digits = 0;
@@ -9982,24 +10104,40 @@ function runAbstractTests(){
   // ABST-10: the rejected zero-guard alternative, recorded rather than shipped.
   // The rail-band formula is computed here and nowhere else in the file, so the
   // production path carries one branch while the measurement behind the ruling
-  // stays checkable. The agreement holds across reachable detents, not in general.
+  // stays checkable.
+  // Step 39.5, item 10 re-fit (the ruling; build brief item 10). Once the
+  // phi_c rail represents 0.05 exactly, all three presets snap to 0.05, never to 0, so the
+  // zero-guard branch of abstractKnobDeviation never fires for a shipped preset; it survives
+  // as a dormant safety net for a hypothetical future zero-referenced preset, not as a
+  // load-bearing behavior of today's three. The old comment above this block, and the
+  // shipped-vs-alternative comparison below it, both said the two formulas "agree across
+  // reachable detents, not in general," naming the exact failure mode as hypothetical: "a
+  // rail carrying a detent within rampLo of a zero preset would separate them." The 21-notch
+  // rail now puts three real notches there, 0.05, 0.10 and 0.15, and this gate is re-fit to
+  // show that predicted divergence rather than assert an agreement that no longer holds.
   (function(){
     const bad = [], rail = DETENTS.phi_c, span = rail[rail.length-1] - rail[0];
     const railBand = function(v){ return v === 0 ? 0 : (span === 0 ? 1 : Math.abs(v) / Math.abs(span)); };
+    const mismatches = [];
     rail.forEach(function(v){
       const shipped = abstractKnobDeviation('phi_c', v, 0) > ABSTRACT_FADE_RULING.rampLo;
       const alt     = railBand(v) > ABSTRACT_FADE_RULING.rampLo;
-      if (shipped !== alt) bad.push('construction share '+v+' shipped '+shipped+' railBand '+alt);
+      if (shipped !== alt) mismatches.push(v);
     });
+    // Expected divergence: every reachable nonzero notch at or below rampLo. A full-deviation
+    // guard reads "faded" there; a proportional rail-band reads "not yet faded." Above rampLo,
+    // and at zero itself, both cross the same threshold the same way and agree.
+    const expected = rail.filter(function(v){ return v>0 && v<=ABSTRACT_FADE_RULING.rampLo; });
+    const gotExpected = mismatches.length===expected.length && mismatches.every(function(v,i){ return v===expected[i]; });
+    if (!gotExpected) bad.push('mismatch set '+JSON.stringify(mismatches)+' does not equal the predicted band '+JSON.stringify(expected));
     const presetZero = ids.filter(function(id){
       return DETENTS.phi_c[nearestIdx(DETENTS.phi_c, PRESETS[id].phi_c)] === 0; });
-    rec('ABST-10','GATE','the zero guard is load-bearing and the rejected alternative agrees where reachable',
-        bad.length===0 && presetZero.length===3,
+    rec('ABST-10','GATE','the zero guard is a dormant safety net, no longer load-bearing for any shipped preset, and it diverges from the rejected alternative exactly where predicted',
+        bad.length===0 && presetZero.length===0,
         bad.length ? bad.join('; ') :
-        presetZero.length+' of 3 presets snap the construction share to exactly zero, so the guard fires on every preset. '+
-        rail.length+' reachable detents, the shipped full-deviation guard and the rejected rail-band alternative fade or hold identically at every one. '+
-        'Agreement is measured across reachable detents only and does not hold in general: a rail carrying a detent within '+
-        ABSTRACT_FADE_RULING.rampLo+' of a zero preset would separate them.');
+        presetZero.length+' of 3 presets snap the construction share to exactly zero (all three now resolve to 0.05), so the guard never fires on a shipped preset today. '+
+        'Across '+rail.length+' reachable detents, the shipped full-deviation guard and the rejected rail-band alternative diverge at exactly '+
+        JSON.stringify(expected)+', the nonzero notches at or below rampLo ('+ABSTRACT_FADE_RULING.rampLo+') where a full-deviation response and a proportional one must disagree by construction, and agree at every other detent.');
   })();
 
   // ABST-11: the ramp is a ramp on this instrument, not a step wearing a ramp's clothes.
@@ -10241,6 +10379,7 @@ function runAbstractDecoy(){
   try { R = runAbstractTests(); } finally { abstractFadeOverride = null; }
   return R;
 }
+/* ===== ABSTRACT-CORE:END ===== */
 
 /* The abstract registers into the render cycle through the hook Region B publishes,
    rather than by reassigning window.render. Registration happens at parse time, before
@@ -10314,7 +10453,7 @@ const PRESET_OF_FUNDING = {med:'artemis', low:'contested', high:'commercial'};
    declared slug renders as a visible unresolved marker instead of quietly
    becoming prose, because a reference that fails silently is the failure
    this whole step exists to remove. And the anchor text is the referenced
-   thing's own title and never the word "here", per the Writer's Section 2.2,
+   thing's own title and never the word "here", per Section 2.2,
    so a reader learns what is on the other end before deciding to go.
    ============================================================ */
 const SLUGREG = KNOB_DATA.SLUGS;
@@ -10360,7 +10499,7 @@ document.addEventListener('click', e=>{
    THE EXCLUSION ENTRIES (Step 38, sub-step 3). An exclusion is a visible
    named entry and never an absence. The architecture ruling's Section 4.7
    specifies five fields; slug, title, state and ruling date come from the
-   register, and the two prose sentences come from the Writer's Section 3.2
+   register, and the two prose sentences come from Section 3.2
    verbatim. Nothing here is composed at render time, because a generated
    reason sentence would be a reason nobody ruled.
 
@@ -10506,11 +10645,17 @@ function ceilIdx(key){
   return idx;
 }
 function snapToEnvelope(fullUtil){
+  // Item 1, Step 39.5: the rail is fixed and the scenario moves the selected value along it,
+  // never the reverse. The unreached fullUtil===false clamp branch (Math.min against the
+  // scenario ceiling) is deleted rather than kept dormant: that shape is exactly the
+  // rail-truncation defect this step removes everywhere else, and a live call site is the
+  // only thing this ruling permits touching; every call in the shipped file already passes
+  // true (applyPreset, the phase handler, ABST-07's own harness). Per the ruling on the
+  // render-boundary architecture, Section 3.
   const env = currentEnv();
   state.fission = env.fission;
   const pc=ceilIdx('power'), mc=ceilIdx('mass');
-  if (fullUtil){ state.power=pc; state.mass=mc; }
-  else { state.power=Math.min(state.power,pc); state.mass=Math.min(state.mass,mc); }
+  state.power=pc; state.mass=mc;
 }
 function applyPreset(p){
   // Phase is global: a preset changes the active scenario, never the phase.
@@ -10531,7 +10676,7 @@ function applyPollInput(_input){ /* intentionally inert: architectural seam only
 
 /* ============================================================
    HERO TRACK: the mockup's own pos()/tick/target/.mk math and markup,
-   kept verbatim (Systems Engineer ruling b). SCEN is the shipping app's
+   kept verbatim (ruling b, ported unmodified). SCEN is the shipping app's
    separation-strip identity object, ported byte-identical (J06 depends
    on finding this exact declaration).
 
@@ -10605,15 +10750,27 @@ for(let i=0;i<4;i++){ const o=document.createElement('div'); o.className='out'; 
    to the shipping app so the nine operating points stay exact notches.
    ============================================================ */
 function syncSliderRange(inputEl, key){
+  // Item 1, Step 39.5: every detent key now follows the identical one-line rule; power and
+  // mass no longer clamp their own max to the scenario's ceiling, ceilIdx(key) instead
+  // positions a marker on the fixed rail so a reader can still see where that scenario's
+  // envelope sat. No new state field: the marker is recomputed from ceilIdx at the same
+  // cadence this function already runs, never stored.
   const steps = DETENTS[key].length;
   inputEl.min = 0;
-  inputEl.max = (key==='power'||key==='mass') ? ceilIdx(key) : steps-1;
+  inputEl.max = steps-1;
   inputEl.step = 1;
   inputEl.value = state[key];
+  if (key==='power' || key==='mass'){
+    const mk = inputEl.parentElement.querySelector('.envmark');
+    if (mk){
+      const ci = ceilIdx(key);
+      mk.style.left = (steps>1 ? (ci/(steps-1))*100 : 0) + '%';
+    }
+  }
 }
 function bindDetentSlider(inputEl, key){
   inputEl.addEventListener('input', ()=>{
-    const capMax = (key==='power'||key==='mass') ? ceilIdx(key) : DETENTS[key].length-1;
+    const capMax = DETENTS[key].length-1;
     state[key] = Math.max(0, Math.min(capMax, parseInt(inputEl.value,10)));
     render();
   });
@@ -10863,7 +11020,14 @@ function renderValueTab(v){
   } else if(v.op_prop<=0){
     cross='With the operating floor at zero there is no launch-price crossover. Propellant carries a positive margin at every launch price, thinner than construction.';
   } else {
-    cross='Soft launch-price crossover: propellant margin turns negative below about '+_usd(v.Dstar_prop)+'/kg. This is an assumption-driven band, not a date. It rides on the operating floor op_prop, PROJECTED and UNVERIFIED-pending, and moves with the mass knob.';
+    /* Item 6, Step 39.5, extended: this is the Value tab's own separate rendering of the
+       crossover step, a hand-duplicated near-copy of DERIVATION.honesty.crossBand living in
+       the UI region rather than the DATA-ISLAND, found only by actually switching to the
+       Value tab rather than reading the derivation island in isolation. It is not gated
+       behind the Advanced toggle, so it was a more exposed leak than the seven already
+       catalogued. Reworded on the same discipline as crossBand: op_prop's estimate status is
+       stated in plain terms, not the removed vocabulary. */
+    cross='Soft launch-price crossover: propellant margin turns negative below about '+_usd(v.Dstar_prop)+'/kg. This is an assumption-driven band, not a date. It rides on the operating floor op_prop, an estimate without a settled source figure, and moves with the mass knob.';
   }
   document.getElementById('valueCross').textContent = cross;
   document.getElementById('valueMassLegible').textContent = massLegibilityLine(v);
@@ -10871,8 +11035,7 @@ function renderValueTab(v){
 
 /* ============================================================
    SCENARIO TAB: app-layer wrapper over composeBlurb, ported
-   byte-for-byte in structure from the shipping app (Systems Engineer
-   ruling c): plain text via textContent, no translation shim.
+   byte-for-byte in structure from the shipping app (per ruling c): plain text via textContent, no translation shim.
    ============================================================ */
 /* Reactor-count note (Step 36, sub-steps 8 through 10). Computed from
    whatever power rail is actually dialed (m.power), never a fixed
@@ -11180,10 +11343,15 @@ document.getElementById('defsPanel').addEventListener('click', e=>{
   if (existing){ chip.nextElementSibling.remove(); chip.setAttribute('aria-expanded','false'); return; }
   document.querySelectorAll('#defsPanel .claimdetail').forEach(el=>el.remove());
   document.querySelectorAll('#defsPanel .claimchip').forEach(c2=>c2.setAttribute('aria-expanded','false'));
-  const pend=/pending/i.test(c.status);
   const det=document.createElement('div');
   det.className='claimdetail'; det.setAttribute('role','region'); det.setAttribute('aria-live','polite');
-  det.innerHTML='<span class="cid">'+esc(displayTitle(id))+'</span><span class="cstat '+(pend?'pend':'ok')+'">'+esc(c.status)+'</span> '+xref(id,'read it in the ledger')+'<div class="csrc"></div>';
+  /* Item 7, Step 39.5: branch on the same c.tier===undefined discriminant already
+     load-bearing at the ledger routing check. One of the fifty claim sections suppresses its
+     raw .status text (VERIFIED-family vocabulary, Quinn's ruling); one of the sixteen
+     reconciliation records keeps rendering .status (MODELED / FORMALLY EXCLUDED are outside
+     the ruling). The identity chip and the ledger cross-reference render either way. */
+  const statusSpan = (c.tier===undefined) ? '<span class="cstat">'+esc(c.status)+'</span> ' : '';
+  det.innerHTML='<span class="cid">'+esc(displayTitle(id))+'</span> '+statusSpan+xref(id,'read it in the ledger')+'<div class="csrc"></div>';
   setLinked(det.querySelector('.csrc'), c.source);
   chip.insertAdjacentElement('afterend', det);
   chip.setAttribute('aria-expanded','true');
@@ -11209,8 +11377,9 @@ document.getElementById('derivSections').addEventListener('click', e=>{
   const id=chip.dataset.cid, c=SECTIONS[id];
   if(!c){ det.hidden=true; return; }
   chip.setAttribute('aria-expanded','true');
-  const pend=/pending/i.test(c.status);
-  det.innerHTML='<span class="cid">'+esc(displayTitle(id))+'</span><span class="cstat '+(pend?'pend':'ok')+'">'+esc(c.status)+'</span> '+xref(id,'read it in the ledger')+'<div class="csrc"></div>';
+  // Item 7, Step 39.5: same branch as the #defsPanel handler above, same reasoning.
+  const statusSpan2 = (c.tier===undefined) ? '<span class="cstat">'+esc(c.status)+'</span> ' : '';
+  det.innerHTML='<span class="cid">'+esc(displayTitle(id))+'</span> '+statusSpan2+xref(id,'read it in the ledger')+'<div class="csrc"></div>';
   setLinked(det.querySelector('.csrc'), c.source);
   det.hidden=false;
 });
@@ -11292,7 +11461,7 @@ const SETTLED_MARKER = 'Settled; no open counter-case in the current ledger.';
 
    Every number below is read from the live model at render. None is typed
    here, so a moved coefficient moves the number without touching a sentence.
-   The arc is the Writer's Section 2.3, ten paragraphs, point first.
+   The arc follows Section 2.3, ten paragraphs, point first.
 
    The section set behind paragraph 3 is DERIVED rather than listed. The
    binding leg names a chain of equation keys, each equation declares the
@@ -11511,7 +11680,7 @@ function renderLedgerPanel(){
   const claimKeys=Object.keys(CLAIMREG);
   let rendered=0, renderedExcl=0, renderedRuled=0, renderedEvid=0, renderedExclEvid=0;
   let h='<p class="q">The Evidence Ledger. Every Claim this app carries, every section under it, and under each section the evidence and the argument it rests on.</p>';
-  h+='<p>Each section opens with what the app asserts and its evidence tier. Under that sits a control reading Evidence and argument, and behind it are the numbered evidence entries with their citations, the lettered argument including its counter-evidence and what it leaves open, and the sources. Nothing there needs a second document.</p>';
+  h+='<p>Each section opens with what the app asserts. The ruling on a reconciliation record also carries an evidence tier; a migrated claim does not render one here, by the same ruling that removed it elsewhere. Under that sits a control reading Evidence and argument, and behind it are the numbered evidence entries with their citations, the lettered argument including its counter-evidence and what it leaves open, and the sources. Nothing there needs a second document.</p>';
   h+='<p>Some of the Claims below carry a note saying this app does not model them, and that note records a decision with a date rather than an oversight. Eleven claims went missing on this project under two totals that both read fifty, and nothing could tell a deliberate omission from an accidental one, because both looked like nothing. Each of those notes carries the same Evidence and argument control a modeled section carries, because the basis on which something was ruled out of scope is evidence a reader is entitled to read.</p>';
   claimKeys.forEach(ck=>{
     const row=SLUGREG[ck];
@@ -11544,8 +11713,15 @@ function renderLedgerPanel(){
       } else {
         const isSettled = c.counterCase === SETTLED_MARKER;
         const cj = COUNTER_JOIN[s]||{};
-        h+=badge(c.tier)+
-           '<p style="margin:4px 0 4px">'+linkify(_notesExcerpt(c.source))+'</p>'+
+        /* Item 4, Step 39.5, Quinn's ruling 2026-08-23: a tier tag asserting this project's
+           own verification is process theater a reader should never see. badge(c.tier) is
+           removed from this render; c.tier itself stays byte-identical in the data island,
+           since its presence (not only its content) is the discriminant, above, that routes
+           a section to this claim branch rather than the reconciliation branch, and Quinn's
+           own planned ledger hyperlinks will want the section identity (esc(s), already
+           printed above) intact. Per the ruling on the render boundary,
+           Section 2. */
+        h+='<p style="margin:4px 0 4px">'+linkify(_notesExcerpt(c.source))+'</p>'+
            '<p style="margin:0;color:var(--muted)"><em>Counter-case.</em> '+
            linkify(isSettled ? SETTLED_MARKER : c.counterCase)+'</p>';
         if(cj.arg) h+='<p style="margin:3px 0 0;color:var(--faint);font-family:var(--mono);font-size:11px">'+
@@ -11673,6 +11849,7 @@ function userFacingText(){
    real pre-migration file, and that run is recorded in
    the migration report rather than asserted here.
    ============================================================ */
+/* ===== LEDGER-CORE:START ===== */
 function ledgerCoverage(data){
   /* Pure over its argument, so the same code decides the shipped artifact and the decoy.
      It returns a verdict and the names behind it, never a bare boolean. */
@@ -11868,6 +12045,7 @@ function runLedgerTests(){
 
   return R;
 }
+/* ===== LEDGER-CORE:END ===== */
 
 /* ============================================================
    LEDG-09 and LEDG-10 are DOM-scoped and are called from the page only. They read what a
