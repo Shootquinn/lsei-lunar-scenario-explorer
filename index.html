@@ -1158,7 +1158,7 @@
  "phiC0": {
   "value": 0.1,
   "unit": "fraction",
-  "source": "No ledger claim states this figure or its physical basis. A sweep of the live Evidence Ledger for phi_c_0, non-productive, consumables, and service life returns zero hits on any claim; the nearest thematic node, [[productive-mass-fraction]], is about value framing and states no split figure. The roughly 0.10 value is Quinn's own design ruling, agreed 2026-08-20, representing the fraction of raw landed mass that is consumables, spares, crew support, science payload, and tourism rather than productive plant.",
+  "source": "No numbered ledger claim states this figure or its physical basis, and the roughly 0.10 value is Quinn's own design ruling, agreed 2026-08-20, representing the fraction of raw landed mass that is consumables, spares, crew support, science payload, and tourism rather than productive plant. The quantity does have a home in the ledger: [[productive-mass-fraction]] carries it, states that this allocation is live at 0.10 and is exactly what that section is about, and records its own state as modeled with no numbered claim behind it. Corrected 2026-08-24: this note previously said that section states no split figure, which the Step 38 reconciliation had already made false when it assigned the quantity there, and a Step 40 generation run inherited the stale sentence into a document before anyone read the section itself.",
   "status": "CONTROL (design ruling, not a literature figure)",
   "note": "Advanced-mode exploration control. Step 35: the functional default is now live at 0.10, matching the slider's UI-suggested starting position; opening the Advanced panel with no drag now reproduces the live 0.10 reading, not an inert 0. An explicit drag still overrides to whatever value the slider then reads, including back to 0."
  }
@@ -6518,7 +6518,7 @@
        pre-item-16 file, 0 moved, 0 added, 0 dropped (13, 0, 14 and 14 numeric leaves
        respectively, identical counts and identical values before and after).
        Previous pin d9cd1496, from Step 39.5 item 13. */
-    __pin: "f95dfeaa"
+    __pin: "ca689ef3"
   };
 
   root.KNOB_DATA = KNOB_DATA;
@@ -9062,7 +9062,14 @@ function runBlurbTests(fileText){
   // narrow, stable thing to whitelist; the deferral is not enumerable.
   {
     const mentionsLedgerRe = /\bledger\b/i;
-    const disclosesAbsenceRe = /\bzero\s+hits\b|\bno\s+claim\b|\breturns?\s+nothing\b|\bfound\s+nothing\b/i;
+    // Step 40 widening. The exemption was keyed to the literal "no claim" and a
+    // correction written on 2026-08-24 said "No numbered ledger claim", which is
+    // the same disclosure with a qualifier inside it, so an honest field fired as
+    // a deferral. That is the standing rule about a detector keyed to one
+    // construction's exact spelling, landing on the very test promoted to fix an
+    // instance of it. The qualifier slot is bounded at two words so the exemption
+    // stays narrow: "no claim", "no numbered claim", "no numbered ledger claim".
+    const disclosesAbsenceRe = /\bzero\s+hits\b|\bno\s+(?:\w+\s+){0,2}claim\b|\breturns?\s+nothing\b|\bfound\s+nothing\b/i;
     function isDeferral(text){ return mentionsLedgerRe.test(text) && !disclosesAbsenceRe.test(text); }
     const hits = [];
     ['CONFIG','VALUE'].forEach(function(blk){
@@ -9081,14 +9088,16 @@ function runBlurbTests(fileText){
       {label:'escape 5 (adjudicated-at-the-ledger, no C0 form)', text:'Adjudicated at the ledger, C08 Part 2', expectFire:true},
       {label:'escape 6 (bare pointer, no verb)', text:'Evidence Ledger sintering-specific-energy Part 2', expectFire:true},
       {label:'DECOY (original eSinter defect)',  text:'Standing and provenance are adjudicated at Evidence Ledger sintering-specific-energy Part 2', expectFire:true},
-      {label:'GUARD (phi_c0 honest disclosure)', text:'A sweep of the live Evidence Ledger for phi_c_0, non-productive, consumables, and service life returns zero hits on any claim', expectFire:false}
+      {label:'GUARD (phi_c0 honest disclosure)', text:'A sweep of the live Evidence Ledger for phi_c_0, non-productive, consumables, and service life returns zero hits on any claim', expectFire:false},
+      {label:'GUARD 2 (qualified absence, the Step 40 wording)', text:'No numbered ledger claim states this figure or its physical basis', expectFire:false},
+      {label:'escape 7 (a qualifier after no is not a licence)', text:'No fewer than three ledger entries carry the basis for this figure', expectFire:true}
     ];
     const caseResults = cases.map(function(c){
       const fired = isDeferral(c.text);
       return {label:c.label, fired:fired, expected:c.expectFire, ok:fired===c.expectFire};
     });
     const allCasesOK = caseResults.every(function(r){ return r.ok; });
-    rec('SRC-02','GATE','sweep of every CONFIG/VALUE .source field for a circular ledger deferral (broad ledger-mention trigger, narrow absence-disclosure exemption) returns zero hits; all 8 proof cases (6 escapes plus DECOY and GUARD) resolve correctly',
+    rec('SRC-02','GATE','sweep of every CONFIG/VALUE .source field for a circular ledger deferral (broad ledger-mention trigger, narrow absence-disclosure exemption) returns zero hits; all 10 proof cases (7 escapes plus DECOY and two GUARDs) resolve correctly',
         hits.length===0 && allCasesOK,
         (hits.length?('hits: '+hits.join(',')+'; '):'zero hits; ')+caseResults.map(function(r){ return r.label+'='+(r.ok?'OK':'FAIL('+r.fired+')'); }).join(', '));
   }

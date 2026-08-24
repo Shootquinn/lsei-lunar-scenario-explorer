@@ -29,9 +29,9 @@ being read end to end.
 | item | value | kind of stamp |
 |---|---|---|
 | Source artifact | `index.html` | the app in this repository |
-| Artifact md5 | `9574f0b21be67c2bc0625175d1fe4e69` | DERIVED. The generator reads the file and derives the digest at this build. It holds no expected value to compare against, since the pin was removed so the generator runs against any build on any machine |
-| Artifact bytes on disk | 889,683 | measured at this build |
-| Data island pin | `f95dfeaa` | RECORDED OBSERVATION. Read out of the artifact. It is FNV-1a over CONFIG, CLAIMS, VALUE and LANDED_COST, and there is nothing here to compare it against |
+| Artifact md5 | `c6909e139dae8bb4fd4ff8b6b8d0c892` | DERIVED. The generator reads the file and derives the digest at this build. It holds no expected value to compare against, since the pin was removed so the generator runs against any build on any machine |
+| Artifact bytes on disk | 890,910 | measured at this build |
+| Data island pin | `ca689ef3` | RECORDED OBSERVATION. Read out of the artifact. It is FNV-1a over CONFIG, CLAIMS, VALUE and LANDED_COST, and there is nothing here to compare it against |
 | Generator | `tools/build_map.js` | this file names it and it names this file |
 
 Neither stamp is a check, and that is a change from how this file used to read. The generator
@@ -71,9 +71,9 @@ what makes them useful is that they name the build rather than that they guard i
 | Retired identifiers with a resolved slug | 63 | an old number-label and what it became |
 | Retired identifiers resolved by adjudication | 3 | resolved with the reason recorded |
 | Retired identifiers nothing decides | 1 | recorded unresolved rather than assigned by proximity |
-| Registered artifacts | 24 | a row in the artifact register |
-| Artifacts a builder produces | 9 | a derived copy with a machine-followable join |
-| Registered artifacts present at their registered path | 24 | measured against the disk at this build |
+| Registered artifacts | 38 | a row in the artifact register |
+| Artifacts a builder produces | 16 | a derived copy with a machine-followable join |
+| Registered artifacts present at their registered path | 38 | measured against the disk at this build |
 | Registered artifacts absent from their registered path | 0 | a register-against-disk divergence, listed below |
 | Declared manual dependencies | 13 | a restatement with no builder, each verified present at this build |
 

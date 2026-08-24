@@ -231,6 +231,15 @@ banned by name.
 Titles are laconic. A title is a plain name for the thing. Epistemic theater in a title is a rename
 waiting to happen.
 
+**Headings take sentence case, with one exception that is a rule rather than a loophole.** A heading
+the writer composes is sentence case, because title case in a heading is one of the tells the guides
+you read in step 2 name by category. A heading that reproduces a section name a class template
+declares keeps the template's own casing, because that name is a label the shape owns rather than a
+phrase the writer chose, and changing it makes the regenerated document stop matching the shape it
+exists to reproduce. So Baseline Conditions and Quantitative Parameters stay as the class four table
+writes them, and a request heading or a framing section a writer names goes in sentence case. The
+document's own title is outside this rule.
+
 **The trace convention is part of the check, so it is a rule rather than a style.** Every
 claim-bearing sentence carries a trace, written `[[slug]]`, and the trace sits immediately before the
 sentence's terminal punctuation.
