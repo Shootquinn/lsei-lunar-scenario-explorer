@@ -6705,7 +6705,7 @@ function envelope(funding, phase){ return ENVELOPE[funding][phase]; }
    the value-layer dial; its rail is held in the DATA-ISLAND above. */
 const DETENTS = {
   ice:   [1,2,5,10,20],
-  power: [10,50,100,200,400,1000],
+  power: [10,50,100,200,400,1000,2000,5000,10000],
   mass:  [10,75,100,150,500,1000,10000],
   phi_c: [0,0.05,0.10,0.15,0.20,0.25,0.30,0.35,0.40,0.45,0.50,0.55,0.60,0.65,0.70,0.75,0.80,0.85,0.90,0.95,1.0],
   landed_cost: KNOB_DATA.LANDED_COST.rail
@@ -6909,7 +6909,7 @@ function runTests(fileText){
     for (const bg of [{ice:5,power:100,fission:true},{ice:1,power:45,fission:false}])
       nonDec(DETENTS.mass.map(mass=>model({mass,...bg}).cap),'mass');
     // power: tested in the mass-ample regime (couples to the envelope in the app; here we isolate the intended sign)
-    for (const bg of [{ice:5,mass:10000,fission:true},{ice:5,mass:10000,fission:false},{ice:15,mass:10000,fission:true}])
+    for (const bg of [{ice:5,mass:1000000,fission:true},{ice:5,mass:1000000,fission:false},{ice:15,mass:1000000,fission:true}])
       nonDec(DETENTS.power.map(power=>model({power,...bg}).cap),'power');
     // funding: inert to cap at fixed power/mass -> constant -> non-decreasing
     for (const bg of [{ice:5,power:150,mass:1000,fission:true}])
@@ -8199,12 +8199,12 @@ function runValueTests(fileText){
   // 0, 0.25, 0.5, 0.75 and 1.0 as exact notches since all four are multiples of 0.05.
   {
     const eq=(a,b)=>a.length===b.length && a.every((x,i)=>x===b[i]);
-    const okI=eq(DETENTS.ice,[1,2,5,10,20]), okP=eq(DETENTS.power,[10,50,100,200,400,1000]),
+    const okI=eq(DETENTS.ice,[1,2,5,10,20]), okP=eq(DETENTS.power,[10,50,100,200,400,1000,2000,5000,10000]),
           okM=eq(DETENTS.mass,[10,75,100,150,500,1000,10000]),
           okC=eq(DETENTS.phi_c,[0,0.05,0.10,0.15,0.20,0.25,0.30,0.35,0.40,0.45,0.50,0.55,0.60,0.65,0.70,0.75,0.80,0.85,0.90,0.95,1.0]);
     const pass=okI&&okP&&okM&&okC;
     rec('N1','GATE','DETENTS are the validated notch sets (ice/power/mass/phi_c)', pass,
-        pass?'ice[1,2,5,10,20] power[10,50,100,200,400,1000] mass[10,75,100,150,500,1000,10000] phi_c[0,0.05,0.10,...,1.0], 21 notches':`ice=${okI} power=${okP} mass=${okM} phi=${okC}`);
+        pass?'ice[1,2,5,10,20] power[10,50,100,200,400,1000,2000,5000,10000] mass[10,75,100,150,500,1000,10000] phi_c[0,0.05,0.10,...,1.0], 21 notches':`ice=${okI} power=${okP} mass=${okM} phi=${okC}`);
   }
 
   // ---- SW1 (GATE): out-of-envelope warns without blocking; finite result ----
