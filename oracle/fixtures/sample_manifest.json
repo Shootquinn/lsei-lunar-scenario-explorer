@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "figure": "era-series__agency-led-baseline-water",
+  "form": "era-series",
+  "slugsAddressed": [
+    "scenario:artemis",
+    "output:water"
+  ],
+  "address": {
+    "form": "era-series",
+    "scenario": "Agency Led Baseline",
+    "output": "water"
+  },
+  "points": [
+    {
+      "slug": "model:artemis|2030|water",
+      "label": "Prospecting",
+      "value": 1.5579999999999998,
+      "binding": "landed mass",
+      "feasible": false
+    },
+    {
+      "slug": "model:artemis|2040|water",
+      "label": "Pilot",
+      "value": 13.35833,
+      "binding": "landed mass",
+      "feasible": false
+    },
+    {
+      "slug": "model:artemis|2055|water",
+      "label": "Sustained",
+      "value": 70.53331999999999,
+      "binding": "landed mass",
+      "feasible": false
+    }
+  ],
+  "unit": "t/yr",
+  "caption": "Agency Led Baseline, water (t/yr) by era: Prospecting = 1.558 (landed-mass limited); Pilot = 13.358 (landed-mass limited); Sustained = 70.533 (landed-mass limited).",
+  "captionTraces": [
+    "model:artemis|2030|water",
+    "model:artemis|2040|water",
+    "model:artemis|2055|water"
+  ],
+  "source": {
+    "appPath": "Lunar_Scenario_Explorer.html",
+    "appHash": "16caa330ebae773684285c301a8e0a98",
+    "generatedAt": "2026-08-27T01:01:46.592Z"
+  }
+}

@@ -1,0 +1,33 @@
+# Lunar Data Economy via Commercial Data Markets
+
+## Citation
+
+Matthews, J. (2026). *Establishing a self-sustaining lunar data economy through commercial data markets* [Conference paper]. 2026 IEEE Aerospace Conference (ISBN 979-8-3315-7360-7). Institute of Electrical and Electronics Engineers. https://doi.org/10.1109/AERO66936.2026.11519879 [DOI, venue, and ISBN confirmed PRINTED — page 1's rotated left-margin block reads: "2026 IEEE Aerospace Conference | 979-8-3315-7360-7/26/$31.00 ©2026 IEEE | DOI: 10.1109/AERO66936.2026.11519879" (verified visually on a 200-dpi render of page 1); the line "979-8-3315-7360-7/26/$31.00 ©2026 IEEE" is also printed in the page-1 footer.]
+
+Publisher URL: https://doi.org/10.1109/AERO66936.2026.11519879
+
+## Abstract
+
+Conference paper arguing that the binding constraint on lunar surface exploration is the cost of data, not the cost of launch. It models how surviving the lunar night with Radioisotope Power Systems (RPS) collapses cost-per-gigabyte from over $2M/GB toward under $10K/GB by amortizing fixed infrastructure across many customers, and it prescribes a shift from single-buyer government procurement to a two-sided commercial data marketplace.
+
+## Summary
+
+### Background and objective
+The paper frames the next phase of lunar exploration (NASA's Artemis program, ESA's Argonaut, China's Chang'e and planned International Lunar Research Station) as data-starved: ambitious plans rest on sparse data, much of it decades old and collected far from currently targeted sites. The author, affiliated with the University of Dayton Research Institute, contends that decisions about landing-site de-risking, In-Situ Resource Utilization (ISRU) viability, and base siting require far more surface data than current missions return. The central objective is to reframe the economics of lunar activity around cost-per-gigabyte of returned data rather than hardware/deployment cost, and to show that extending mission duration through night-survival power infrastructure is the dominant lever on that metric.
+
+### Methods and scope
+The analysis is an economic/cost model, not an experimental study. It defines the key metric as cost-per-gigabyte and treats mission longevity as the single most sensitive variable, because deployment (launch and landing) costs are fixed and high (stated at roughly $1M/kg). The paper compares power/survival technologies at a high level, positioning RPS against solar-plus-battery and other "Survive-the-Night" (STN) approaches, and lays out the physical constraints of the lunar night: surface temperatures near 100 K, equatorial nights of roughly 14 days, polar nights extending to about 16 days due to the Moon's ~1.5 degree axial tilt, a Minimum Continuous Darkness of at least 150 hours, and Effective Energy Storage Duration targets of 336 hours (equatorial) to 384 hours (polar). It illustrates the storage burden with an example: a 5 W survival heat load requires nearly 2,000 Wh of storage across the lunar night. A retrospective cost table converts historical mission costs and returned data into $/GB. The prescriptive portion draws on two-sided-market (platform) economics and the commercial Earth Observation precedent.
+
+### Key findings
+- Current cost of lunar surface data is stated at greater than $2 million per gigabyte, driven by short solar-powered lander lifespans.
+- A retrospective table (Table 2) contrasts solar/battery Surveyor missions with RPS-equipped Apollo ALSEP stations. Surveyor data costs ranged roughly $4.7M/GB to $22.7M/GB, while Apollo ALSEP stations (operating for thousands of days) reached about $0.14–$0.20M/GB — roughly an order of magnitude lower — despite higher total mission cost. Recent short-lived commercial landers show extreme values: IM-1 at $345M/GB and IM-2 at $317M/GB, with Blue Ghost 1 at about $1.9M/GB.
+- Illustrative economics: a $50M mission yielding only 10–20 GB before failing could, with night survival, generate 10–20 GB per lunar day for over a year; splitting the fixed cost across ~12 customers at $5M each drives effective data cost down roughly 90% to about $250,000/GB. Extending operational life to 5 years lowers it to about $50,000/GB, and higher cadence with reduced non-recurring engineering could approach $10,000/GB.
+- Data requirements are quantified: topography/hazard mapping needs improvement from current 2–4 m/pixel to 0.5–2 m/pixel (with cm-level detail preferred); resource mapping at the poles needs 15–75 m/pixel; a single candidate site can require from 100 GB to multiple terabytes.
+- Cost figures cited include NASA paying Firefly $101.5M for the Blue Ghost 1 mission plus $10M for additional data and $44M to payload providers, yielding 55 GB returned.
+- Prescriptive thesis: RPS providers must move from government-centric procurement to a two-sided marketplace — supply side (commercial landers/RPS providers, high fixed cost, low marginal cost) and demand side (government agencies, mining startups, CLPS companies). The commercial Earth Observation market (e.g., Planet Labs shifting from "selling satellites" to "selling pixels") is offered as the analog for shifting from "selling landers" to "selling site-characterization data," supported by membership/hybrid pricing to resolve the paradox of falling production cost but needing sustainable consumer prices.
+
+### Limitations
+The paper is a conceptual and economic-modeling argument rather than a hardware study; it explicitly does not compare specific STN parameters or specific RPS designs. Cost-reduction figures are illustrative projections built on stated assumptions (customer counts, cadence, extended lifetimes) rather than observed marketplace outcomes. Historical data-volume figures rely on conversions (e.g., approximately 4.5 MB per Surveyor image) and prorated cost allocations. Demand-side willingness to pay and the emergence of the proposed marketplace are asserted as necessary conditions rather than demonstrated. The author's prior role as co-founder/CTO of an RPS company (Zeno Power) is disclosed in the biography.
+
+### Topic mapping
+Sections of the paper: (1) Introduction; (2) Survive-the-Night Technology Solution; (3) Data Requirements (topography and hazard mapping, surface material properties, resource mapping); (4) Data Collection Platform; (5) Transition from the National Prestige Industry; (6) The Marketplace Innovation (two-sided market theory, Earth Observation precedent); (7) Conclusion; plus Acknowledgements, References, and Biography. Subject areas: radioisotope power systems, lunar-night survival, lunar surface data economics, cost-per-gigabyte modeling, CLPS/commercial lunar landers, ISRU and resource prospecting, and two-sided/platform market economics.
