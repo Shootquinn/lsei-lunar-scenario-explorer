@@ -1,259 +1,72 @@
-# KRUSTY Reactor Design: Fuel, Shielding, and Reactivity Design of the Kilopower Prototype
+# Poston et al. 2020 - KRUSTY Reactor Design
+## Comprehensive Technical Summary
 
 ## Citation
 
-Poston, D. I., Gibson, M. A., Godfroy, T., & McClure, P. R. (2020). KRUSTY reactor design.
-Nuclear Technology, 206(sup1), S13–S30. https://doi.org/10.1080/00295450.2020.1725382
+Poston, D. I., Gibson, M. A., Godfroy, T., & McClure, P. R. (2020). KRUSTY reactor design. Nuclear Technology, 206(sup1), S13-S30. https://doi.org/10.1080/00295450.2020.1725382
 
-Publisher URL: https://www.tandfonline.com/doi/full/10.1080/00295450.2020.1725382
+Publisher URL: https://doi.org/10.1080/00295450.2020.1725382 (Taylor & Francis, Nuclear Technology journal page)
 
-Identity note: the printed masthead, page header, and byline all give **David I. Poston
-(Los Alamos National Laboratory)** as first author, with Marc A. Gibson (NASA Glenn
-Research Center) as second author, Thomas Godfroy (NASA Marshall Spaceflight Center) as
-third, and Patrick R. McClure (LANL) as fourth. The title as printed is "KRUSTY Reactor
-Design," not a "fission surface power" title. Received December 18, 2019; accepted
-January 31, 2020; published online June 4, 2020. Open access under a Creative Commons
-BY-NC-ND 4.0 license, copyright 2020 The Author(s), published with license by Taylor &
-Francis Group, LLC. The DOI above is printed on both the cover page and the article's
-own running header, so it is confirmed from the document and resolves the citation-ledger
-gap for this item. This is one of eight papers in a Nuclear Technology special issue
-(volume 206, supplement 1) documenting the KRUSTY project through its March 2018 test.
+## Metadata
+
+Peer-reviewed journal article, reactor design and engineering-philosophy paper (not a test-results paper); one of eight papers in a Nuclear Technology special issue documenting the KRUSTY project through its March 2018 final test (p. S13) · Institutions: Los Alamos National Laboratory (Poston, McClure), NASA Glenn Research Center (Gibson), NASA Marshall Space Flight Center (Godfroy) · Received December 18, 2019; accepted January 31, 2020; published online June 4, 2020; print volume 206, supplement 1 (2020) · Open access under a Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 license, published by Taylor & Francis Group. Note on authorship: Gibson is second author of this reactor-design paper (Poston is first/corresponding author); a separate, Gibson-led companion paper in the same special issue, "Heat Transport and Power Conversion of the Kilopower Reactor Test" (Nuclear Technology, 206, S31, 2020), covers the power conversion system and would carry Stirling-conversion-efficiency data, which this paper does not report.
+
+---
 
 ## Abstract
 
-Design paper for the KRUSTY (Kilowatt Reactor Using Stirling TechnologY) reactor, the
-nuclear-powered prototype of a 1-kWe, highly-enriched-uranium (HEU) Kilopower fission
-surface/space power reactor tested at the Nevada National Security Site in March 2018.
-Covers the design philosophy (simplicity as the controlling design driver), the fuel,
-heat-pipe, reflector, control-rod, and shield component specifications as built, and the
-neutronic/thermal design-calculation results (criticality tables, reactivity-feedback
-coefficients, power-deposition fractions) generated with the MRPLOW/MCNP/FRINK code
-chain. Also lists the eleven prioritized design goals against which the test was later
-judged. Authored by the reactor-design lead (Poston, LANL) with co-authors from the
-power-conversion (Gibson, NASA Glenn), integration (Godfroy, NASA Marshall), and
-reactor-physics (McClure, LANL) teams. Does not report quantitative test-run results
-(power achieved, run duration, measured-versus-predicted performance), Stirling
-conversion efficiency, hot/cold-end temperatures, radiator mass or area, or a system-level
-specific-power (W/kg) figure; the paper's own reference list attributes those to
-companion papers in the same special issue.
+Describes the design, and the design philosophy and decision history, of the KRUSTY (Kilowatt Reactor Using Stirling TechnologY) reactor: a prototypic, nuclear-powered test of a 5-kW(thermal) Kilopower space reactor concept intended to demonstrate that a 1-to-10-kW(electric) heat-pipe-cooled, solid-core fission power system could be built and operated affordably. Covers the reactor and system-level design decisions, the modeling and simulation chain used to develop the design, a component-by-component design description (fuel, heat pipes, clamps, insulation, vacuum can, control rod, reflector, shielding), and the neutronic, thermal, and reactivity-feedback calculations used to size and verify the design. States that KRUSTY achieved nuclear-powered operation in March 2018, the first new US reactor concept to do so in over 40 years.
 
-## Summary
+---
 
 ### Background and objective
 
-The paper opens by framing U.S. space fission power development since the 1960s SNAP
-program as a history of failure attributed to programs attempting too large a first
-step. It presents the 2012 DUFF (Demonstration Using Flattop Fissions) experiment as the
-deliberately small precursor step, executed for under $1 million in under six months
-using an existing critical assembly, a simple heat pipe, and off-the-shelf Stirling
-converters. KRUSTY is presented as the next step: a prototypic nuclear-powered test of a
-5-kW(thermal) Kilopower reactor built to be as flight-prototypic as possible within a
-3-year, under-$20-million program. Kilopower reactor concepts generally are described as
-intended for 1- to 10-kW(electric) space and surface power, with "a clear evolution to
-substantially higher power systems." The paper's stated objective is to document the
-KRUSTY reactor's design together with the philosophy, goals, and engineering decisions
-that led to the March 2018 successful nuclear-powered operation — the first
-nuclear-powered operation of a genuinely new U.S. reactor concept in over 40 years.
-Companion papers in the same issue are explicitly assigned the power-conversion system,
-regulatory approvals, and cold-critical, warm-critical, and full nuclear-system test
-results; this paper's scope is bounded to reactor design.
+Frames the KRUSTY program against a documented history of US space fission power failures, citing the Systems for Nuclear Auxiliary Power (SNAP) program of the 1960s as having consumed billions of dollars without tangible results, attributed to programs attempting too large a first step (p. S13). The 2012 DUFF (Demonstration Using Flattop Fissions) experiment is described as the preceding, deliberately minimal step, completed for under $1 million in under six months using an existing reactor and off-the-shelf Stirling converters (p. S13). KRUSTY is presented as the next step: a prototypic nuclear-powered test of a 5-kW(thermal) Kilopower space reactor, run as a 3-year, under-$20-million program (p. S13). The paper draws a terminology distinction between "reactor" (core, heat pipes, reflector, absorber rod, shield) and "system" (adds the power conversion system, heat rejection, control, and structure) (p. S13).
+
+Section III lists six key early design decisions the authors state were necessary for realistic cost and schedule: use a UMo fuel form castable at the existing Y-12 Security Complex; use an existing operational facility (the National Criticality Experiments Research Center, NCERC, within the Device Assembly Facility at the Nevada National Security Site); use an existing critical assembly machine (COMET) for reactivity insertion; accept the associated safety and asset risk; target approximately 5 kW(thermal) power, consistent with prior Flattop and DUFF operations; and reduce power-conversion-system cost by using two off-the-shelf Stirling converters plus six thermal simulators matched to their heat removal (p. S15-16).
+
+Section IV lists eleven prioritized KRUSTY goals, in order: (1) succeed, framed via a "best is the enemy of good enough" project mantra; (2) demonstrate dynamic reactor operation (met, except for gravity effects on the heat pipes); (3) operate at full power (met for the 5-kW(thermal) reactor; electrical capacity/efficiency only partially met using two real converters plus dummy heat rejection for the rest); (4) demonstrate flight-prototypic materials (met); (5) operate at full fuel temperature, goal greater than 800 C (met); (6) operate in vacuum (met, except that the radial reflector sat outside the vacuum boundary); (7) demonstrate neutronics of a highly beryllium-reflected system (met); (8) utilize flightlike core geometry (met); (9) demonstrate reactor control via the central B4C rod (met, mechanism itself out of scope); (10) demonstrate radial reflector temperature feedback (only partially met, discussed under Limitations); (11) demonstrate shield materials and effectiveness (limited relevance stated for a room-on-Earth test, but used for code benchmarking) (p. S16-17).
+
+Section V notes there was never a formal requirements document; instead, roughly 23 informal, common-sense sub-requirements flowed through the project, covering criticality safety margins (warm keff greater than 1.0; cold keff less than 0.993 for a 1.5-in COMET scram), fuel temperature limits (approximately 850 C for design-basis transients), reactivity coefficient behavior, dose-rate limits for room reentry and component disassembly on stated timescales (approximately 1 week to 1 year), and mechanical/thermal accommodations (p. S17-18).
 
 ### Methods and scope
 
-Design and analysis were performed with an in-house FORTRAN code, MRPLOW, which drives
-the design process from an input file of component specifications, materials,
-dimensions, design limits, temperature, power, and lifetime targets, generating a
-three-dimensional adaptive-geometry design, steady-state component temperatures, and
-mass/nuclear-parameter estimates. MRPLOW generates input decks for the MCNP Monte Carlo
-transport code (criticality, reactivity coefficients, control worths, shielding/dose,
-kinetics parameters), for MONTEBURNS (burnup reactivity and isotopics), and for FRINK
-(Fission Reactor Integrated Nuclear Kinetics), a coarse-mesh finite-difference code used
-for steady-state and transient coupled thermal-neutronic performance, including warm
-criticals and full-power-run scenarios such as simulated failed heat pipes or converters.
-ANSYS was used selectively for higher-fidelity thermal cross-checks against FRINK.
-Nuclear data used ENDF7.1 cross-section evaluations at 50 K temperature intervals. An
-MCNP model of the test facility (NCERC/DAF at the Nevada National Security Site) was
-built to compute room and hallway dose fields. The paper states there was no formal,
-project-wide quality-assurance directive; QA level was set component-by-component by
-facility safety-significance rules, with technical credibility built through frequent
-informal updates and by successfully predicting intermediate test results rather than
-attempting full pre-test code verification.
+The primary design tool was MRPLOW, an in-house FORTRAN code that ingests component specifications, materials, dimensions, design limits, and operating parameters, generates a 3-D design via adaptive geometry, calculates steady-state component temperatures, and produces mass and nuclear-parameter estimates (p. S18). MRPLOW generates input decks for the MCNP Monte Carlo transport code for criticality, reactivity-coefficient, control-worth, shielding/dose, and kinetics-parameter calculations across combinations of temperature, rod position, and surrounding environment (bare, water, sand, wet sand, vacuum) (p. S18). MRPLOW also drives MONTEBURNS (burnup reactivity and isotopics for dose/safety calculations) and FRINK (Fission Reactor Integrated Nuclear Kinetics), a coarse-mesh finite-difference code used for steady-state and transient system performance, including simulated failed-heat-pipe and failed-converter scenarios; ANSYS was used in some cases for detailed thermal comparison against FRINK (p. S18-19). Cross sections used ENDF7.1 data at 50 K intervals (p. S18). The paper states there was no overarching project-wide quality-assurance directive; QA level was set per component by facility safety rules, with project management relying on frequent informal updates and milestone reviews rather than mandated technical memos or independent model comparisons (p. S19).
+
+Section VII through IX describe the reactor design overview, the component-by-component design (fuel, heat pipes, ring clamps, multilayer insulation, vacuum can, B4C rod, neutron reflector, shielding), and the supporting neutronic/thermal/structural calculations (criticality safety, reactivity feedback by component, axial power peaking, temperature contours, and power deposition fractions), respectively (p. S19-S30). The paper explicitly states many detailed final-design calculations are deferred to follow-on benchmark papers comparing predictions to actual test results (p. S25).
 
 ### Key findings
 
-**Specific power (W/kg).** Not reported in this paper. No single system mass or reactor
-mass figure is given against which a system-level or reactor-level W/kg (or We/kg) value
-could be read directly; the paper reports component masses individually (below) rather
-than an integrated system mass-power ratio, and it does not state a derived specific-power
-figure of its own.
-
-**Power levels and configuration.** Kilopower systems generally: 1 to 10 kW(electric),
-with stated evolution toward higher-power systems. KRUSTY specifically: a prototype of a
-1-kW(electric) Kilopower system, built and operated as a 5-kW(thermal) reactor. A power
-level of approximately 5 kW(thermal) was chosen to be consistent with prior Flattop and
-DUFF operations while being high enough to be relevant to a useful flight system. Of the
-8 total heat pipes (1-for-1 heat-pipe-to-Stirling coupling), only 2 were connected to
-actual Stirling converters producing electricity; the other 6 used dummy thermal
-simulators to mimic converter heat removal — i.e., electrical output during the design
-described here was a partial, 2-of-8 subset of the reactor's thermal capacity. The paper
-states this "electrical capacity/efficiency goal was partially met."
-
-**Reactor, shield, and component masses.** Total KRUSTY fuel mass: 32.20 kg (three cast
-core sections measured after machining at 10.741 kg, 10.741 kg, and 10.718 kg), of which
-27.7 kg is 235U. The radial shield — solid Type 304 stainless steel (SS304) — was "by far
-the heaviest KRUSTY component," at approximately 3500 kg; radial shield quarters measured
-63.1 cm tall with a 101.9-cm outer diameter and 41.0-cm inner diameter. No total assembled
-reactor or system mass, radiator mass, or radiator area is given anywhere in the paper.
-Shield material selection is discussed as a mass/cost trade: a hydrogenous shield
-(polyethylene) was ruled out on temperature limit (~100°C); lithium hydride (LiH) was
-rejected for this ground test on programmatic cost/schedule risk despite being "generally
-preferred (for lower mass)" for space applications if it can meet cost and performance
-requirements; borated stainless steel was high cost with limited availability; a layered
-SS316/B4C shield was judged attractive but too costly/complex for the radial shield, so a
-solid SS304 design — heavier but simpler and cheaper — was used instead, explicitly
-because the test article (not a flight system) could accommodate the extra mass.
-
-**Conversion system.** No Stirling efficiency figure, and no hot-end or cold-end
-temperature values, are given in this paper. The only thermal figures stated are for the
-fuel/core: fuel operating temperature above 800°C was demonstrated (a stated design
-goal), and the design-basis maximum fuel temperature limit for design-basis conditions
-and transients was approximately 850°C.
-
-**Fuel.** Highly enriched uranium-molybdenum alloy, nominal U-8Mo, with an as-delivered
-average weight fraction of 7.65% Mo (procurement tolerance for prototyping depleted-
-uranium castings was set loosely at 7.5% to 8.5% Mo; the flight-relevant HEU cores were
-then held to a tighter tolerance around the same 7.65% value). Uranium isotopics, reported
-as relatively uniform across all measured samples: 1.0% 234U, 93.1% 235U, 0.5% 236U, and
-5.4% 238U (i.e., ~93.1% 235U enrichment). Radiological measurements found plutonium below
-10 parts per billion and approximately 1 ppm 237Np. Impurities: approximately 300 ppm
-(mostly Si, Fe, Ni, excluding carbon), tungsten at 20 ppm, highly neutron-absorbing metals
-(Dy, Eu, Gd, Sm) at approximately 1 ppm combined, boron at approximately 1 ppm. Core
-dimensions: 11-cm outer diameter, a 4-cm central hole (for a 10-kW(electric) heater during
-non-nuclear testing or a B4C rod stack during nuclear testing), and a 25-cm total core
-length cast in three parts. Average fuel density used in modeling was 17.34 g/cm3
-(as-specified, zero-tolerance assumption); measurements suggested the true average density
-was somewhat lower but "probably no lower than 17.25 g/cm3," and the fuel is characterized
-as certainly greater than 99% of theoretical density. One of the three cast pieces (the
-lowest-mass one) showed measurably different chemistry at its top end (7.83% Mo, 740 ppm C)
-versus its middle/bottom and the other two castings (~7.6% Mo, ~300–500 ppm C), which was
-tracked for its effect on local neutronic worth but not treated as an overall specification
-failure.
-
-**Reactivity and control approach.** Control is via a single central absorber
-(B4C)/reflector-height mechanism rather than distributed control elements: the core is
-solid-state with no moving fuel, and the only moving part in a flight-representative
-Kilopower reactor is the control rod. For KRUSTY specifically, reactivity was inserted by
-raising an external "platen" (via the COMET critical-assembly machine) so that a BeO
-neutron-reflector stack surrounded the core; this used the existing regulatory framework
-rather than requiring qualification of a new movable control-rod mechanism, and the paper
-states reactor kinetics during startup are essentially equivalent whether reactivity is
-inserted by central-rod withdrawal or by BeO reflector insertion. Full platen travel was
-88 cm; reactivity did not rise significantly until the platen was within about 20 cm of
-fully closed, and criticality was reached only within a few centimeters of full closure.
-Stated reactivity design requirements included: warm k_eff > 1.0; cold k_eff < 0.993 for a
-1.5-in. COMET scram; k_eff much less than 1.0 for all credible fuel/assembly handling
-configurations. Table I in the source reports k_eff for hypothetical accident
-configurations (bare/water/sand/wet-sand immersion), including for the KRUSTY 3-section
-fuel stack: bare 0.5886–0.5846 depending on stacking geometry, water-immersed 0.9591–0.9806,
-sand-immersed 0.8210–0.8311, wet-sand-immersed 0.9346–0.9446 (ranges span the three
-stacking geometries reported: vertical column, triangle pitch, pyramid stack). Beta-effective
-was calculated by MCNP as 0.00688. Reactivity feedback is dominated by fuel thermal
-expansion: fuel heating causes approximately 95% of net reactor feedback, of which
-approximately 90% is due to thermal expansion and approximately 10% to fuel cross-section
-changes. Per-component temperature defects and reactivity-temperature coefficients (Table
-II) at operating temperature: fuel, 1093 K, −148.1 cents, −0.1844 cents/K; heat pipes, 1073
-K, −1.2 cents, −0.0015 cents/K; ring clamp, 1068 K, −2.1 cents, −0.0027 cents/K; axial
-reflector, 473 K, −0.1 cents, −0.0005 cents/K; vacuum can, 393 K, +2.4 cents, +0.0233
-cents/K; radial reflector, 343 K, +3.1 cents, +0.0585 cents/K; platen and shielding, 323 K,
-−0.4 cents, −0.0121 cents/K. The central B4C control/start-up rod used 96%-enriched 10B4C
-pucks with an average density of 2.15 g/cm3 (approximately 90% of theoretical density).
-Power deposition: average power density in the fuel was approximately 2 W/cm3 at a reactor
-power of 4 kW(thermal); the overall axial peaking factor was 1.15; 93.703% of total
-recovered fission power was deposited directly in the fuel (Table III), with the radial
-shield (2.834%) and radial reflector BeO (1.603%) as the next-largest sinks.
-
-**KRUSTY test results.** This design paper reports only a qualitative outcome: "In March
-of 2018, KRUSTY did indeed operate successfully and achieve all of the primary goals laid
-out in this paper." No test power level, run duration, or measured-versus-predicted
-performance numbers are stated in this document. Per the paper's own reference list, those
-results are reported in a separate companion paper in the same special issue, "Results of
-the KRUSTY Nuclear System Test" (Poston et al., Nuclear Technology, 206, S89, 2020,
-https://doi.org/10.1080/00295450.2020.1730673) — cited here only as the source's own
-pointer, not independently verified for this summary. This design paper does, however,
-state which of its eleven prioritized design goals were met, partially met, or not
-intended to be demonstrated: "Succeed" (met); dynamic reactor operation (met, except for
-gravity effects on the heat pipes, which the authors judge will not noticeably affect
-reactor dynamics once heat-pipe temperature is above its performance-limit margin);
-full-power operation (thermal goal of 5 kW(thermal) met; electrical capacity/efficiency
-goal only partially met, given the 2-of-8 converter/simulator split); flight-representative
-materials (met); full temperature, fuel >800°C (met); vacuum operation (met, except the
-radial reflector sat outside the vacuum boundary); highly reflected beryllium neutronics
-(met); flightlike core geometry (met); reactor control effectiveness of the central B4C
-rod (met, though only the rod's neutronic worth was tested, not a flight-representative
-drive mechanism); radial reflector temperature feedback (only partially met, because the
-test window was limited to avoid facility activation, leaving insufficient time to heat
-the radial reflector to a representative temperature); shield materials and effectiveness
-(explicitly "never intended to be important" for this Earth-based test, used only to
-benchmark dose codes).
-
-**Design life, degradation, and operating limits.** At low power — the paper cites
-approximately 10 kW(thermal) — burnup reactivity is stated to be small enough that a
-10-plus-year reactor lifetime could be achieved with no control-rod movement at all after
-startup. Higher-power systems are stated to require only occasional (monthly or annual)
-control movement to maintain reactor temperature. At all power levels, the paper states
-Kilopower systems can survive worst-case transients (e.g., loss of heat removal by the
-power conversion system) without any control action. Fuel operating-temperature limit:
-approximately 850°C for design-basis conditions and transients (design-basis maximum);
-greater than 800°C was demonstrated as the operating goal.
-
-**TRL.** No technology readiness level is stated numerically anywhere in this paper.
-
-**Cost.** KRUSTY program: 3-year duration, under $20 million total. DUFF precursor
-experiment: under $1 million, completed in under 6 months.
-
-**Solar-plus-storage comparison.** Not present in this paper; no lunar-night survival
-comparison to solar-plus-energy-storage architectures is made.
+- Kilopower systems are intended to provide 1 to 10 kW(electric) in space or on planetary/lunar surfaces; KRUSTY is a prototype of a 1-kW(electric) HEU-fueled Kilopower system (Abstract, p. S13).
+- KRUSTY is a 5-kW(thermal) reactor design; power-density figures in the paper are quoted at a 4-kW(thermal) operating point (p. S13, S19, S27).
+- Power conversion used the "1-for-1" approach (one Stirling engine per heat pipe): eight Haynes 230 heat pipes, of which two carried real Stirling converters producing electricity and six carried thermal simulators mimicking converter heat removal (p. S14, S19).
+- Fuel: highly enriched uranium U-7.65Mo (nominal U-8Mo target), total mass 32.20 kg (27.7 kg of 235U), machined in three parts measuring 10.741, 10.741, and 10.718 kg; outer diameter 11 cm, inner diameter 4 cm, length 25 cm, cast in three sections at the Y-12 Security Complex (p. S19-20).
+- Uranium isotopics (relatively uniform across samples): 93.1% 235U, 1.0% 234U, 0.5% 236U, 5.4% 238U; radiological measurements found less than 10 parts per billion Pu and about 1 ppm 237Np (p. S20-21).
+- Fuel density calculated at 17.34 g/cm3 (greater than 99% of theoretical density) assuming zero-tolerance machining; dimensional measurements suggested the true average density was probably no lower than 17.25 g/cm3, since no direct volumetric measurement was taken (p. S21).
+- The lower-mass of the three fuel castings (10.718 kg) was traced to elevated Mo content (about 7.8% versus 7.6% in the other two) and elevated carbon content (about 500 ppm versus 300 ppm), most pronounced at the top of that casting (7.83% Mo, 740 ppm C), which was tracked for orientation during assembly because of its lower neutronic worth (p. S21).
+- Heat pipes: eight Haynes 230 tubes, 1.27-cm outer diameter, 0.089-cm wall, nickel wick (lower end only) and sodium working fluid, thermosiphon return above the wicked section, total length about 100 cm (p. S21).
+- The sodium pool design was changed during development from 25 g Na with the pipe bottom 2.54 cm below the fuel, to 15 g Na with the bottom 7.62 cm below the fuel, after dynamic modeling showed the original configuration produced an undesirable positive-reactivity response when heat removal was lost; the change reduced full-power pool-driven reactivity worth by a factor of about 4 (p. S22).
+- Ring clamps (Haynes 230, 12.13-cm outer diameter, about 0.3 cm thick, nonuniform) provided thermal and structural coupling to the fuel via an interference fit installed by heating the clamps to about 800 C and sliding them over the heat pipes; a thin Cu foil layer between heat pipe and fuel prevented UMo/Haynes 230 interdiffusion and improved thermal bonding (p. S21-22).
+- Multilayer insulation: 25.4-micron (1-mil) Mo foil separated by 101.6-micron (4-mil) fused-quartz weave, used in three regions (8 layers between fuel/clamps and vacuum can, 4 layers between fuel and axial reflectors, 16 layers around the heat pipes outside the fueled region) (p. S22-23).
+- Vacuum can: 0.305-cm-thick SS316, 13.3-cm outer diameter, 52.5-cm axial length, doubling as the support structure for the lower axial reflector and core (p. S22-23).
+- Control/start-up rod: a stack of 96%-enriched 10B4C pucks (average density 2.15 g/cm3, about 90% of theoretical density) slid over a central spindle, with adjustable stack height used to measure control-rod neutronic worth (p. S23).
+- Neutron reflector: Thermalox 995 BeO in three regions (platen, shim, axial); platen/shim rings have 14.5-cm inner diameter, 38.1-cm outer diameter, typically 2.54-cm thick, with thinner 0.312-cm and 0.625-cm rings for fine reactivity adjustment; axial reflectors are 10.16 cm tall (p. S23-24).
+- Shielding: radial shield is solid SS304, about 3500 kg, the heaviest KRUSTY component, fabricated as four quarter-round segments 63.1 cm tall, 101.9-cm outer diameter, 41.0-cm inner diameter; axial shielding uses layered SS304/B4C to meet height constraints (p. S24-25).
+- Delivered axial B4C shield plates were specified at 90% of theoretical density but arrived at only about 75%; the schedule was not held up for replacement parts because the plates were thick enough that the lower density had only a minor effect on thermal-neutron shielding, though it reduced fast-neutron and gamma shielding somewhat (p. S24).
+- Criticality safety (Table I, p. S26): keff was calculated for the fuel bare and immersed in water, sand, and wet sand across six hypothetical configurations, bounding the credible range; values run from 0.4577 (single KRUSTY fuel section, bare) to 0.9806 (three-section pyramid stack, in water). The fuel remains subcritical under all credible non-beryllium-surrounded configurations.
+- Reactivity feedback by component (Table II, p. S28, corrected here from the source page image because the extracted text layer offsets the coefficient column from its rows): fuel operates at 1093 K with a temperature defect of -148.1 cents and an average temperature coefficient of -0.1844 cents/K; heat pipes 1073 K, -1.2 cents, -0.0015 cents/K; ring clamp 1068 K, -2.1 cents, -0.0027 cents/K; axial reflector 473 K, -0.1 cents, -0.0005 cents/K; vacuum can 393 K, +2.4 cents, +0.0233 cents/K; radial reflector 343 K, +3.1 cents, +0.0585 cents/K; platen and shielding 323 K, -0.4 cents, -0.0121 cents/K (cents are relative to a beta-effective of 0.00688 from MCNP).
+- Fuel heating causes about 95% of net reactor reactivity feedback, of which about 90% is thermal expansion and about 10% is fuel cross-section change with temperature (p. S27).
+- Axial power peaking factor is 1.15, described as small for a reactor with an unusually large fuel length-to-diameter ratio, attributed to a large neutron mean free path relative to core length; five small local peaks (about 1% of power) occur at core-clamp locations (p. S28-29).
+- Average power density in the fuel is about 2 W/cm3 at 4 kW(thermal) reactor power (p. S27).
+- Peak fuel temperature contours at the core axial centerline (Fig. 13, p. S29, read from the plotted color scale, not printed as a body-text number): about 1090 K nominal, nearly azimuthally symmetric; about 1094 K with one heat pipe failed, forming a hot lobe on the failed side while the opposite side cools toward about 1060 K, only a few K above nominal peak.
+- System power deposition fractions (Table III, p. S30): 93.703% of recovered fission power deposits in the fuel; next-largest are the radial shield (2.834%) and radial reflector BeO (1.603%); all other listed components (heat pipes, clamps, MLI, vessel, plug shields, upper/lower B4C and stainless shields, COMET platen, etc.) are below 0.35% each.
+- KRUSTY achieved nuclear-powered operation in March 2018, described as the first nuclear-powered operation of a truly new US reactor concept in over 40 years, meeting the primary goals stated in the paper (p. S13, S29-30).
+- This paper prints no specific-power (W/kg) value for the KRUSTY reactor or system, and no numeric Stirling-conversion-efficiency value, in any figure, plot, or table; efficiency is discussed only in qualitative goal language ("electric power of similar magnitude and efficiency of the flight system," p. S17).
 
 ### Limitations
 
-The paper explicitly documents several conditions under which this design and test are
-not directly flight-representative: the radial neutron reflector was located outside the
-vacuum boundary during the test (unlike a flight configuration), though the authors argue
-its slow thermal time constant decouples it from acute reactor dynamics; the radial shield
-material (solid SS304) was chosen for cost, procurement simplicity, and the test
-facility's mass/size tolerance, not for flight-representative mass — the authors state a
-lighter shield (e.g., LiH) could have been used for an actual flight system; delivered B4C
-axial shield plates came in at only approximately 75% of theoretical density against a 90%
-TD specification, accepted without holdup because plate thickness and boron's large
-thermal cross-section were judged to compensate for thermal-neutron shielding (fast
-neutron and gamma shielding were acknowledged to be reduced); only 2 of 8 heat pipes were
-coupled to actual Stirling converters, with the remaining 6 using non-electricity-producing
-thermal simulators, so the electrical capacity/efficiency goal is stated as only partially
-met; the radial-reflector-temperature-feedback demonstration goal was only partially met
-because of a facility-driven time limit intended to avoid activation; fuel density was
-never directly volumetrically measured (only calculated from as-specified dimensions, with
-actual density inferred to be at or slightly below that value); one of three fuel castings
-showed compositional variation at one end, tracked for potential effect on local neutronic
-worth; there was no formal, unified project quality-assurance program, with QA rigor set
-piecemeal by facility safety-significance rules rather than a top-down plan; and the paper
-states some of its own detailed design calculations will be benchmarked against actual test
-results "in a future paper," i.e., outside this document's scope. The paper is also
-explicit that it does not cover power-conversion-system design, regulatory approvals, or
-cold-critical, warm-critical, or full-system nuclear test results, each assigned to a named
-companion paper in the same special issue; consequently, several figures central to a
-surface-power specific-power assessment (system mass, radiator mass/area, Stirling
-efficiency, hot/cold-end temperatures, and quantitative test performance) are outside the
-scope of this document and are not present in it.
+The paper is a design and design-philosophy paper, not a test-results paper; detailed test outcomes are covered in seven companion papers in the same special issue on the power conversion system, regulatory approvals, cold criticals, warm criticals, and the full nuclear system test (p. S13). Goal 10 (demonstrate radial reflector temperature feedback) was only partially met: the KRUSTY test window was limited to avoid facility activation, leaving insufficient time to heat the radial reflector to a representative temperature, and radial reflector heat loss in air exceeds that of a flight system in vacuum (p. S17). Goal 6 (vacuum operation) was met with the stated exception that the radial reflector sat outside the vacuum boundary (p. S16). No formal, official requirements document existed for the project; roughly 23 sub-requirements are described as having flowed informally through the design process (p. S17). There was no overarching project quality-assurance directive beyond facility-mandated safety QA (p. S19). Fuel density (17.34 g/cm3) is a calculated value assuming zero-tolerance machining rather than a direct volumetric measurement, and the authors state the true average density was probably, but not certainly, no lower than 17.25 g/cm3 (p. S21). Delivered axial B4C shield plates fell short of their 90%-theoretical-density specification, arriving at about 75% (p. S24). The paper explicitly defers many final-design calculation details to future benchmark papers comparing predictions against test results (p. S25). As already noted, no specific-power or Stirling-efficiency figures are given in this paper; that data would reside in the companion Gibson-led power-conversion paper.
 
 ### Topic mapping
 
-FA5. Source list entry 9. Sub-Q 4. Reactor-, fuel-, and shield-level design parameters and
-neutronic/reactivity design calculations for the KRUSTY 1-kWe-class Kilopower prototype
-reactor, including fuel enrichment/mass/density, core dimensions, control-rod and
-reflector composition, shield material trade and mass, criticality safety tables, and
-reactivity-feedback coefficients, together with the qualitative design-goal outcomes from
-the March 2018 nuclear test. Bears on fission surface power for lunar-night survival at
-the component/fuel/shield level; does not itself supply system-level specific power
-(W/kg), power-conversion efficiency or temperatures, radiator sizing, quantitative test
-performance, technology readiness level, or a solar-plus-storage comparison, each of which
-the source's own reference list attributes to other papers in the same special issue.
+Section I and II (p. S13-15) cover program history, the SNAP/DUFF precedents, and the basic Kilopower reactor concept and reliability rationale. Section III and IV (p. S15-17) cover the key early cost/schedule design decisions and the eleven prioritized KRUSTY goals with their attainment status. Section V (p. S17-18) covers the informal requirements list. Section VI (p. S18-19) covers the MRPLOW/MCNP/MONTEBURNS/FRINK modeling chain and project QA approach. Section VII (p. S19) is the reactor design overview. Section VIII and its subsections A through H (p. S19-25) cover component-level design: fuel, heat pipes, ring clamps, multilayer insulation, vacuum can, B4C control rod, neutron reflector, and shielding, including the associated figures (Figs. 2-7) and dimensional/mass data. Section IX (p. S25-30) covers design calculations: criticality safety (Table I), reactivity feedback by component (Table II, Figs. 8-11), axial power peaking (Fig. 12), core temperature distributions (Fig. 13), and power deposition (Fig. 14, Table III). Section X (p. S29-30) is a brief summary confirming the March 2018 successful nuclear-powered operation.
