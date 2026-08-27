@@ -14,24 +14,7 @@ peer-reviewed venue, DOI, or publisher imprint is given anywhere in the document
 
 ## Abstract
 
-The paper derives cluster-level necessary conditions for orbital data center (ODC)
-competitiveness using delivered information-technology (IT) power, deployed mass per
-delivered IT power (kg/kW), a communication-intensity metric (space-to-ground bits per
-joule of IT energy), a sustained communication-intensity ceiling, effective utilization,
-and a lifetime penalty factor. For a 1 MW high-sunlight anchor node, the base case gives
-beginning-of-life photovoltaic area of about 5,640 square meters, radiator area of about
-2,500 square meters, and a photovoltaic-plus-storage-plus-radiator mass fraction of 29.4
-kg/kW; adding fixed spacecraft mass raises the total to 34 to 59 kg/kW. At about 40 kg/kW,
-a terrestrial infrastructure benchmark of 10,000 to 40,000 dollars per kW allows only 250
-to 1,000 dollars per kg for combined launch and spacecraft-build cost, before
-space-to-ground communications, operations, utilization, and lifetime terms are added.
-That allowance sits a factor of 3.4 to 13.5 below the current public Falcon 9 dedicated
-low-Earth-orbit launch-price benchmark alone, before spacecraft build is even included.
-The paper concludes that space-native preprocessing and communications-integrated edge
-compute are credible near-term regimes, while terrestrial-user general compute closes
-only under a narrow combination of low Earth-coupled communication intensity, high
-effective utilization, long delivered lifetime, and very low combined launch-plus-build
-cost.
+This paper asks whether a cluster of solar-powered orbital data-center (ODC) nodes can be economically competitive with terrestrial data centers once every physical constraint is closed at once: photovoltaic generation, eclipse recharge, radiator heat rejection, sustained space-to-ground bandwidth, utilization, and node replacement over a finite operating life. It builds necessary viability conditions around delivered IT electrical power, mass per delivered kilowatt (kg/kW), a communication-intensity ratio of downlinked data to IT energy consumed, a ceiling on that ratio set by downlink physics, effective utilization, and a lifetime penalty factor. Working a representative 1 MW, high-sunlight node, the base case needs roughly 5,640 square meters of beginning-of-life photovoltaic area and about 2,500 square meters of radiator area, putting combined photovoltaic-storage-radiator mass at 29.4 kg/kW before fixed spacecraft mass pushes the total to 34-59 kg/kW. At around 40 kg/kW, matching a terrestrial infrastructure cost benchmark of $10,000-40,000/kW leaves only $250-1,000/kg of headroom for combined launch and spacecraft-build cost, before communications, operations, utilization, and lifetime costs are even subtracted -- a headroom 3.4 to 13.5 times below today's public Falcon 9 dedicated-launch price per kilogram, with spacecraft build cost not yet counted. The paper's conclusion is regime-specific: space-native preprocessing and communications-integrated edge compute look achievable in the near term, but general-purpose compute serving terrestrial users only pencils out under a demanding combination of low communication intensity, high utilization, long node lifetime, and very low combined launch-and-build cost.
 
 ## Summary
 

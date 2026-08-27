@@ -10,13 +10,7 @@ Publisher URL: https://www.journals.uchicago.edu/doi/10.1086/261725
 
 ## Abstract
 
-Author's own abstract (as printed): growth in this model is driven by technological change that arises from intentional investment decisions made by profit-maximizing agents.
-
-The distinguishing feature of the technology input is that it is neither a conventional good nor a public good — it is a non-rival, partially excludable good.
-
-Because of the nonconvexity introduced by a nonrival good, price-taking competition cannot be supported; instead the equilibrium is one with monopolistic competition.
-
-Main conclusions, as stated by the author: the stock of human capital determines the rate of growth; too little human capital is devoted to research in equilibrium; integration into world markets increases growth rates; and a large population alone is not sufficient to generate growth.
+This paper models economic growth as the output of deliberate, profit-seeking R&D investment rather than an exogenous process. Technology occupies an unusual category in the model: unlike a conventional good it can be used by everyone at once (it is nonrival), yet unlike a pure public good its use can still be partially fenced off through patents (partially excludable). That combination breaks the convexity assumptions behind price-taking markets, so the model instead clears through monopolistic competition among firms holding exclusive rights to their designs. Working through the resulting equilibrium, growth turns out to track the economy's stock of human capital, and the market allocates less human capital to research than a social planner would choose. Trade integration that pools human capital across countries speeds up growth, while population size on its own does nothing for it.
 
 ## Summary
 

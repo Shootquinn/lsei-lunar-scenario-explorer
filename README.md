@@ -23,7 +23,7 @@ The page is live at https://shootquinn.github.io/lsei-lunar-scenario-explorer/. 
 
 This repository is released under the Unlicense, a dedication to the public domain. The dedication covers this project's own work: the app, its evidence ledger and coefficients, the summaries in `literature/`, `lunar-scenario-explorer-map.md`, and `report-generator-prompt.md`.
 
-The dedication does not extend to the sources those summaries describe, and cannot. Each file in `literature/` is this project's own summary of a published work it does not own; the source is identified by citation and DOI, so a reader reaches the original through its publisher. No third-party PDF, page image or extracted source text is in this repository.
+The dedication does not extend to the sources those summaries describe, and cannot. Each file in `literature/` is this project's own summary of a published work it does not own; the source is identified by citation and DOI, so a reader reaches the original through its publisher. No third-party PDF or page image is in this repository.
 
 The dedication carries one named exception. `writing-guides/signs_of_ai_writing.md` is a derivative of the English Wikipedia page "Wikipedia:Signs of AI writing" and stays under that page's own licence, CC BY-SA 4.0, rather than the Unlicense; a share-alike licence and a public-domain dedication cannot both govern the same file. See `NOTICE.md` for the full accounting.
 
