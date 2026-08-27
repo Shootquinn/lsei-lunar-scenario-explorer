@@ -9,7 +9,7 @@ The page is live at https://shootquinn.github.io/lsei-lunar-scenario-explorer/. 
 ## Repository layout
 
 - `index.html`: the app itself.
-- `literature/`: this project's own summaries of the published sources the app's evidence ledger cites, all at one level with no subfolders.
+- `literature/`: this project's own summaries of the published sources the app's evidence ledger cites, filed in eight topic folders: `growth-and-industrial-theory`, `isru-processing`, `logistics-and-delivery`, `lunar-ice-and-geology`, `power-and-thermal`, `programme-primaries`, `space-economy-and-markets` and `space-law-and-governance`.
 - `writing-guides/`: five vendored style and structure guides used when generating a document from the app; `writing-guides/SOURCE.md` records where they came from.
 - `report-generator-prompt.md`: a prompt, described below, that a capable model session runs against the app to produce a document.
 - `lunar-scenario-explorer-map.md`: a generated reference to the app's own claims, sections and coefficients, for a session that needs to navigate the app's structure without holding the whole page in context.
@@ -43,12 +43,13 @@ This repository holds no static copy of the documents the prompt can produce. Th
 
 ## Answering a question or drawing a figure
 
-`oracle/` holds three command-line tools. Each is a plain Node.js script, so running one needs Node.js installed, the one dependency the app itself does not share; run them from a checkout of this repository, and each locates `index.html` and `literature/` automatically since both ship alongside `oracle/` in this same tree.
+`oracle/` holds four command-line tools. Each is a plain Node.js script, so running one needs Node.js installed, the one dependency the app itself does not share; run them from a checkout of this repository, and each locates `index.html` and `literature/` automatically since both ship alongside `oracle/` in this same tree.
 
 ```
-node oracle/answer_question.js "your question here"
+node oracle/answer_question.js "your question here" --log=/tmp/answers.log
 node oracle/render_figure.js --form=era-series --scenario="Agency Led Baseline" --output=water --out=/tmp/water
 node oracle/verify_figure.js /tmp/water.manifest.json index.html
+node oracle/verify_answers.js /tmp/answers.log
 ```
 
 `answer_question.js` decides whether a question resolves against the app, against `literature/`, both, a figure, or neither, and answers accordingly; a question the app can answer is answered from the app rather than from a literature summary, the same authority the rest of this repository holds the app to. `render_figure.js` draws one of three figure forms, an era series, a scenario comparison, or a knob sweep, directly from the app's own model, never from a stored number. `verify_figure.js` re-derives every value a figure's manifest records straight from the app and asserts it still matches; `verify_answers.js` reports the outcome counts (answered, refused, filled, or errored) from a run log `answer_question.js`'s own `--log` flag writes.
