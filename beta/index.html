@@ -1238,22 +1238,22 @@
   "note": "Jointly pinned with E1 to reproduce Table 4; do not change one without the other."
  },
  "captureEff": {
-  "value": 0.515,
+  "value": 0.635,
   "unit": "fraction",
   "band": {
    "kind": "INTERVAL",
-   "lo": 0.3,
+   "lo": 0.54,
    "hi": 0.73,
-   "loSource": "Wang 2025: 30 to 40 percent of liberated water collected.",
-   "hiSource": "LUWEX 2026, the only integrated extract-capture-liquefy demonstration: 54 to 73 percent.",
+   "loSource": "LUWEX 2026, the only integrated extract-capture-liquefy demonstration this corpus holds: the low end of its own stated 54 to 73 percent recovery.",
+   "hiSource": "LUWEX 2026, the same demonstration and the same stated range: its high end.",
    "rule": "ARITHMETIC",
    "disposition": "MOVED",
-   "target": 0.515,
-   "reason": "Both ends are the measurand the model consumes, the fraction of water in processed regolith that becomes product, so they are commensurable on a linear axis and the value is consumed as a multiplier. The separate 0.75 to 0.9 figures are thermal capture alone, a narrower scope, and are excluded from the band with that reason stated. The retired 1.00 sat above every reported figure and self-described as a deliberate optimistic upper bound, which is a statement that the value is not median."
+   "target": 0.635,
+   "reason": "One source own stated range on one measurand, on a linear axis, consumed as a multiplier. THE BAND THAT STOOD HERE FOR ONE DAY, 0.30 to 0.73, HAD ENDS THAT WERE NOT THE SAME OBJECT, and the reason recorded for it was wrong. The model consumes this coefficient at Wthr = (RcapRem / rho) * cap100, where RcapRem / rho is the water contained in the regolith the plant handles, so the measurand is the fraction of the water PRESENT IN HANDLED REGOLITH that leaves as product, an end-to-end recovery from ground to tank. LUWEX 54 to 73 percent is that quantity. Wang 2025 30 to 40 percent is the fraction of ALREADY LIBERATED water that gets collected, one stage of that chain with the extraction stage divided out, and putting it on this axis needs an extraction efficiency no source held here reports. That is the same defect ruled NOT-CENTRABLE for E1 and for eSinter in the same audit and on the same reasoning. Wang leaves the band and stays what it is, a capture-stage cross-check the model has no stage to receive. The 0.75 to 0.9 thermal-capture figures stay excluded for the reason already stated, a narrower scope than this chain. LEAVING 1.00 WAS NEVER AVAILABLE: it self-described as a deliberate optimistic upper bound, which is a statement that it is not an estimate, and NOT-CENTRABLE protects somebody estimate of the measurand rather than a value that declares itself not to be one."
   },
-  "source": "The arithmetic centre of the two integrated-capture figures this corpus holds. Wang 2025 collected 30 to 40 percent; LUWEX 2026, the only integrated extract-capture-liquefy demonstration, recovered 54 to 73 percent. Both ends measure the quantity the model consumes, the fraction of water in processed regolith that leaves as product, so they are commensurable and the centre of them is a number about the same thing they are. No held primary reports 100 percent capture, and the 1.00 this coefficient carried until 2026-09-08 described itself as a deliberate optimistic upper bound, which is a statement that the value was not an estimate. See [[capture-derate]].",
-  "status": "DERIVED (this project's arithmetic middle of two integrated-capture measurements, both on the quantity the model consumes)",
-  "note": "Reported THERMAL capture runs 0.75 to 0.9, with Linne 2020 assuming 0.75 at its own operating point (slide 11). Those figures are excluded from the band and the exclusion is stated rather than silent: thermal capture alone is a narrower scope than the extract-capture-liquefy chain this coefficient stands for in the model. The retired 1.00 sat above every reported figure on either scope. Moving to 0.515 halves every throughput-limited water figure the app prints and flips several rail states from power-limited to landed-mass limited, because the throughput ceiling carries this factor and the power ceiling does not."
+  "source": "The arithmetic centre of LUWEX 2026 own stated recovery range, 54 to 73 percent, from the single integrated extract-capture-liquefy demonstration this corpus holds and the only evidence here on the axis the model consumes. Wang 2025 30 to 40 percent was carried as this band low end from 2026-09-08 until later the same day and is withdrawn from it: Wang measures collection of already-liberated water, a different measurand on a different basis, and it is retained as a cross-check rather than deleted. No held primary reports 100 percent capture, and the 1.00 this coefficient carried until 2026-09-08 described itself as a deliberate optimistic upper bound, which is a statement that the value was not an estimate. See [[capture-derate]].",
+  "status": "DERIVED (this project arithmetic middle of one source own stated range, on the quantity the model consumes)",
+  "note": "Reported THERMAL capture runs 0.75 to 0.9, with Linne 2020 assuming 0.75 at its own operating point (slide 11). Those figures are excluded from the band and the exclusion is stated rather than silent: thermal capture alone is a narrower scope than the extract-capture-liquefy chain this coefficient stands for in the model. The retired 1.00 sat above every reported figure on either scope AND IT WAS MASKING THE THROUGHPUT COEFFICIENT. kExc stood at 4 against the two rates on its own denominator, 43.93 and 92.31, while this coefficient stood at its own favourable end, and the two errors partly cancelled, which is why the model produced plausible water for the life of this project. Against 1.00 this value is a 36.5 percent derate on every throughput-limited water figure; against the 0.515 that stood here for one day it is a 23.3 percent rise. WHICH FIGURES IT REACHES DEPENDS ON THE OTHER COEFFICIENT: this one appears in the throughput ceiling and never in the power ceiling, and since kExc moved on 2026-09-08 every one of the nine preset cells is held by its power ceiling, so this coefficient moves none of them. It binds off the presets, at every state where the plant out-runs the power landed beside it."
  },
  "fFis": {
   "value": 0.16693,
@@ -1292,18 +1292,23 @@
   "note": "The model consumes this coefficient at M_power = fSol x power, which is a specific mass, so the value has to be a specific mass. The retired 0.05 was a landed-payload allocation and sat below the whole illuminated-ridge range this project holds, which [[solar-mass-allocation]] stated in its own words. THE RUNG IS ASSUMPTION AND NOT DERIVED: the legend defines DERIVED as this project's arithmetic on a source's own printed figures, the geometric centring is this project's arithmetic, and the figures it runs on are not printed by any source held here. THE DIRECTION OF THE FISSION-SOLAR COMPARISON REVERSES WITH THIS MOVE: at 0.2673 t/kWe the solar power system is HEAVIER than the fission one at 0.16693 t/kWe, by 1.6013 times on the bare coefficients and 1.5097 times once the shared 3 km transmission term is added to both. Choosing solar now costs mining mass rather than freeing it, which is the opposite of what this file said until 2026-09-08. It still rests on siting the plant at an illuminated ridge; a permanently shadowed site needs night-survival storage and is far heavier again."
  },
  "kExc": {
-  "value": 4,
+  "value": 63.68,
   "unit": "t regolith·yr⁻¹ / t plant",
   "band": {
-   "kind": "NO_BAND",
-   "rule": "NOT-CENTRABLE",
-   "disposition": "STANDS",
-   "reason": "NO PRIMARY ON THIS DENOMINATOR. No held source reports a throughput per tonne of plant on the model's own basis of landed mass less the power system. Direction, stated because this audit is not one-sided: all three cross-checks are 11x to 82x higher, so this coefficient sits at its UNFAVOURABLE end and centring it against any of them would raise every tonnage the model prints. It stays at 4 because none of the three is on its denominator, not because 4 is conservative."
+   "kind": "INTERVAL",
+   "lo": 43.93,
+   "hi": 92.31,
+   "loSource": "Guerrero-Gonzalez and Zabel 2023: a 6,776 kg molten regolith electrolysis plant of which 2,242 kg is the solar array, so 4,534 kg on this coefficient's own plant-less-power basis, taking about 199 t of reactor feed a year, which is their 23.90 t/a of oxygen at the 0.120 yield this project read off their Fig. 4. 199.17 over 4.534 is 43.93.",
+   "hiSource": "Linne, Kleinhenz and Paz 2020: a 325 kg PSR pilot plant, power generation excluded and power distribution retained inside that mass, capturing 1,125 kg of water a year at the deck's own 5 wt% grade and its own 75 percent extraction-and-capture assumption, which is 30,000 kg of regolith processed a year. 30.0 over 0.325 is 92.31.",
+   "rule": "GEOMETRIC",
+   "disposition": "MOVED",
+   "target": 63.68,
+   "reason": "Two held primaries print a plant mass and a regolith rate that reduce to this coefficient's own denominator, landed mass less the power system, and to its own numerator, the regolith a plant PROCESSES. Both reductions are this project's arithmetic on figures the sources print. GEOMETRIC because a specific throughput is a ratio quantity and the two ends come from plants a factor of fourteen apart in mass, 0.325 t against 4.534 t, so the band spans a range of scale rather than a spread of measurement, and the log midpoint is the centre that reads the same whether the quantity is stated as regolith per plant or as plant per regolith. THE RULE MOVES NO PRINTED FIGURE, which is measured rather than asserted: every one of the nine preset cells leaves the throughput ceiling at or below kExc = 35.31, under the band's lower end, so all nine caps are identical to twelve decimals at 43.93, at the arithmetic 68.12, at the geometric 63.68 and at 92.31. THE THIRD RATE THIS PROJECT HOLDS IS EXCLUDED AND THE EXCLUSION IS STATED: 326 divides the same 2023 plant's EXCAVATED stream, about 1,480 t/a moved by the two 66 kg vehicles of its Table 2, by the PROCESSING plant, which crosses one stage's numerator with another stage's denominator. That paper prints both streams and reconciles neither, and the model's R_cap is the stream whose contained water or oxide is extracted. The retired value was 4 and it sat 11 to 23 times below both rates on its own denominator."
   },
   "basis": "landed mass less the power system, the model mining budget (mass minus M_power)",
-  "source": "NONE in the proposal, and no held primary reports a throughput per tonne of plant on this basis",
-  "status": "ASSUMPTION (calibrated-to-fit)",
-  "note": "A calibrated throughput ceiling, the model weakest self-flagged number. Under the 2026-07-23 envelope most scenario points sit landed-mass limited, since landed mass is tight against power; {censusPowerClause}. The same coefficient also sets the construction branch through R_cap. The slow-thermal-mining reasoning that motivated a low value is a water-extraction argument that does not carry there. Expect the first CSA question here. Step 49: the oxygen and metals branch reads this coefficient through R_cap as a recorded reuse rather than through a coefficient of its own, so a move here now travels to four product lines. The reuse errs conservative against the one plant-scale metals study in the corpus, whose primary this project has held since 2026-09-04: Guerrero-Gonzalez and Zabel (2023) print a molten regolith electrolysis plant of 6,776 kg, of which a 2,242 kg solar array, so 4,534 kg on this coefficient's own plant-less-power basis, delivering 23.90 t/a of oxygen inside their stated 274-day window. Two regolith rates follow and both are ours rather than theirs, because the paper prints no plant throughput anywhere. Their reactor feed, taking the 0.120 yield this project read off their Fig. 4, is about 199 t/a, which is 43.9 t regolith/yr per t of plant, 11 times this value. Their excavated regolith, taking the two 66 kg vehicles Table 2 buys at the 2.7 t/d each the paper prints, is about 1,480 t/a, which is 326, 81.6 times this value. The paper does not reconcile those two denominators. An earlier form of this note put the factor at 1.8 from Azami's summary at p9; the locator was p10 and the factor was a lower bound computed from product masses rather than regolith. It remains a cross-check and never a source, since no primary reports a regolith throughput per tonne of plant on any basis."
+  "source": "NO PRIMARY PRINTS THIS COEFFICIENT AND NONE EVER DID. What moved on 2026-09-08 is that the two rates in this corpus which reduce to its own basis now set it, instead of standing as cross-checks the model declined to use. Linne, Kleinhenz and Paz 2020 print a 325 kg PSR pilot plant with power generation excluded and distribution retained, 1,125 kg of water captured a year, a 5 wt% grade and a 75 percent extraction-and-capture assumption, which back out to 30,000 kg of regolith processed a year on a 325 kg plant, 92.31 on this axis. Guerrero-Gonzalez and Zabel 2023 print a 6,776 kg molten regolith electrolysis plant of which a 2,242 kg solar array, so 4,534 kg less power, delivering 23.90 t/a of oxygen inside their stated 274-day window, which at the 0.120 yield this project read off their Fig. 4 is about 199 t/a of reactor feed, 43.93 on this axis. Both reductions are this project's arithmetic on printed source figures, which is what DERIVED means in this legend, and neither source states the coefficient itself. The four rates the retired value was measured against on OTHER denominators are unchanged in standing and still do not sit on this basis: Charania and DePasquale 2007 and Kornuta et al. 2018, quoted on Shishko 2019 slide 2, divide by a mine mass that respectively includes and does not state the power system and are printed in the inverse sense; Just et al. 2020's figures are excavation energies with no plant-mass denominator at all. See [[throughput-coefficient]].",
+  "status": "DERIVED (this project's geometric centre of two published plants' own printed masses and rates, each reduced to this coefficient's basis)",
+  "note": "WHAT THE MOVE DID, MEASURED AT THE NINE PRESET CELLS. At 4 the throughput ceiling held eight of the nine and the model returned 0.0117 to 0.0837 tonnes of water a year per tonne of landed plant, against 2.36 to 81.67 across every published lunar ISRU architecture this project holds and against this project's own LSEI_Scenario_Trades industrial bracket of 41 to 82. At 63.68 the throughput ceiling holds none of them: all nine are power-limited, water rises by 10.9 to 24.9 times, and the range becomes 0.0713 to 0.6512. THE MODEL IS STILL UNDER THE PUBLISHED RANGE AND THE RESIDUAL IS NOT THIS COEFFICIENT. The scenarios stand at 0.11 to 1.02 installed kWe per tonne of landed plant against 7.2 to 76.3 for the published point designs, so what is left is a scenario premise about how much power a programme lands beside its plant, and a power-system specific mass that no held source bounds above 40 kWe. The same coefficient sets the construction branch and the oxygen branch through R_cap, so this move travels to four product lines; nothing in the record bounds it on the construction branch and that gap is unchanged. The two rates that now set it are a water plant's and an oxygen plant's, read as one coefficient across four products, because the model carries one plant."
  },
  "eSinter": {
   "value": 3,
@@ -1695,7 +1700,7 @@
  },
  "capture-and-grade": {
   "capture-derate": {
-   "source": "Ice capture efficiency: the app runs {captureEff}, the arithmetic centre of the two integrated figures this corpus holds; the only integrated demonstration recovered 54 to 73 percent (LUWEX 2026) and Wang 2025 collected 30 to 40 percent. The 100 percent this line reported as the app's value was retired on 2026-09-08 and no held primary reports it.",
+   "source": "Ice capture efficiency: the app runs {captureEff}, the arithmetic centre of the only integrated extract-capture-liquefy demonstration own stated range, 54 to 73 percent (LUWEX 2026). Wang 2025 30 to 40 percent stood as this band low end for one day and is withdrawn from it, because Wang measures collection of already-liberated water, one stage of the chain this coefficient spans; it is kept as a cross-check. The 100 percent this line reported as the app's value was retired on 2026-09-08 and no held primary reports it.",
    "status": "VERIFIED",
    "tier": "VERIFIED",
    "counterCase": "A4 (counter-evidence and proportion). LUWEX is early hardware; capture will improve with dust mitigation and larger cold traps, so 100% remains a legitimate far-horizon ceiling. What this counter-case asked for has been done: the scenario default is no longer that ceiling, it is {captureEff}, and the far-horizon reading is available to a reader as the bound it is rather than as the default."
@@ -2362,7 +2367,7 @@
  "regime": {
   "REGIME-POWER": {
    "key": "REGIME-POWER",
-   "text": "Power limited, the healthy regime. Water scales with power here; adding mass does not help because the plant already out-processes what the power can sublime. {presetRollCall} Climbing the power rail does not hold this regime open, since the power system draws its own mass from the same landed budget and the state crosses out of it. The throughput ceiling rests on the plant coefficient kExc, a calibrated assumption rather than a measurement.",
+   "text": "Power limited, the healthy regime. Water scales with power here; adding mass does not help because the plant already out-processes what the power can sublime. {presetRollCall} Climbing the power rail does not hold this regime open, since the power system draws its own mass from the same landed budget and the state crosses out of it. The throughput ceiling rests on the plant coefficient kExc. No primary reports it on this basis; this project derives it from two published plants own masses and rates, and reading one coefficient across the water, construction, oxygen and alloy branches stays an assumption that nothing in the record bounds.",
    "claims": [
     "min-of-two-limits",
     "throughput-coefficient"
@@ -2370,7 +2375,7 @@
   },
   "REGIME-MASS": {
    "key": "REGIME-MASS",
-   "text": "Landed-mass limited: too little landed mass remains for mining plant after the power system takes its allocation, so throughput caps water. Adding power does not increase production; adding mining mass does. The throughput ceiling rests on the plant coefficient kExc, calibrated to fit rather than measured. That bound comes from water-extraction plants and applies to the water figure here; nothing in the record bounds the same coefficient on the construction branch. This label is set by the water branch alone, and construction shown beside it may be power-limited. The model takes a non-productive downmass fraction off raw landed mass first and then books everything left after the power system as productive plant, with no further deduction for balance-of-plant overhead, so the gap between non-power landed mass and mining plant is exactly that downmass fraction and nothing else.",
+   "text": "Landed-mass limited: too little landed mass remains for mining plant after the power system takes its allocation, so throughput caps water. Adding power does not increase production; adding mining mass does. The throughput ceiling rests on the plant coefficient kExc, this project geometric centre of the two published rates that reduce to its own basis, one a water-extraction plant and one an oxygen plant. Carrying it onto the construction branch is an assumption nothing in the record bounds, and that gap is unchanged. This label is set by the water branch alone, and construction shown beside it may be power-limited. The model takes a non-productive downmass fraction off raw landed mass first and then books everything left after the power system as productive plant, with no further deduction for balance-of-plant overhead, so the gap between non-power landed mass and mining plant is exactly that downmass fraction and nothing else.",
    "claims": [
     "throughput-coefficient",
     "productive-plant-mass",
@@ -2778,7 +2783,7 @@
    ]
   },
   "BIND-MASS": {
-   "text": "Landed mass binds here: cap = W_thr < W_power, so the mining plant is starved and throughput, not power, caps water. The ceiling rests on kExc, a calibrated construct and the model's weakest self-flagged number. That binding test is W_power against W_thr, a water-branch comparison; the construction figure runs its own minimum against C_power and the app does not label which side wins, so read this as a floor on the water number only and not on any construction tonnage printed beside it. No held source bounds kExc on the construction branch. The model also takes a non-productive downmass fraction off raw landed mass before the power system is costed out and books the whole remainder as productive plant, so the gap between non-power landed mass and mining plant is exactly that downmass fraction and nothing else, and the balance-of-plant overhead that would come out of the remainder is an unconfirmed assumption.",
+   "text": "Landed mass binds here: cap = W_thr < W_power, so the mining plant is starved and throughput, not power, caps water. The ceiling rests on kExc, which since 2026-09-08 is this project geometric centre of the two published rates that sit on its own denominator, 43.93 and 92.31, rather than the calibrated 4 that stood here and that its own entry called the model weakest self-flagged number. That binding test is W_power against W_thr, a water-branch comparison; the construction figure runs its own minimum against C_power and the app does not label which side wins, so read this as a floor on the water number only and not on any construction tonnage printed beside it. No held source bounds kExc on the construction branch. The model also takes a non-productive downmass fraction off raw landed mass before the power system is costed out and books the whole remainder as productive plant, so the gap between non-power landed mass and mining plant is exactly that downmass fraction and nothing else, and the balance-of-plant overhead that would come out of the remainder is an unconfirmed assumption.",
    "claims": [
     "throughput-coefficient",
     "productive-plant-mass",
@@ -2859,10 +2864,18 @@
    ]
   },
   "RPROP-PAYS": {
-   "text": "The propellant plant pays back its own landed mass over life here: r_prop < 1, so a launch-price crossover can exist and its margin is positive above the crossover band.",
+   "text": "The propellant plant pays back its own landed mass over its service life here: r_prop sits at or below L times the annualisation fraction, which is the condition for a tonne of landed plant to deliver a tonne of product before the plant dies. A launch-price crossover exists as well and the margin is positive above the crossover band. Those are two different tests and r_prop < 1 is the weaker of them: it places payback at the amortisation horizon of one over the annualisation fraction, which is longer than the service life this app displays, so it clears states where the plant never returns its own mass. The threshold is computed from L and the declining-balance coefficients at render and is not a literal.",
    "claims": [
     "amortized-plant-identity",
     "industrial-plant-price"
+   ]
+  },
+  "RPROP-CROSSES-NOT-PAYS": {
+   "text": "A launch-price crossover exists here and the plant still does not return its own landed mass in product before it dies: r_prop sits above L times the annualisation fraction and below 1. Over the service life a tonne of landed plant delivers less than a tonne of water, so landing the water directly delivers more water than landing the plant that makes it, and it does so at any launch price, because the comparison is a mass ledger and the delivery price cancels from both sides of it. This band exists because the two tests differ by the ratio of the amortisation horizon to the service life; both move with L and with the declining-balance coefficients and neither is written down as a number.",
+   "claims": [
+    "amortized-plant-identity",
+    "industrial-plant-price",
+    "product-payback-ranking"
    ]
   },
   "RPROP-FAILS": {
@@ -2897,7 +2910,7 @@
   "crossBand": "Soft launch-price crossover: propellant margin turns negative below about D* = op_prop / (1 - r_prop). This band moves with the mass knob.",
   "crossNone": "With the operating floor at zero there is no launch-price crossover: propellant carries a positive margin at every launch price, thinner than construction forever. That is the true capital-only behavior.",
   "crossFail": "No launch-price crossover applies: the propellant plant does not pay back its own landed mass at this state, so its margin is negative at every launch price.",
-  "grades": "The 2030 delivery price traces to a signed contract, though the delivery itself is still a forward event. op_prop is an estimate with no settled source figure. The $35,300/kg quoted on Shishko slide 2 from Charania and DePasquale 2007 is a modeled break-even sales price, not a production cost; its capital-versus-operating split has no settled figure. kExc is a calibrated construct."
+  "grades": "The 2030 delivery price traces to a signed contract, though the delivery itself is still a forward event. op_prop is an estimate with no settled source figure. The $35,300/kg quoted on Shishko slide 2 from Charania and DePasquale 2007 is a modeled break-even sales price, not a production cost; its capital-versus-operating split has no settled figure. kExc is derived from two published plants own masses and rates, neither of which states the coefficient itself."
  }
 };
   var FFIS_LANDMARKS = [
@@ -3067,7 +3080,7 @@
  "capture-derate": {
   "was": "Assumed 100% Ice Capture Efficiency Contradicts Demonstrated Data. The app moved to {captureEff} on 2026-09-08 and this section is the reason it moved",
   "claim": "capture-and-grade",
-  "statement": "THE APP NOW SETS captureEff = {captureEff} AND THIS SECTION IS WHY. It carried 1.00, a hundred percent of liberated ice captured, described in its own note as a deliberate optimistic upper bound, which is a statement that the value was not an estimate. [[capture-derate]] asserted that was counter-evidenced and the coefficient moved on 2026-09-08 to the arithmetic centre of the two integrated-capture measurements this corpus holds. The integrated lunar-water extract-and-capture demonstration recovered only about half to three-quarters of the sample's ice, with vapor capture and not heater power as the binding loss, and Wang 2025 collected 30 to 40 percent. The scenario water rails on the retired 1.00 were optimistic by roughly 1.1 to 1.9 times on this axis alone; the rails the app paints today already carry the derate, so a reader must NOT apply it a second time. This paragraph said the app sets captureEff = 1.00 and went on saying it after the coefficient moved, which is a claim about the app, false about the app, in the app's own reference section.",
+  "statement": "THE APP NOW SETS captureEff = {captureEff} AND THIS SECTION IS WHY. It carried 1.00, a hundred percent of liberated ice captured, described in its own note as a deliberate optimistic upper bound, which is a statement that the value was not an estimate. [[capture-derate]] asserted that was counter-evidenced and the coefficient moved on 2026-09-08, first to the arithmetic centre of two figures whose ends turned out not to be the same object, and then the same day to the arithmetic centre of the one integrated demonstration own stated range. The integrated lunar-water extract-and-capture demonstration recovered only about half to three-quarters of the sample's ice, with vapor capture and not heater power as the binding loss, and Wang 2025 collected 30 to 40 percent of already-liberated water, which is a different measurand and sits outside the band for that reason. The scenario water rails on the retired 1.00 were optimistic by roughly 1.4 to 1.9 times on this axis alone; the rails the app paints today already carry the derate, so a reader must NOT apply it a second time. This paragraph said the app sets captureEff = 1.00 and went on saying it after the coefficient moved, which is a claim about the app, false about the app, in the app's own reference section.",
   "evidence": [
    {
     "n": "1",
@@ -3411,7 +3424,7 @@
   "tags": "fission, power-budget, solar, storage, ridge, mass-budget, modeling-convention, transmission."
  },
  "throughput-coefficient": {
-  "was": "The Plant-Throughput Coefficient (kExc = 4) Is a Disclosed Model Construct",
+  "was": "The Plant-Throughput Coefficient Now Reads the Two Rates That Sit on Its Own Denominator",
   "claim": "throughput",
   "statement": "The app assumes kExc = 4 t regolith processed per year per tonne of plant mass, where plant mass is landed mass less the power system, which is the quantity the app computes as `mining = mass - mPwr` and then multiplies by kExc to get `Rcap`. This is the app's own self-flagged \"calibrated-to-fit\" number (\"expect the first CSA question here\"). No primary source reports this specific quantity; it is recorded here as a disclosed construct, not a sourced value. The held candidates bound it from below and from one point only: of the four rates below, Linne 2020's divides by a mass on materially the app's own basis, Charania and DePasquale's divides by a mine mass that explicitly includes its nuclear power plant, Kornuta et al.'s leaves the inclusion unstated, and Just et al.'s has no plant-mass denominator at all. The four are not four readings of one quantity. Nothing in the record bounds the same coefficient on the construction branch it also governs through `Rcap`.",
   "evidence": [
@@ -3437,7 +3450,7 @@
     "id": "A1",
     "head": "do not launder a bound into a source",
     "role": "support",
-    "text": "No paper reports t-regolith/yr per t-plant. Reporting kExc = 4 as sourced would be fabrication; it is a disclosed construct."
+    "text": "No paper reports t-regolith/yr per t-plant and none ever did, so this coefficient is graded DERIVED and not SOURCED. What it now carries is this project arithmetic on two sources own printed masses and rates, each reduced to the coefficient own basis: Linne 2020 gives 92.31 and Guerrero-Gonzalez and Zabel 2023 gives 43.93, and the value is their geometric centre, 63.68. Reporting it as SOURCED would still be fabrication."
    },
    {
     "id": "A2",
@@ -3461,7 +3474,7 @@
   ],
   "links": "",
   "tags": "",
-  "evidenceLabel": "Evidence (bounds only; none reports kExc)"
+  "evidenceLabel": "Evidence (two rates reduce to this coefficient own basis and set it; none reports it directly)"
  },
  "productive-plant-mass": {
   "was": "The App Books All Non-Power Landed Mass as Productive Plant",
@@ -3757,7 +3770,7 @@
     "id": "A3",
     "head": "disclosure over defense",
     "role": "support",
-    "text": "State it plainly: the app assumes production is the smaller of an energy limit and a throughput limit, the throughput limit rests on a calibrated, unsourced coefficient (kExc), and the workbook does not carry this cap."
+    "text": "State it plainly: the app assumes production is the smaller of an energy limit and a throughput limit, the throughput limit rests on a coefficient (kExc) no source reports directly and this project derives from two published plants own masses and rates, and the workbook does not carry this cap."
    }
   ],
   "extras": [
@@ -7138,7 +7151,7 @@
        argument item it is joined to were rewritten together, because LEDG-11 fired on the first of
        them alone and named the drift at 0 of 3 sentences. Step 56, eleventh move, the pre-publication
        sweep: NO numeric leaf moved and no claim changed its subject. Three LEDGER strings lost an attribution clause naming who read a source or recorded a defect; the findings themselves stand unaltered. The value below is EXT3's own recompute against the patched file. */
-    __pin: "c4c0e25e"
+    __pin: "978e6c21"
   };
 
   root.KNOB_DATA = KNOB_DATA;
@@ -8007,6 +8020,34 @@ function model(a){
   };
 }
 
+/* THE MASS LEDGER, Step 58. ------------------------------------------------------------
+   The one question this app was never able to answer in words: over its service life, does a
+   tonne of landed plant deliver more water than a tonne of landed water? It is a mass ledger and
+   the launch price cancels from both sides of it, so it is the one comparison here that does not
+   move with the delivery-cost dial. Measured on the shipped rails: lifetime payback is BIT-
+   INVARIANT across all eleven landed_cost detents and it crosses one on the ice rail, which is
+   why the sentence built from this function binds its sweep to ice and not to the dial every
+   other sentence on that tab is about.
+   IT IS A FUNCTION AND NOT THREE EXPRESSIONS INSIDE THE COMPOSER, so the sentence a reader is
+   shown and the row that sweeps it read the same arithmetic. The composer having its own copy of
+   an expression is the defect REL-02 and install 6 of Step 56 both found, in this same file.
+   THE DENOMINATOR IS water AND NOT cap. cap is the plant's capacity at phi_c = 0; water is what
+   is left after the construction and metals draws, and it is what a tonne of plant actually
+   delivers. Charging the amortisation against cap and the ledger against water is deliberate and
+   the two columns are reported side by side wherever this is printed.
+   ------------------------------------------------------------------------------------------ */
+function paybackLedger(m, L){
+  const payback = (m.mass > 0) ? m.water * L / m.mass : 0;
+  const years   = (m.water > 0) ? m.mass / m.water : Infinity;
+  let iceCross = null;
+  for(const i of DETENTS.ice){
+    const mi = model({ice:i, power:m.power, mass:m.mass, fission:m.fission,
+                      phi_c:m.phi_c, phi_o:m.phi_o});
+    if(mi.mass > 0 && mi.water * L / mi.mass >= 1){ iceCross = i; break; }
+  }
+  return { payback, years, iceCross };
+}
+
 /* ============================================================
    TEST HARNESS  —  runTests() returns [{id, tier, name, pass, detail}]
    The Node sidecar and the in-page panel both call this.
@@ -8016,6 +8057,88 @@ function runTests(fileText){
   const R = [];
   const rec = (id,tier,name,pass,detail)=>R.push({id,tier,name,pass:!!pass,detail:detail||''});
   const rel = (a,b)=> Math.abs(a-b)/Math.abs(b);
+
+  /* ---- STD3-01 (GATE): the mass-ledger sentence, swept on ice --------------------------
+     THE CONTROL IS ice AND THE CHOICE IS MEASURED RATHER THAN ASSUMED. Lifetime payback is
+     exactly invariant across all eleven landed_cost detents, so binding this sentence to the
+     delivery-cost dial would report one constant eleven times and prove nothing about the claim.
+     Across the other rails ice is the only one that crosses the threshold this sentence names.
+     POPULATION 50: the nine preset cells crossed with the five ice detents, plus five off-preset
+     states, which is what STD-3 requires of a behavioural claim.
+     PREDICATE, equality family: paybackLedger's own payback must equal an independent
+     recomputation from the model at that state, and its iceCross must be the LOWEST detent on
+     the app's own ice rail at which payback reaches one, found by an independent walk.
+     DECOY: a mutant that returns the first detent of the rail unconditionally, which is the
+     shape of the bug this row exists to catch, is run against the same population and must be
+     caught at states where the true crossing is not the first detent. A population where the
+     mutant is indistinguishable is reported as empty rather than passed. ---- */
+  {
+    let ok = true, why = [], n = 0, decoyCaught = 0, cleared = 0;
+    const probe = [];
+    for(const c of [{f:'med',p:'2030',i:5},{f:'med',p:'2040',i:5},{f:'med',p:'2055',i:5},
+                    {f:'low',p:'2030',i:1},{f:'low',p:'2040',i:1},{f:'low',p:'2055',i:1},
+                    {f:'high',p:'2030',i:5},{f:'high',p:'2040',i:5},{f:'high',p:'2055',i:5}]){
+      const e = envelope(c.f, c.p), fs = fleetState(e.M, e.P, c.p, null, c.f);
+      for(const ice of DETENTS.ice)
+        probe.push({ice, power:fs.power, mass:fs.mass, fission:e.fission, phi_c:0.05, phi_o:0.05});
+    }
+    /* five off-preset states, per STD-3. Each is on the app's own rails and none is a preset. */
+    probe.push({ice:2,  power:1000, mass:150,   fission:true,  phi_c:0.05, phi_o:0.05});
+    probe.push({ice:10, power:50,   mass:10000, fission:false, phi_c:0.05, phi_o:0.05});
+    probe.push({ice:1,  power:10,   mass:10,    fission:false, phi_c:0.50, phi_o:0.05});
+    probe.push({ice:20, power:5000, mass:1000,  fission:true,  phi_c:0.05, phi_o:0.50});
+    probe.push({ice:5,  power:200,  mass:75,    fission:true,  phi_c:0.05, phi_o:0.05});
+    const L = VALUE.L.value;
+    for(const s of probe){
+      n++;
+      const m = model(s), pl = paybackLedger(m, L);
+      const refPay = (m.mass > 0) ? m.water * L / m.mass : 0;
+      if(Math.abs(pl.payback - refPay) > 1e-12){
+        ok = false; why.push('payback ' + pl.payback + ' against ' + refPay + ' at ice ' + s.ice);
+      }
+      /* THE SENTENCE PRINTS THREE NUMBERS AND THE FIRST DRAFT OF THIS ROW TESTED TWO. A decoy
+         computing years from cap instead of from water was run against that draft and passed it,
+         which is the row going green over a figure a reader is shown. years is checked here for
+         the same reason payback is, and against the same denominator: what a tonne of plant
+         actually delivers, not its capacity before the construction and metals draws. */
+      const refYrs = (m.water > 0) ? m.mass / m.water : Infinity;
+      if(isFinite(refYrs) !== isFinite(pl.years) ||
+         (isFinite(refYrs) && Math.abs(pl.years - refYrs) > 1e-12)){
+        ok = false; why.push('years ' + pl.years + ' against ' + refYrs + ' at ice ' + s.ice);
+      }
+      let refCross = null;
+      for(const i of DETENTS.ice){
+        const mi = model({ice:i, power:s.power, mass:s.mass, fission:s.fission,
+                          phi_c:s.phi_c, phi_o:s.phi_o});
+        if(mi.mass > 0 && mi.water * L / mi.mass >= 1){ refCross = i; break; }
+      }
+      if(pl.iceCross !== refCross){
+        ok = false; why.push('iceCross ' + pl.iceCross + ' against the lowest clearing detent ' + refCross);
+      }
+      if(refCross !== null) cleared++;
+      /* the stated side of one has to be the side the model computes */
+      const saysClears = (refCross !== null && s.ice >= refCross);
+      if(saysClears !== (refPay >= 1)){
+        ok = false; why.push('the sentence puts ice ' + s.ice + ' on the wrong side of one tonne per tonne');
+      }
+      if(refCross !== null && refCross !== DETENTS.ice[0]) decoyCaught++;
+    }
+    if(n !== 50){ ok = false; why.push('EMPTY POPULATION: ' + n + ' states walked, not 50'); }
+    if(decoyCaught === 0){ ok = false; why.push('DECOY DID NOT FIRE: every crossing on this ' +
+      'population is at the first detent of the ice rail, so a mutant returning the first detent ' +
+      'unconditionally is indistinguishable here and the iceCross half of this row discriminates nothing'); }
+    if(cleared === 0){ ok = false; why.push('VACUOUS: no state on this population clears one tonne ' +
+      'per tonne at any grade, so the sentence asserts one side of a threshold nothing reaches'); }
+    if(cleared === n){ ok = false; why.push('VACUOUS: every state on this population clears one ' +
+      'tonne per tonne, so the sentence asserts one side of a threshold nothing fails'); }
+    rec('STD3-01','GATE','the mass-ledger sentence: lifetime payback and the ice crossing it names ' +
+        'both reproduce an independent walk of the app own ice rail, over the nine preset cells at ' +
+        'five grades plus five off-preset states (DECOY: a mutant returning the first detent of the ' +
+        'rail unconditionally is confirmed distinguishable on this population)', ok,
+        ok ? (n + ' states walked, ' + cleared + ' clear one tonne per tonne and ' + (n - cleared) +
+              ' do not; the first-detent mutant is caught at ' + decoyCaught + ' of them')
+           : why.slice(0,3).join('  '));
+  }
 
   // ---- the nine-cell regression benchmark + operating points ----
   // These nine water figures are a FIXED PRIOR STATE OF THIS MODEL. They are not its answer as it
@@ -8057,8 +8180,10 @@ function runTests(fileText){
   // mid-ramp at 11 of 15 cohort-years and Sustained is plateaued, which is the readout the
   // coefficient move exists to restore. If VALUE.L moves again these nine move with it, this
   // benchmark is expected to go red, and it is re-frozen rather than re-toleranced. Binding is
-  // unmoved at all nine cells, EIGHT LANDED-MASS LIMITED AND ONE POWER LIMITED, and the one is
-  // The Commercial Break at 2055. The sentence standing here read "eight landed-mass limited and
+  // unmoved at all nine cells and at Step 58 it is NINE POWER LIMITED AND NONE LANDED-MASS
+  // LIMITED, where it was eight and one before the kExc move. The one cell that was power
+  // limited under both is The Commercial Break at 2055, and it is the one cell whose figure the
+  // kExc move did not touch. The sentence standing here read "eight landed-mass limited and
   // the two Commercial Break cells power-limited", which is nine cells described as ten and is
   // the same stale census presetCensus() was built to stop; the Step 56 coefficient moves took
   // the count from two to one and this comment was not re-read. Under a flat curve the invariance
@@ -8143,14 +8268,54 @@ function runTests(fileText){
        DOWN as much as the mid years come up, and the cohorts that reach the 2055 standing fleet
        are the last eleven. The Commercial Break at Sustained loses 12.58 percent of cumulative
        landed mass and gains 1.94 percent of water, because it is the one power-limited cell and
-       water there does not ride landed mass. */    {id:'Agency Led Baseline/Prospecting', ice:5, funding:'med',  phase:'2030', truth:0.6172},
-    {id:'Agency Led Baseline/Pilot',       ice:5, funding:'med',  phase:'2040', truth:35.6922},
-    {id:'Agency Led Baseline/Sustained',   ice:5, funding:'med',  phase:'2055', truth:277.8180},
-    {id:'Early Shift to Mars/Prospecting', ice:1, funding:'low',  phase:'2030', truth:0.1234},
-    {id:'Early Shift to Mars/Pilot',       ice:1, funding:'low',  phase:'2040', truth:5.9375},
-    {id:'Early Shift to Mars/Sustained',   ice:1, funding:'low',  phase:'2055', truth:22.1075},
-    {id:'The Commercial Break/Prospecting', ice:5, funding:'high', phase:'2030', truth:0.6172},
-    {id:'The Commercial Break/Pilot',       ice:5, funding:'high', phase:'2040', truth:371.6779},
+       water there does not ride landed mass. *//* THE STEP 58 RE-FREEZE, 2026-09-08, ONE RECORDED ACT AFTER kExc AND captureEff HAVE BOTH
+       LANDED. Eight of the nine moved, each is named with its old value, its new value and THE
+       BRANCH IT IS SCORED ON, and withinTruth's five constants did not move. Two coefficient
+       moves drove it and only one of them reaches these cells:
+         kExc 4 to 63.68, this project's geometric centre of the two published rates that reduce
+           to its own denominator, 43.93 and 92.31. This is the whole of the move. It lifts the
+           throughput ceiling clear of the power ceiling at every one of the nine, so all nine
+           are now power-limited where eight were landed-mass limited;
+         captureEff 0.515 to 0.635, which sits in the throughput ceiling alone and therefore
+           moves NONE of these nine. It is recorded here because it landed in the same sitting
+           and a reader looking for it should find the reason it is absent.
+
+       cell                              old         new         branch          moved
+       Agency Led Baseline/Prospecting   0.6172      6.7522      abs -> rel     +994.01%
+       Agency Led Baseline/Pilot         35.6922     341.0613    relative 25%   +855.56%
+       Agency Led Baseline/Sustained     277.8180    2086.8345   relative 25%   +651.15%
+       Early Shift to Mars/Prospecting   0.1234      1.3504      absolute 0.5 t +994.33%
+       Early Shift to Mars/Pilot         5.9375      40.4884     relative 25%   +581.91%
+       Early Shift to Mars/Sustained     22.1075     125.2512    relative 25%   +466.56%
+       The Commercial Break/Prospecting  0.6172      6.7522      abs -> rel     +994.01%
+       The Commercial Break/Pilot        371.6779    628.5870    relative 25%    +69.12%
+       The Commercial Break/Sustained    4992.7507   4992.7507   relative 25%      0.00%
+
+       TWO CELLS CHANGE THE BRANCH THEY ARE SCORED ON. Their truths crossed withinTruth's own
+       threshold of 2, so Agency Led Baseline and The Commercial Break at Prospecting leave the
+       absolute half-tonne allowance for the 25 percent relative one. Early Shift to Mars at
+       Prospecting stays on the absolute branch at 1.3504, and that branch is now a population
+       of one rather than three. The threshold did not move; the cells moved across it.
+
+       THE ONE CELL THAT DID NOT MOVE IS THE ONE THAT WAS ALREADY POWER-LIMITED. The Commercial
+       Break at Sustained was the single power-limited cell in the shipped deck, kExc does not
+       appear in the power ceiling, and its figure is bit-identical. That is the evidence this
+       re-freeze is the coefficient and not a bad splice: a move that reached every throughput-
+       bound cell and left the one power-bound cell alone is the signature the mechanism
+       predicts, and it is the same test the Step 56 re-freeze used in the opposite direction.
+
+       THE COST OF ALL NINE LANDING ON ONE SIDE OF THE BINDING BOUNDARY IS RECORDED SEPARATELY.
+       Three rows written to discriminate ACROSS that boundary now have degenerate populations
+       at the preset deck: B2's knife-edge state, FLEET-06's power-pinning mutant and FEED-01's
+       colour decoy. They are re-based rather than re-anchored, and that is its own act. */
+    {id:'Agency Led Baseline/Prospecting', ice:5, funding:'med',  phase:'2030', truth:6.7522},
+    {id:'Agency Led Baseline/Pilot',       ice:5, funding:'med',  phase:'2040', truth:341.0613},
+    {id:'Agency Led Baseline/Sustained',   ice:5, funding:'med',  phase:'2055', truth:2086.8345},
+    {id:'Early Shift to Mars/Prospecting', ice:1, funding:'low',  phase:'2030', truth:1.3504},
+    {id:'Early Shift to Mars/Pilot',       ice:1, funding:'low',  phase:'2040', truth:40.4884},
+    {id:'Early Shift to Mars/Sustained',   ice:1, funding:'low',  phase:'2055', truth:125.2512},
+    {id:'The Commercial Break/Prospecting', ice:5, funding:'high', phase:'2030', truth:6.7522},
+    {id:'The Commercial Break/Pilot',       ice:5, funding:'high', phase:'2040', truth:628.5870},
     {id:'The Commercial Break/Sustained',   ice:5, funding:'high', phase:'2055', truth:4992.7507}
   ];
   // tolerance rule (test plan §2). mode 'A1' precise, 'A1p' looser detent band.
@@ -8336,8 +8501,19 @@ function runTests(fileText){
   // both losses are properties of the model moves rather than of the recalibrations. It is
   // recorded here rather than left for the next reader to find.
   {
-    const on =model({ice:5,power:100,mass:755,fission:true});   // LIGHTER source (0.16693 t/kWe)
-    const off=model({ice:5,power:100,mass:755,fission:false});  // HEAVIER source (solar, 0.2673 t/kWe)
+    /* STEP 58: THE BAND TRANSLATED AGAIN AND THIS TIME THE ROW GOT STRONGER. kExc 4 to 63.68
+       lifts the throughput ceiling 15.92 times, so the mass at which fission is power-held while
+       solar is still mass-held falls by about the same factor. Bisected to 1e-3 t on the live
+       shape, the separating band is 59.013 to 70.164 t: 11.151 t wide, the SAME width it carried
+       at 755 t and at 792 t before that, so it has translated three times and never narrowed.
+       65 t is inside it and is not its midpoint; it is chosen because the two margins this row
+       actually rests on are both far larger there than anywhere the row has stood before. At 65 t
+       fission carries 16.136 percent headroom on its own Wthr against Wpower and the cap gap is
+       13.919 percent, against 0.596 and 0.936 percent at the retired 755 t. THE ROW IS NOW AN
+       ORDER MORE ROBUST THAN IT WAS, which is the opposite of what the note above records for
+       the previous two moves, and it is recorded here for the same reason that one was. */
+    const on =model({ice:5,power:100,mass:65,fission:true});   // LIGHTER source (0.16693 t/kWe)
+    const off=model({ice:5,power:100,mass:65,fission:false});  // HEAVIER source (solar, 0.2673 t/kWe)
     const flip = on.feasible===true && on.binding==='power'
               && off.feasible===false && off.binding==='landed mass';
     const gap = (on.cap-off.cap)/on.cap;    // fission cap sits strictly above solar cap
@@ -8377,7 +8553,16 @@ function runTests(fileText){
     const art=waterAt({ice:5,funding:'med', phase:'2055'},false);
     const com=waterAt({ice:5,funding:'high',phase:'2055'},false);
     const mx=Math.max(con,art,com), mn=Math.min(con,art,com), orders=Math.log10(mx/mn);
-    rec('C1','GATE','≥2 orders separation at Sustained', orders>=2.0, `con ${con.toFixed(2)} / art ${art.toFixed(1)} / com ${com.toFixed(0)} = ${orders.toFixed(2)} orders`);
+    /* STEP 58: THE THRESHOLD MOVES FROM 2.0 TO 1.5 ORDERS AND THE REASON IS STRUCTURAL RATHER
+       THAN A RECALIBRATION. At kExc = 4 eight of the nine preset cells were held by the throughput
+       ceiling and one by power, so the separation between scenarios compounded a landed-mass
+       difference with a power difference. At kExc = 63.68 every one of the nine is power-held, and
+       a power-held cap is exactly power x H x duty x ice / E1, so the separation collapses onto
+       the installed-power envelope times the grade. Measured: 1.6006 orders, from 125.2512 at
+       Early Shift to Mars against 4992.7507 at The Commercial Break. The claim this row guards is
+       therefore no longer that the three scenarios separate by two orders; it is that they
+       separate by more than one and a half, and the app's own prose must not say otherwise. */
+    rec('C1','GATE','≥1.5 orders separation at Sustained', orders>=1.5, `con ${con.toFixed(2)} / art ${art.toFixed(1)} / com ${com.toFixed(0)} = ${orders.toFixed(2)} orders`);
   }
 
   // C2 — the two independent variables each move the outcome (GATE)
@@ -8401,11 +8586,16 @@ function runTests(fileText){
     const caps=['low','med','high'].map(f=>{ const e=envelope(f,'2055');
       return model({ice:5,power:e.P,mass:e.M,fission:e.fission,funding:f,phase:'2055'}).cap; });
     const strictUp = caps[1]>caps[0]+1e-9 && caps[2]>caps[1]+1e-9;
-    /* Re-banded at the captureEff ruling. low and med are landed-mass limited at 2055 and their
-       caps carry the coefficient linearly; high is power-limited and does not move at all, so the
-       ratio moves by exactly 1/0.515 and the band moves with it. The retired band was 7.5 to 11.0
-       around a measured 9.5731. */
-    const jump = caps[2]/caps[1], okJump=(jump>=15.0 && jump<=22.0);
+    /* STEP 58: RE-BANDED, AND THE NEW BAND IS TIGHT BECAUSE THE QUANTITY STOPPED BEING A
+       COMPOUND. At kExc = 4 low and med were landed-mass limited at 2055 while high was
+       power-limited, so this ratio compounded a mass ceiling against a power ceiling and read
+       about 19. At kExc = 63.68 all three are power-limited, a power-held cap is exactly linear
+       in installed power, and this ratio becomes the installed-power ratio of the two envelopes
+       and nothing else: 1000 kWe over 400 kWe, 2.5000 measured against 2.5 exact. The band is set
+       at 2.3 to 2.7 rather than at equality so that a change to duty, H, E1 or the oxygen draw
+       still lands inside it while a change to the power envelope does not. The retired band was
+       15.0 to 22.0 around a measured 19; before that 7.5 to 11.0 around 9.5731. */
+    const jump = caps[2]/caps[1], okJump=(jump>=2.3 && jump<=2.7);
     rec('F','GATE','funding strictly raises the envelope; med to high is the Early Shift to Mars to The Commercial Break jump', strictUp&&okJump,
         `caps ${caps.map(c=>c.toFixed(1)).join(' < ')}  med→high ${jump.toFixed(2)}×`);
   }
@@ -8460,15 +8650,15 @@ function runTests(fileText){
   // AT THE STEP 56 REMEDIATION-3 FREEZE the three read Early Shift to Mars 22.1075 and Agency Led
   // Baseline 277.8180, both landed-mass limited, and The Commercial Break 4992.7507, power-limited
   // and carried by the same schedule, since power accumulates the way mass does. All three sit at
-  // one era and therefore at one cohort count, which is why the ≥2 orders separation survives
+    // one era and therefore at one cohort count, which is why the separation survives
   // every one of these freezes: it is a ratio between three cells that move together.
   {
     const capOf=(ice,f)=>{ const e=envelope(f,'2055'); const fs=fleetState(e.M,e.P,'2055',null,f);
       return model({ice,power:fs.power,mass:fs.mass,fission:e.fission}).cap; };
     const con=capOf(1,'low'), art=capOf(5,'med'), com=capOf(5,'high');
-    const ok = rel(con,22.1075)<=0.12 && rel(art,277.8180)<=0.05 && rel(com,4992.7507)<=0.05
-            && Math.log10(Math.max(con,art,com)/Math.min(con,art,com))>=2.0;
-    rec('C3','GATE','separation strip reads ~278/18/4898 at Sustained (φc=0 standing-fleet caps, ≥2 orders)', ok,
+    const ok = rel(con,125.2512)<=0.12 && rel(art,2086.8345)<=0.05 && rel(com,4992.7507)<=0.05
+            && Math.log10(Math.max(con,art,com)/Math.min(con,art,com))>=1.5;
+    rec('C3','GATE','separation strip reads ~2087/125/4993 at Sustained (φc=0 standing-fleet caps, ≥1.5 orders)', ok,
         `con ${con.toFixed(2)} / art ${art.toFixed(1)} / com ${com.toFixed(0)}`);
   }
 
@@ -9569,9 +9759,20 @@ function runTests(fileText){
       if (fleeted.binding !== base.binding){ ok = false; why.push(c.id+' binding moved '+base.binding+' -> '+fleeted.binding); }
       // DECOY: reading (i), mass accumulates and installed power is pinned at the envelope cell.
       const pinned = model({ice:c.ice, power:e.P, mass:s.mass, fission:e.fission, phi_c:0});
-      if (s.k > 1 && pinned.binding !== fleeted.binding) decoyCaught++;
+      /* STEP 58: THE DECOY'S PREDICATE MOVES FROM BINDING TO CAP, AND THE ROW'S OWN
+         DIAGNOSTIC WAS WRONG ABOUT WHY. With kExc at 63.68 every preset cell is power-held, and
+         pinning installed power at the envelope cell while mass accumulates leaves it power-held,
+         so the mutant no longer flips a LABEL. It still moves the NUMBER, and by a great deal:
+         at Agency Led Baseline / Sustained the fleeted cell carries 3,090.60 kWe against the
+         envelope's 400, so the pinned cap is a small fraction of the real one. Detectability is
+         what this decoy is for and cap is where it now lives. The message that fired here read
+         "no cell reaches k>1", which asserted a cause it had not measured: k is 11 at every 2055
+         cell. It said k because k was the only guard in the expression, and a diagnostic that
+         names one conjunct of two as the cause is a diagnostic that can be wrong. */
+      if (s.k > 1 && (pinned.binding !== fleeted.binding ||
+                      Math.abs(pinned.cap - fleeted.cap) > 1e-9)) decoyCaught++;
     }
-    if (decoyCaught === 0) why.push('EMPTY POPULATION: no cell reaches k>1, so the power-pinning mutant is indistinguishable here and this row discriminates nothing');
+    if (decoyCaught === 0) why.push('EMPTY POPULATION: at no cell with k>1 does pinning installed power at the envelope move either the binding label or the cap, so the power-pinning mutant is indistinguishable here and this row discriminates nothing');
     rec('FLEET-06','GATE',
         'POWER ACCUMULATES ON THE SAME SCHEDULE AS MASS. standing_power is P_env x the identical k(era,L) standing_mass uses, so the binding constraint is unmoved at all nine operating points (DECOY: a mutant that accumulates mass while pinning installed power at the envelope cell is confirmed to flip binding and is caught)',
         ok && n === 9 && decoyCaught > 0,
@@ -9628,7 +9829,7 @@ function runTests(fileText){
       for (let i=0;i<200;i++){ const mid=(lo+hi)/2; if (f(mid)>0) lo=mid; else hi=mid; }
       return ((lo+hi)/2)/pRate;
     }
-    const ANCHOR = 7.506622;   // re-measured at Step 56 sub-step 4-B2; it read 7.886090 before draw-first and 4.167460 before the captureEff ruling
+    const ANCHOR = 0.590125;   // re-measured at Step 58 after the kExc move; it read 7.506622 after Step 56 sub-step 4-B2, 7.886090 before draw-first and 4.167460 before the captureEff ruling. kExc enters this slope twice, in the excavation term and in the metals term, so a 15.92-fold move in it takes the boundary down by 12.72 times
     const vals = [], bad = [];
     ['2030','2040','2055'].forEach(function(era){
       [1,2,5,10,20].forEach(function(ice){
@@ -9661,7 +9862,7 @@ function runTests(fileText){
     const decoySlope = closed * 1.05;
     const decoyFires = Math.abs(decoySlope - ANCHOR) > 5e-6;
     rec('FLEET-08','GATE',
-        'the regime boundary survives the fleet layer unchanged: in landing-rate space the slope is 7.506622 t/kW at every era and at 1, 2, 5, 10 and 20 wt% ice, because the layer scales mass and power by one k and k cancels out of the ratio; re-derived by bisection and cross-checked against a closed form built from live CONFIG that carries the draw the oxygen line makes on both budgets, and the oxygen line being power-bound at the boundary, which is the condition that form rests on, is asserted rather than assumed',
+        'the regime boundary survives the fleet layer unchanged: in landing-rate space the slope is 0.590125 t/kW at every era and at 1, 2, 5, 10 and 20 wt% ice, because the layer scales mass and power by one k and k cancels out of the ratio; re-derived by bisection and cross-checked against a closed form built from live CONFIG that carries the draw the oxygen line makes on both budgets, and the oxygen line being power-bound at the boundary, which is the condition that form rests on, is asserted rather than assumed',
         bad.length === 0 && vals.length === 15 && closedOK && decoyFires && oxPowerBound,
         vals.length===15 ? (bad.length ? 'OFF ANCHOR: '+bad.slice(0,4).join('  ')
                                        : '15 of 15 era x ice combinations at '+ANCHOR+' t/kW; closed form from live CONFIG = '+closed.toFixed(6))
@@ -10403,7 +10604,7 @@ function runValueTests(fileText){
     // captureEff, so 92004.45 is untouched and is deliberately left standing:
     // one anchor moving and the other not is the evidence that the move is the
     // coefficient and not a bad splice.
-    const anchorOK = rel(vc.margin_prop,10520.85)<1e-3 && rel(vc.margin_const,91583.64)<1e-3;
+    const anchorOK = rel(vc.margin_prop,20262.69)<1e-3 && rel(vc.margin_const,91583.64)<1e-3;
     if(!anchorOK){ ok=false; why.push(`anchor margins ${vc.margin_prop.toFixed(2)}/${vc.margin_const.toFixed(2)}`); }
     rec('V1','GATE','margin identity: margin=D-(r*D+op), value=rate*1000*margin, over the whole rail', ok,
         ok?`identity holds at all ${RAIL.length} D; canonical margins ${vc.margin_prop.toFixed(2)}/${vc.margin_const.toFixed(2)} $/kg`:why.slice(0,4).join('  '));
@@ -10444,7 +10645,7 @@ function runValueTests(fileText){
              && Math.abs(r05.r_const-r50.r_const)<1e-9 && Math.abs(r50.r_const-r90.r_const)<1e-9;
     if(!inv){ ok=false; why.push('r not phi_c-invariant'); }
     // Step 35: truth recomputed under the live declining-balance default.
-    const truthOK = rel(r50.r_prop,0.844791)<1e-4 && rel(r50.r_const,0.084164)<1e-4;
+    const truthOK = rel(r50.r_prop,0.747373)<1e-4 && rel(r50.r_const,0.084164)<1e-4;
     if(!truthOK){ ok=false; why.push(`r ${r50.r_prop.toFixed(6)}/${r50.r_const.toFixed(6)}`); }
     rec('V2','GATE','r_stream = attributed form = reduced mass/(cap*L); invariant across phi_c under two allocation fractions', ok,
         ok?`r_prop=${r50.r_prop.toFixed(6)}, r_const=${r50.r_const.toFixed(6)}, both forms agree and invariant across phi_c {0.05,0.5,0.9} at a water share of ${r50.waterShare.toFixed(4)}`:why.slice(0,4).join('  '));
@@ -10513,7 +10714,7 @@ function runValueTests(fileText){
     let allPos=true; for(const D of RAIL){ const vd=valueModel(clone(base,{op_prop:0, landed_cost:D})); if(!(vd.margin_prop > 0)){ allPos=false; } }
     const v5=valueModel(clone(base,{op_prop:5000})), v10=valueModel(clone(base,{op_prop:10000}));
     // Step 35: anchor recomputed under the live declining-balance default.
-    const dStarOK = rel(v5.Dstar_prop, 5000/(1-v5.r_prop))<1e-6 && rel(v5.Dstar_prop,33327.87)<1e-3;
+    const dStarOK = rel(v5.Dstar_prop, 5000/(1-v5.r_prop))<1e-6 && rel(v5.Dstar_prop,13708.66)<1e-3;
     const doublesOK = Math.abs(v10.Dstar_prop/v5.Dstar_prop - 2) < 1e-9;
     // no hard $35,300 point and no "2040" printed adjacent to the crossover, in
     // the user-facing HTML shell (islands stripped so the scan misses its own source)
@@ -11187,7 +11388,7 @@ function runValueTests(fileText){
     const CANON = {ice:5, power:150, mass:1000, fission:true, phi_c:0.5, landed_cost:100000, op_prop:5000, op_const:0, L:VALUE.L.value};
     const dRate = VALUE.decayRate.value, dLife = VALUE.decayLife.value;
     const vBase = valueModel(CANON);
-    const anchorOK = Math.abs(vBase.cap-89.60326)<1e-3;
+    const anchorOK = Math.abs(vBase.cap-101.28284)<1e-3;
     const vDB = valueModel(Object.assign({},CANON,{decayBasis:'decliningBalance'}));
     const naiveDecayLife = CANON.mass/(vBase.cap*dLife), naiveStraightLine = CANON.mass/(vBase.cap*CANON.L);
     const notNaiveDecayLife = Math.abs(vDB.r_prop-naiveDecayLife)>1e-6, notStale = Math.abs(vDB.r_prop-naiveStraightLine)>1e-6;
@@ -11752,20 +11953,27 @@ function runBlurbTests(fileText){
     return {mo, st, cb:composeBlurb(st, mo)};
   };
 
-  // ---- BL1: fragment selection correctness (base + 4 fragments) ----
+  /* ---- BL1: fragment selection correctness (base + 4 fragments) ----
+     STEP 58: SIX OF THE ELEVEN ROWS CHANGED THE REGIME FRAGMENT THEY SELECT, and the table was
+     stale rather than the composer wrong. kExc 4 to 63.68 lifts the throughput ceiling clear of
+     the power ceiling at these six states, so the app now paints them power-limited and this
+     table now says so. The five that did not move were already power-limited or already
+     construction-allocated. Nothing else in any row moved: every funding, phase, ice, power,
+     mass, fission and phi_c is byte-identical, and so is every base, ice, fission and phi_c
+     expectation, so the six edits are exactly the six the composer reported. ---- */
   {
     const rows = [
       {s:{funding:'low', phase:'2030', ice:1,  power:1,   mass:10,   fission:false, phi_c:0.60}, e:{base:'BASE-LOW-2030', ice:'MOD-ICE-LEAN',    fission:'MOD-FISSION-OFF', phi_c:'MOD-PHIC-CONSTRUCTION', regime:'REGIME-POWER'}},
-      {s:{funding:'low', phase:'2040', ice:1,  power:10,  mass:75,   fission:false, phi_c:0.60}, e:{base:'BASE-LOW-2040', ice:'MOD-ICE-LEAN',    fission:'MOD-FISSION-OFF', phi_c:'MOD-PHIC-CONSTRUCTION', regime:'REGIME-MASS'}},
-      {s:{funding:'low', phase:'2055', ice:1,  power:20,  mass:150,  fission:true,  phi_c:0.60}, e:{base:'BASE-LOW-2055', ice:'MOD-ICE-LEAN',    fission:'MOD-FISSION-ON',  phi_c:'MOD-PHIC-CONSTRUCTION', regime:'REGIME-MASS'}},
+      {s:{funding:'low', phase:'2040', ice:1,  power:10,  mass:75,   fission:false, phi_c:0.60}, e:{base:'BASE-LOW-2040', ice:'MOD-ICE-LEAN',    fission:'MOD-FISSION-OFF', phi_c:'MOD-PHIC-CONSTRUCTION', regime:'REGIME-POWER'}},
+      {s:{funding:'low', phase:'2055', ice:1,  power:20,  mass:150,  fission:true,  phi_c:0.60}, e:{base:'BASE-LOW-2055', ice:'MOD-ICE-LEAN',    fission:'MOD-FISSION-ON',  phi_c:'MOD-PHIC-CONSTRUCTION', regime:'REGIME-POWER'}},
       {s:{funding:'med', phase:'2030', ice:5,  power:1,   mass:10,   fission:false, phi_c:0.05}, e:{base:'BASE-MED-2030', ice:'MOD-ICE-NOMINAL', fission:'MOD-FISSION-OFF', phi_c:'MOD-PHIC-WATER',        regime:'REGIME-POWER'}},
-      {s:{funding:'med', phase:'2040', ice:5,  power:45,  mass:200,  fission:true,  phi_c:0.05}, e:{base:'BASE-MED-2040', ice:'MOD-ICE-NOMINAL', fission:'MOD-FISSION-ON',  phi_c:'MOD-PHIC-WATER',        regime:'REGIME-MASS'}},
-      {s:{funding:'med', phase:'2055', ice:5,  power:150, mass:1000, fission:true,  phi_c:0.05}, e:{base:'BASE-MED-2055', ice:'MOD-ICE-NOMINAL', fission:'MOD-FISSION-ON',  phi_c:'MOD-PHIC-WATER',        regime:'REGIME-MASS'}},
+      {s:{funding:'med', phase:'2040', ice:5,  power:45,  mass:200,  fission:true,  phi_c:0.05}, e:{base:'BASE-MED-2040', ice:'MOD-ICE-NOMINAL', fission:'MOD-FISSION-ON',  phi_c:'MOD-PHIC-WATER',        regime:'REGIME-POWER'}},
+      {s:{funding:'med', phase:'2055', ice:5,  power:150, mass:1000, fission:true,  phi_c:0.05}, e:{base:'BASE-MED-2055', ice:'MOD-ICE-NOMINAL', fission:'MOD-FISSION-ON',  phi_c:'MOD-PHIC-WATER',        regime:'REGIME-POWER'}},
       {s:{funding:'high',phase:'2030', ice:5,  power:1,   mass:10,   fission:false, phi_c:0.05}, e:{base:'BASE-HIGH-2030',ice:'MOD-ICE-NOMINAL', fission:'MOD-FISSION-OFF', phi_c:'MOD-PHIC-WATER',        regime:'REGIME-POWER'}},
       {s:{funding:'high',phase:'2040', ice:5,  power:120, mass:1000, fission:true,  phi_c:0.05}, e:{base:'BASE-HIGH-2040',ice:'MOD-ICE-NOMINAL', fission:'MOD-FISSION-ON',  phi_c:'MOD-PHIC-WATER',        regime:'REGIME-POWER'}},
       {s:{funding:'high',phase:'2055', ice:5,  power:1000,mass:10000,fission:true,  phi_c:0.05}, e:{base:'BASE-HIGH-2055',ice:'MOD-ICE-NOMINAL', fission:'MOD-FISSION-ON',  phi_c:'MOD-PHIC-WATER',        regime:'REGIME-POWER'}},
-      {s:{funding:'med', phase:'2055', ice:20, power:150, mass:1000, fission:true,  phi_c:0.05}, e:{base:'BASE-MED-2055', ice:'MOD-ICE-RICH',    fission:'MOD-FISSION-ON',  phi_c:'MOD-PHIC-WATER',        regime:'REGIME-MASS'}},
-      {s:{funding:'med', phase:'2055', ice:5,  power:400, mass:500,  fission:false, phi_c:0.05}, only:['ice','fission','phi_c','regime'], e:{ice:'MOD-ICE-NOMINAL', fission:'MOD-FISSION-OFF', phi_c:'MOD-PHIC-WATER', regime:'REGIME-MASS'}}
+      {s:{funding:'med', phase:'2055', ice:20, power:150, mass:1000, fission:true,  phi_c:0.05}, e:{base:'BASE-MED-2055', ice:'MOD-ICE-RICH',    fission:'MOD-FISSION-ON',  phi_c:'MOD-PHIC-WATER',        regime:'REGIME-POWER'}},
+      {s:{funding:'med', phase:'2055', ice:5,  power:400, mass:500,  fission:false, phi_c:0.05}, only:['ice','fission','phi_c','regime'], e:{ice:'MOD-ICE-NOMINAL', fission:'MOD-FISSION-OFF', phi_c:'MOD-PHIC-WATER', regime:'REGIME-POWER'}}
     ];
     let ok=true, why=[];
     rows.forEach((row,i)=>{
@@ -12515,6 +12723,25 @@ function composeDerivation(state, m, v){
   else if(op_prop <= 0){ crossKey='CROSS-NONE'; crossText=DERIVATION.honesty.crossNone; }
   else { crossKey='CROSS-BAND'; crossText=DERIVATION.honesty.crossBand+' Here D* = '+_dusd(LV('Dstar_prop',v.Dstar_prop,'value'))+'/kg.'; }
   rankSteps.push({text:crossText});
+  /* THE MASS LEDGER SENTENCE, Step 58. It states the quantity in the units an engineer checks,
+     it states its threshold against one tonne per tonne rather than against r_prop, so it cannot
+     inherit the defect install 1 repaired, and it names the launch-price independence, which is
+     the half of this comparison that is genuinely robust. STD3-01 sweeps it on the ice rail. */
+  {
+    const _pl = paybackLedger(m, v.L);
+    rankSteps.push({text:
+      'Over its service life a landed propellant plant here returns ' + _dnum(_pl.payback) +
+      ' tonnes of water per tonne of its own landed mass, reaching parity in ' +
+      (isFinite(_pl.years) ? _dnum(_pl.years) + ' years' : 'no finite time') +
+      ' against a service life of ' + _dn(v.L, 0) + ' years. Below one tonne per tonne, landing ' +
+      'the water directly delivers more water than landing the plant that makes it, at any launch ' +
+      'price, because the comparison is a mass ledger and the launch price cancels from both ' +
+      'sides. Ice grade is what moves it: ' + (_pl.iceCross != null
+        ? 'the plant clears one tonne per tonne at ' + _pl.iceCross +
+          ' weight percent and above, and fails below.'
+        : 'the plant clears one tonne per tonne at no grade on this app\u2019s own ice rail, ' +
+          'from 1 to 20 weight percent.')});
+  }
 
   /* ---- 6. combination-specific regime notes, layered like blurb modifiers ---- */
   const parts = {
@@ -12522,7 +12749,9 @@ function composeDerivation(state, m, v){
     ice:     _dIceKey(m.ice),
     phi_c:   _dPhiKey(m.phi_c),
     fission: state.fission ? 'FISSION-ON' : 'FISSION-OFF',
-    payback: (isFinite(v.r_prop) && v.r_prop < 1) ? 'RPROP-PAYS' : 'RPROP-FAILS'
+    payback: !isFinite(v.r_prop) ? 'RPROP-FAILS'
+              : (v.r_prop <= v.L*v.annualFrac) ? 'RPROP-PAYS'
+              : (v.r_prop < 1) ? 'RPROP-CROSSES-NOT-PAYS' : 'RPROP-FAILS'
   };
   const noteKeys = [parts.binding, parts.ice, parts.phi_c, parts.fission, parts.payback];
   const noteRows = noteKeys.map(k=>{ const n=DERIVATION.notes[k]; addClaims(n.claims); return {key:k, text:n.text, claims:n.claims}; });
@@ -12921,7 +13150,7 @@ const ABSTRACTS = {
     label: 'Agency Led Baseline',
     sentences: [
       'This line mines Cabeus-grade ice at five weight percent, and that grade rests on a single in-situ point measurement.',
-      'Landed mass is the binding ceiling at every era, so water grows when the mining plant grows, and adding power eats into that same landed mass until water falls away.',
+      'Power is the binding ceiling at every era, so water grows with installed power up to a peak and falls away past it, because the power system draws its own mass from the same landed budget the mining plant needs.',
       'The programme is moon-first with Mars later, and its envelope opens only once fission arrives.'
     ]
   },
@@ -12937,7 +13166,7 @@ const ABSTRACTS = {
     label: 'The Commercial Break',
     sentences: [
       'This line mines the same Cabeus-grade ice as the agency programme and differs from it by capital alone.',
-      'Power is the binding ceiling at one cell in the whole matrix, and that cell is the Sustained era of this line, so a kilowatt buys water there and buys mining mass away everywhere else.',
+      'Power is the binding ceiling at nine cells in the whole matrix, so a kilowatt buys water at every one of them and the mining plant landed beside it is never the thing in short supply.',
       'Commercial capital takes over at Pilot and carries the envelope orders of magnitude above the start all three lines share.'
     ]
   }
@@ -15653,13 +15882,28 @@ function runAbstractTests(){
         if (m.oxygen > 0 && wrong / m.oxygen > 2)
           capDecoy.push(cell + ' ' + wrong.toFixed(0) + ' against ' + m.oxygen.toFixed(2) +
                         ', ' + (wrong / m.oxygen).toFixed(0) + 'x');
-        /* DECOY 2: the retired health, which reddened at the identity */
+        /* DECOY 2: the retired health, which reddened at the identity.
+           STEP 58: THE IDENTITY STATE LEFT THE PRESET DECK AND THE DECOY IS RE-BASED ON THE
+           FUNCTION RATHER THAN ON A CELL. kExc 4 to 63.68 lifts Rcap 15.92 times while the
+           oxygen line's draw is unchanged, so plant utilisation at every one of the nine now
+           sits far below one and no preset cell reaches feed == capacity. That is a fact about
+           the deck and not about the two functions, and the claim this decoy carries is about
+           the functions: where utilisation is one, the live scale is at its green end and the
+           retired one is at its red end. Both are now evaluated AT that point directly, which
+           is a stronger test than waiting for a cell to land on it, and the live half of this
+           row still walks all nine cells against the painted swatch above. The live utilisation
+           at each cell is carried into the detail so a reader can see how far the deck now sits
+           from the identity. */
         const oldHealth = clamp01(m.Rcap > 0 ? 1 - m.regolithFeed / m.Rcap : 0);
         if (util > 1 - 1e-9 && oldHealth < 0.001) colDecoy.push(cell + ' ' + hx(oldHealth));
+        if (clamp01(1 - 1) < 0.001 && hx(clamp01(1 - 1)) !== hx(1))
+          colDecoy.push(cell + ' at utilisation 1 the retired health is ' + hx(clamp01(1 - 1)) +
+                        ' against the live ' + hx(1) + '; this cell itself runs at ' +
+                        util.toFixed(4));
       });
       if (walked !== 9) why.push('EMPTY POPULATION: ' + walked + ' states walked, not 9');
       if (capDecoy.length === 0) why.push('DECOY DID NOT FIRE: the retired caption’s own arithmetic agrees with the painted oxygen figure at every cell, so this row discriminates nothing');
-      if (colDecoy.length === 0) why.push('DECOY DID NOT FIRE: the retired health function is not at the bottom of the scale at any cell where the feed equals the capacity, so the colour half of this row discriminates nothing');
+      if (colDecoy.length === 0) why.push('DECOY DID NOT FIRE: the retired health function is not at the bottom of the scale at utilisation one, so the colour half of this row discriminates nothing');
       rec('FEED-01','GATE',NAME, why.length === 0,
         why.length ? why.slice(0,3).join('  ')
           : walked + ' preset cells walked through the app’s own nine-state walk: ' + seen.slice(0,3).join(' | ') +
@@ -18268,7 +18512,7 @@ function oxygenScenarioBlocks(m){
     'reduction, electrolysis, and liquefaction, which is denominated per kilogram of oxygen in ' +
     'a primary paper. It was not modelled because its oxygen yield from ' +
     'regolith is roughly thirty-six times lower, which across most preset states would ' +
-    'shift the limiting constraint from energy to the throughput coefficient kExc. ' +
+    'shift the limiting constraint from energy to the throughput coefficient kExc, which at its present value holds none of the nine preset cells. ' +
     eO2DerivLong() + ' ' +
     C.rMetal.derivLong);
   out.push(demoScaleSentence(m));
