@@ -75,13 +75,25 @@
   .rail .rail-head .hint{font-family:var(--mono); font-size:12px; color:var(--faint);}
 
   .knob{display:flex; flex-direction:column; gap:7px;}
-  .knob .krow{display:flex; align-items:baseline; justify-content:space-between; gap:8px;}
-  .knob .klabel{font-size:13px; font-weight:550;}
-  .knob .kval{font-family:var(--mono); font-size:14px; font-variant-numeric:tabular-nums; color:var(--ice);}
+  /* THE ROW RULES ARE NOT SCOPED TO .knob, AND A VALUE THAT WILL NOT FIT TAKES ITS OWN LINE.
+     These three read `.knob .krow`, `.knob .klabel` and `.knob .kval`. The buildout curve's row
+     sits in .curvewrap and matched none of them, so it took no layout at all: the label and the
+     value painted as one word, "Buildout curve, landed mass per year9,776 t/yr at 2055", and the
+     value lost the mono face, the tabular figures and the ice colour with them.
+     The rail is 256 px wide inside its padding and that label is 239 px of unwrapped text, so one
+     flex line cannot hold label and value both. flex-wrap gives the value its own line when it
+     will not fit and leaves it beside the label when it will; margin-left:auto holds it against
+     the right edge in both cases, where justify-content alone right-aligns only the shared line
+     and drops a wrapped value to the left. The row gap is 2 px against the 8 px column gap, so
+     wrapping costs a line and not a paragraph. */
+  .krow{display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:2px 8px;}
+  .klabel{font-size:13px; font-weight:550;}
+  .kval{font-family:var(--mono); font-size:14px; font-variant-numeric:tabular-nums; color:var(--ice);
+    margin-left:auto;}
   .knob.constr .kval{color:var(--regolith);}
   .knob.mix .kval{color:var(--good);}
   .knob.ovr .kval{color:var(--faint);}
-  .knob .kcap{font-family:var(--mono); font-size:12px; color:var(--faint); letter-spacing:.3px;}
+  .kcap{font-family:var(--mono); font-size:12px; color:var(--faint); letter-spacing:.3px;}
   input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:5px; border-radius:99px;
     background:var(--line); outline:none; cursor:pointer; margin:2px 0;}
   input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; appearance:none; width:20px; height:20px;
@@ -14085,6 +14097,13 @@ function runAbstractTests(){
         const reads = [], decoyReads = [];
         for (let i = 0; i < 4; i++){
           curveDragMove({ clientY: 4 });
+          /* THE SETTLE RUNS BETWEEN THE MOVES, and that is what keeps this clause able to see the
+             defect it was written for. The pointer path defers its recompute, so four moves with
+             nothing between them leave dataset.max exactly where the last render put it, a
+             mid-drag re-read of it would return that same number every time, and this clause
+             would go green over a reverted axis freeze. Settling after each move restores the
+             per-move recompute the runaway was measured against. */
+          curveDragSettleNow();
           reads.push(rateNow(hy));
           decoyReads.push(Number(cv.dataset.max));
         }
@@ -14160,6 +14179,172 @@ function runAbstractTests(){
           seen.length !== want ? ('EMPTY OR SHORT POPULATION: ' + seen.length + ' gestures driven, not ' + want + (bad.length ? '; ' + bad[0] : ''))
             : (bad.length ? bad.slice(0,3).join('  ')
                : want + ' gestures, computed as 2 still-pointer cases plus 3 selected-era drags plus 1 floor round trip plus 1 keyboard case: ' + seen.join(' | ')));
+    }
+  }
+
+
+  // ================= CURVEUI-03 =================
+  /* THE RECOMPUTE WAITS OUT THE GESTURE AND THE HANDLE DOES NOT. A full render on every
+     pointermove made the plot's handles hard to drag: the reader met a control that fought the
+     pointer. The repair is a 0.5 s settle on the model with a direct paint on the handle, and it
+     has four ways to be wrong, each of them something a reader would meet.
+     A RECOMPUTE ON EVERY MOVE, and the repair did nothing at all.
+     A FROZEN HANDLE, if the deferral takes the paint with it and the handle stops dead under the
+     finger, which is a worse control than the one being repaired.
+     A STALE HEADLINE, if a release does not flush what the settle still owes.
+     A TIMER FIRING INTO THE WRONG GESTURE, if a new drag or a release leaves one armed.
+     The evidence is the app's own painted record read against its own model at each step, driven
+     through the shipped handlers with the events they take. */
+  {
+    const cv = document.getElementById('curvePlot');
+    const seen = [], bad = [];
+    if (!cv){ rec('CURVEUI-03','GATE','the buildout recompute waits for the pointer to stop while the dragged handle keeps tracking it', false,
+                  'EMPTY POPULATION: no #curvePlot element exists in the rendered document'); }
+    else {
+      const saveP = state.phase;
+      /* THE PAINTED RECORD, which only render() writes, against THE MODEL, which every gesture
+         writes. The distance between the two is exactly the recompute this pass defers. */
+      function painted(y){
+        const m = (cv.dataset.rateAt || '').split(',');
+        for (let i = 0; i < m.length; i++){ const p = m[i].split(':'); if (Number(p[0]) === Number(y)) return Number(p[1]); }
+        return NaN;
+      }
+      function modelAt(y){ return buildCurve('mass', state.funding, state.phase, knobVal('mass'))(Number(y)); }
+      function handle(y){ return document.querySelector('.curvehandle[data-era="' + y + '"]'); }
+      function uniq(a){ return a.filter(function(v, i, s){ return s.indexOf(v) === i; }).length; }
+      function goTo(ph){ curveReset(); applyPreset(PRESETS.artemis);
+                         const b = document.querySelector('#phase button[data-p="' + ph + '"]');
+                         if (b) b.click(); else bad.push('no era button for ' + ph); }
+      function press(el){ return { currentTarget: el, preventDefault: function(){} }; }
+
+      /* 1 AND 2. AN UNPAUSED STREAM RECOMPUTES NOTHING, AND THE HANDLE MOVES ANYWAY.
+         The handles are taken from the document rather than faked, because the subject of the
+         second half of this clause is what the reader's own handle does while the page waits. */
+      goTo('2055');
+      const h0 = handle(2040);
+      if (!h0) bad.push('no 2040 handle to drag at era 2055');
+      else {
+        const was = painted(2040);
+        curveDragStart(press(h0));
+        const modelRun = [], paintedRun = [], rateRun = [], topRun = [], armed = [];
+        for (let i = 0; i < 6; i++){
+          curveDragMove({ clientY: 10 + i * 9 });
+          const live = handle(2040);
+          modelRun.push(modelAt(2040));
+          paintedRun.push(painted(2040));
+          rateRun.push(live ? Number(live.dataset.rate) : NaN);
+          topRun.push(live ? String(live.style.top) : '(the handle left the document)');
+          armed.push(curveDragTimer != null);
+        }
+        seen.push('6 moves at 6 positions with no pause: the model takes ' + uniq(modelRun) + ' values, ' +
+                  modelRun.map(function(v){ return v.toFixed(1); }).join('/') +
+                  ', and the painted record holds at ' + paintedRun[0].toFixed(1));
+        if (uniq(modelRun) !== 6)
+          bad.push('6 pointermove events at 6 distinct positions move the model to only ' + uniq(modelRun) +
+                   ' distinct values, so this clause drives no stream and its zero means nothing');
+        if (uniq(paintedRun) !== 1 || Math.abs(paintedRun[0] - was) > 1e-9)
+          bad.push('the page recomputed during an unpaused stream: the painted record read ' +
+                   paintedRun.map(function(v){ return v.toFixed(1); }).join(', ') + ' against ' + was.toFixed(1) + ' before the drag');
+        if (armed.indexOf(false) >= 0)
+          bad.push('a pointermove left no settle armed, so the recompute that drag owes would never arrive');
+        seen.push('the dragged handle over those same 6 moves: ' + uniq(rateRun) + ' rates and ' + uniq(topRun) +
+                  ' positions, ' + topRun[0] + ' to ' + topRun[5]);
+        if (uniq(rateRun) !== 6 || uniq(topRun) !== 6)
+          bad.push('the handle froze under the pointer: ' + uniq(rateRun) + ' rates and ' + uniq(topRun) +
+                   ' positions across 6 moves at 6 distinct pointer positions');
+        if (rateRun.some(function(v, i){ return Math.abs(v - modelRun[i]) > 1e-9; }))
+          bad.push('the handle shows the reader a number the model is not holding');
+
+        /* 3. THE SETTLE RECOMPUTES AND DISARMS ITSELF. */
+        const owed = curveDragSettleNow();
+        seen.push('the settle: owed ' + owed + ', painted ' + was.toFixed(1) + ' -> ' + painted(2040).toFixed(1) +
+                  ' against a model at ' + modelAt(2040).toFixed(1));
+        if (!owed) bad.push('six pointermove events left the settle owing no recompute');
+        if (Math.abs(painted(2040) - modelAt(2040)) > 1e-9)
+          bad.push('the settle left the painted record at ' + painted(2040).toFixed(3) + ' against a model at ' + modelAt(2040).toFixed(3));
+        if (curveDragTimer != null) bad.push('the settle ran and left its own timer armed');
+        curveDragEnd(press(handle(2040) || h0));
+      }
+
+      /* 4. THE RELEASE RECOMPUTES AT ONCE. The clause states what it would have found stale. */
+      goTo('2055');
+      const h1 = handle(2040);
+      if (!h1) bad.push('no 2040 handle for the release case');
+      else {
+        curveDragStart(press(h1));
+        curveDragMove({ clientY: 14 });
+        const stale = painted(2040), owedTo = modelAt(2040);
+        curveDragEnd(press(handle(2040) || h1));
+        seen.push('release: the page stood at ' + stale.toFixed(1) + ' with the model at ' + owedTo.toFixed(1) +
+                  ', and reads ' + painted(2040).toFixed(1) + ' on pointerup, timer ' + (curveDragTimer == null ? 'cleared' : 'ARMED'));
+        if (Math.abs(stale - owedTo) <= 1e-9)
+          bad.push('EMPTY COUNTER-POPULATION: the move before the release left nothing owed, so this clause cannot tell a flushing release from an inert one');
+        if (Math.abs(painted(2040) - modelAt(2040)) > 1e-9)
+          bad.push('pointerup left the painted record at ' + painted(2040).toFixed(3) + ' against a model at ' + modelAt(2040).toFixed(3));
+        if (curveDragTimer != null) bad.push('pointerup left a settle armed');
+      }
+
+      /* 5. A PENDING SETTLE BELONGS TO ONE GESTURE. The guard the timer itself asks is asked here
+         with the token and era a live drag armed, before and after a second drag takes over. */
+      goTo('2055');
+      const hA = handle(2040), hB = handle(2030);
+      if (!hA || !hB) bad.push('the two handles this clause needs are not both present at era 2055');
+      else {
+        curveDragStart(press(hA));
+        curveDragMove({ clientY: 20 });
+        const tokenA = curveDragToken, eraA = curveDragEra, armedA = (curveDragTimer != null);
+        const live = curveDragMayRecompute(tokenA, eraA);
+        curveDragStart(press(hB));
+        /* CANCELLATION IS A SEPARATE REQUIREMENT FROM REFUSAL, and it needs its own observation.
+           A pointerdown that cancels nothing still gets a correct answer out of the guard, because
+           the era under the pointer has changed and the guard reads the era; the first version of
+           this clause therefore stayed green against a curveDragStart with its cancel removed.
+           A second pointerdown must leave nothing armed at all, until its own first move arms one. */
+        const armedAfterStart = (curveDragTimer != null);
+        const afterStart = curveDragMayRecompute(tokenA, eraA);
+        curveDragMove({ clientY: 30 });
+        curveDragEnd(press(handle(2030) || hB));
+        const afterEnd = curveDragMayRecompute(tokenA, eraA);
+        seen.push('a settle armed on era ' + eraA + ' may recompute ' + live + ' while that drag is live, ' +
+                  afterStart + ' once a drag starts on 2030, ' + afterEnd + ' once every drag has ended; the second pointerdown left ' +
+                  (armedAfterStart ? 'that settle still armed' : 'nothing armed'));
+        if (!armedA) bad.push('EMPTY POPULATION: the first drag armed no settle, so there is nothing here for a second drag to cancel');
+        if (armedAfterStart) bad.push('a second pointerdown left the settle from the previous gesture armed, to be overwritten by the next move rather than cancelled');
+        if (!live) bad.push('the guard refuses the live gesture that armed it, so this clause proves nothing about a stale one');
+        if (afterStart) bad.push('a settle armed on era ' + eraA + ' would still fire after a drag started on 2030');
+        if (afterEnd) bad.push('a settle armed on era ' + eraA + ' would still fire after every drag ended');
+        if (curveDragTimer != null) bad.push('the second release left a settle armed');
+      }
+
+      /* 6. THE INTERVAL IS THE ONE THAT WAS RULED. */
+      seen.push('the settle interval is ' + CURVE_DRAG_SETTLE + ' ms');
+      if (CURVE_DRAG_SETTLE !== 500)
+        bad.push('the settle interval is ' + CURVE_DRAG_SETTLE + ' ms and the ruling is 500');
+
+      /* 7. THE KEYBOARD DOES NOT WAIT, AND ARMS NOTHING. */
+      goTo('2055');
+      const hk = handle(2040);
+      if (!hk) bad.push('no 2040 handle for the keyboard case');
+      else {
+        const before = painted(2040);
+        curveKeyDown({ currentTarget: hk, key: 'ArrowUp', preventDefault: function(){} });
+        seen.push('ArrowUp: painted ' + before.toFixed(1) + ' -> ' + painted(2040).toFixed(1) +
+                  ' against a model at ' + modelAt(2040).toFixed(1) + ', timer ' + (curveDragTimer == null ? 'none' : 'ARMED'));
+        if (Math.abs(painted(2040) - modelAt(2040)) > 1e-9)
+          bad.push('a key press left the painted record at ' + painted(2040).toFixed(3) + ' against a model at ' + modelAt(2040).toFixed(3));
+        if (Math.abs(painted(2040) - before) <= 1e-9)
+          bad.push('EMPTY COUNTER-POPULATION: ArrowUp moved nothing, so an immediate render and a deferred one look alike here');
+        if (curveDragTimer != null) bad.push('a key press armed a settle: the keyboard has no gesture to wait out');
+      }
+
+      state.phase = saveP; curveReset(); applyPreset(PRESETS.artemis); render();
+      const want = 3 + 1 + 1 + 1 + 1;
+      rec('CURVEUI-03','GATE',
+          'THE BUILDOUT RECOMPUTE WAITS OUT THE GESTURE AND THE HANDLE DOES NOT. Six pointermove events at six distinct positions move the model six times and recompute the page none, while the dragged handle takes all six positions and shows the reader the number the model is holding; the settle those moves owe recomputes the page and disarms itself; a release recomputes at once and clears the timer, against a page this clause first confirms was stale; a second pointerdown cancels what the previous gesture armed, and a settle armed on one era can no longer fire once a drag starts on another or once every drag has ended; the interval is the 0.5 s that was ruled; and the keyboard renders immediately and arms nothing, having no stream of events to wait out',
+          seen.length === want && bad.length === 0,
+          seen.length !== want ? ('EMPTY OR SHORT POPULATION: ' + seen.length + ' observations, not ' + want + (bad.length ? '; ' + bad[0] : ''))
+            : (bad.length ? bad.slice(0,3).join('  ')
+               : want + ' observations, computed as 3 from the unpaused stream and the settle it owes plus 1 release plus 1 timer-ownership case plus 1 interval plus 1 keyboard case: ' + seen.join(' | ')));
     }
   }
 
@@ -17397,9 +17582,23 @@ function curveDraw(){
     const px = function(y){ return (CURVE_PAD.l + (E === CURVE_EPOCH ? 0 :
                     ((y - CURVE_EPOCH) / (E - CURVE_EPOCH)) * (W - CURVE_PAD.l - CURVE_PAD.r))) * sx; };
     const py = function(v){ return (H - CURVE_PAD.b - (v / hi) * (H - CURVE_PAD.t - CURVE_PAD.b)) * sy; };
-    hbox.innerHTML = '';
-    curveErasInScope(era).forEach(function(y){
-      const b = document.createElement('button');
+    /* THE ROW IS REBUILT, EXCEPT UNDER A LIVE DRAG, WHERE IT IS MOVED IN PLACE. A pointer that
+       has captured a handle loses the capture the moment that element leaves the document, and
+       this block replaced every handle on every render. That was survivable while render() ran on
+       every pointermove only because it happened faster than a finger; the 0.5 s settle lands in
+       the MIDDLE of a gesture by design, and replacing the captured button there would take the
+       control out of the reader's hand mid-drag. On a render that arrives while a drag is live
+       the existing buttons are repositioned instead of recreated. The reuse is refused unless the
+       era set is identical, and the listeners are attached only to buttons this pass created, so
+       no handle is ever wired twice. */
+    const wanted = curveErasInScope(era);
+    const have = hbox.querySelectorAll('.curvehandle');
+    let reuse = (curveDragEra != null) && have.length === wanted.length;
+    if (reuse) for (let i = 0; i < wanted.length; i++)
+      if (Number(have[i].dataset.era) !== Number(wanted[i])) { reuse = false; break; }
+    if (!reuse) hbox.innerHTML = '';
+    wanted.forEach(function(y, i){
+      const b = reuse ? have[i] : document.createElement('button');
       b.type = 'button';
       b.className = 'curvehandle';
       b.dataset.era = String(y);
@@ -17409,9 +17608,11 @@ function curveDraw(){
         fmtNum(rate(y), rate(y) < 10 ? 1 : 0) + ' t per year, arrow keys adjust');
       b.style.left = px(y) + 'px';
       b.style.top = py(rate(y)) + 'px';
-      b.addEventListener('pointerdown', curveDragStart);
-      b.addEventListener('keydown', curveKeyDown);
-      hbox.appendChild(b);
+      if (!reuse){
+        b.addEventListener('pointerdown', curveDragStart);
+        b.addEventListener('keydown', curveKeyDown);
+        hbox.appendChild(b);
+      }
     });
   }
 
@@ -17466,7 +17667,77 @@ function curveDraw(){
    ONE screen position gave 10, then 8.75, then 7.66, then 6.70 t/yr. The pointer had not moved. A
    reader who paused mid-drag watched the number fall on its own. hi is taken once, at
    pointerdown, and held. */
-let curveDragEra = null, curveDragHi = 1;
+let curveDragEra = null, curveDragHi = 1, curveDragNode = null;
+/* THE RECOMPUTE WAITS OUT THE GESTURE AND THE HANDLE DOES NOT.
+   curveDragMove called render() on every pointermove, so every event of a drag rebuilt the hero,
+   the comparison strip, the open tab, the plot and the handle row before the next event arrived,
+   and the handle was hard to hold on to. The recompute now fires 0.5 s after the LAST pointer
+   movement, so a reader who pauses mid-drag watches the model catch up, and immediately on
+   pointerup, pointercancel and blur, so a release never leaves a stale headline behind it.
+   DEFERRING render() ALONE WOULD FREEZE THE HANDLE UNDER THE READER'S FINGER, because render()
+   is what draws the handle row. That is a worse control than the one this replaces. curveDragPaint
+   moves the dragged handle and its readout directly, from the value the model accepted, so what
+   the reader sees under the pointer is the number the model is holding while the page waits.
+   A PENDING SETTLE CANNOT FIRE INTO A GESTURE THAT IS NO LONGER RUNNING. Starting a drag and
+   ending one both cancel what is pending and advance curveDragToken, and curveDragMayRecompute is
+   the guard the timer itself asks before it does anything, so a timer that survives both cancels
+   still refuses an era that is not the era under the pointer.
+   THE AXIS IS STILL TAKEN ONCE. curveDragHi is read at pointerdown and every mapping below reads
+   it, the paint included. Nothing here re-reads dataset.max mid-gesture, and the deferral makes
+   that stricter rather than looser: a page that is not recomputing is not rewriting dataset.max
+   either, so CURVEUI-02 runs the settle between its own moves to keep that clause able to see the
+   runaway it was written for. */
+const CURVE_DRAG_SETTLE = 500;
+let curveDragTimer = null, curveDragToken = 0;
+function curveDragMayRecompute(token, era){
+  return token === curveDragToken && curveDragEra != null && Number(curveDragEra) === Number(era);
+}
+function curveDragCancelPending(){
+  if (curveDragTimer != null){
+    if (typeof clearTimeout === 'function') clearTimeout(curveDragTimer);
+    curveDragTimer = null;
+  }
+}
+/* Runs the recompute the settle owes, now, and reports whether one was owed. The release path and
+   CURVEUI-02 and CURVEUI-03 all take this door, so no gesture can end on a page the model has
+   moved out from under. */
+function curveDragSettleNow(){
+  const owed = (curveDragTimer != null);
+  curveDragCancelPending();
+  if (owed) render();
+  return owed;
+}
+function curveDragDefer(){
+  curveDragCancelPending();
+  if (typeof setTimeout !== 'function'){ render(); return; }
+  const token = curveDragToken, era = curveDragEra;
+  curveDragTimer = setTimeout(function(){
+    curveDragTimer = null;
+    if (!curveDragMayRecompute(token, era)) return;
+    render();
+  }, CURVE_DRAG_SETTLE);
+}
+/* WHAT MOVES WHILE THE MODEL WAITS. The dragged handle's position, its dataset rate and its
+   aria-label, mapped through the axis the gesture froze at pointerdown, from the value setEraRate
+   accepted rather than the value the pointer asked for, so a clamped drag shows the reader the
+   clamp. THE HEADLINE MOVES ONLY WHERE IT IS THIS HANDLE'S OWN NUMBER: the row prints the rate at
+   the era on screen and a placed point wins at its own era, so at that era the printed value IS
+   v. Dragging an earlier handle moves the printed value through the spline, which is a model
+   recompute, and it waits for the settle with everything else. */
+function curveDragPaint(cv, era, v){
+  const H = cv.height, hi = curveDragHi || 1;
+  const sy = Number(cv.dataset.cssScaleY) || 1;
+  const b = document.querySelector('.curvehandle[data-era="' + era + '"]');
+  if (b){
+    b.dataset.rate = String(v);
+    if (b.style) b.style.top = ((H - CURVE_PAD.b - (v / hi) * (H - CURVE_PAD.t - CURVE_PAD.b)) * sy) + 'px';
+    if (b.setAttribute) b.setAttribute('aria-label', 'buildout landing rate at ' + era + ', ' +
+      fmtNum(v, v < 10 ? 1 : 0) + ' t per year, arrow keys adjust');
+  }
+  const vc = document.getElementById('v_curve');
+  if (vc && Number(state.phase) === Number(era))
+    vc.textContent = fmtNum(v, v < 10 ? 1 : 0) + ' t/yr at ' + Number(state.phase);
+}
 /* THE ONE PLACE A GESTURE REACHES THE MODEL, shared by the pointer and the keyboard so the two
    cannot acquire different rules. It returns the value the model will use, the way setEraRate
    does, rather than the value it was asked for. EVERY ERA GOES THROUGH setEraRate, including the
@@ -17478,13 +17749,17 @@ function curveSetFromGesture(era, v){
 }
 function curveDragStart(ev){
   const b = ev.currentTarget;
+  curveDragCancelPending();
+  curveDragToken++;
   curveDragEra = Number(b.dataset.era);
+  curveDragNode = b;
   const cv0 = document.getElementById('curvePlot');
   curveDragHi = (cv0 && Number(cv0.dataset.max)) || 1;
   if (b.setPointerCapture && ev.pointerId != null) { try { b.setPointerCapture(ev.pointerId); } catch(e){} }
   b.addEventListener('pointermove', curveDragMove);
   b.addEventListener('pointerup', curveDragEnd);
   b.addEventListener('pointercancel', curveDragEnd);
+  b.addEventListener('blur', curveDragEnd);
   if (ev.preventDefault) ev.preventDefault();
 }
 function curveDragMove(ev){
@@ -17495,21 +17770,40 @@ function curveDragMove(ev){
   const H = cv.height, hi = curveDragHi;
   const yPix = ((ev.clientY - box.top) / (box.height || H)) * H;
   const frac = ((H - CURVE_PAD.b) - yPix) / (H - CURVE_PAD.t - CURVE_PAD.b);
-  curveSetFromGesture(curveDragEra, frac * hi);
-  render();
+  const v = curveSetFromGesture(curveDragEra, frac * hi);
+  curveDragPaint(cv, curveDragEra, v);
+  curveDragDefer();
 }
 function curveDragEnd(ev){
-  const b = ev.currentTarget;
-  b.removeEventListener('pointermove', curveDragMove);
-  b.removeEventListener('pointerup', curveDragEnd);
-  b.removeEventListener('pointercancel', curveDragEnd);
+  const b = (ev && ev.currentTarget) || curveDragNode;
+  if (b && b.removeEventListener){
+    b.removeEventListener('pointermove', curveDragMove);
+    b.removeEventListener('pointerup', curveDragEnd);
+    b.removeEventListener('pointercancel', curveDragEnd);
+    b.removeEventListener('blur', curveDragEnd);
+  }
+  const wasDragging = (curveDragEra != null);
+  curveDragNode = null;
   curveDragEra = null;
+  curveDragToken++;
+  curveDragCancelPending();
+  if (wasDragging) render();
 }
+/* A WINDOW THAT LOSES FOCUS MID-DRAG ENDS THE DRAG. The pointerup will arrive somewhere else or
+   not at all, and without this the model would sit holding what the last pointermove wrote with
+   the settle cancelled behind it. */
+if (typeof window !== 'undefined' && window.addEventListener)
+  window.addEventListener('blur', function(){ if (curveDragEra != null) curveDragEnd(null); });
 /* THE KEYBOARD. The handles are <button> elements and they carried a pointerdown listener, a
    focus ring and an aria-label and no key handler at all, so a keyboard user tabbed to a
    focusable control, got the ring, and had no way to operate it. render() rebuilds the handle
    row, so focus is restored to the handle at the same era after the render rather than left on a
-   removed node. */
+   removed node.
+   THE RENDER HERE IS IMMEDIATE AND STAYS IMMEDIATE. The 0.5 s settle on the pointer path exists
+   because a drag is a stream of events and only the last one in a burst is worth a full recompute.
+   A key press is a discrete act with no stream behind it and no gesture to wait out, so there is
+   nothing here to debounce; a delay between a keystroke and its answer would be a defect and not
+   a repair. */
 function curveKeyDown(ev){
   const era = Number(ev.currentTarget.dataset.era);
   const cv = document.getElementById('curvePlot');
