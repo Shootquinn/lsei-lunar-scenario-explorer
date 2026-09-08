@@ -3,7 +3,7 @@
 
 ## Citation
 
-Schreiner, S. S., Sibille, L., Dominguez, J. A., & Hoffman, J. A. (2016). A parametric sizing model for Molten Regolith Electrolysis reactors to produce oxygen on the Moon. Advances in Space Research, 57(7), 1585-1603. https://doi.org/10.1016/j.asr.2016.01.006
+Schreiner, S. S., Sibille, L., Dominguez, J. A., & Hoffman, J. A. (2016). A parametric sizing model for Molten Regolith Electrolysis reactors to produce oxygen on the Moon. Advances in Space Research, 57, 1585-1603. https://doi.org/10.1016/j.asr.2016.01.006
 
 Publisher URL: https://www.sciencedirect.com/science/article/pii/S0273117716000375
 
