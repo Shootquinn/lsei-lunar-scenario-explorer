@@ -75,6 +75,9 @@
   .rail .rail-head .hint{font-family:var(--mono); font-size:12px; color:var(--faint);}
 
   .knob{display:flex; flex-direction:column; gap:7px;}
+  /* Step 57. The two Value dials lost the captions that were carrying the vertical rhythm
+     between them, so the spacing is a rule now instead of a side effect of a sentence. */
+  .panel[data-t="value"] .knob{margin-bottom:16px;}
   /* THE ROW RULES ARE NOT SCOPED TO .knob, AND A VALUE THAT WILL NOT FIT TAKES ITS OWN LINE.
      These three read `.knob .krow`, `.knob .klabel` and `.knob .kval`. The buildout curve's row
      sits in .curvewrap and matched none of them, so it took no layout at all: the label and the
@@ -199,26 +202,50 @@
   .mk.active .ml{color:var(--text); font-weight:600;}
   .mk:not(.active){opacity:.62;}
 
-  /* outcome squares (ported from the shipping app, unmodified) */
-  /* Step 49 set three across rather than four. Step 52 deleted the three squares that
-     reprinted the hero's own figures, so the row is now exactly the three quantities that
-     appear nowhere else: alloy, regolith feed and the standing mining plant. Both
-     breakpoints stay at two columns. */
+  /* THE PRODUCTION ROW. One row of three cards, water, oxygen and construction, and nothing
+     else between the timeline and the mass bar.
+
+     STEP 57, QUINN'S RULING OF 2026-09-09. What stood here was two rows. Four flat panels
+     carried the four products; three cards below them carried the alloy, the regolith feed and
+     the standing mining plant, in larger type, in colour and with a line of small print each, so
+     the louder row held the three figures a reader has least use for. Two of the three were the
+     same numbers the quieter surfaces around them already printed.
+
+     STEP 60, THE SAME DAY'S SECOND RULING. Shown the four-card row, Quinn ruled the metals
+     card off it too: the card printed an unseparated Fe-Si-Al-Ti melt under the name Metals
+     produced, the model charges it zero separation energy on a qualitative sentence, and no
+     lunar reduction experiment on any route has weighed a metal output. Garbage is not a
+     product. The tonnage the card printed is unchanged in the model and moves to the Scenario
+     tab's own narrative, named for what it is.
+
+     THE ACCENT MEANS THE PRODUCT. The coloured top border is the treatment the retired cards
+     carried. It is no longer a health scale, because a colour meaning plant utilisation on one
+     card and product identity on the next is two languages on one row. Each card takes one fixed
+     token from the palette declared at the top of this file: water the ice it is mined from,
+     construction the regolith it is sintered from, oxygen the good green. Nothing here takes
+     warn or crit, which stay signals. The accent is a CLASS and never an inline colour, so the
+     stylesheet resolves it and the row is correct in both themes; OX-30 holds the classes the
+     render names against the rules declared here. */
   .outs{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:18px;}
   @media (max-width:640px){ .outs{grid-template-columns:repeat(2,1fr)} }
-  .out{background:var(--panel2); border:1px solid var(--line); border-radius:var(--r); padding:13px 14px;
-    position:relative; overflow:hidden; min-height:112px; display:flex; flex-direction:column; justify-content:space-between}
-  .out .swatch{position:absolute; inset:0 0 auto 0; height:4px; transition:background .3s}
+  .out{background:var(--panel2); border:1px solid var(--line); border-radius:var(--r);
+    padding:14px; position:relative; overflow:hidden;}
+  .out .swatch{position:absolute; inset:0 0 auto 0; height:4px;}
   .out .oname{font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-family:var(--mono)}
-  .out .ovalue{font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:24px; font-weight:600; line-height:1; margin-top:8px; transition:color .3s}
+  .out .oval{margin-top:9px;}
+  .out .ovalue{font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:24px; font-weight:600; line-height:1;}
   .out .ounit{font-family:var(--mono); font-size:11px; color:var(--muted); margin-left:3px}
-  .out .ocap{font-size:11px; color:var(--muted); margin-top:6px; min-height:14px}
-  .out .ocap.bind{color:var(--warn); font-family:var(--mono)}
+  .out.acc-water .swatch{background:var(--ice);}
+  .out.acc-water .ovalue{color:var(--ice);}
 
-  /* Step 57 hero, Quinn’s ruling of 2026-09-08. The topline and the investment line reuse
-     .lead/.k/.big/.u/.sl/.pot/.aside from the retired three-line hero; .sub shrinks the second
-     line so the topline reads as the headline. The four production panels are new furniture
-     below the timeline, carrying no health colour and no caption. */
+  .out.acc-oxygen .swatch{background:var(--good);}
+  .out.acc-oxygen .ovalue{color:var(--good);}
+  .out.acc-construction .swatch{background:var(--regolith);}
+  .out.acc-construction .ovalue{color:var(--regolith);}
+
+  /* Step 57 hero, Quinn's rulings of 2026-09-08 and 2026-09-09. The topline and the investment
+     line reuse .lead/.k/.big/.u/.sl/.pot/.aside from the retired three-line hero; .sub shrinks
+     the second line so the topline reads as the headline. */
   .hero .htop{flex-direction:column; align-items:stretch; flex-wrap:nowrap;}
   .hero .lead{min-width:0;}
   .hero .lead .big{white-space:normal;}
@@ -227,12 +254,6 @@
   .hero .lead.investline .big .u{font-size:13px;}
   .hero .lead.investline .big .sl{font-size:20px;}
   .hero .lead.investline .big .pot{font-size:20px;}
-  .prodgrid{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:18px;}
-  @media (max-width:640px){ .prodgrid{grid-template-columns:repeat(2,1fr)} }
-  .prod{background:var(--panel2); border:1px solid var(--line); border-radius:var(--r); padding:13px 14px;}
-  .prod .pname{font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-family:var(--mono);}
-  .prod .pval{font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:22px; font-weight:600; line-height:1; margin-top:8px;}
-  .prod .punit{font-family:var(--mono); font-size:11px; color:var(--muted); margin-left:3px;}
 
   /* mass bar (ported from the shipping app, unmodified) */
   .massbar{margin-top:14px; border-top:1px solid var(--line); padding-top:12px}
@@ -267,7 +288,7 @@
   .metric{background:var(--panel2); border:1px solid var(--line); border-radius:8px; padding:12px 14px;}
   .metric .ml2{font-family:var(--mono); font-size:12px; text-transform:uppercase; letter-spacing:.8px; color:var(--muted);}
   .metric .mv{font-family:var(--mono); font-size:20px; font-variant-numeric:tabular-nums; margin-top:4px;}
-  .metric .mu{font-size:12px; color:var(--muted);}
+  .metric .munit{font-family:var(--mono); font-size:11px; color:var(--muted); margin-left:3px;}
 
   /* state briefing / derivation provenance chips (own namespace: the rail's
      .chip status pills use a different padding and color scale, so the two
@@ -396,7 +417,7 @@
     .main{grid-template-columns:1fr;}
     .hero .lead .big{font-size:38px;}
     .brand{margin-right:0; width:100%;}
-    .outs{grid-template-columns:repeat(2,1fr);}
+    .outs{grid-template-columns:repeat(3,1fr);}
   }
 
 </style>
@@ -553,12 +574,6 @@
           <div class="mk" data-s="artemis" id="mk-artemis"><div class="pt"></div><div class="ml"></div></div>
           <div class="mk" data-s="commercial" id="mk-commercial"><div class="pt"></div><div class="ml"></div></div>
         </div>
-        <div class="prodgrid" id="prodgrid">
-          <div class="prod"><div class="pname">Water produced</div><div class="pval"><span id="h_water"></span><span class="punit">t/yr</span></div></div>
-          <div class="prod"><div class="pname">Metals produced</div><div class="pval"><span id="h_oxyalloy"></span><span class="punit">t/yr</span></div></div>
-          <div class="prod"><div class="pname">Oxygen produced</div><div class="pval"><span id="h_oxy"></span><span class="punit">t/yr</span></div></div>
-          <div class="prod"><div class="pname">Construction</div><div class="pval"><span id="h_const"></span><span class="punit">t/yr</span></div></div>
-        </div>
         <div class="outs" id="outs"></div>
         <div class="massbar">
           <div class="bartop">
@@ -599,19 +614,17 @@
 
         <div class="panel" data-t="value" role="tabpanel" hidden>
           <div class="metrics">
-            <div class="metric"><div class="ml2">Delivery cost avoided, $/kg</div><div class="mv" id="m_deliv"></div><div class="mu" id="m_deliv_sub"></div></div>
-            <div class="metric"><div class="ml2">Propellant value, $/yr</div><div class="mv" id="m_prop"></div><div class="mu" id="m_prop_sub"></div></div>
-            <div class="metric"><div class="ml2">Construction value, $/yr</div><div class="mv" id="m_const"></div><div class="mu" id="m_const_sub"></div></div>
+            <div class="metric"><div class="ml2">Earth delivery cost</div><div class="mv"><span id="m_deliv"></span><span class="munit">/kg</span></div></div>
+            <div class="metric"><div class="ml2">Propellant value</div><div class="mv"><span id="m_prop"></span><span class="munit">/yr</span></div></div>
+            <div class="metric"><div class="ml2">Construction value</div><div class="mv"><span id="m_const"></span><span class="munit">/yr</span></div></div>
           </div>
           <div class="knob" style="max-width:320px" id="lcKnobWrap">
-            <div class="krow"><span class="klabel">Delivery cost avoided</span><span class="kval" id="v_landedcost"></span></div>
+            <div class="krow"><span class="klabel">Earth delivery cost</span><span class="kval" id="v_landedcost"></span></div>
             <input type="range" id="k_landedcost">
-            <span class="kcap">Free dial. The phase seeds an era hint, never a lock.</span>
           </div>
           <div class="knob" style="max-width:320px" id="chwKnobWrap">
-            <div class="krow"><span class="klabel">Hardware cost, landed plant</span><span class="kval" id="v_chw"></span></div>
+            <div class="krow"><span class="klabel">Hardware cost</span><span class="kval" id="v_chw"></span></div>
             <div class="rangewrap"><input type="range" id="k_chw"><span class="breakmark" id="mk_chw" hidden></span></div>
-            <span class="kcap">Free dial, $20 to $100,000/kg. The tick marks where the propellant margin crosses zero at the state you are standing in; no price marks where none clears it.</span>
           </div>
           <p id="valueLead"></p>
           <p id="valueCross"></p>
@@ -2777,7 +2790,7 @@
    "kind": "input"
   },
   "landed_cost": {
-   "label": "delivery cost avoided D",
+   "label": "Earth delivery cost D",
    "claim": "ladder-range-and-floor",
    "kind": "input"
   },
@@ -3058,7 +3071,7 @@
   }
  },
  "honesty": {
-  "lead": "The robust result is mass-payback and it does not depend on the launch price: construction out-produces propellant per tonne of standing plant by the model-native factor C_full / cap, about one to two orders at the scenario ice grades, driven by the mass and ice knobs. The launch-price crossover rides on top as a soft band. A positive propellant value here is delivery cost avoided, not a booked sale: the demand side is unproven, with zero signed water or propellant offtakes ([[offtake-record]]). That absence triggers [[signed-offtake-break]]. The ledger records the stated date as pending a held source; the app does not carry it.",
+  "lead": "The robust result is mass-payback and it does not depend on the launch price: construction out-produces propellant per tonne of standing plant by the model-native factor C_full / cap, about one to two orders at the scenario ice grades, driven by the mass and ice knobs. The launch-price crossover rides on top as a soft band. A positive propellant value here is Earth delivery cost the programme does not pay, not a booked sale: the demand side is unproven, with zero signed water or propellant offtakes ([[offtake-record]]). That absence triggers [[signed-offtake-break]]. The ledger records the stated date as pending a held source; the app does not carry it.",
   "crossBand": "Soft launch-price crossover: propellant margin turns negative below about D* = (op_prop + r_prop * C_hw) / (1 - r_prop). This band moves with the mass knob and with the hardware-cost dial.",
   "crossNone": "With no standing plant to amortise, r_prop is zero, so there is no launch-price crossover: propellant carries a positive margin at every launch price, thinner than construction forever. That is the true capital-only behavior. (Before Step 58 install 2 this branch also covered op_prop=0; it no longer does, because a nonzero hardware-cost dial creates a real crossover even where the operating floor is zero.)",
   "crossFail": "No launch-price crossover applies: the propellant plant does not pay back its own landed mass at this state, so its margin is negative at every launch price.",
@@ -4086,7 +4099,7 @@
     "id": "A3",
     "head": "scope caveat",
     "role": "support",
-    "text": "The identity assumes a buyer exists at the point of use. Where there is no offtake for the product, delivery cost avoided is notional. The identity is necessary, not sufficient, for a business case."
+    "text": "The identity assumes a buyer exists at the point of use. Where there is no offtake for the product, the Earth delivery cost it avoids is notional. The identity is necessary, not sufficient, for a business case."
    }
   ],
   "extras": [
@@ -7389,8 +7402,18 @@
        the oxygen line leaves. Only oxygen's is the whole budget. It now states what each ceiling
        is, which rail moves it, and the exclusion that is actually true; HERO-01 walks one rail at
        a time and sweeps the 441-state grid DETENTS gives the two splits.
+       STEP 57, 2026-09-09. D IS RENAMED AT EVERY PAINTED SITE. `Delivery cost avoided` named
+       an accounting move and left a reader asking what had been avoided. The dial is the cost
+       of landing one kilogram on the Moon from Earth, lunar product is worth that much because
+       a kilogram made there is a kilogram nobody ships, and the label says so now. The one
+       string of the rename inside this island is DERIVATION.coeff.landed_cost.label, which the
+       Definitions tab paints beside the symbol; the metric tile, the slider and the KNOBS
+       register carry the identical name and VAL-01 holds the four sites together at all nine
+       states. The honesty lead carried the last painted spelling of the retired name and now
+       says what a positive propellant value is in words: Earth delivery cost the programme
+       does not pay. No numeric leaf moved and no claim changed its subject.
        The value below is EXT3's own recompute against the patched file. */
-    __pin: "71146dcd"
+    __pin: "05056aca"
   };
 
   root.KNOB_DATA = KNOB_DATA;
@@ -16702,263 +16725,408 @@ function runAbstractTests(){
           : inputs.length+' range inputs on the page and none of them sets the energy allocation, which is printed at '+CONFIG.alphaMetal.value+' with both per-product specific energies, '+m.eSpecO2.toFixed(2)+' and '+m.eSpecMet.toFixed(2)+' kWh/kg, beside it [red-first, seeded: SEED_OXALPHASLIDER adds a range input for the split and this row names the input and quotes its control]');
     })();
 
-    // ---- OX-16 (GATE): the feed square ----
-    // The square used to be named "Regolith throughput" while showing one line's feed, which a
-    // reader reads as the plant's own capacity. It is the one surface where a reader can see
-    // that four products on one plant are not double counted, so the name and the number have
-    // to agree about which of the two it is.
+    /* ---- PROD-01 (GATE): the production row is the three things this programme makes --------
+       THE OWNER'S COMPLAINT, WRITTEN AS A CHECK. Two rows shipped where one was asked for, and
+       the second row held a duplicate of the first row's metals figure, a duplicate of the mass
+       bar's mining plant figure and a process intermediate. Step 57 folded that into one row of
+       four; Quinn's second ruling of 2026-09-09 takes the fourth card, Metals produced, out of
+       it too, because it printed an unseparated Fe-Si-Al-Ti melt under a name that reads as a
+       saleable metal and no basis in this corpus prices or weighs what it would take to make it
+       one. This row states what the row IS NOW: three cards, water, oxygen and construction, in
+       that order, each printing the model's own figure for that product and a rate unit, and
+       none of them printing any of the four things the two rulings retired.
+
+       THE FIGURES ARE PARSED OFF THE PAINTED NUMERALS AND COMPARED NUMERICALLY, with the
+       tolerance taken from the number of decimals the card itself printed. Nothing is rebuilt
+       with the render's own formatter and matched as a string, because a row that formats its
+       expectation with the layer it is scoring is green over every defect in that layer.
+
+       THE DECOY IS THE RETIRED ROW, NAMED VERBATIM, run through the same name matcher, so this
+       row's silence about the four retired cards is a measurement rather than a needle that
+       matches nothing. */
     (function(){
-      const NAME = 'the feed square shows the feed across EVERY producing line against the plant’s own capacity, agrees with the model at all nine states, and is not named for a throughput while it shows a feed';
-      const why = []; let walked = 0, oxStates = 0;
+      const NAME = 'the production row is three cards, water, oxygen and construction in that order, each printing the model’s own tonnage for that product to the precision it prints and a rate unit, and none of them naming the alloy, metals, the regolith feed or the standing mining plant, at all nine preset and era states (DECOY: the four retired names are run through this row’s own matcher on a constructed row and are required to be caught there)';
+      const WANT = [['Water produced','water'],['Oxygen produced','oxygen'],['Construction','construction']];
+      const RETIRED = /alloy|metals produced|regolith feed|mining plant/i;
+      const why = []; let walked = 0, checked = 0; const seen = [];
+      /* the matcher, and the decoy it is proved on before its silence counts */
+      const decoyNames = ['Metals produced','Alloy produced','Regolith feed','Mining plant standing'];
+      const caught = decoyNames.filter(function(n){ return RETIRED.test(n); }).length;
+      if (caught !== decoyNames.length) why.push('DECOY DID NOT FIRE: the retired-name matcher caught ' + caught + ' of the ' + decoyNames.length + ' names it exists to catch, so its silence over the live row proves nothing');
       walked = walk9(function(where){
-        const rows = squareRows(), fe = named(rows, /feed/i);
-        if (!fe){
-          const thr = named(rows, /throughput/i);
-          why.push(thr ? (where+': the square is still named "'+thr.name+'", which a reader reads as the plant’s throughput while it shows one line’s feed')
-                       : (where+': EMPTY POPULATION, no square in the grid is named for a feed'));
+        const m = stateModel();
+        const rows = squareRows();
+        if (rows.length !== WANT.length){
+          why.push(where + ': the production row carries ' + rows.length + ' cards, not the ' + WANT.length + ' products this programme makes');
           return;
         }
-        if (/throughput/i.test(fe.name)) why.push(where+': the square is named "'+fe.name+'" while its value is a feed');
+        rows.forEach(function(r, i){
+          checked++;
+          if (r.name !== WANT[i][0]) why.push(where + ': card ' + i + ' is named "' + r.name + '" where the row is ' + WANT.map(function(x){ return x[0]; }).join(', '));
+          if (RETIRED.test(r.name)) why.push(where + ': the production row carries a card named "' + r.name + '", one of the four Quinn’s two rulings of 2026-09-09 retired');
+          if (r.unit.trim() !== 't/yr') why.push(where + ': the ' + r.name + ' card prints the unit "' + r.unit.trim() + '" where a production rate is t/yr');
+          const s = r.value.replace(/,/g, '');
+          const want = m[WANT[i][1]];
+          if (!/^[0-9]*\.?[0-9]+$/.test(s)){ why.push(where + ': the ' + r.name + ' card prints "' + r.value + '", which is not a number'); return; }
+          const dec = (s.split('.')[1] || '').length;
+          const tol = 0.5 * Math.pow(10, -dec) + 1e-9;
+          if (!(Math.abs(parseFloat(s) - want) <= tol))
+            why.push(where + ': the ' + r.name + ' card prints ' + r.value + ' where the model’s ' + WANT[i][1] + ' is ' + want.toFixed(4) + ', outside the ' + tol + ' its own precision allows');
+        });
+        seen.push(where + ' ' + rows.map(function(r){ return r.value; }).join('/'));
+      });
+      if (walked !== 9) why.push('EMPTY POPULATION: ' + walked + ' states walked, not 9');
+      if (!checked) why.push('EMPTY POPULATION: no card was checked at any state');
+      rec('PROD-01','GATE',NAME, why.length===0,
+        why.length ? why.slice(0,3).join('  ')
+          : walked + ' states and ' + checked + ' card readings, the three products named in order and every numeral inside the tolerance its own printed precision allows (' +
+            seen.slice(0,3).join(' | ') + '), none of them naming the alloy, metals, the regolith feed or the standing mining plant, and the matcher confirmed against all ' +
+            caught + ' retired names on a constructed row [POPULATION: every #outs .out at each of the nine preset and era states; it excludes the mass bar and the comparison strip, which carry fleet stocks rather than production rates. The alloy tonnage the retired metals card printed is unchanged in the model and is stated in the Scenario tab’s own narrative, which OX-31 holds to the model; it is not a card in this row]');
+    })();
+    // ---- OX-16 (GATE): the regolith feed sentence ----
+    // THE SUBJECT MOVED AND THE PROPERTY DID NOT. Until Step 57 the feed was a card in the
+    // production row and this row read the card. Quinn's ruling of 2026-09-09 takes the card
+    // out, because a feed is a process intermediate and nothing downstream of it is a product,
+    // and puts the quantity in the Scenario tab's own narrative where a reader who wants it can
+    // find it in a sentence. What this row asserted is unchanged: the figure a reader meets is
+    // the feed across EVERY producing line, it agrees with the model at all nine states, it
+    // names the plant capacity it is measured against, and it is not called a throughput while
+    // it states a feed.
+    // THE FIGURES ARE READ BACK OFF THE PAINTED SENTENCE AND COMPARED NUMERICALLY, never
+    // rebuilt with the render's own formatter and matched as a substring. Four rows on this
+    // file were found green over the exact defects they existed to catch, every one because it
+    // reached its expectation through the layer it was scoring.
+    (function(){
+      const NAME = 'the Scenario tab states the regolith feed across every producing line, the figure read back off the painted sentence agrees with the model at all nine preset and era states, it names the plant capacity it is measured against, and it does not call a feed a throughput (DECOY: the water line’s own feed is computed at the same nine cells and required to differ, so a sentence stating one line’s draw under every line’s name would be caught)';
+      const why = []; const seen = []; const sepDecoy = [];
+      let oxStates = 0;
+      const walked = walk9(function(where){
         const m = stateModel();
-        const printed = parseFloat(fe.value.replace(/,/g,''));
-        if (Math.abs(printed - m.regolithFeed) > 1) why.push(where+': the feed square prints '+fe.value+' where the model’s feed across every line is '+m.regolithFeed.toFixed(2));
+        const txt = panelText('scenario');
+        const sent = /Together they move[\s\S]*?production row prints\./.exec(txt);
+        if (!sent){ why.push(where + ': the Scenario tab states no regolith feed at all; the model’s feed across every producing line is ' + m.regolithFeed.toFixed(0) + ' t/yr'); return; }
+        const nums = (sent[0].replace(/,/g, '').match(/[0-9]*\.?[0-9]+/g) || []).map(Number);
+        if (nums.length < 4){ why.push(where + ': the feed sentence carries ' + nums.length + ' numbers, not the feed, the capacity, the oxygen line’s share and the yield: ' + sent[0]); return; }
+        if (Math.abs(nums[0] - m.regolithFeed) > 0.5) why.push(where + ': the sentence states a feed of ' + nums[0] + ' t/yr where the model’s feed across every line is ' + m.regolithFeed.toFixed(2));
+        if (Math.abs(nums[1] - m.Rcap) > 0.5) why.push(where + ': the sentence states a plant capacity of ' + nums[1] + ' t/yr where the model’s is ' + m.Rcap.toFixed(2));
+        if (/regolith throughput/i.test(txt)) why.push(where + ': the Scenario tab calls this quantity a throughput while it states a feed');
+        seen.push(where + ' ' + nums[0] + ' of ' + nums[1]);
         if (m.oxygen > 0){
           oxStates++;
-          if (!(m.regolithFeed > m.regolith + 1e-9)) why.push(where+': oxygen is being produced and the printed feed equals the water line’s feed alone, so it is one line’s number wearing every line’s name');
+          if (!(m.regolithFeed > m.regolith + 1e-9))
+            why.push(where + ': oxygen is being produced and the stated feed equals the water line’s feed alone, so it is one line’s number wearing every line’s name');
+          if (Math.abs(nums[0] - m.regolith) > 0.5) sepDecoy.push(where + ' water line alone ' + m.regolith.toFixed(0) + ' against every line ' + nums[0]);
         }
-        if (fe.cap.indexOf(fmtNum(m.Rcap,0)) < 0) why.push(where+': the feed square does not name the plant capacity it is measured against');
       });
-      if (walked !== 9) why.push('EMPTY POPULATION: '+walked+' states walked, not 9');
+      if (walked !== 9) why.push('EMPTY POPULATION: ' + walked + ' states walked, not 9');
       if (!oxStates) why.push('EMPTY POPULATION: no state produced oxygen, so the clause separating one line’s feed from every line’s was scored over nothing');
+      if (!sepDecoy.length) why.push('DECOY DID NOT FIRE: the water line’s own feed is within half a tonne of the feed across every line at every state, so this row could not tell one from the other');
       rec('OX-16','GATE',NAME, why.length===0,
         why.length ? why.slice(0,3).join('  ')
-          : walked+' states, the feed square shows every line’s feed against the named plant capacity at each, and exceeds the water line’s own feed at the '+oxStates+' where oxygen is produced [red-first, seeded: SEED_OXTHROUGHPUT restores the name Regolith throughput over the water line’s feed alone]');
+          : walked + ' states, the sentence’s own two leading figures read back and matched against the model at each (' + seen.slice(0,3).join(' | ') +
+            '), and the feed exceeds the water line’s own at the ' + oxStates + ' where oxygen is produced, by more than half a tonne at ' +
+            sepDecoy.length + ' of them: ' + sepDecoy.slice(0,2).join('; ') +
+            ' [POPULATION: the painted text of .panel[data-t="scenario"] at each of the nine preset and era states, which excludes the six other panels, none of which states this quantity; red-first, seeded: SEED_OXTHROUGHPUT restores the name Regolith throughput over the water line’s feed alone, and this row names both halves]');
     })();
 
-    // ---- OX-17 (GATE): no square caption carries a demonstration-scale phrase ----
-    // Quinn's ruling of 2026-09-03 moves that sentence off the alloy square and onto the
-    // Scenario tab. THE DECOY IS THE APP'S OWN PAINTED SENTENCE, taken off the Scenario tab at
-    // the same state rather than composed here from a description of the defect, and the
-    // needle is required to match it before its silence over the captions counts for anything.
-    // A row policing an absence whose needle matches nothing is a row that cannot fail.
+    // ---- OX-17 (GATE): the demonstration-scale sentence has one home ----
+    // Quinn's ruling of 2026-09-03 moved that sentence off the alloy card and onto the Scenario
+    // tab. Step 57 deletes the card row it was moved off, so the old subject, a card caption,
+    // does not exist any more in any form. The ruling's own property is what survives and it is
+    // what this row holds now: the sentence is painted on the Scenario tab, and on none of the
+    // six other panels the app draws, at every one of the nine states.
+    // THE NEEDLE IS NARROWER THAN THE ONE THIS ROW SHIPPED WITH AND THE NARROWING IS MEASURED.
+    // `orders of magnitude` was in it, and that phrase is ordinary prose here: it is painted in
+    // four unrelated Evidence Ledger sentences about sintering pressure, modelled sale prices
+    // and the spread across products. A row carrying it would have policed a phrase rather than
+    // a claim and would have reported the Evidence Ledger as a second home for a sentence that
+    // is not on it. The needle is the sentence's own signature instead.
+    // THE DECOY IS THE APP'S OWN PAINTED SENTENCE, taken off the Scenario tab at the state
+    // rather than composed here, and it must match before the other panels' silence counts.
     (function(){
-      const NAME = 'no square caption carries a demonstration-scale phrase at any of the nine states, which is where Quinn’s ruling of 2026-09-03 puts that sentence (DECOY: the needle is confirmed to match the app’s own painted demonstration sentence on the Scenario tab, so the captions being clean is a measurement rather than a needle that matches nothing)';
-      const NEEDLE = /times the demonstration|orders of magnitude|largest (?:batch|run)|demonstration batch/i;
-      const why = []; let walked = 0, hits = 0;
+      const NAME = 'the demonstration-scale sentence is painted on the Scenario tab and on none of the six other panels, at every one of the nine preset and era states (DECOY: the needle is confirmed against the app’s own painted sentence before the other panels’ silence is trusted)';
+      const NEEDLE = /times the demonstration|demonstration batch|largest (?:batch|run)/i;
+      const OTHERS = ['value','regime','eqns','notes','defs','ledger'];
+      const why = []; let hits = 0, homeStates = 0, scored = 0;
       applyPreset(PRESETS.commercial); state.phase = '2055'; render();
-      const scen = panelText('scenario');
-      const mm = /[^.]*times the demonstration[^.]*\./.exec(scen);
-      if (!mm || !NEEDLE.test(mm[0])) why.push('DECOY DID NOT FIRE: the needle does not match the app’s own painted demonstration sentence, so its silence over the square captions proves nothing');
-      walked = walk9(function(where){
-        squareRows().forEach(function(r){
-          if (NEEDLE.test(r.cap)){ hits++; why.push(where+': the '+r.name+' square carries the demonstration-scale sentence Quinn ruled off it: "'+r.cap+'"'); }
-        });
-      });
-      if (walked !== 9) why.push('EMPTY POPULATION: '+walked+' states walked, not 9');
-      rec('OX-17','GATE',NAME, why.length===0,
-        why.length ? why.slice(0,3).join('  ')
-          : walked+' states and '+hits+' square captions carrying a demonstration-scale phrase, with the needle confirmed against the painted sentence "'+(mm?mm[0].trim().slice(0,90):'')+'" [red-first, seeded: SEED_OXDEMOCAP puts the sentence back on the alloy caption and this row names the square and quotes it]');
-    })();
-
-    // ---- OX-18 (GATE): no source citation beside a non-SOURCED number ----
-    // A CITATION BESIDE 50 SAYS A SOURCE PRINTED IT, AND NO SOURCE DID. That sentence is still
-    // true and it is still the whole reason this row exists. What changed is the remedy this
-    // row required of it.
-    //
-    // THE MECHANISM THIS ROW SHIPPED WITH IS NOW THE THING QUINN RULED OUT. It required a
-    // coefficient whose rung is the arithmetic rung to print its own derivation at the point of
-    // use, in the square caption and again in full on the Scenario tab, rather than a citation.
-    // On 2026-09-04 Quinn reversed the wider design that served: rung words and the prose that
-    // supports them leave every reader-facing surface, full stop, and a reader who wants
-    // provenance goes to the Evidence Ledger rather than the caption. On 2026-09-05, shown that
-    // the Ledger tab is hidden at cold load and that stripping the two hero badge captions this
-    // way fails this row and OX-11 beside it, he ruled again: strip anyway, revise both rows.
-    // Printing an arithmetic derivation at the point of use is exactly the point-of-use
-    // labelling the later ruling forbids, so the mechanism cannot survive it.
-    //
-    // THE CONCERN SURVIVES AS ITS OWN INVERSE. "No citation beside a number no source printed"
-    // is satisfied structurally by removing the citation, not only by requiring the arithmetic
-    // that used to stand in for one. So what this row asks now is the negative space a correct
-    // strip is supposed to leave behind: no source-citation construction, an author-and-year
-    // parenthetical, an "Eq. N" pointer, a page reference, or "et al.", sits in a square caption
-    // beside a coefficient whose own rung is not SOURCED. The needle is structural rather than a
-    // name, so a rewrite of the prose under a different source does not retire the check with
-    // it, and it is proved live against a citation the app already carries, eO2's own source
-    // field, rather than against a string composed for this row alone.
-    //
-    // THE RED THIS COMMENT USED TO DESCRIBE HAS CLEARED. The alloy caption carried "Schreiner
-    // Eq. 3 ÷ Eq. 2" beside a coefficient whose rung is DERIVED, not SOURCED, and this row was
-    // written to stay red until it came off. The Step 52 delete pass rewrote that caption to
-    // "co-product 1.05 kg metal / kg O₂", the pointer went with it, and the alloy clause has
-    // been green since. The record is kept rather than deleted, because a row that was red on
-    // purpose for a stated reason should show when and how the reason was discharged.
-    //
-    // THE PLACEHOLDER CLAUSE IS UNCHANGED AND CARRIES OVER. It was never part of the rung
-    // population and it does not move with the citation mechanism: a raw {token} reaching a
-    // reader through the Scenario tab is a template defect regardless of what this row's own
-    // subject is, and it is the one clause here already proved against a real build that painted
-    // one raw brace at a reader.
-    (function(){
-      const NAME = 'no square caption this branch prints carries a source-citation construction, an author-and-year parenthetical, an “Eq. N” pointer, a page reference, or “et al.”, beside a coefficient whose OWN rung is not SOURCED, and no unsubstituted template placeholder reaches the Scenario tab at any state (DECOY: the citation needle is confirmed live against the app’s own source-provenance prose, lifted verbatim from CONFIG rather than composed here, so its silence over a caption is a measurement and not an inert needle)';
-      const why = []; let walked = 0, powerStates = 0;
-      const rungOf = function(s){ const m = /^([A-Z][A-Z]+)\b/.exec(String(s||'').trim()); return m ? m[1] : null; };
-      /* The one rung a citation is allowed to stand beside. Named here because this row is
-         about that rung and nothing else, and naming it is made safe the way OX-11 and OX-17
-         made their needles safe: it is required to still be in the app's own vocabulary, so a
-         rung rename is a named red here rather than a silent skip into an empty population. */
-      const SOURCED_RUNG = 'SOURCED';
-      const legendRungs = (function(){
-        const p = /<p class="badgelegend">([\s\S]*?)<\/p>/.exec(buildRefBody());
-        if (!p) return [];
-        const out = []; const re = /<span class="srcbadge [a-z]+">([A-Z][A-Z]+)<\/span>/g; let x;
-        while ((x = re.exec(p[1])) !== null) if (out.indexOf(x[1]) < 0) out.push(x[1]);
-        return out;
-      })();
-      if (legendRungs.length && legendRungs.indexOf(SOURCED_RUNG) < 0) why.push('the rung word this row is about, ' + SOURCED_RUNG + ', is no longer in the vocabulary the badge legend paints (' + legendRungs.join(', ') + '), so this row is scoring a rung the app has renamed or retired');
-      /* Which square each coefficient sets, and whether its clause is scored only where that
-         coefficient is what binds. A fact about the render, declared, carried over unchanged
-         from the shipped row. */
-      /* STEP 52, 2026-09-06. THE OXYGEN SUBJECT IS DROPPED WITH THE SQUARE. eO2 was scored on
-         the Oxygen square at the states where its energy coefficient is what binds, and Quinn's
-         ruling of 2026-09-06 deletes that square, so the coefficient has no caption on this
-         branch for a citation to stand in. The two survivors are unchanged and both still paint:
-         rMetal on Alloy, which is the non-SOURCED one this row now polices, and yO2 on Regolith
-         feed, which is SOURCED and is filtered out below exactly as it always was. WHAT IS NO
-         LONGER COVERED: a citation printed beside eO2 at a reader's point of use. There is no
-         such point of use left, and the same ruling is what removed it. The power-binding flag
-         and the empty-population guard that reads it are kept and are inert while no subject
-         carries the flag, so re-adding an oxygen subject re-arms them in one line. */
-      const SUBJECT = [['rMetal', /alloy/i, 'alloy', false],
-                       ['yO2', /feed/i, 'regolith feed', false]];
-      const NONSOURCED = SUBJECT.filter(function(s){ return rungOf(CONFIG[s[0]].status) !== SOURCED_RUNG; });
-      if (!NONSOURCED.length) why.push('EMPTY POPULATION: every coefficient this branch prints on a square carries the ' + SOURCED_RUNG + ' rung today, so the exclusion this row polices has nothing to refuse');
-      /* THE NEEDLE, AND THE DECOY THAT PROVES IT IS NOT INERT BEFORE ITS SILENCE IS TRUSTED.
-         eO2's own source field carries a real citation, "Schreiner et al. (2016) p1590", a fact
-         about the coefficient that exists whether or not any caption is in violation, so testing
-         the needle against it cannot go quiet by construction the way a needle tested only
-         against the captions it scores could. */
-      const CITATION = /[A-Z][A-Za-z.\-]*\s*\(\d{4}\)|\b[Ee]q\.?\s*\d+\b|\bp\d{2,4}\b|\bet al\.?\b/;
-      const provenance = String(CONFIG.eO2.source || '');
-      const decoyHit = CITATION.exec(provenance);
-      if (!decoyHit) why.push('DECOY DID NOT FIRE: the citation needle does not match eO2’s own source field, which is known to carry a real citation, so its silence over the captions proves nothing');
-      walked = walk9(function(where){
-        const rows = squareRows();
-        const m = stateModel();
-        NONSOURCED.forEach(function(s){
-          const sq = named(rows, s[1]);
-          if (!sq){ why.push('EMPTY POPULATION at ' + where + ': the grid carries no square named ' + s[2] + ', so this row has no subject'); return; }
-          if (s[3]){ if (m.oBinding !== 'power') return; powerStates++; }
-          const hit = CITATION.exec(sq.cap);
-          if (hit) why.push(where + ': the ' + s[2] + ' square carries a source-citation construction beside its ' + rungOf(CONFIG[s[0]].status) + ' coefficient, "' + hit[0] + '": "' + sq.cap + '"');
+      const scen0 = panelText('scenario');
+      const mm = /[^.]*times the demonstration[^.]*\./.exec(scen0);
+      if (!mm || !NEEDLE.test(mm[0])) why.push('DECOY DID NOT FIRE: the needle does not match the app’s own painted demonstration sentence, so its silence over the other panels proves nothing');
+      const walked = walk9(function(where){
+        if (NEEDLE.test(panelText('scenario'))) homeStates++;
+        else why.push(where + ': the Scenario tab paints no demonstration-scale sentence, which is where Quinn’s ruling of 2026-09-03 puts it');
+        OTHERS.forEach(function(t){
+          scored++;
+          const txt = panelText(t);
+          if (NEEDLE.test(txt)){
+            hits++;
+            const s = /[^.]*(?:times the demonstration|demonstration batch|largest (?:batch|run))[^.]*\./i.exec(txt);
+            why.push(where + ': the ' + t + ' panel carries a demonstration-scale sentence, which has one home and this is not it: "' + (s ? s[0].trim().slice(0,120) : txt.slice(0,120)) + '"');
+          }
         });
       });
       if (walked !== 9) why.push('EMPTY POPULATION: ' + walked + ' states walked, not 9');
-      if (NONSOURCED.filter(function(s){ return s[3]; }).length && !powerStates) why.push('EMPTY POPULATION: the oxygen square never carried its own energy coefficient at any state walked');
-      /* THE PLACEHOLDER CLAUSE, CARRIED OVER UNCHANGED FROM THE SHIPPED ROW. Not part of the
-         population above: a template placeholder reaching a reader is a defect of the Scenario
-         tab itself whatever any coefficient's rung is. */
+      if (!scored) why.push('EMPTY POPULATION: no panel other than the Scenario tab was read, so a green would be about the walk and not about the app');
+      rec('OX-17','GATE',NAME, why.length===0,
+        why.length ? why.slice(0,3).join('  ')
+          : walked + ' states, the sentence painted on the Scenario tab at ' + homeStates + ' of them and at ' + hits + ' of ' + scored +
+            ' readings of the other ' + OTHERS.length + ' panels, with the needle confirmed against the painted sentence "' + (mm ? mm[0].trim().slice(0,90) : '') +
+            '" [POPULATION: all seven panels the app draws, at nine states, which excludes the cockpit rail and the card row, neither of which carries prose; re-keyed at Step 57 from a card caption, which Quinn’s ruling of 2026-09-09 deleted, to the panel set; red-first, seeded: SEED_OXDEMOCAP puts the sentence on a second panel and this row names the panel and quotes it]');
+    })();
+
+    // ---- OX-18 (GATE): a production card is a name, a number and a unit ----
+    // A CITATION BESIDE 50 SAYS A SOURCE PRINTED IT, AND NO SOURCE DID. That sentence is why
+    // this row exists and it is still true. What changed is the surface.
+    //
+    // THE REMEDY THIS ROW POLICED WAS A CAPTION FREE OF CITATIONS. Quinn's ruling of 2026-09-09
+    // deletes the captions. Every one of them was a coefficient's point-of-use label or an
+    // arithmetic a card needed in order to justify standing in the row, and a card that needs a
+    // sentence to earn its place has not earned it. So the property available now is stronger
+    // than the one this row held: there is no text on these cards for a citation to stand in.
+    // This row measures that, and it measures it with the same needle, run over the WHOLE text
+    // of each card rather than over a caption field, so a citation reintroduced anywhere on the
+    // row is named whether or not anybody adds a caption element back.
+    //
+    // THE NEEDLE IS STILL PROVED LIVE BEFORE ITS SILENCE COUNTS, against eO2's own source field,
+    // which carries a real citation whether or not any card is in violation. A second decoy is a
+    // constructed card carrying the retired alloy caption verbatim, run through this row's own
+    // extractor, because a row policing an absence over a row that carries no text at all could
+    // otherwise pass with a broken extractor.
+    //
+    // THE PLACEHOLDER CLAUSE CARRIES OVER UNCHANGED. It is not part of the population above: a
+    // template placeholder reaching a reader is a defect of the Scenario tab whatever any card
+    // says.
+    (function(){
+      const NAME = 'every card in the production row prints its name, its number and its unit and no other text at any of the nine preset and era states, so no source citation and no coefficient label stands beside a number a reader reads, and no unsubstituted template placeholder reaches the Scenario tab (DECOY: the citation needle is confirmed live against the app’s own source-provenance prose, and the text extractor is confirmed against a card carrying the retired alloy caption verbatim)';
+      const why = []; let cards = 0, walked = 0;
+      const CITATION = /[A-Z][A-Za-z.\-]*\s*\(\d{4}\)|\b[Ee]q\.?\s*\d+\b|\bp\d{2,4}\b|\bet al\.?\b/;
+      const provenance = String(CONFIG.eO2.source || '');
+      const decoyHit = CITATION.exec(provenance);
+      if (!decoyHit) why.push('DECOY DID NOT FIRE: the citation needle does not match eO2’s own source field, which is known to carry a real citation, so its silence over the cards proves nothing');
+      /* THE EXTRACTOR. One function over one card, used on the real cards and on the decoy, so
+         the two cannot be measured by two different means. It returns whatever text the card
+         carries beyond its name, its value and its unit. */
+      function surplus(el){
+        const all = (el.textContent || '').replace(/\s+/g, ' ').trim();
+        const parts = ['.oname', '.ovalue', '.ounit'].map(function(s){
+          const x = el.querySelector(s); return x ? (x.textContent || '').replace(/\s+/g, ' ').trim() : '';
+        });
+        let rest = all;
+        parts.forEach(function(p){ if (p){ const i = rest.indexOf(p); if (i >= 0) rest = rest.slice(0, i) + rest.slice(i + p.length); } });
+        return rest.replace(/\s+/g, ' ').trim();
+      }
+      const decoyCard = document.createElement('div');
+      decoyCard.className = 'out';
+      decoyCard.innerHTML = '<div class="swatch"></div><div class="oname">Alloy produced</div>' +
+        '<div class="oval"><span class="ovalue">43</span><span class="ounit"> t/yr</span></div>' +
+        '<div class="ocap">co-product 1.05 kg metal / kg O2, Schreiner et al. (2016) p1601</div>';
+      const decoySurplus = surplus(decoyCard);
+      if (!decoySurplus) why.push('DECOY DID NOT FIRE: the extractor found no surplus text on a constructed card that carries a whole caption, so its silence over the real cards proves nothing');
+      else if (!CITATION.test(decoySurplus)) why.push('DECOY DID NOT FIRE: the needle does not match the citation on the constructed card’s own caption, "' + decoySurplus + '"');
+      walked = walk9(function(where){
+        const els = Array.prototype.slice.call(document.querySelectorAll('#outs .out'));
+        if (!els.length){ why.push('EMPTY POPULATION at ' + where + ': the production row carries no card at all'); return; }
+        cards = els.length;
+        els.forEach(function(el, i){
+          const nm = el.querySelector('.oname'); const label = nm ? (nm.textContent || '').trim() : ('card ' + i);
+          const rest = surplus(el);
+          if (rest) why.push(where + ': the ' + label + ' card carries text beyond its name, its number and its unit: "' + rest + '"');
+          const hit = CITATION.exec((el.textContent || '').replace(/\s+/g, ' '));
+          if (hit) why.push(where + ': the ' + label + ' card carries a source-citation construction beside a number a reader reads, "' + hit[0] + '"');
+        });
+      });
+      if (walked !== 9) why.push('EMPTY POPULATION: ' + walked + ' states walked, not 9');
       const scen = panelText('scenario');
       const leftover = scen.match(/\{[A-Za-z][A-Za-z0-9_]*\}/g);
       if (leftover) why.push('the Scenario tab paints ' + leftover.length + ' unsubstituted template placeholder(s) at a reader: ' + leftover.slice(0,4).join(', '));
       rec('OX-18','GATE',NAME, why.length===0,
         why.length ? why.slice(0,3).join('  ')
-          : walked + ' states, ' + NONSOURCED.length + ' of ' + SUBJECT.length + ' square coefficients carry a rung other than ' + SOURCED_RUNG + ' today (' + NONSOURCED.map(function(s){ return s[0]; }).join(', ') + ') and none of their captions carry a citation construction, the citation needle confirmed live against eO2’s own source field ("' + (decoyHit && decoyHit[0]) + '"), and no unsubstituted placeholder anywhere [re-keyed 2026-09-05 from requiring the point-of-use arithmetic to forbidding a source citation beside a non-SOURCED number, after Quinn’s ruling that both hero badge sites are stripped in full including their Schreiner equation pointers; the eO2/Oxygen subject was dropped at Step 52 with the square that ruling deleted, leaving rMetal on Alloy as the scored population; the placeholder clause carries over unchanged from the shipped row; red-first, seeded: a build carrying an author-year parenthetical, an Eq. pointer, a page reference or et al. beside a non-SOURCED coefficient’s number reds this row and names the square and the exact matched text; observed on this build: SEED_OX18_CITE puts a Schreiner (2016) Eq. 3 pointer back on the alloy caption and this row names the square, the rung and the matched text at all nine states; PROVED NOT TO FIRE on BENIGN_OX18, the alloy caption rewritten with every content word swapped and no citation in it]');
+          : walked + ' states and ' + cards + ' cards at each, ' + (walked * cards) + ' readings, every one carrying its name, its number and its unit and nothing else, and no unsubstituted placeholder anywhere; the citation needle confirmed live against eO2’s own source field ("' + (decoyHit && decoyHit[0]) + '") and the extractor confirmed against a constructed card whose retired caption it returns in full ("' + decoySurplus + '") [POPULATION: every #outs .out at each of the nine states, which excludes the mass bar and the comparison strip, neither of which is a card; re-keyed at Step 57 from forbidding a citation in a caption to forbidding any card text at all, after Quinn’s ruling deleted the captions; the placeholder clause carries over unchanged]');
     })();
 
 
-    /* ---- FEED-01 (GATE): the regolith feed chip says what it means -------------------------
-       TWO PROPERTIES, one for the caption and one for the colour, on one chip.
-       THE CAPTION'S ARITHMETIC CLOSES ON A NUMBER THE PANEL DISPLAYS. The two figures on it,
-       multiplied, are the oxygen tonnage the hero prints, at the precision the two are printed
-       to. That is the standard the alloy chip beside it already meets and it is the standard a
-       caption of this class has to meet: a caption naming items the panel does not display is
-       blocking under the standing rule, and this one invited a multiplication that overstated
-       the product by between 264 and 1,802 times.
-       THE COLOUR IS AT ITS GREEN END WHERE THE KEYSTONE IDENTITY HOLDS. Feed equalling capacity
-       is the state the allocation was designed around; the retired health function put the chip
-       at the BOTTOM of the scale there, which is the red the palette reserves for critical.
-       BOTH DECOYS ARE COMPUTED BESIDE THE LIVE FIGURES and both are required to be wrong, because
-       a row that only checked today's arithmetic would go green over a caption that had never
-       been read against the panel it sits on. */
+    /* ---- FEED-01 (GATE): the feed sentence's arithmetic closes on a painted number ----------
+       THE CHIP IS GONE AND ONE OF THIS ROW'S TWO PROPERTIES WENT WITH IT.
+
+       WHAT SURVIVES. The retired caption invited a multiplication that overstated the oxygen
+       product by between 264 and 1,802 times, because it put the plant's whole capacity beside
+       one line's own yield. The repair was to print the regolith that line ACTUALLY moves, so a
+       reader who multiplies the two numbers in front of them lands on the oxygen figure the
+       panel displays. That is a property of a SENTENCE and not of a chip, and Quinn's ruling of
+       2026-09-09 moved the sentence to the Scenario tab intact. This row follows it, with its
+       decoy unchanged: the retired arithmetic is computed at the same nine cells and required
+       to be wrong at them.
+
+       THE READER'S OWN MULTIPLICATION IS PERFORMED ON THE PAINTED NUMBERS. The figures are read
+       back off the sentence and multiplied, and the product is held against the numeral the
+       oxygen card prints, at the precision the two are printed to. Nothing here is rebuilt with
+       the render's own formatter.
+
+       WHAT NO LONGER HOLDS, STATED RATHER THAN DELETED. The colour half. The chip was painted at
+       the green end where the feed equals the plant capacity, and there is no chip. Plant
+       utilisation is painted nowhere on this build in any form, so nothing replaces it and no
+       row checks it. The retired health function, 1 minus feed over capacity, which reddened at
+       the state the allocation was designed around, is retired with the surface that carried
+       it. */
     (function(){
-      const NAME = 'the regolith feed chip’s caption multiplies out to the oxygen tonnage the hero prints, and its colour is at the green end where the feed equals the plant capacity (DECOY: the retired caption, which put the plant’s whole capacity beside the oxygen line’s own yield, and the retired health, 1 minus feed over capacity, are computed at the same nine cells and both are confirmed wrong)';
-      const why = [], seen = [], capDecoy = [], colDecoy = [];
+      const NAME = 'the numbers the Scenario tab’s feed sentence prints multiply out to the numeral the oxygen card prints, at the precision the two are printed to, at all nine preset and era states (DECOY: the retired caption’s own arithmetic, the plant’s whole capacity times the oxygen line’s yield, is computed at the same nine cells and required to be wrong at them)';
+      const why = [], seen = [], capDecoy = [];
       const walked = walk9(function(cell){
         const m = stateModel();
-        const rows2 = squareRows();
-        const chip = named(rows2, /regolith feed/i);
-        if (!chip){ why.push(cell + ': no regolith feed chip in the painted panel'); return; }
-        const capTxt = (chip.cap || '');
-        /* the caption's own two numbers, read back off the painted string */
-        const nums = capTxt.replace(/,/g, '').match(/[0-9]*\.?[0-9]+/g) || [];
+        const txt = panelText('scenario');
+        const sent = /Together they move[\s\S]*?production row prints\./.exec(txt);
+        if (!sent){ why.push(cell + ': the Scenario tab paints no feed sentence for a reader to multiply'); return; }
+        if (!/oxygen line/i.test(sent[0])) why.push(cell + ': the feed sentence does not name the line the yield belongs to: ' + sent[0]);
+        const raw = sent[0].replace(/,/g, '').match(/[0-9]*\.?[0-9]+/g) || [];
+        if (raw.length < 4){ why.push(cell + ': the feed sentence carries ' + raw.length + ' numbers, not the feed, the capacity, the oxygen line’s share and the yield: ' + sent[0]); return; }
+        const shareStr = raw[2], yieldStr = raw[3];
+        const card = named(squareRows(), /oxygen/i);
+        if (!card){ why.push(cell + ': no card in the production row prints an oxygen tonnage for the sentence to close on'); return; }
+        const oxyStr = card.value.replace(/,/g, '');
+        const dec = function(s){ const p = s.split('.')[1]; return p ? p.length : 0; };
+        const readerProduct = parseFloat(shareStr) * parseFloat(yieldStr);
+        const printedOxy = parseFloat(oxyStr);
+        const tol = 0.5 * Math.pow(10, -dec(shareStr)) * parseFloat(yieldStr) + 0.5 * Math.pow(10, -dec(oxyStr)) + 1e-9;
+        seen.push(cell + ' ' + shareStr + ' x ' + yieldStr + ' = ' + readerProduct.toFixed(3) + ' against a printed ' + card.value);
+        if (!(Math.abs(readerProduct - printedOxy) <= tol))
+          why.push(cell + ': the sentence multiplies out to ' + readerProduct.toFixed(3) + ' t/yr against the ' + card.value + ' t/yr the oxygen card prints, outside the ' + tol.toFixed(4) + ' the two printed precisions allow');
         const product = m.regolithMetals * CONFIG.yO2.value;
-        /* THE COLOUR IS READ OFF THE PAINTED SWATCH AND NOT OFF A FIELD. squareRows() returns
-           what the panel shows, {el, name, value, unit, cap}, and carries no health; the first
-           draft of this row reached for chip.health and took the whole render down, which is the
-           class of defect ensureSquares() was written for and which OX-30 already guards on the
-           other side. What a reader meets is a colour, so a colour is what this scores: hx() maps
-           health 1 to rgb(63,185,132), the green end, and health 0 to rgb(229,101,75), the red the
-           palette gives a critical state. */
-        const sw = chip.el.querySelector('.swatch');
-        const col = sw ? (sw.style.background || sw.style.backgroundColor || '') : '';
-        seen.push(cell + ' feed ' + m.regolithFeed.toFixed(0) + '/' + m.Rcap.toFixed(0) +
-                  ', to oxygen ' + m.regolithMetals.toFixed(2) + ' x ' + CONFIG.yO2.value +
-                  ' = ' + product.toFixed(3) + ' against a hero oxygen of ' + m.oxygen.toFixed(3) +
-                  ', swatch ' + (col || '(none)'));
         if (Math.abs(product - m.oxygen) > Math.max(1e-9, Math.abs(m.oxygen) * 1e-9))
-          why.push(cell + ': the caption multiplies out to ' + product.toFixed(3) +
-                   ' t/yr against a painted oxygen figure of ' + m.oxygen.toFixed(3));
-        if (capTxt.indexOf('to oxygen') < 0)
-          why.push(cell + ': the caption does not name the line the yield belongs to: ' + capTxt);
-        if (nums.length < 3)
-          why.push(cell + ': the caption carries ' + nums.length + ' numbers, not the capacity, the oxygen feed and the yield: ' + capTxt);
-        /* the colour, at the identity and away from it, scored against hx()'s own stops */
-        const util = m.Rcap > 0 ? m.regolithFeed / m.Rcap : 0;
-        const wantCol = hx(clamp01(util));
-        if (!col) why.push(cell + ': the regolith feed chip paints no swatch colour at all');
-        else if (col.replace(/\s+/g, '') !== wantCol.replace(/\s+/g, ''))
-          why.push(cell + ': the chip is painted ' + col + ' where the plant utilisation of ' +
-                   util.toFixed(4) + ' calls for ' + wantCol);
-        if (util > 1 - 1e-9 && col.replace(/\s+/g, '') !== hx(1).replace(/\s+/g, ''))
-          why.push(cell + ': the feed equals the plant capacity and the chip is painted ' + col +
-                   ' rather than the green end ' + hx(1));
-        /* DECOY 1: the retired caption, capacity times the oxygen line's own yield */
+          why.push(cell + ': the model’s own share times its own yield is ' + product.toFixed(6) + ' t/yr against an oxygen figure of ' + m.oxygen.toFixed(6) + ', so the identity the sentence rests on does not hold');
         const wrong = m.Rcap * CONFIG.yO2.value;
         if (m.oxygen > 0 && wrong / m.oxygen > 2)
-          capDecoy.push(cell + ' ' + wrong.toFixed(0) + ' against ' + m.oxygen.toFixed(2) +
-                        ', ' + (wrong / m.oxygen).toFixed(0) + 'x');
-        /* DECOY 2: the retired health, which reddened at the identity.
-           STEP 58: THE IDENTITY STATE LEFT THE PRESET DECK AND THE DECOY IS RE-BASED ON THE
-           FUNCTION RATHER THAN ON A CELL. kExc 4 to 63.68 lifts Rcap 15.92 times while the
-           oxygen line's draw is unchanged, so plant utilisation at every one of the nine now
-           sits far below one and no preset cell reaches feed == capacity. That is a fact about
-           the deck and not about the two functions, and the claim this decoy carries is about
-           the functions: where utilisation is one, the live scale is at its green end and the
-           retired one is at its red end. Both are now evaluated AT that point directly, which
-           is a stronger test than waiting for a cell to land on it, and the live half of this
-           row still walks all nine cells against the painted swatch above. The live utilisation
-           at each cell is carried into the detail so a reader can see how far the deck now sits
-           from the identity. */
-        const oldHealth = clamp01(m.Rcap > 0 ? 1 - m.regolithFeed / m.Rcap : 0);
-        if (util > 1 - 1e-9 && oldHealth < 0.001) colDecoy.push(cell + ' ' + hx(oldHealth));
-        if (clamp01(1 - 1) < 0.001 && hx(clamp01(1 - 1)) !== hx(1))
-          colDecoy.push(cell + ' at utilisation 1 the retired health is ' + hx(clamp01(1 - 1)) +
-                        ' against the live ' + hx(1) + '; this cell itself runs at ' +
-                        util.toFixed(4));
+          capDecoy.push(cell + ' ' + wrong.toFixed(0) + ' against ' + m.oxygen.toFixed(2) + ', ' + (wrong / m.oxygen).toFixed(0) + 'x');
       });
       if (walked !== 9) why.push('EMPTY POPULATION: ' + walked + ' states walked, not 9');
-      if (capDecoy.length === 0) why.push('DECOY DID NOT FIRE: the retired caption’s own arithmetic agrees with the painted oxygen figure at every cell, so this row discriminates nothing');
-      if (colDecoy.length === 0) why.push('DECOY DID NOT FIRE: the retired health function is not at the bottom of the scale at utilisation one, so the colour half of this row discriminates nothing');
+      if (!capDecoy.length) why.push('DECOY DID NOT FIRE: the retired caption’s own arithmetic agrees with the painted oxygen figure at every cell, so this row discriminates nothing');
       rec('FEED-01','GATE',NAME, why.length === 0,
         why.length ? why.slice(0,3).join('  ')
-          : walked + ' preset cells walked through the app’s own nine-state walk: ' + seen.slice(0,3).join(' | ') +
-            ' ... The retired caption overstates the oxygen product at ' + capDecoy.length + ' of the nine, by ' +
-            capDecoy.slice(0,3).join('; ') + '. The retired health function sits below 0.001, the red end of the palette, at ' +
-            colDecoy.length + ' of the nine, and every one of them is a cell where the feed equals the capacity exactly: ' +
-            colDecoy.join(', '));
+          : walked + ' preset cells walked, the reader’s own multiplication performed on the painted numerals at each: ' + seen.slice(0,3).join(' | ') +
+            ' ... The retired caption overstates the oxygen product at ' + capDecoy.length + ' of the nine, by ' + capDecoy.slice(0,3).join('; ') +
+            ' [POPULATION: the painted text of .panel[data-t="scenario"] and the production row’s oxygen card, at each of the nine states; the colour half of this row is retired at Step 57 with the chip that carried it, and plant utilisation is now painted nowhere and checked by nothing]');
     })();
 
 
+
+    /* ---- VAL-01 (GATE): the Value tab's dials and tiles name themselves --------------------
+       THREE PROPERTIES ON ONE SURFACE AND THEY ARE THE SAME DEFECT MEASURED THREE WAYS.
+
+       NO DIAL ON THIS TAB CARRIES A CAPTION AND NO TILE CARRIES A SUBTITLE. A control that
+       needs a sentence under it to say what it is has a name that does not say what it is, and
+       the four this row retired said less than the space they took. One told a reader the dial
+       was free, which every dial on the page is. One reprinted the rail's own two endpoints and
+       then explained a positional mark that carries its own tooltip. One printed the era the
+       era buttons carry. Two printed the water and construction tonnages the production cards
+       print in larger type a few hundred pixels above.
+
+       NO LABEL ANYWHERE IN THE APP ENDS IN A COMMA AND A UNIT. The unit belongs beside the
+       value, the way an axis label carries its unit, and the production cards already did it:
+       WATER PRODUCED over 4,743 with t/yr set small beside the numeral. The three Value tiles
+       were the only surfaces in the app carrying the other form, `Earth delivery cost, $/kg`
+       over a bare $2.0k, which splits one reading into a label a reader parses and a number
+       they then have to attach a unit to. The clause is scored over EVERY painted label class
+       in the document rather than over the three tiles a review named, because repairing named
+       instances and leaving the class is how this file acquired the defect twice already.
+
+       THE DELIVERY DIAL HAS ONE NAME AT EVERY SITE. It is D, the cost of landing a kilogram on
+       the Moon from Earth, and lunar product is worth it because a kilogram made there is a
+       kilogram not shipped. It was called `Delivery cost avoided`, which names an accounting
+       move rather than a price and left a reader asking what had been avoided. The name is the
+       price now. The tile, the slider and the coefficient register that feeds both are required
+       to carry the identical string, so one dial cannot acquire three names the way one tonnage
+       acquired two.
+
+       EVERY DETECTOR IS PROVED LIVE BEFORE ITS SILENCE COUNTS. A row policing an absence over a
+       panel that happens to be clean is a row that cannot fail. All three run first against a
+       constructed subject carrying the retired strings verbatim. */
+    (function(){
+      const NAME = 'the Value tab carries no slider caption and no metric subtitle, no painted label anywhere in the app ends in a comma and a unit, and the delivery dial carries one identical name at the tile, at the slider and in the coefficient register with its unit beside the value at both painted sites, at all nine preset and era states (DECOY: the two retired captions, the two retired subtitles and the retired comma-and-unit label form are run through this row’s own detectors on constructed subjects and are required to be caught there before the app’s silence is trusted)';
+      const why = [];
+      const panel = document.querySelector('.panel[data-t="value"]');
+      if (!panel){ rec('VAL-01','GATE',NAME,false,'EMPTY POPULATION: no Value panel exists in the rendered document'); return; }
+      /* DETECTOR ONE. Every caption or subtitle string under whatever root it is given. */
+      function extras(root){
+        const out = [];
+        Array.prototype.slice.call(root.querySelectorAll('.knob .kcap')).forEach(function(x){
+          out.push('slider caption: "' + (x.textContent||'').trim() + '"'); });
+        Array.prototype.slice.call(root.querySelectorAll('.metric .mu')).forEach(function(x){
+          out.push('tile subtitle: "' + (x.textContent||'').trim() + '"'); });
+        return out;
+      }
+      /* DETECTOR TWO. A label ending in a comma and a unit token. The vocabulary is the unit
+         set this app actually prints, so `Buildout curve, landed mass per year` and
+         `Investment, total / government` are labels with commas in them and not this defect. */
+      const COMMA_UNIT = /,\s*(?:\$\s*)?\/?\s*(?:kg|t|yr|kWe|wt%|%|t\/yr|kWe\/yr|\$\/kg|\$\/yr|\$)\s*$/i;
+      const LABELSEL = '.ml2, .klabel, .oname, .lead .k, .massbar .bk';
+      function commaUnits(root){
+        return Array.prototype.slice.call(root.querySelectorAll(LABELSEL))
+          .map(function(x){ return (x.textContent||'').replace(/\s+/g,' ').trim(); })
+          .filter(function(s){ return COMMA_UNIT.test(s); });
+      }
+      /* THE DECOYS, built from the strings this step retired, quoted verbatim, and run through
+         the same two detectors the app is run through. */
+      const decoy = document.createElement('div');
+      decoy.innerHTML = '<div class="knob"><span class="kcap">Free dial. The phase seeds an era hint, never a lock.</span></div>' +
+                        '<div class="knob"><span class="kcap">Free dial, $20 to $100,000/kg. The tick marks where the propellant margin crosses zero at the state you are standing in; no price marks where none clears it.</span></div>' +
+                        '<div class="metric"><div class="mu">per kg, 2055 era</div></div>' +
+                        '<div class="metric"><div class="mu">4,743 t/yr live rate</div></div>' +
+                        '<div class="metric"><div class="ml2">Delivery cost avoided, $/kg</div></div>' +
+                        '<div class="metric"><div class="ml2">Propellant value, $/yr</div></div>' +
+                        '<div class="knob"><span class="klabel">Ice grade, wt%</span></div>' +
+                        '<div class="metric"><div class="ml2">Buildout curve, landed mass per year</div></div>';
+      const caught = extras(decoy);
+      if (caught.length !== 4) why.push('DECOY DID NOT FIRE: the caption detector found ' + caught.length + ' of the 4 retired strings on a constructed subject carrying all four, so its silence over the panel proves nothing');
+      const caughtCU = commaUnits(decoy);
+      if (caughtCU.length !== 3) why.push('DECOY DID NOT FIRE: the comma-and-unit detector caught ' + caughtCU.length + ' of the 3 retired label forms on a constructed subject that also carries one legitimate comma label, so it cannot tell the defect from ordinary punctuation: ' + caughtCU.join(' | '));
+      /* THE NAME. One string, three sites, and the third is the register the other two read. */
+      const NM = KNOBS.landed_cost.label, UNIT = KNOBS.landed_cost.unit;
+      let knobs = 0, metrics = 0, labels = 0, unitSites = 0;
+      const walked = walk9(function(where){
+        const found = extras(panel);
+        if (found.length) why.push(where + ': the Value tab paints ' + found.length + ' caption(s) or subtitle(s) it should not carry: ' + found.slice(0,2).join('  '));
+        const bad = commaUnits(document);
+        labels = document.querySelectorAll(LABELSEL).length;
+        if (!labels) why.push('EMPTY POPULATION at ' + where + ': the document paints no label of any of the classes this row reads');
+        if (bad.length) why.push(where + ': ' + bad.length + ' painted label(s) end in a comma and a unit, which puts the unit on the name instead of on the number: ' + bad.slice(0,3).map(function(s){ return '"'+s+'"'; }).join(', '));
+        const ks = Array.prototype.slice.call(panel.querySelectorAll('.knob'));
+        const ms = Array.prototype.slice.call(panel.querySelectorAll('.metric'));
+        knobs = ks.length; metrics = ms.length;
+        if (!ks.length) why.push('EMPTY POPULATION at ' + where + ': the Value tab carries no dial at all');
+        if (!ms.length) why.push('EMPTY POPULATION at ' + where + ': the Value tab carries no metric tile at all');
+        ks.forEach(function(k, i){
+          const lab = k.querySelector('.klabel'), val = k.querySelector('.kval');
+          if (!lab || !(lab.textContent||'').trim()) why.push(where + ': dial ' + i + ' carries no label');
+          if (!val || !(val.textContent||'').trim()) why.push(where + ': dial ' + i + ' carries no value');
+        });
+        ms.forEach(function(mt, i){
+          const lab = mt.querySelector('.ml2'), val = mt.querySelector('.mv'), un = mt.querySelector('.mv .munit');
+          if (!lab || !(lab.textContent||'').trim()) why.push(where + ': tile ' + i + ' carries no label');
+          if (!val || !(val.textContent||'').trim()) why.push(where + ': tile ' + i + ' carries no value');
+          if (!un || !(un.textContent||'').trim()) why.push(where + ': tile ' + i + ', "' + (lab ? lab.textContent.trim() : '') + '", prints its number with no unit beside it');
+        });
+        /* the three name sites */
+        const slider = document.querySelector('#lcKnobWrap .klabel');
+        const tile = ms.filter(function(mt){ const l = mt.querySelector('.ml2'); return l && (l.textContent||'').trim() === NM; })[0];
+        if (!slider) why.push(where + ': no delivery dial label exists to check');
+        else if ((slider.textContent||'').trim() !== NM) why.push(where + ': the delivery slider is labelled "' + (slider.textContent||'').trim() + '" against the register’s "' + NM + '"');
+        if (!tile) why.push(where + ': no metric tile is labelled "' + NM + '", the name the register and the slider carry');
+        else {
+          const un = tile.querySelector('.mv .munit');
+          if (!un || (un.textContent||'').trim() !== UNIT) why.push(where + ': the delivery tile prints the unit "' + (un ? un.textContent.trim() : '(none)') + '" beside its number against the register’s "' + UNIT + '"');
+          else unitSites++;
+        }
+        const reg = (DERIVATION.coeff && DERIVATION.coeff.landed_cost) ? String(DERIVATION.coeff.landed_cost.label) : null;
+        if (reg == null) why.push(where + ': the coefficient register carries no entry for the delivery dial');
+        else if (reg.indexOf(NM) !== 0) why.push(where + ': the coefficient register calls the delivery dial "' + reg + '", which does not open on the name the tile and the slider carry, "' + NM + '"');
+        const kv = document.getElementById('v_landedcost');
+        if (!kv || (kv.textContent||'').indexOf(UNIT) < 0) why.push(where + ': the delivery slider prints no ' + UNIT + ' beside its value, so the reading does not stand alone');
+      });
+      if (walked !== 9) why.push('EMPTY POPULATION: ' + walked + ' states walked, not 9');
+      if (!unitSites) why.push('EMPTY POPULATION: the delivery tile was matched at no state, so the name-agreement clause scored nothing');
+      rec('VAL-01','GATE',NAME, why.length===0,
+        why.length ? why.slice(0,3).join('  ')
+          : walked + ' states, ' + knobs + ' dials and ' + metrics + ' metric tiles on the Value tab at each, every one carrying a label, a value and a unit beside the value, and none of them carrying a caption or a subtitle; ' + labels + ' painted labels swept across the whole document at each state and 0 of them ending in a comma and a unit; the delivery dial reads "' + NM + '" at the slider, "' + NM + '" over a number carrying "' + UNIT + '" at the tile, and "' + (DERIVATION.coeff.landed_cost.label) + '" in the coefficient register, matched at ' + unitSites + ' states; the detectors caught all ' + caught.length + ' retired caption strings and all ' + caughtCU.length + ' retired label forms on constructed subjects while refusing the legitimate comma label beside them [POPULATION: every .knob and .metric inside .panel[data-t="value"] for the caption clause; every .ml2, .klabel, .oname, .lead .k and .massbar .bk in the whole document for the comma-and-unit clause, which excludes prose, table cells and axis text, none of which is a label. Red-first, observed on this artifact: run against the build that carried the two slider captions, the two tile subtitles and the three comma-and-unit tile labels, it reds at all nine states and quotes each string back]');
+    })();
     /* ---- ECON-01 (GATE): the hero's total economic activity ----
      Replaces HERO-01 at Step 57. Quinn's ruling of 2026-09-08 deletes the three-line hero and
      the caption HERO-01 existed to check; every clause that row asserted was about phi_c/phi_o
@@ -17148,66 +17316,134 @@ function runAbstractTests(){
         : walked+' states, the panel’s own dataset agrees with an independent computation off ENVELOPE.med at the selected era’s own year, the sum identity and non-negativity hold at all 26 painted years across all 9 states, the cap binds at '+capBinds+' of 9 and is slack at '+capSlack+' of 9, dropping the cap (the DECOY) disagrees with the painted government series at all states where it binds, and the caption names the basis: "'+cap+'"');
   })();
 
-// ---- OX-19 (GATE): the hero's oxygen lead ----
-    // STEP 52, 2026-09-06. TWO CLAUSES GO WITH THE RULING, TWO ARE RE-KEYED AND KEPT.
+// ---- OX-19 (GATE): the oxygen figure tracks, and no production tonnage is painted twice ----
+    // STEP 52 DROPPED TWO CLAUSES WITH ONE RULING AND STEP 57 REPLACES A THIRD WITH THE ONE IT
+    // WAS A SPECIAL CASE OF.
     //
-    // GONE, SQUARE AGREEMENT. The hero's oxygen figure had to agree character for character with
-    // the oxygen square's at all nine states, which is the same subject CONSTRO-01 has for
-    // construction: two surfaces, one quantity, no way for them to print two different numbers.
-    // Quinn's ruling of 2026-09-06 deletes the oxygen square, so there is no second surface and
-    // the clause has no subject. What is no longer covered: nothing today, because nothing else
-    // prints oxygen.
+    // THE TRACKING CLAUSE IS UNCHANGED. The oxygen figure moves with the model across the nine
+    // states, and an element pinned to one value is confirmed to stop tracking and to fail.
     //
-    // GONE, THE CONDITION CLAUSE. It required the potential to be printed with the condition it
-    // holds under, either a worded whole-share clause or a rail position, and where a rail
-    // position was named it drove the oxygen rail to that notch from the painted state and
-    // required the model to apply what the caption claimed. That clause is superseded rather
-    // than found wanting: the sentence it policed, "with the whole share taken by this line", is
-    // the caption the ruling deletes by name, and a condition stated in words beside a number is
-    // what no longer exists anywhere in this app. What is no longer covered: the hero prints a
-    // full-allocation potential and says nothing about the allocation it assumes, and no row now
-    // walks the rail to check that a stated position is reachable. The reachability property is
-    // unchanged in the model; only its statement is gone.
+    // THE ALLOY-AGREEMENT CLAUSE IS THE DEFECT IT WAS CHECKING. It compared the hero's alloy
+    // figure character for character against the alloy card's, and the two agreed because they
+    // were one expression, alloy = rMetal * oxygen, painted into two elements under two names.
+    // A row asserting that two paintings of one number agree is a row that has accepted two
+    // paintings of one number. Quinn's ruling of 2026-09-09 deletes the second, and what stands
+    // in the clause's place is the general property it was a special case of: EVERY PRODUCTION
+    // TONNAGE IS PAINTED AT EXACTLY ONE PLACE IN THE HERO.
     //
-    // KEPT AND RE-KEYED, THE ALLOY TONNAGE. It was read out of #h_oxycap, which used to hold the
-    // whole caption. The delete pass promoted the alloy figure into its own element, so the
-    // clause reads #h_oxyalloy and still compares it character for character against the alloy
-    // square, which survives. This is the agreement clause the row was built on, moved intact.
+    // THE COUNT IS EXACT AND NOT A CEILING. Two products can legitimately print the same numeral
+    // at a state, so the expected count for a string is the number of cards printing that
+    // string, computed from the cards themselves at that state, and the observed count is every
+    // leaf element in the hero whose whole text is that string. A second painting anywhere in
+    // the hero pushes observed above expected and is named.
     //
-    // GONE AT STEP 57, THE POTENTIAL. Quinn's ruling of 2026-09-08 deletes the three-line hero
-    // and the full-allocation potential each of its figures carried beside a slash, #h_oxycap
-    // among them, along with the caption that explained what a potential was. There is no
-    // painted surface left for this clause to read, so it goes rather than being pointed at an
-    // absent element and scored EMPTY POPULATION at every state. What is no longer covered: the
-    // hero prints no full-allocation potential of any kind, for any of the three products, and
-    // no row now checks one against Ofull, Cfull or cap. model() still carries all three fields
-    // unchanged; only their statement is gone. The tracking and alloy-agreement clauses below
-    // are unaffected and are the whole of this row now.
+    // THE DECOY WAS THE RETIRED SECOND PAINTING, RECONSTRUCTED FROM #h_oxyalloy, until Quinn's
+    // second ruling of 2026-09-09 retired the metals card and its id along with it. There is no
+    // element left in the DOM to read the decoy's own value off of, so it is built off the
+    // model's own alloy figure, formatted exactly as the retired card formatted it, and the same
+    // counter is required to catch it appended to a clone of the hero before the live hero's
+    // count is trusted.
     (function(){
-      const NAME = 'the hero’s oxygen figure tracks the model across all nine preset and era states and the alloy tonnage printed beside it agrees character for character with the alloy square’s at every one (DECOY: an element pinned to one value is confirmed to stop tracking and to fail)';
-      const hox = document.getElementById('h_oxy'), hal = document.getElementById('h_oxyalloy');
-      const why = []; const seen = []; let alloyScored = 0;
-      if (!hox || !hal){
-        rec('OX-19','GATE',NAME,false,'EMPTY POPULATION: '+(!hox?'no #h_oxy element':'no #h_oxyalloy element')+' exists in the rendered document');
-        return;
+      const NAME = 'the oxygen figure tracks the model across all nine preset and era states, and every production tonnage the hero prints is painted at exactly one element of it at every one of them (DECOY: an element pinned to one value is confirmed to stop tracking and to fail, and the retired second painting of the metals tonnage, rebuilt off the model since no element paints it any more, is reconstructed on a clone of the hero and confirmed to be caught)';
+      const hero = document.querySelector('.hero');
+      const why = []; const seen = []; let sited = 0, dup = 0, decoyCaught = 0;
+      if (!hero){ rec('OX-19','GATE',NAME,false,'EMPTY POPULATION: no .hero element exists in the rendered document'); return; }
+      /* THE COUNTER. Every leaf element under a given root whose whole trimmed text is s. Used
+         on the live hero and on the decoy clone, so the two are measured by one instrument. */
+      function leaves(root, s){
+        return Array.prototype.slice.call(root.querySelectorAll('*')).filter(function(el){
+          return el.children.length === 0 && (el.textContent || '').trim() === s;
+        }).length;
       }
       const walked = walk9(function(where){
-        const al = named(squareRows(), /alloy/i);
-        const printed = (hox.textContent||'').trim(), alloy = (hal.textContent||'').trim();
-        seen.push(printed);
-        if (!al){ why.push('EMPTY POPULATION at '+where+': no square named Alloy exists to agree with'); return; }
-        if (alloy !== al.value) why.push(where+': the hero prints alloy "'+alloy+'" and the alloy square prints "'+al.value+'"');
-        alloyScored++;
+        const m = stateModel();
+        const hox = document.getElementById('h_oxy');
+        if (!hox){ why.push(where + ': no #h_oxy element exists, so the oxygen figure is painted nowhere'); return; }
+        seen.push((hox.textContent || '').trim());
+        const cards = Array.prototype.slice.call(document.querySelectorAll('#outs .out .ovalue'))
+          .map(function(v){ return (v.textContent || '').trim(); });
+        if (!cards.length){ why.push(where + ': the production row paints no figure at all'); return; }
+        const want = {};
+        cards.forEach(function(s){ want[s] = (want[s] || 0) + 1; });
+        Object.keys(want).forEach(function(s){
+          sited++;
+          const got = leaves(hero, s);
+          if (got !== want[s]){
+            dup++;
+            why.push(where + ': the figure "' + s + '" is printed by ' + want[s] + ' production card(s) and appears at ' + got +
+                     ' element(s) of the hero, so a reader meets one quantity at two places under two names');
+          }
+        });
+        /* the decoy, built out of this state's own alloy figure, since no card paints one any more */
+        const metals = fmtNum(m.alloy, m.alloy < 10 ? 2 : 0);
+        if (metals != null){
+          const clone = hero.cloneNode(true);
+          const extra = document.createElement('span');
+          extra.textContent = String(metals).trim();
+          clone.appendChild(extra);
+          if (leaves(clone, String(metals).trim()) > leaves(hero, String(metals).trim())) decoyCaught++;
+        }
       });
       const distinct = seen.filter(function(v,i,a){ return a.indexOf(v)===i; });
-      if (distinct.length <= 1) why.push('EMPTY POPULATION as a tracking test: the hero prints the same string at all nine states');
+      if (distinct.length <= 1) why.push('EMPTY POPULATION as a tracking test: the oxygen figure prints the same string at all nine states');
       const decoyPinned = seen.map(function(){ return seen[0]; });
-      if (decoyPinned.filter(function(v,i,a){ return a.indexOf(v)===i; }).length !== 1) why.push('DECOY DID NOT FIRE');
-      if (walked !== 9) why.push('EMPTY POPULATION: '+walked+' states walked, not 9');
-      if (!alloyScored) why.push('EMPTY POPULATION: the alloy clause was scored at no state');
+      if (decoyPinned.filter(function(v,i,a){ return a.indexOf(v)===i; }).length !== 1) why.push('DECOY DID NOT FIRE: pinning every reading to the first still produced more than one distinct value');
+      if (decoyCaught !== 9) why.push('DECOY DID NOT FIRE: a second painting of the metals figure appended to a clone of the hero was caught at ' + decoyCaught + ' of the nine states, so this row’s counter does not discriminate');
+      if (walked !== 9) why.push('EMPTY POPULATION: ' + walked + ' states walked, not 9');
+      if (!sited) why.push('EMPTY POPULATION: no production figure was counted at any state');
       rec('OX-19','GATE',NAME, why.length===0,
         why.length ? why.slice(0,3).join('  ')
-          : walked+' states, the hero oxygen figure tracks the model at every one, '+distinct.length+' distinct values, the alloy tonnage beside it agrees with the alloy square at '+alloyScored+' states [red-first, seeded on this build: SEED_OX19_PIN pins the hero figure and the tracking clause names it, SEED_OX19_ALLOY paints the aside off a different quantity and the agreement clause names both strings; PROVED NOT TO FIRE on BENIGN_OX19, the aside label rewritten with every content word swapped. Step 57 dropped the potential clause with #h_oxycap Quinn deleted on 2026-09-08; the tracking and alloy-agreement clauses are unchanged from Step 52]');
+          : walked + ' states, the oxygen figure tracking the model at every one across ' + distinct.length + ' distinct values, and ' +
+            sited + ' figure-site counts taken with ' + dup + ' quantity painted at more than its own card; the reconstructed second painting was caught at ' +
+            decoyCaught + ' of the nine [POPULATION: every leaf element inside .hero, which is the production cards, the two headline figures, the comparison strip’s marker labels and the mass bar’s legend, at each of the nine states; it excludes the cockpit rail and the seven tab panels, which are not the hero. Step 57 replaced the alloy-agreement clause, which asserted that two paintings of one number agree, with the property that clause was a special case of; the tracking clause is unchanged from Step 52. Re-keyed at Step 60: the decoy source moved from #h_oxyalloy, which Quinn’s second ruling of 2026-09-09 deleted, to the model’s own alloy figure]');
+    })();
+
+    // ---- OX-31 (GATE): the alloy tonnage moved off the retired card to the Scenario tab -----
+    // QUINN'S SECOND RULING OF 2026-09-09 retired the metals card and kept the quantity: the
+    // model still computes the alloy, rMetal and eRefine unmoved, and the ruling changes only
+    // what the app claims about it. The regolith feed sentence set the pattern at Step 57 and
+    // this row follows it for the alloy: the figure a reader meets is read back off the painted
+    // Scenario-tab sentence and compared numerically against the model, never rebuilt with the
+    // render's own formatter, and the sentence is confirmed to name the material an unseparated
+    // alloy rather than a metal.
+    //
+    // THE SECOND CLAUSE SWEEPS EVERY PANEL FOR THE CLAIM THE RULING EXISTS TO FORBID: that this
+    // programme produces separated metal. The needle is proved live on a constructed sentence
+    // before its silence over the seven panels is trusted.
+    (function(){
+      const NAME = 'the Scenario tab states the alloy tonnage the retired metals card printed, the figure read back off the painted sentence agrees with the model at all nine preset and era states, the sentence names the material an unseparated alloy rather than a metal and states that the model does not separate or price it, and no painted panel in the app claims the app produces separated metal (DECOY: a constructed sentence claiming separated metal production is run through this row’s own needle and required to be caught)';
+      const why = []; const seen = [];
+      const SEP_CLAIM = /produces separated metal|ships separated metal|separated metals? (?:is|are) (?:produced|available|shipped)/i;
+      const decoySentence = 'This reactor produces separated metal ready for sale.';
+      if (!SEP_CLAIM.test(decoySentence)) why.push('DECOY DID NOT FIRE: the separated-metal needle does not match a constructed sentence built to trip it, so its silence over the panels proves nothing');
+      const PANELS = ['scenario','value','regime','eqns','notes','defs','ledger'];
+      let claimHits = 0, panelReadings = 0;
+      const walked = walk9(function(where){
+        const m = stateModel();
+        const txt = panelText('scenario');
+        const sent = /Alongside the oxygen[\s\S]*?separation step for it\./.exec(txt);
+        if (!sent){ why.push(where + ': the Scenario tab states no alloy tonnage at all; the model’s alloy is ' + m.alloy.toFixed(4) + ' t/yr'); return; }
+        const nums = (sent[0].replace(/,/g, '').match(/[0-9]*\.?[0-9]+/g) || []).map(Number);
+        if (!nums.length){ why.push(where + ': the alloy sentence carries no number: ' + sent[0]); return; }
+        if (Math.abs(nums[0] - m.alloy) > 0.5) why.push(where + ': the sentence states an alloy tonnage of ' + nums[0] + ' t/yr where the model’s is ' + m.alloy.toFixed(4));
+        if (!/unseparated alloy/i.test(sent[0])) why.push(where + ': the alloy sentence does not name the material an unseparated alloy: ' + sent[0]);
+        if (/\bmetals? produced\b/i.test(sent[0])) why.push(where + ': the alloy sentence calls the material metal(s) produced, which is the name the ruling retired: ' + sent[0]);
+        seen.push(where + ' ' + nums[0]);
+        PANELS.forEach(function(t){
+          panelReadings++;
+          if (SEP_CLAIM.test(panelText(t))) claimHits++;
+        });
+      });
+      if (walked !== 9) why.push('EMPTY POPULATION: ' + walked + ' states walked, not 9');
+      if (!seen.length) why.push('EMPTY POPULATION: no state carried a readable alloy sentence');
+      if (!panelReadings) why.push('EMPTY POPULATION: the separated-metal sweep read no panel at any state');
+      if (claimHits) why.push(claimHits + ' painted panel reading(s) across the nine states claim the app produces separated metal, which is exactly the claim the ruling retired');
+      rec('OX-31','GATE',NAME, why.length===0,
+        why.length ? why.slice(0,3).join('  ')
+          : walked + ' states, the sentence’s own alloy figure read back and matched against the model at each (' + seen.slice(0,3).join(' | ') +
+            '), every one naming the material an unseparated alloy, and zero of ' + panelReadings +
+            ' panel readings across ' + PANELS.length + ' panels claiming the app produces separated metal ' +
+            '[POPULATION: the painted text of .panel[data-t="scenario"] for the tonnage clause at each of the nine states, and all seven panels the app draws at the same nine states for the separated-metal sweep, which excludes the cockpit rail and the card row, neither of which carries prose formatted as panel text; red-first, seeded: SEED_ALLOYSEP restores a sentence claiming the app produces separated metal to a panel and this row names the panel and quotes it]');
     })();
 
     // ---- OX-20 (GATE): the oxygen split control names the fraction the model used ----
@@ -17653,91 +17889,84 @@ function runAbstractTests(){
             ' [red-first: D2 restores fifteen retracted strings at eleven painted sites, which the shipped suite returned GATE 181/181 REVIEW 17/17 EXIT 0 over; this row fires on all six clauses there and quotes the sentences back]');
     })();
 
-    // ---- OX-30 (GATE): a square's missing swatch is a decision, not a discarded colour ----
-    // Wrong build D5 reverts the painter clause and leaves the data field gone, and the
-    // suite returns a full green because the PAINT is identical: hx(undefined) produces
-    // "rgb(NaN,NaN,NaN)", the CSSOM refuses it, and the square ends up with no swatch either
-    // way. A row that reads the paint cannot tell the two apart, and the two are different
-    // artifacts. So this row reads the PAINTER: it records the colour string the painter hands
-    // to the CSSOM for every square at every state, before the CSSOM has a chance to throw it
-    // away, and holds it against whether the model layer gave that square a health at all.
+    // ---- OX-30 (GATE): a card's accent is a token the stylesheet defines ----
+    // WRONG BUILD D5 REVERTED THE PAINTER CLAUSE AND LEFT THE DATA FIELD GONE, and the suite
+    // returned a full green because the PAINT was identical: hx(undefined) produced
+    // "rgb(NaN,NaN,NaN)", the CSSOM refused it, and the square ended up with no swatch either
+    // way. That failure mode is what this row was built for and it is what Step 57 removes at
+    // the root. There is no colour function any more. The model layer names a PRODUCT and the
+    // stylesheet says what that product looks like, so a token nobody defined cannot become a
+    // malformed colour: it becomes a class with no rule, which is a missing stripe that this
+    // row names.
     //
-    // The instrument is a recording accessor installed on the two style objects the painter
-    // writes, forwarding to the shipped setter so the paint is unchanged, and removed again in
-    // a finally before the row returns. Nothing about the app is altered by observing it.
+    // WHAT THIS ROW ASSERTS NOW. Every card carries exactly one accent class; the token in it is
+    // one the model layer declares; the stylesheet carries at least the two rules that token
+    // needs, the stripe and the numeral; and no card writes any colour inline at all, so no
+    // dark-theme literal can be painted over a light-theme page.
+    //
+    // THE DECOY IS A TOKEN THE STYLESHEET DOES NOT DEFINE, run through the same stylesheet
+    // resolver the live tokens are run through, and required to resolve to nothing.
     (function(){
-      const NAME = 'every colour the square painter hands to the CSSOM is a decision the model layer made: a square the model gives no health is handed the empty string, a square it gives a health is handed a colour whose components are all finite, and no square is handed a colour derived from an absent field (DECOY: the app’s own colour function fed an absent health is confirmed to be refused by the same check)';
+      const NAME = 'every production card carries exactly one accent class, the token in it is one the model layer declares, the stylesheet defines both of the rules that token needs, and no card writes a colour inline, at all nine preset and era states (DECOY: a token the stylesheet does not define is run through the same resolver and required to resolve to nothing)';
       const why = [];
-      let walked = 0, squaresSeen = 0, noHealth = 0, withHealth = 0, installed = 0;
-      /* A colour is well formed when every component the painter wrote is a finite number.
-         This is the whole discriminant and it is not keyed to any spelling: "rgb(NaN,NaN,NaN)"
-         fails it because NaN is not finite, whatever the app chooses to call its colours. */
-      function wellFormed(v){
-        const m = /^rgba?\(([^)]*)\)$/.exec(String(v).trim());
-        if (!m) return false;
-        const parts = m[1].split(',').map(function(x){ return x.trim(); });
-        if (parts.length < 3) return false;
-        return parts.every(function(x){ return x !== '' && isFinite(Number(x)); });
+      let walked = 0, cardsSeen = 0, inlineSeen = 0;
+      /* THE RESOLVER. Every rule in every stylesheet this document carries whose selector names
+         an accent token, counted by token. One function, used on the live tokens and on the
+         decoy. */
+      function accentRules(){
+        const out = {};
+        Array.prototype.slice.call(document.styleSheets).forEach(function(ss){
+          let rules = null;
+          try { rules = ss.cssRules; } catch(e){ rules = null; }
+          if (!rules) return;
+          Array.prototype.slice.call(rules).forEach(function(r){
+            const sel = r.selectorText || '';
+            const mm = /\.acc-([A-Za-z][A-Za-z0-9_-]*)/.exec(sel);
+            if (mm) out[mm[1]] = (out[mm[1]] || 0) + 1;
+          });
+        });
+        return out;
       }
-      /* THE DECOY, built from the app's own painter rather than composed: the colour function
-         fed the absent health of a square that carries none. The same wellFormed() must refuse
-         it, or this row's discriminant is not a discriminant on this build. */
-      let decoyValue = null, decoyRefused = false;
-      try { decoyValue = hx(undefined); } catch(e){ decoyValue = 'threw: ' + e.message; }
-      decoyRefused = !wellFormed(decoyValue);
-      if (!decoyRefused) why.push('DECOY DID NOT FIRE: the colour function fed an absent health returned "' + decoyValue + '", which this row’s own check accepts, so the check cannot tell an absent field from a computed colour');
+      const defined = accentRules();
+      if (!Object.keys(defined).length) why.push('EMPTY POPULATION: no stylesheet rule in this document names an accent token, so this row read nothing and a green would be about the resolver');
+      if (typeof ACCENTS === 'undefined' || !ACCENTS.length) why.push('EMPTY POPULATION: the model layer declares no accent tokens, so there is nothing to hold the stylesheet against');
+      else ACCENTS.forEach(function(a){
+        if (!defined[a]) why.push('the model layer declares the accent "' + a + '" and the stylesheet defines no rule for it, so a card carrying it paints no stripe');
+        else if (defined[a] < 2) why.push('the stylesheet carries ' + defined[a] + ' rule for the accent "' + a + '", not the two it needs for the stripe and the numeral');
+      });
+      const DECOY_TOKEN = 'nosuchproduct';
+      if (defined[DECOY_TOKEN]) why.push('DECOY DID NOT FIRE: the resolver reports a rule for "' + DECOY_TOKEN + '", a token nothing defines, so it cannot tell a defined token from an undefined one');
       walked = walk9(function(where){
-        const model = squares(stateModel());
         const els = Array.prototype.slice.call(document.querySelectorAll('#outs .out'));
+        const model = squares(stateModel());
         if (els.length !== model.length){
-          why.push(where + ': ' + model.length + ' squares returned and ' + els.length + ' elements built, so this row cannot say which painter write belongs to which square');
+          why.push(where + ': ' + model.length + ' cards returned and ' + els.length + ' elements built, so this row cannot say which class belongs to which card');
           return;
         }
-        const attempts = [], undo = [];
-        try {
-          els.forEach(function(el, i){
-            [['.swatch','background'], ['.ovalue','color']].forEach(function(pair){
-              const target = el.querySelector(pair[0]);
-              if (!target){ why.push(where + ': square ' + i + ' has no ' + pair[0] + ' element for the painter to write'); return; }
-              const st = target.style, prop = pair[1];
-              const dsc = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(st), prop);
-              if (!dsc || !dsc.set){ why.push(where + ': EMPTY POPULATION, the style object exposes no ' + prop + ' setter to record, so this row observed nothing'); return; }
-              Object.defineProperty(st, prop, {
-                configurable: true,
-                get: function(){ return dsc.get.call(this); },
-                set: function(v){ attempts.push({ i: i, prop: prop, v: String(v) }); dsc.set.call(this, v); }
-              });
-              undo.push(function(){ delete st[prop]; });
-              installed++;
-            });
-          });
-          render();
-        } finally {
-          undo.forEach(function(f){ try { f(); } catch(e){} });
-        }
-        if (!attempts.length){ why.push(where + ': EMPTY POPULATION, the painter wrote no colour at all while this row was recording'); return; }
-        attempts.forEach(function(at){
-          const declared = model[at.i] && model[at.i].health != null;
-          squaresSeen++;
-          if (declared) withHealth++; else noHealth++;
-          if (at.v !== '' && !wellFormed(at.v))
-            why.push(where + ': the painter handed the CSSOM "' + at.v + '" for the ' + at.prop + ' of square "' +
-                     (model[at.i] || {}).name + '", which is a colour derived from a field the model layer did not set');
-          if (!declared && at.v !== '')
-            why.push(where + ': square "' + (model[at.i] || {}).name + '" carries no health and the painter still tried to colour its ' + at.prop + ' with "' + at.v + '", so its swatch is absent because the CSSOM refused a colour rather than because the app decided it has none');
-          if (declared && at.v === '')
-            why.push(where + ': square "' + (model[at.i] || {}).name + '" carries a health of ' + model[at.i].health + ' and the painter handed the empty string to its ' + at.prop + ', so a computed colour was thrown away');
+        els.forEach(function(el, i){
+          cardsSeen++;
+          const acc = Array.prototype.slice.call(el.classList).filter(function(c){ return c.indexOf('acc-') === 0; });
+          if (acc.length !== 1){
+            why.push(where + ': the ' + model[i].name + ' card carries ' + acc.length + ' accent classes, not one: "' + el.className + '"');
+            return;
+          }
+          const tok = acc[0].slice(4);
+          if (tok !== model[i].accent) why.push(where + ': the ' + model[i].name + ' card is painted with the accent "' + tok + '" where the model layer named "' + model[i].accent + '"');
+          if (!defined[tok]) why.push(where + ': the ' + model[i].name + ' card carries the accent "' + tok + '", which no stylesheet rule in this document defines');
+          const sw = el.querySelector('.swatch'), val = el.querySelector('.ovalue');
+          if (!sw) why.push(where + ': the ' + model[i].name + ' card has no stripe element for its accent to reach');
+          else if ((sw.style.background || sw.style.backgroundColor || '') !== ''){ inlineSeen++; why.push(where + ': the ' + model[i].name + ' card writes its stripe colour inline, "' + (sw.style.background || sw.style.backgroundColor) + '", so the stylesheet is not what decides it and the light theme cannot override it'); }
+          if (val && (val.style.color || '') !== ''){ inlineSeen++; why.push(where + ': the ' + model[i].name + ' card writes its numeral colour inline, "' + val.style.color + '"'); }
         });
       });
       if (walked !== 9) why.push('EMPTY POPULATION: ' + walked + ' states walked, not 9');
-      if (!squaresSeen) why.push('EMPTY POPULATION: no painter write was recorded at any state, so a green would be about the instrument and not about the painter');
+      if (!cardsSeen) why.push('EMPTY POPULATION: no card was read at any state');
       rec('OX-30','GATE',NAME, why.length===0,
         why.length ? why.slice(0,3).join('  ')
-          : walked + ' states, ' + installed + ' recording accessors installed and removed, ' + squaresSeen +
-            ' painter writes read: ' + withHealth + ' of them for squares the model gave a health, every one a colour with finite components, and ' +
-            noHealth + ' for squares it gave none, every one the empty string; the decoy hx(undefined) returned "' +
-            decoyValue + '" and was refused' +
-            ' [red-first: D5 reverts the painter clause with the data field still gone, which the shipped suite returned GATE 181/181 REVIEW 17/17 EXIT 0 over because the paint is identical; this row reads the write rather than the paint and quotes it back]');
+          : walked + ' states and ' + cardsSeen + ' card readings, every one carrying exactly one accent class the model layer declared, every one of the ' +
+            (typeof ACCENTS === 'undefined' ? 0 : ACCENTS.length) + ' declared tokens (' + (typeof ACCENTS === 'undefined' ? '' : ACCENTS.join(', ')) +
+            ') carrying its two stylesheet rules, ' + inlineSeen + ' inline colours written, and the resolver reporting nothing for the undefined token "' + DECOY_TOKEN +
+            '" [POPULATION: every #outs .out at each of the nine states, held against every rule in every stylesheet this document carries; re-keyed at Step 57 from the painter’s own writes to the stylesheet, because Quinn’s ruling of 2026-09-09 replaced the colour function with a token name and there is no colour left for a painter to hand the CSSOM. What is no longer covered: a health value the model layer sets and the painter discards, since no card carries a health]');
     })();
 
     /* ------------------------------------------------------------------------------------
@@ -18527,11 +18756,11 @@ const KNOBS = {
   mass:  {label:'Mass landing rate', unit:'t/yr', fmt:v=>Math.round(v)},
   phi_c: {label:'Constr. share', unit:'φc', fmt:v=>v.toFixed(2)},
   phi_o: {label:'Oxygen share', unit:'φo', fmt:v=>v.toFixed(2)},
-  landed_cost:{label:'Delivery cost avoided', unit:'$/kg',
+  landed_cost:{label:'Earth delivery cost', unit:'/kg',
                fmt:v=> v>=1e6 ? '$'+(v/1e6)+'M' : (v>=1000 ? '$'+(v/1000)+'k' : '$'+v)},
   /* Step 58 install 2: hardware cost, the reader-dialled CONTROL, same fmt convention as
-     landed_cost since both are $/kg rails spanning multiple orders of magnitude. */
-  chw:{label:'Hardware cost, landed plant', unit:'$/kg',
+     landed_cost since both are per-kilogram rails spanning multiple orders of magnitude. */
+  chw:{label:'Hardware cost', unit:'/kg',
        fmt:v=> v>=1e6 ? '$'+(v/1e6)+'M' : (v>=1000 ? '$'+(v/1000)+'k' : '$'+v)}
 };
 function knobVal(k){ return DETENTS[k][state[k]]; }
@@ -18771,64 +19000,45 @@ function demoRateTpy(){ return (DEMO.batchKg / 1000) / DEMO.hours * CONFIG.H.val
 
 const BINDWORD = BIND_LABEL;   // one map, declared in MODEL-CORE; this name is the render layer's alias for it
 function squares(m){
-  const oxyHealth = (m.oBinding==='power') ? 0.9 : clamp01(m.Ofull>0 ? m.oxygen/m.Ofull : 0)*0.5+0.1;
-  const C = CONFIG;
-  /* THE SIX SQUARES, and the order carries an argument. Water, oxygen and alloy are the three
-     product tonnages and they sit on the first row. The feed square opens the second row
-     because it is the thing the three of them share, and it is the one surface where a reader
-     can see that four products on one plant are not double counted.
+  /* THE THREE PRODUCTS, IN THE ORDER A READER MEETS THEM, AND NOTHING THAT IS NOT A PRODUCT.
 
-     EVERY COEFFICIENT'S POINT-OF-USE LABEL IS IN THE CAPTION OF THE SQUARE WHOSE NUMBER IT
-     SETS, with its value and its rung word, because the four evidence tabs are gated behind
-     the Advanced toggle and a label a reader never opens is not a point-of-use label. The two
-     derivable numbers carry their arithmetic rather than a citation, because a citation beside
-     50 says a source printed it, and no source did and no arithmetic reaches it either.
+     STEP 60, QUINN'S SECOND RULING OF 2026-09-09. Metals produced is retired from this row:
+     garbage is not a product. The card printed the model's alloy tonnage, an unseparated melt
+     of iron, silicon, aluminium and titanium that the model charges zero energy to separate on
+     a qualitative sentence, with no lunar reduction experiment on any route having weighed a
+     separated metal output. The tonnage is not deleted from the model; it is a real quantity
+     rMetal * oxygen still computes, and it is stated in the Scenario tab's own narrative now,
+     named for what it is rather than painted as a fourth product on this row.
 
-     NO SQUARE CAPTION CARRIES THE DEMONSTRATION-SCALE SENTENCE. Quinn's ruling of 2026-09-03
-     puts it on the Scenario tab, computed per cell. */
-  /* STEP 52. Water, oxygen and sintered construction lost their squares because the hero
-     already prints all three, live and at full allocation, in larger type. What is left is the
-     three quantities the hero does not carry. Every surviving caption is a label and a number
-     rather than a sentence, and the two bare literals 24.5 and 85.7 left the file with the
-     oxygen square that printed them without units. */
+     MINING PLANT STANDING AND REGOLITH FEED stay retired from Step 57 for the reasons stated
+     then: the mass bar already prints the mining plant figure, and nothing downstream of the
+     regolith feed is a product. Both are process quantities in the Scenario tab's narrative,
+     which OX-16 and FEED-01 hold.
+
+     NO CARD CARRIES A CAPTION. Every caption on the retired row was a coefficient's
+     point-of-use label or an arithmetic the card needed in order to justify standing there,
+     and a tile that needs a sentence to earn its place has not earned it. OX-18 holds the row
+     to a name, a number and a unit.
+
+     THE ACCENT IS A TOKEN NAME, NOT A COLOUR. This layer says which product a card is; the
+     stylesheet says what that product looks like. A colour computed here would be a dark-theme
+     literal painted over a light-theme page, and it is what the retired health scale did.
+
+     dp REPRODUCES THE RETIRED PANELS EXACTLY, so no printed figure moves in this edit: water
+     kept fmtT's own three-way rule and the other two kept theirs. */
   return [
-    {name:'Alloy produced', v:m.alloy, unit:'t/yr', dp:m.alloy<10?2:0, health:oxyHealth,
-     bind:false, namesBind:true,
-     cap:'co-product '+C.rMetal.value+' '+C.rMetal.unit},
-    /* THE CAPTION NAMES THE LINE THE YIELD BELONGS TO, AND ITS ARITHMETIC CLOSES.
-       It read `of {Rcap} t/yr capacity · yield 0.375 t O2 / t regolith`, which puts a feed, a
-       capacity and a yield on one line separated by a middle dot and invites exactly the
-       multiplication that is wrong. The feed is the sum of THREE lines, water, sintering and
-       oxygen; the yield belongs to one of them, and across the nine preset cells that one is
-       between 0.06 and 0.58 percent of the mass printed above it. Multiplying the caption's own
-       two numbers gave 68,760 t of oxygen against a hero reading 38, a factor of 1,802, and 4,058
-       against 15 at the default state, a factor of 264.
-       regolithMetals is the regolith that line ACTUALLY moves, and it is oxygen / yO2 by
-       construction, so a reader who multiplies the caption's two numbers now lands on the oxygen
-       figure the hero prints. That is what the alloy chip beside it already does, and it is the
-       shape a caption of this class has to take: the numbers on it must reproduce a number the
-       panel displays.
-
-       THE COLOUR MEANS UTILISATION AND NOT HEADROOM, and the reversal is the finding. Health was
-       1 - feed/Rcap, which is exactly 0.0000 at seven of the nine preset cells, painting the chip
-       rgb(229,101,75), the same red the palette gives a critical state, and painting it reddest
-       exactly where the model is at its designed condition. Feed equalling capacity is the
-       keystone identity the whole allocation was built around, and the app's own Notes text says
-       so: "The three feeds are shares of one ceiling rather than three ceilings, so together they
-       never overdraw it." A signifier that goes red when the books close is telling the reader the
-       opposite of the state it marks. Full use of the plant is now the green end, which is the
-       sense the Mining plant standing chip directly below it already uses. */
-    {name:'Regolith feed', v:m.regolithFeed, unit:'t/yr', dp:0,
-     health:clamp01(m.Rcap>0 ? m.regolithFeed/m.Rcap : 0), bind:false, namesBind:true,
-     cap:'of '+fmtNum(m.Rcap,0)+' t/yr capacity · '+fmtT(m.regolithMetals)+' t/yr to oxygen at '+C.yO2.value+' '+C.yO2.unit},
-    {name:'Mining plant standing', v:m.mining, unit:'t', dp:m.mining<10?1:0, health:clamp01(m.mining/Math.max(1,m.mass)),
-     cap:'of '+fmtNum(m.mass,0)+' t standing · '+fmtNum(m.mPwr,m.mPwr<10?1:0)+' t to power', bind:m.binding==='power-system mass'},
+    {name:'Water produced',  vid:'h_water',    v:m.water,        unit:'t/yr', accent:'water',
+     dp:m.water<1?2:(m.water<10?1:0)},
+    {name:'Oxygen produced', vid:'h_oxy',      v:m.oxygen,       unit:'t/yr', accent:'oxygen',
+     dp:m.oxygen<10?2:0},
+    {name:'Construction',    vid:'h_const',    v:m.construction, unit:'t/yr', accent:'construction',
+     dp:m.construction<10?1:0}
   ];
 }
+/* The accent tokens this layer is allowed to name. Declared once, here, so OX-30 holds the
+   render against the stylesheet rather than against a second copy of this list. */
+const ACCENTS = ['water','oxygen','construction'];
 function fmtNum(v,dp){ return v.toLocaleString(undefined,{minimumFractionDigits:dp,maximumFractionDigits:dp}); }
-function hx(h){ const stops=[[229,101,75],[224,168,63],[63,185,132]]; h=clamp01(h);
-  const seg=h<0.5?0:1, t=h<0.5?h/0.5:(h-0.5)/0.5, a=stops[seg], b=stops[seg+1];
-  const c=a.map((v,i)=>Math.round(v+(b[i]-v)*t)); return 'rgb('+c[0]+','+c[1]+','+c[2]+')'; }
 
 const outsEl=document.getElementById('outs');
 /* THE COUNT IS DERIVED, AND THE LITERAL IT REPLACES WAS DANGEROUS IN BOTH DIRECTIONS. A
@@ -18842,7 +19052,7 @@ const outsEl=document.getElementById('outs');
 function ensureSquares(n){
   while (outsEl.children.length < n){
     const o=document.createElement('div'); o.className='out'; o.id='out-'+outsEl.children.length;
-    o.innerHTML='<div class="swatch"></div><div class="oname"></div><div><span class="ovalue"></span><span class="ounit"></span></div><div class="ocap"></div>';
+    o.innerHTML='<div class="swatch"></div><div class="oname"></div><div class="oval"><span class="ovalue"></span><span class="ounit"></span></div>';
     outsEl.appendChild(o);
   }
   while (outsEl.children.length > n) outsEl.removeChild(outsEl.lastChild);
@@ -19426,13 +19636,9 @@ function render(){
      buttons and the era prints on the era buttons, and whether the state has left the preset it
      started on is the abstract's own fade line, which says it once rather than in two places
      that can disagree. */
-  /* Each hero figure now prints live and full-allocation as a pair. fmtT formats both, and the
-     strip's markers run the same function over the same quantity, so the potential a reader
-     reads in the hero is character for character the potential under the active marker. */
-  document.getElementById('h_water').textContent = fmtT(m.water);
-  document.getElementById('h_const').textContent = fmtNum(m.construction, m.construction<10?1:0);
-  document.getElementById('h_oxy').textContent = fmtNum(m.oxygen, m.oxygen<10?2:0);
-  document.getElementById('h_oxyalloy').textContent = fmtNum(m.alloy, m.alloy<10?2:0);
+  /* Step 57. The four production figures are painted by the card layer below, which stamps
+     each card's value element with the id the rest of this file addresses that figure by, so
+     every production tonnage has exactly one painted element and OX-19 counts them. */
   /* Step 57 hero, Quinn’s ruling of 2026-09-08. The three live figures above keep their ids,
      now painted into the production panels below the timeline rather than into the deleted
      three-line hero; the full-allocation potential each used to carry beside a slash is
@@ -19483,18 +19689,18 @@ function render(){
 
   const SQ = squares(m);
   ensureSquares(SQ.length);
-  SQ.forEach((sq,i)=>{ const el=document.getElementById('out-'+i), col=(sq.health==null?'':hx(sq.health));
-    el.querySelector('.swatch').style.background=col;
+  SQ.forEach((sq,i)=>{ const el=document.getElementById('out-'+i);
+    /* The accent is a class the stylesheet resolves, never an inline colour. A token this
+       layer names that the stylesheet does not define paints no accent at all, which is a
+       missing stripe rather than a card painted rgb(NaN,NaN,NaN); OX-30 reds on it either way.
+       The value element carries the id the figure is addressed by, stamped on the element the
+       card already owns rather than on a second element beside it. */
+    el.className='out acc-'+sq.accent;
     el.querySelector('.oname').textContent=sq.name;
-    el.querySelector('.ovalue').textContent=fmtNum(sq.v,sq.dp); el.querySelector('.ovalue').style.color=col;
+    const val=el.querySelector('.ovalue');
+    val.id=sq.vid;
+    val.textContent=fmtNum(sq.v,sq.dp);
     el.querySelector('.ounit').textContent=' '+sq.unit;
-    /* A square that NAMES its constraint keeps its caption when that constraint binds. The
-       water square's existing behaviour is to throw the regime name away and print the two
-       words `binding constraint`, which sends a reader to the chip at the top of the cockpit
-       to find out which one; the new squares say which. The water square is unchanged. */
-    const cap=el.querySelector('.ocap');
-    cap.textContent=(sq.bind && !sq.namesBind) ? 'binding constraint' : sq.cap;
-    cap.className='ocap'+(sq.bind?' bind':'');
   });
 
   /* STEP 52. The bar paints a third segment and always did: the standing mass less the power
@@ -19628,7 +19834,7 @@ function paintBreakevenMark(v){
   }
   if(noPriceWorks){
     mk.hidden = true;
-    mk.title = 'No hardware price clears this cell: freight and operations alone already exceed the delivery cost avoided.';
+    mk.title = 'No hardware price clears this cell: freight and operations alone already exceed the Earth delivery cost.';
     return;
   }
   mk.hidden = false;
@@ -19643,18 +19849,15 @@ function paintBreakevenMark(v){
 }
 function renderValueTab(v){
   document.getElementById('m_deliv').textContent = _usd(v.D);
-  document.getElementById('m_deliv_sub').textContent = 'per kg, '+state.phase+' era';
   document.getElementById('m_prop').textContent = _usd(v.value_prop);
-  document.getElementById('m_prop_sub').textContent = fmtNum(v.water_tpy, v.water_tpy<10?2:0)+' t/yr live rate';
   document.getElementById('m_const').textContent = _usd(v.value_const);
-  document.getElementById('m_const_sub').textContent = fmtNum(v.construction_tpy, v.construction_tpy<10?1:0)+' t/yr live rate';
   document.getElementById('valueLead').textContent =
     'Mass-payback does not depend on launch price. Construction out-produces propellant per tonne of standing plant'+
     (Number.isFinite(v.ranking)
       ?' by '+v.ranking.toFixed(1)+'x here, driven by the mass and ice knobs.'
       :', driven by the mass and ice knobs. This state has no output, so there is no ratio to give.')+
-    ' Oxygen and alloy are not priced here, because no source states a delivery '+
-    'cost avoided per tonne for either.';
+    ' Oxygen and alloy are not priced here, because no source states an Earth delivery '+
+    'cost per tonne for either.';
   let cross;
   if(v.preProduction){
     cross='This state is pre-production: water output is below the minimum-production threshold, so op_prop carries no finite figure and no launch-price crossover is stated.';
@@ -19908,6 +20111,7 @@ function oxygenScenarioBlocks(m){
     ' of calendar time, adopted from the water plant basis. The plant-scale study by Guerrero-Gonzalez and Zabel uses 0.751, representing continuous sunlit availability at a peak of eternal light, which bounds solar operations but does not constrain nuclear baseload. ' +
     'Recovered alloy collects molten at the reactor base; separation energy is set to ' +
     C.eRefine.value + ' ' + C.eRefine.unit + ' based on Schreiner’s assessment that phase separation requires negligible additional power. ' +
+    'Alongside the oxygen, the reactor taps ' + fmtT(m.alloy) + ' t/yr of an unseparated alloy of iron, silicon, aluminium and titanium; the model does not separate this melt into distinct metals and prices no separation step for it. ' +
     'Output is measured as oxygen evolved at the anode rather than stored cryogenic liquid; the corpus contains no demonstrated capture fraction for regolith electrolysis off-gas, and liquefaction energy is accounted separately.');
   const oWord = ({'power':'the power ceiling','landed mass':'the plant throughput ceiling','power-system mass':'the plant throughput ceiling'})[m.oBinding] || m.oBinding;
   const wWord = ({'power':'the power ceiling','landed mass':'the plant throughput ceiling','power-system mass':'the plant throughput ceiling'})[m.binding] || m.binding;
@@ -19918,6 +20122,18 @@ function oxygenScenarioBlocks(m){
     (m.oBinding === 'power'
       ? 'Plant throughput does not bind here, so oxygen and alloy tonnages depend directly on the specific energy figure.'
       : 'Because the throughput ceiling is what binds the oxygen line here, every oxygen and alloy tonnage on this screen rides entirely on a coefficient calibrated to fit a water plant, and this sentence says so at the state where it is true rather than as a standing caveat.'));
+  /* THE REGOLITH FEED, MOVED HERE FROM THE PRODUCTION ROW BY QUINN'S RULING OF 2026-09-09.
+     It is a process intermediate: nothing downstream of it is a product, and it held the
+     loudest colour and the largest numeral on a row of four things this programme sells. It
+     is a sentence now, and it says the two things the retired card's own caption said, the
+     feed across every producing line and the capacity it is measured against, plus the one
+     the card could not: the share of that feed the oxygen line moves, which multiplied by
+     the yield IS the oxygen tonnage the card row prints. OX-16 and FEED-01 hold this
+     sentence to all three. */
+  out.push('Water, sintering and the oxygen line draw on one excavation stream rather than three. Together they move ' +
+    fmtNum(m.regolithFeed, 0) + ' t/yr of regolith, against a plant able to move ' + fmtNum(m.Rcap, 0) +
+    ' t/yr at this state, and ' + fmtT(m.regolithMetals) + ' t/yr of that is the oxygen line’s own share, which at ' +
+    C.yO2.value + ' ' + C.yO2.unit + ' is the oxygen tonnage the production row prints.');
   return out;
 }
 
