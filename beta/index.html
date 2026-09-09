@@ -114,6 +114,13 @@
   .rangewrap{position:relative;}
   .envmark{position:absolute; top:50%; width:2px; height:14px; margin-left:-1px;
     background:var(--warn); opacity:.85; transform:translateY(-50%); pointer-events:none; border-radius:1px;}
+  /* Step 58 install 2, Quinn's ruling of 2026-09-08: the break-even mark on the hardware-cost
+     rail is the same class of object as .envmark -- a positional tick, no printed numeral --
+     styled apart so a reader does not read it as the same kind of ceiling .envmark already
+     marks. Positioned by paintBreakevenMark() from live r_prop/D/op_prop at every render,
+     never stored, same mechanism .envmark already uses (mk.style.left = pct+'%'). */
+  .breakmark{position:absolute; top:50%; width:2px; height:14px; margin-left:-1px;
+    background:var(--good); opacity:.9; transform:translateY(-50%); pointer-events:none; border-radius:1px;}
 
   .status{display:flex; flex-direction:column; gap:8px; border-top:1px solid var(--line); padding-top:14px;}
   .chip{display:inline-flex; align-items:center; gap:7px; font-family:var(--mono); font-size:12px;
@@ -590,6 +597,11 @@
             <div class="krow"><span class="klabel">Delivery cost avoided</span><span class="kval" id="v_landedcost"></span></div>
             <input type="range" id="k_landedcost">
             <span class="kcap">Free dial. The phase seeds an era hint, never a lock.</span>
+          </div>
+          <div class="knob" style="max-width:320px" id="chwKnobWrap">
+            <div class="krow"><span class="klabel">Hardware cost, landed plant</span><span class="kval" id="v_chw"></span></div>
+            <div class="rangewrap"><input type="range" id="k_chw"><span class="breakmark" id="mk_chw" hidden></span></div>
+            <span class="kcap">Free dial, $20 to $100,000/kg. The tick marks where the propellant margin crosses zero at the state you are standing in; no price marks where none clears it.</span>
           </div>
           <p id="valueLead"></p>
           <p id="valueCross"></p>
@@ -1586,7 +1598,79 @@
    "sintering-yield"
   ],
   "status": "ASSUMPTION (energy, wall-plug), PROJECTED (ops slice)",
-  "source": "The construction operating floor in the model is about $0.83/kg at $1/kWh, being eSinter of 3 MJ/kg (about 0.83 kWh/kg) wall-plug times the price; a delivered-basis figure is HALF the wall-plug figure at a magnetron efficiency of 0.5, so about $0.42/kg, and the delivered-basis floor of 0.3264 kWh/kg is our own conversion from the per-area figures Metzger and Autry 2023 report, not a per-mass figure they print ([[sintering-specific-energy]] Part 1); no Earth-supplied reagent. MOVED FROM 0 TO 0.83 $/kg at Step 56. This is a correction rather than a centring: the entry already carried its own wall-plug arithmetic and the live value contradicted it, and wall-plug is the basis every other energy coefficient in this file uses. Magnitude is immaterial. At Agency Led Baseline / Sustained it is $786k/yr against a construction value of $1.84B, which is why it stood at zero on a negligibility declaration for as long as it did."
+  "source": "The construction operating floor in the model is about $0.83/kg at $1/kWh, being eSinter of 3 MJ/kg (about 0.83 kWh/kg) wall-plug times the price; a delivered-basis figure is HALF the wall-plug figure at a magnetron efficiency of 0.5, so about $0.42/kg, and the delivered-basis floor of 0.3264 kWh/kg is our own conversion from the per-area figures Metzger and Autry 2023 report, not a per-mass figure they print ([[sintering-specific-energy]] Part 1); no Earth-supplied reagent. MOVED FROM 0 TO 0.83 $/kg at Step 56. This is a correction rather than a centring: the entry already carried its own wall-plug arithmetic and the live value contradicted it, and wall-plug is the basis every other energy coefficient in this file uses. Magnitude is immaterial. At Agency Led Baseline / Sustained it is $786k/yr against a construction value of $1.84B, which is why it stood at zero on a negligibility declaration for as long as it did. op_const has NOT had the Step 58 install 1 reform op_prop received: it remains a flat $/kg figure rather than a fixed annual cost over live construction output. That is a named residual, not an oversight; op_const IS, as of Step 58 install 2, charged the same landed-hardware capital term C_hw as op_prop, through P_const = r_const * (C_hw + D) + op_const."
+ },
+ "op_propF": {
+  "value": 50000000,
+  "unit": "$/yr",
+  "band": {
+   "kind": "INTERVAL",
+   "lo": 20000000,
+   "hi": 130000000,
+   "loSource": "Kornuta, D. et al., 2019, Commercial Lunar Propellant Architecture, REACH 13:100026: $20M/yr flat annual operating cost, one design point, 2,450 MT water/yr, 30,000 kg mining hardware, 10-year hardware life.",
+   "hiSource": "Sowers, G.F. and Dreyer, C.B., 2019 NIAC Phase I Final Report, Table 4.9.3, Scenario 3: $127.7M/yr, a flat $3,000/kg-plant/yr factor applied to a 26,200 kg system mass across a 1,882 mT/yr demand scenario.",
+   "rule": "NOT-CENTRABLE",
+   "disposition": "STANDS",
+   "reason": "F is the fixed-per-year, tonnage-independent slice of propellant operations: ground control, mission operations, comms/DSN time, program office, safety and licensing. No primary in the corpus isolates this slice from the mass-linked slice below; Kornuta's $20M/yr and Sowers' $78.6M-$127.7M/yr are both totals that bundle staff time with hardware-linked cost. $50M/yr is the working central value used in Section 4 of the source report; it is a choice inside this DERIVED band, not fixed by any primary."
+  },
+  "claims": [
+   "propellant-operating-floor"
+  ],
+  "status": "SOURCED at its two end points (Kornuta and Sowers Scenario 3), DERIVED as a band, ASSUMPTION at the $50M/yr central working value",
+  "source": "Step 58 install 1, ruled 2026-09-08. op_prop is reformed from a flat $5,000/kg constant, frozen at whatever output rate produced it and carried unchanged to every other output rate, to op_prop = max(F / water_kg_per_yr, v): a fixed annual operations cost F divided by the live water rate, floored at a minimum per-kilogram figure v (VALUE.op_propV) so the term does not fall toward zero at high output. The old constant's own source string already called itself a fixed annual cost over pilot-scale output; this is a form correction to what that string always asserted the coefficient was, not a re-sourcing. F's rung differs from v's: F is SOURCED at its two individual end points, DERIVED as the $20M-$130M/yr band spanning them, and ASSUMPTION at the $50M/yr point used as the central working value in the source report's own worked table."
+ },
+ "op_propV": {
+  "value": 70,
+  "unit": "$/kg",
+  "band": {
+   "kind": "INTERVAL",
+   "lo": 8,
+   "hi": 72,
+   "loSource": "Kornuta 2019: $20M/yr / 2,450 MT water/yr = $8.16/kg, a quotient this project's own arithmetic performs on Kornuta's printed annual dollar and annual output figures; Kornuta states neither division.",
+   "hiSource": "Sowers 2019 NIAC Phase I Final Report, Table 4.9.3: $78.6M/1,100 mT = $71.45/kg, $82.7M/1,158 mT = $71.42/kg, $127.7M/1,882 mT = $67.86/kg, a $68-$72/kg band across his three demand scenarios; Sowers states none of the three divisions.",
+   "rule": "NOT-CENTRABLE",
+   "disposition": "STANDS",
+   "reason": "v is a structural floor, applied at every scale, not a design point read at one scale. $70/kg (rounded from Sowers' $68-$72/kg band) is used rather than Kornuta's six-times-lower $8/kg because it is the more conservative of two numbers carrying the same evidentiary weight, both DERIVED quotients from a single author's design projection at a single design point, neither measured on flying hardware at production scale. Repurposing a DERIVED design-point quotient as a structural floor for all scales is an authoring choice (ASSUMPTION), not a reading of either source."
+  },
+  "claims": [
+   "propellant-operating-floor"
+  ],
+  "status": "DERIVED as a quotient of two primaries' printed figures; ASSUMPTION as a structural floor applied at every scale",
+  "source": "Step 58 install 1, ruled 2026-09-08. Neither Kornuta's $8/kg nor Sowers' $68-$72/kg is a per-kg figure either primary prints; both are quotients this project's own arithmetic performs on an annual dollar figure and an annual output figure each primary does print. $70/kg is the more conservative choice between two DERIVED numbers of identical evidentiary weight, not the better-evidenced one in any absolute sense, and that is stated here rather than left implied."
+ },
+ "waterMinTpy": {
+  "value": 0.001,
+  "unit": "t/yr",
+  "band": {
+   "kind": "NO_BAND",
+   "rule": "NOT-CENTRABLE",
+   "disposition": "STANDS",
+   "reason": "The minimum-production threshold below which op_prop, P_prop, margin_prop and Dstar_prop are undefined rather than a finite figure approaching an astronomical dollar value as water approaches zero: the model must not print a finite op_prop value approaching an astronomical dollar figure at these states. Where that threshold sits is a modeling choice the Step 58 source report does not price. Set here, an authoring CONTROL, well below every one of the nine preset cells' own water rate (smallest is 1.3 t/yr, Early Shift to Mars / 2030) so no shipped preset is reclassified, and reachable only at the detent-grid extremes a reader can still dial to (phi_c = 1.0 zeroes water outright at any ice/power/mass, cap staying positive)."
+  },
+  "claims": [
+   "propellant-operating-floor"
+  ],
+  "status": "CONTROL, an authoring choice, not sourced",
+  "source": "Step 58 install 1, ruled 2026-09-08. The threshold below which the model classifies a state as pre-production rather than computing op_prop, P_prop and margin_prop as finite figures through the F/water singularity. See VALUE.op_propF and VALUE.op_propV for the reform this threshold guards."
+ },
+ "C_hw": {
+  "value": 0,
+  "unit": "$/kg",
+  "band": {
+   "kind": "INTERVAL",
+   "lo": 0,
+   "hi": 100000,
+   "loSource": "0, the freight-only fallback every caller not dialling C_hw receives (see this entry's own source string); not itself a candidate hardware-cost estimate. Kornuta 2019 Table 23: terrestrial mining equipment, the physical asset class a lunar plant actually is, prints at roughly $20/kg, the lowest NAMED anchor on the dial's own rail, marking the corridor's other end from the $100,000/kg spacecraft-heritage figure.",
+   "hiSource": "Kornuta 2019, p. 106-107: $100,000/kg development cost, deliberately double the Mine Sizing figure for conservatism, on a 30,000 kg mining-hardware-only basis that excludes the power system; carried as an upper reference only, wrong denominator for this model's power-inclusive mass, PINNED as an author's deliberate doubling rather than an estimate.",
+   "rule": "NOT-CENTRABLE",
+   "disposition": "STANDS",
+   "reason": "Kornuta's own cost table carries terrestrial mining equipment at about $20/kg beside the $100,000/kg spacecraft-heritage figure it then assigns its own lunar plant, a factor of roughly 5,000: not a spread in measurement, a choice of which asset class to price the plant as. That corridor is the finding, not a nuisance range to collapse to a point; C_hw is a reader-dialled CONTROL for exactly this reason, ruled by Quinn 2026-09-08, not a fixed coefficient the model bakes in."
+  },
+  "claims": [
+   "industrial-plant-price"
+  ],
+  "status": "CONTROL (the coefficient class); SOURCED at the $80,000/kg default point; DERIVED at the $57,118/kg low reference; SOURCED-on-the-wrong-denominator and PINNED at the $100,000/kg high reference",
+  "source": "Step 58 install 2, Quinn's ruling of 2026-09-08. The plant is bought and then shipped: P_prop = r_prop * (C_hw + D) + op_prop, and P_const = r_const * (C_hw + D) + op_const, replacing the freight-only capital term that priced landed plant mass at the cost of shipping it and never at the cost of building it. The fallback value here, 0, is what any caller supplying no explicit C_hw receives, which reproduces the pre-Step-58 freight-only model exactly; the reader-facing default lives on the Value tab's own dial (state.chw), which opens at $80,000/kg, the SOURCED corridor anchor, not at this fallback. $80,000/kg is Charania, A. and DePasquale, D., 2007, IAC-07-A5.1.03, quoted in Shishko, R., Stoica, A. and Mrozinski, J., 2019 slide 2: equipment capital cost on a 20.94 t basis stated explicitly to include the power plant, the one of three candidate figures on the denominator this model's mass carries. It reaches this project at one citation remove (Shishko quoting Charania, not a first-hand read), carries no stated uncertainty band, and was itself a 2007 input assumption for a point design nobody built; that is this coefficient's own flag, stated in its own voice. $57,118/kg is Sowers 2019's own two development-and-production cost tables (Sections 4.8.3-4.8.4) divided by his own 26,200 kg power-inclusive mass basis, a division his primary never performs (DERIVED). $100,000/kg is Kornuta's own lunar-plant figure, carried only as an upper reference: SOURCED on Kornuta's own denominator, which excludes the power system and so is the wrong denominator for this model, and PINNED besides, being an author's deliberate doubling of another study's figure for conservatism rather than an estimate."
  },
  "f_op": {
   "value": 0.15,
@@ -1694,6 +1778,36 @@
  ],
  "status": "2030 contracted-but-unarchived forward price, UNVERIFIED-pending on the ispace-SpaceX and CLPS primaries; 2040 PROJECTED; 2055 PROJECTED/ASSUMPTION",
  "note": "Dollars per kg of delivery cost avoided. The era default is a hint the phase selector seeds; the dial stays freely explorable (LC2)."
+};
+  /* C_HW, Step 58 install 2, Quinn's ruling of 2026-09-08. Hardware cost enters as a reader-
+     dialled CONTROL rather than a fixed coefficient, because the corridor between two
+     candidate figures IS the finding, ruled by Quinn 2026-09-08: Kornuta's
+     own cost table carries terrestrial mining equipment at about $20/kg beside the
+     $100,000/kg spacecraft-heritage figure it then assigns its own lunar plant, a factor of
+     roughly 5,000. The rail spans that corridor and hits every anchor the source report
+     names exactly: $20 (Kornuta, terrestrial mining equipment, wrong asset class for
+     comparison, not for dialling), $57,118 (Sowers, DERIVED, low reference), $80,000
+     (Charania/DePasquale via Shishko, SOURCED default), $85,028 (Sowers, DERIVED, high
+     reference, the other of his two unreconciled mass bases), $100,000 (Kornuta, SOURCED on
+     its own denominator but the wrong one for this model, PINNED, upper reference only). */
+  var C_HW = {
+ "rail": [
+  20,
+  200,
+  2000,
+  10000,
+  30000,
+  57118,
+  80000,
+  85028,
+  100000
+ ],
+ "default": 80000,
+ "claims": [
+  "industrial-plant-price"
+ ],
+ "status": "SOURCED at the $80,000/kg default point; DERIVED at $57,118 and $85,028; SOURCED-on-the-wrong-denominator and PINNED at the $100,000 upper reference; the $20 terrestrial-mining-equipment figure names the corridor's other end and is not itself a candidate value for this model's own asset class",
+ "note": "Dollars per kg of landed plant mass, capital cost, independent of delivery cost D. Free dial; no era seeds it. VALUE.C_hw carries the same corridor in the machine-readable coefficient register; this rail is what the slider reads."
 };
 
   /* CLAIMS is the grouped source of truth, keyed by Claim slug, and each Claim is keyed by
@@ -2146,16 +2260,16 @@
  },
  "payback": {
   "product-payback-ranking": {
-   "source": "The launch-price crossover is the assumption-driven band D* = op_prop / (1 - r_prop), roughly $2,000 to $35,000/kg and state-dependent, riding on top of the robust and launch-price-independent mass-payback ranking; it is never a hard date. The model-native construction-over-propellant advantage on plant-mass payback is Cfull/cap, about one to two orders at the scenario ice grades: {rankThr:5}x at 5 wt% and {rankThr:1}x at 1 wt% in landed-mass-limited cells, and {rankPwr:5}x at 5 wt% and {rankPwr:1}x at 1 wt% in power-limited cells, each resolved from live coefficients at render. WHICH PAIR A READER MEETS AT THE PRESETS IS THE POWER PAIR AND ONLY THE POWER PAIR: {bindingRollCall} The throughput pair was typed as 17x and 85x until 2026-09-08, which is what its own closed form gives at a capture efficiency of 1.00, and the coefficient left 1.00 that day. The 17x and 85x figures are throughput-bound and contain no sinter energy term; only the 8.9x figure carries the app sinter-energy assumption, at unit elasticity ([[sintering-specific-energy]]-A3). Construction stays value-positive to the reusable-lander floor; at the 2055 presets propellant r_prop sits near or above 1, so its plant barely pays back or fails to pay back its own landed mass at any launch price.",
+   "source": "The launch-price crossover is the assumption-driven band D* = (op_prop + r_prop * C_hw) / (1 - r_prop), roughly $2,000 to $35,000/kg and state-dependent, riding on top of the robust and launch-price-independent mass-payback ranking; it is never a hard date. The model-native construction-over-propellant advantage on plant-mass payback is Cfull/cap, about one to two orders at the scenario ice grades: {rankThr:5}x at 5 wt% and {rankThr:1}x at 1 wt% in landed-mass-limited cells, and {rankPwr:5}x at 5 wt% and {rankPwr:1}x at 1 wt% in power-limited cells, each resolved from live coefficients at render. WHICH PAIR A READER MEETS AT THE PRESETS IS THE POWER PAIR AND ONLY THE POWER PAIR: {bindingRollCall} The throughput pair was typed as 17x and 85x until 2026-09-08, which is what its own closed form gives at a capture efficiency of 1.00, and the coefficient left 1.00 that day. The 17x and 85x figures are throughput-bound and contain no sinter energy term; only the 8.9x figure carries the app sinter-energy assumption, at unit elasticity ([[sintering-specific-energy]]-A3). Construction stays value-positive to the reusable-lander floor; at the 2055 presets propellant r_prop sits near or above 1, so its plant barely pays back or fails to pay back its own landed mass at any launch price.",
    "status": "UNVERIFIED-pending (synthesis; ranking robust, crossover soft)",
    "tier": "UNVERIFIED-pending (synthesis; ranking robust, crossover soft)",
    "counterCase": "A4 (the ranking does not use Shishko). The ranking is computed live from tonnages, so the [[break-even-sales-price]] Shishko correction does not touch the headline conclusion."
   },
   "propellant-operating-floor": {
-   "source": "op_prop, the propellant in-situ operating floor, is $5,000/kg central with a band $2,000 to $35,300/kg, the launch-price-independent operations slice (Earth-side mission control, teleoperation, deep-space comms), sourced to a roughly $20M to $50M per year ground-operations estimate over pilot-scale output; the upper bound near $35,300 is retained only as the financing-inflated propellant break-even sales-price ceiling and is explicitly not an operating cost. It scales inversely with production rate and is large only at pilot scale; no held primary states lunar propellant operations as a per-kg number. op_const is effectively zero: the construction operating floor in the model is about $0.83/kg at $1/kWh, being eSinter of 3 MJ/kg (about 0.83 kWh/kg) wall-plug times the price, and a delivered-basis figure is HALF the wall-plug figure at a magnetron efficiency of 0.5, so about $0.42/kg, riding on [[sintering-specific-energy]] and [[sintering-yield]].",
+   "source": "op_prop, the propellant in-situ operating floor, is, as of Step 58 install 1, op_prop = max(F / water_kg_per_yr, v): a fixed annual operations cost F (band $20M-$130M/yr, central $50M/yr) divided by the plant own live water rate, floored at v = $70/kg. It replaces a flat $5,000/kg constant frozen at whatever output rate produced it, though it is charged the same landed-hardware capital term C_hw as construction is, as of install 2 (P_prop = r_prop * (C_hw + D) + op_prop). Below a minimum-production threshold op_prop carries no finite figure rather than an astronomical one; the near-$35,300 figure is not part of this coefficient, it is the financing-inflated propellant break-even sales-price ceiling and is explicitly not an operating cost. No held primary states lunar propellant operations as a per-kg number. op_const, unlike op_prop, has not had this reform: it stays about $0.83/kg at $1/kWh, being eSinter of 3 MJ/kg (about 0.83 kWh/kg) wall-plug times the price, and a delivered-basis figure is HALF the wall-plug figure at a magnetron efficiency of 0.5, so about $0.42/kg, riding on [[sintering-specific-energy]] and [[sintering-yield]].",
    "status": "PROJECTED, UNVERIFIED-pending",
    "tier": "PROJECTED, UNVERIFIED-pending",
-   "counterCase": "A3 (it drives the soft crossover). op_prop scales inversely with production rate and is large only at pilot scale; it drives the soft crossover band D* ([[product-payback-ranking]]), which must never be promoted out of \"soft band.\""
+   "counterCase": "A3 (op_prop and C_hw together drive the soft crossover). op_prop still scales inversely with production rate and is large only at pilot scale, but since Step 58 install 2 the soft crossover band D* is (op_prop + r_prop * C_hw) / (1 - r_prop): a genuine hardware-cost term now shares the driving with op_prop, and a crossover exists even where op_prop alone would not produce one. Neither must ever be promoted out of \"soft band.\""
   }
  }
 };
@@ -2579,15 +2693,21 @@
     "industrial-plant-price"
    ]
   },
+  "op_prop": {
+   "expr": "op_prop = max(op_propF / (water * 1000), op_propV)",
+   "claims": [
+    "propellant-operating-floor"
+   ]
+  },
   "P": {
-   "expr": "P = r * D + op",
+   "expr": "P = r * (C_hw + D) + op",
    "claims": [
     "industrial-plant-price",
     "propellant-operating-floor"
    ]
   },
   "margin": {
-   "expr": "margin = D - P = D * (1 - r) - op",
+   "expr": "margin = D - P = D * (1 - r) - r * C_hw - op",
    "claims": [
     "industrial-plant-price",
     "propellant-operating-floor",
@@ -2607,10 +2727,11 @@
    ]
   },
   "Dstar": {
-   "expr": "D* = op_prop / (1 - r_prop)",
+   "expr": "D* = (op_prop + r_prop * C_hw) / (1 - r_prop)",
    "claims": [
     "product-payback-ranking",
-    "propellant-operating-floor"
+    "propellant-operating-floor",
+    "industrial-plant-price"
    ]
   }
  },
@@ -2923,9 +3044,10 @@
  },
  "honesty": {
   "lead": "The robust result is mass-payback and it does not depend on the launch price: construction out-produces propellant per tonne of standing plant by the model-native factor C_full / cap, about one to two orders at the scenario ice grades, driven by the mass and ice knobs. The launch-price crossover rides on top as a soft band. A positive propellant value here is delivery cost avoided, not a booked sale: the demand side is unproven, with zero signed water or propellant offtakes ([[offtake-record]]). That absence triggers [[signed-offtake-break]]. The ledger records the stated date as pending a held source; the app does not carry it.",
-  "crossBand": "Soft launch-price crossover: propellant margin turns negative below about D* = op_prop / (1 - r_prop). This band moves with the mass knob.",
-  "crossNone": "With the operating floor at zero there is no launch-price crossover: propellant carries a positive margin at every launch price, thinner than construction forever. That is the true capital-only behavior.",
+  "crossBand": "Soft launch-price crossover: propellant margin turns negative below about D* = (op_prop + r_prop * C_hw) / (1 - r_prop). This band moves with the mass knob and with the hardware-cost dial.",
+  "crossNone": "With no standing plant to amortise, r_prop is zero, so there is no launch-price crossover: propellant carries a positive margin at every launch price, thinner than construction forever. That is the true capital-only behavior. (Before Step 58 install 2 this branch also covered op_prop=0; it no longer does, because a nonzero hardware-cost dial creates a real crossover even where the operating floor is zero.)",
   "crossFail": "No launch-price crossover applies: the propellant plant does not pay back its own landed mass at this state, so its margin is negative at every launch price.",
+  "crossPreProduction": "This state is below the minimum-production threshold: water output is zero or near it. op_prop carries no finite figure here, rather than an astronomical dollar value approaching infinity as output falls toward zero, and no launch-price crossover is stated for a state that is not yet producing.",
   "grades": "The 2030 delivery price traces to a signed contract, though the delivery itself is still a forward event. op_prop is an estimate with no settled source figure. The $35,300/kg quoted on Shishko slide 2 from Charania and DePasquale 2007 is a modeled break-even sales price, not a production cost; its capital-versus-operating split has no settled figure. kExc is derived from two published plants own masses and rates, neither of which states the coefficient itself."
  }
 };
@@ -5245,7 +5367,7 @@
  "product-payback-ranking": {
   "was": "Construction Beats Propellant on Plant-Mass Payback by One to Two Orders of Magnitude",
   "claim": "payback",
-  "statement": "Under the value identity, construction stays value-positive across the entire delivery-cost trajectory while propellant's plant-mass payback is far weaker. The model-native construction-over-propellant advantage on plant-mass payback is Cfull/cap, about one to two orders at the scenario ice grades: {rankThr:5}x at 5 wt% ice and {rankThr:1}x at 1 wt% in landed-mass-limited cells, and {rankPwr:5}x at 5 wt% and {rankPwr:1}x at 1 wt% in power-limited cells, every one of the four resolved from live coefficients at render. The launch-price crossover is a separate, softer number. It is the assumption-driven band D* = op_prop / (1 - r_prop), roughly $2,000 to $35,000/kg and state-dependent, riding on top of the robust and launch-price-independent mass-payback ranking; it is never a hard date and never a single $35,300 point. At the 2055 presets, propellant's r_prop sits near or above 1, so its plant barely pays back or fails to pay back its own landed mass at any launch price, while construction stays positive to the reusable-lander floor. Two conditions travel with these three ratios, and neither is visible in the figures themselves. First, they are two closed forms rather than three points on one scatter. In throughput-bound cells, `Cfull/cap` reduces to `ySinter x rho / captureEff`, giving {rankThr:5}x at 5 wt% and {rankThr:1}x at 1 wt% with no sintering-energy term in the expression at all. In power-bound cells it reduces to `eEE / eSinKWhT`, giving {rankPwr:5}x at 5 wt% and {rankPwr:1}x at 1 wt%. `kExc` cancels out of the first form and does not appear in the second, so the coefficient the conservatism discussion turns on is absent from both expressions of this ratio. THE FIRST PAIR WAS TYPED AS 17x AND 85x UNTIL 2026-09-08 AND WENT STALE THE DAY captureEff LEFT 1.00, which is the only value of that coefficient at which the closed form gives 17 and 85; all four are resolved at render now. Second, the binding label the app displays beside these figures is computed from the water branch alone, the comparison of `Wpower` against `Wthr`, while `Rcap` feeds both branches. Re-swept on the shipped rails on 2026-09-08, the population being every ice, power and landed-mass detent triple at both power forms: 630 states, of which the app puts 60 on the mass side, and in 40 of those the construction figure printed beside the label belongs to the power branch. The 420 states and 35 disagreements this sentence carried before that sweep do not reproduce against `DETENTS` as shipped. Which pair a reader meets at the presets is settled and it is the power pair: {bindingRollCall}",
+  "statement": "Under the value identity, construction stays value-positive across the entire delivery-cost trajectory while propellant's plant-mass payback is far weaker. The model-native construction-over-propellant advantage on plant-mass payback is Cfull/cap, about one to two orders at the scenario ice grades: {rankThr:5}x at 5 wt% ice and {rankThr:1}x at 1 wt% in landed-mass-limited cells, and {rankPwr:5}x at 5 wt% and {rankPwr:1}x at 1 wt% in power-limited cells, every one of the four resolved from live coefficients at render. The launch-price crossover is a separate, softer number. It is the assumption-driven band D* = (op_prop + r_prop * C_hw) / (1 - r_prop), roughly $2,000 to $35,000/kg and state-dependent, riding on top of the robust and launch-price-independent mass-payback ranking; it is never a hard date and never a single $35,300 point. At the 2055 presets, propellant's r_prop sits near or above 1, so its plant barely pays back or fails to pay back its own landed mass at any launch price, while construction stays positive to the reusable-lander floor. Two conditions travel with these three ratios, and neither is visible in the figures themselves. First, they are two closed forms rather than three points on one scatter. In throughput-bound cells, `Cfull/cap` reduces to `ySinter x rho / captureEff`, giving {rankThr:5}x at 5 wt% and {rankThr:1}x at 1 wt% with no sintering-energy term in the expression at all. In power-bound cells it reduces to `eEE / eSinKWhT`, giving {rankPwr:5}x at 5 wt% and {rankPwr:1}x at 1 wt%. `kExc` cancels out of the first form and does not appear in the second, so the coefficient the conservatism discussion turns on is absent from both expressions of this ratio. THE FIRST PAIR WAS TYPED AS 17x AND 85x UNTIL 2026-09-08 AND WENT STALE THE DAY captureEff LEFT 1.00, which is the only value of that coefficient at which the closed form gives 17 and 85; all four are resolved at render now. Second, the binding label the app displays beside these figures is computed from the water branch alone, the comparison of `Wpower` against `Wthr`, while `Rcap` feeds both branches. Re-swept on the shipped rails on 2026-09-08, the population being every ice, power and landed-mass detent triple at both power forms: 630 states, of which the app puts 60 on the mass side, and in 40 of those the construction figure printed beside the label belongs to the power branch. The 420 states and 35 disagreements this sentence carried before that sweep do not reproduce against `DETENTS` as shipped. Which pair a reader meets at the presets is settled and it is the power pair: {bindingRollCall}",
   "evidence": [
    {
     "n": "1",
@@ -5253,7 +5375,7 @@
    },
    {
     "n": "2",
-    "text": "Construction production cost stays far below propellant across the trajectory ([[amortized-plant-identity]], from X about 1 to 2 kg and low energy); the crossover band D* = op_prop / (1 - r_prop) rides on the projected op_prop ([[propellant-operating-floor]]), so it is a soft band, not a date."
+    "text": "Construction production cost stays far below propellant across the trajectory ([[amortized-plant-identity]], from X about 1 to 2 kg and low energy); the crossover band D* = (op_prop + r_prop * C_hw) / (1 - r_prop) rides on the projected op_prop ([[propellant-operating-floor]]), so it is a soft band, not a date."
    },
    {
     "n": "3",
@@ -5295,51 +5417,51 @@
   "tags": ""
  },
  "propellant-operating-floor": {
-  "was": "The Propellant Operating Floor ($5,000/kg) Is a Projected, Order-of-Magnitude Estimate",
+  "was": "The Propellant Operating Floor Is a Fixed Annual Cost Over Live Output, Floored, Not a Flat $5,000/kg Constant",
   "claim": "payback",
-  "statement": "The propellant in-situ operating floor op_prop is $5,000/kg central, with a band from $2,000 to tens of thousands per kg: the launch-price-independent operations slice covering Earth-side mission control, teleoperation, and deep-space communications. It traces to a roughly $20M to $50M per year ground-operations-over-output estimate at pilot scale, which yields about $2,000 to tens of thousands per kg at low production rate; it scales inversely with production rate and runs large only at pilot scale. No held primary states lunar propellant operations as a per-kg number; this is an order-of-magnitude estimate from experience, not a citation. The band is not bounded above by the [[break-even-sales-price]] figure. The near-$35,300 ceiling that appears in the coefficient is retained only as the financing-inflated propellant break-even sales-price ceiling ([[break-even-sales-price]]), and it is explicitly not an operating cost.",
+  "statement": "The propellant in-situ operating floor op_prop is, as of Step 58, op_prop = max(F / water_kg_per_yr, v): a fixed annual operations cost F, band $20M to $130M/yr, central working value $50M/yr, divided by the plant's own live water rate, floored at v = $70/kg so the term does not fall toward zero at high output. It replaces a flat $5,000/kg constant that was frozen at whatever output rate produced it and carried unchanged to every other output rate, even though its own source string already called itself a fixed annual cost over pilot-scale output. Below a minimum-production threshold op_prop carries no finite figure, rather than a finite figure approaching an astronomical dollar value as output falls toward zero; the app marks that state pre-production instead. No held primary states lunar propellant operations as a per-kg number; F and v are each read off design-study totals divided by design-study output, a division neither primary performs. The near-$35,300 figure is not part of this coefficient at all: it is the [[break-even-sales-price]] financed sales price, a different quantity, and was never an operating cost.",
   "evidence": [
    {
     "n": "1",
-    "text": "Central value and band: op_prop = $5,000/kg, band $2,000 to tens-of-thousands, sourced to a roughly $20M to $50M per year ground-operations estimate over pilot-scale output, an order-of-magnitude estimate from experience and explicitly not a citation. No per-kg operations primary exists on disk."
+    "text": "F, the fixed annual cost: $20M/yr (Kornuta, one design point) to $127.7M/yr (Sowers, his highest-output scenario), central working value $50M/yr. Sowers' $78.6M-$127.7M/yr and Kornuta's $20M/yr are both totals that bundle ground-staff time with hardware-linked cost; no primary isolates a pure calendar-only operations figure."
    },
    {
     "n": "2",
-    "text": "The near-$35,300 upper number in the coefficient band is the [[break-even-sales-price]] break-even sales-price ceiling, financing-inflated and not an operating cost; it is retained as a ceiling marker only and inherits the [[break-even-sales-price]] problem, so it must not be read as an operating floor."
+    "text": "v, the floor: $70/kg, rounded from Sowers' own three demand scenarios divided by their own output ($68-$72/kg), the more conservative of two DERIVED quotients of identical evidentiary weight against Kornuta's six-times-lower $8/kg. Neither figure is measured on flying hardware at production scale."
    },
    {
     "n": "3",
-    "text": "Construction operating floor op_const, by contrast, is effectively zero, about $0.83/kg energy at $1/kWh, being the app's own eSinter of 3 MJ/kg (about 0.83 kWh/kg) wall-plug times the price ([[sintering-specific-energy]] Part 2); a delivered-basis figure is half of that at the magnetron efficiency of 0.5, so about $0.42/kg, and the delivered floor of 0.3264 kWh/kg is this project's own conversion from the per-area figures Metzger and Autry 2023 report rather than a per-mass figure they print ([[sintering-specific-energy]] Part 1); a wall-plug energy term plus a negligible ops slice."
+    "text": "Construction operating floor op_const, by contrast, has not had this reform: it stays a flat $0.83/kg wall-plug figure, about $0.83/kg at $1/kWh, being the app's own eSinter of 3 MJ/kg ([[sintering-specific-energy]] Part 2); a delivered-basis figure is half of that at the magnetron efficiency of 0.5, so about $0.42/kg. It is charged the same landed-hardware capital term C_hw as op_prop is (P_const = r_const * (C_hw + D) + op_const), which is not the same as reforming its own operating term."
    }
   ],
   "argument": [
    {
     "id": "A1",
-    "head": "projected, not read from a primary",
+    "head": "a form correction, not a re-sourcing",
     "role": "support",
-    "text": "The central $5,000/kg and its $20M to $50M per year underlying band are an order-of-magnitude ground-operations estimate, not a figure read from a per-kg primary."
+    "text": "The flat $5,000/kg central value and its $2,000-$35,300 band were an order-of-magnitude ground-operations estimate frozen at one output rate; F and v are the same class of estimate, DERIVED and ASSUMPTION respectively, now read against the plant's own live output rather than pinned to one."
    },
    {
     "id": "A2",
-    "head": "the band is not bounded by the [[break-even-sales-price]] figure",
+    "head": "the near-$35,300 ceiling was never part of this coefficient",
     "role": "support",
-    "text": "The band is sourced to ground-ops-over-output, not bounded above by the [[break-even-sales-price]] figure; the $35,300 ceiling is a financed sales price ([[break-even-sales-price]]), not an operating cost, and must not be laundered into the operating floor."
+    "text": "The retired band's upper end was the [[break-even-sales-price]] financed sales price, not an operating cost; it is not carried into F or v at all, so the confusion the retired band invited is structurally gone rather than merely re-labelled."
    },
    {
     "id": "A3",
-    "head": "it drives the soft crossover",
+    "head": "op_prop and C_hw together drive the soft crossover",
     "role": "counter",
-    "text": "op_prop scales inversely with production rate and is large only at pilot scale; it drives the soft crossover band D* ([[product-payback-ranking]]), which must never be promoted out of \"soft band.\""
+    "text": "op_prop still scales inversely with production rate and is large only at pilot scale, but since Step 58 install 2 the soft crossover band D* is (op_prop + r_prop * C_hw) / (1 - r_prop): a genuine hardware-cost term now shares the driving with op_prop, and a crossover exists even where op_prop alone would not produce one. Neither must ever be promoted out of \"soft band.\""
    }
   ],
   "extras": [
    {
     "label": "What is still needed",
-    "text": "A held per-kg lunar-propellant ground-operations primary, or an archived $/yr ground-ops figure paired with an output rate, so the $5,000/kg central value can be sourced rather than estimated.",
+    "text": "A held per-kg lunar-propellant ground-operations primary, or an archived $/yr ground-ops figure paired with an output rate that does not require dividing a design-study total by a design-study output, so F and v can be sourced rather than derived and assumed. A genuine variable-per-kg consumables term also remains unpriced: Kornuta names 800 kg/yr of replacement parts with no dollar figure attached, and none is carried here.",
     "role": "open"
    }
   ],
-  "links": "[[product-payback-ranking]] to [[net-value-identity]], [[ladder-range-and-floor]], [[offtake-record]], [[polar-cold-trap-water]], [[industrial-plant-price]], [[shared-flight-price]], [[amortized-plant-identity]], [[break-even-sales-price]] (why the crossover is not a $35,300 point), and [[propellant-operating-floor]] (op_prop, the band's driver); [[propellant-operating-floor]] to [[amortized-plant-identity]] (the operating term in the production-cost identity), [[break-even-sales-price]] (why the $35,300 ceiling is not an operating cost), [[product-payback-ranking]] (op_prop drives the crossover band), and [[sintering-specific-energy]]/[[sintering-yield]] (op_const).",
+  "links": "[[product-payback-ranking]] to [[net-value-identity]], [[ladder-range-and-floor]], [[offtake-record]], [[polar-cold-trap-water]], [[industrial-plant-price]], [[shared-flight-price]], [[amortized-plant-identity]], [[break-even-sales-price]] (why the crossover is not a $35,300 point), and [[propellant-operating-floor]] (op_prop, the band's driver); [[propellant-operating-floor]] to [[amortized-plant-identity]] (the operating term in the production-cost identity), [[break-even-sales-price]] (why the $35,300 ceiling is not an operating cost), [[product-payback-ranking]] (op_prop and C_hw drive the crossover band), and [[sintering-specific-energy]]/[[sintering-yield]] (op_const).",
   "tags": "cost-comparison, propellant, sintering. ---"
  }
 };
@@ -6971,6 +7093,7 @@
     VALUE: VALUE,
     VALUE_TRACE: VALUE_TRACE,
     LANDED_COST: LANDED_COST,
+    C_HW: C_HW,
     SLUGS: SLUGS,
     CLAIMS: CLAIMS,
     SECTIONS: SECTIONS,
@@ -7252,7 +7375,7 @@
        is, which rail moves it, and the exclusion that is actually true; HERO-01 walks one rail at
        a time and sweeps the 441-state grid DETENTS gives the two splits.
        The value below is EXT3's own recompute against the patched file. */
-    __pin: "e93e5ecc"
+    __pin: "c13dd7f3"
   };
 
   root.KNOB_DATA = KNOB_DATA;
@@ -7473,7 +7596,11 @@ const DETENTS = {
      clamps the sum instead, so the slider reaches every notch and the model tells the truth
      about what it did with the value. */
   phi_o: [0,0.05,0.10,0.15,0.20,0.25,0.30,0.35,0.40,0.45,0.50,0.55,0.60,0.65,0.70,0.75,0.80,0.85,0.90,0.95,1.0],
-  landed_cost: KNOB_DATA.LANDED_COST.rail
+  landed_cost: KNOB_DATA.LANDED_COST.rail,
+  /* Step 58 install 2: the hardware-cost CONTROL's rail, KNOB_DATA.C_HW.rail, spanning the
+     $20-$100,000/kg corridor and hitting every named anchor exactly. Free dial, like
+     landed_cost; no preset and no era touches it. */
+  chw: KNOB_DATA.C_HW.rail
 };
 function nearestIdx(arr,v){ let bi=0,bd=Infinity; for(let i=0;i<arr.length;i++){const d=Math.abs(arr[i]-v); if(d<bd){bd=d;bi=i;}} return bi; }
 function snapVal(key,v){ return DETENTS[key][nearestIdx(DETENTS[key],v)]; }
@@ -10572,9 +10699,18 @@ function valueModel(inp){
                     fSolOvr:inp.fSolOvr, fFisOvr:inp.fFisOvr,
                     transDistKm:inp.transDistKm, phi_c0:inp.phi_c0});
   const L        = (inp.L        != null) ? inp.L        : VALUE.L.value;
-  const op_prop  = (inp.op_prop  != null) ? inp.op_prop  : VALUE.op_prop.value;
   const op_const = (inp.op_const != null) ? inp.op_const : VALUE.op_const.value;
   const D        = inp.landed_cost;
+  /* Step 58 install 2, Quinn's ruling of 2026-09-08: hardware cost enters as a reader-dialled
+     CONTROL, C_hw, dollars per kg of landed plant mass, independent of D. The fallback here is
+     0, not the ruled $80,000/kg default: 0 is what ANY caller supplying no explicit C_hw
+     receives, which reproduces the pre-Step-58 freight-only model bit-for-bit (P = r*D + op),
+     so every test in this suite written before this step, none of which passes C_hw, keeps its
+     literal anchors unchanged. The reader-facing $80,000/kg default lives on the Value tab's
+     own dial (state.chw's initial detent) and is threaded into valueModel() explicitly at the
+     render call site, the same architecture landed_cost already uses (D carries no fallback at
+     all; the knob is the only source). See VALUE.C_hw's own source string for the corridor. */
+  const C_hw     = (inp.C_hw     != null) ? inp.C_hw     : VALUE.C_hw.value;
 
   const cap = m.cap, Cfull = m.Cfull, mass = m.mass;
   const water_tpy = m.water, construction_tpy = m.construction;
@@ -10599,21 +10735,59 @@ function valueModel(inp){
   const r_prop  = (cap   > 0) ? mass * annualFrac / cap   : Infinity;
   const r_const = (Cfull > 0) ? mass * annualFrac / Cfull : Infinity;
 
-  // per-kg production cost and margin. margin = D*(1-r) - op.
-  const P_prop  = r_prop  * D + op_prop;
-  const P_const = r_const * D + op_const;
-  const margin_prop  = D - P_prop;
+  /* op_prop, Step 58 install 1, ruled 2026-09-08: a fixed annual operations cost F divided by the live
+     water rate, floored at a minimum per-kilogram figure v so the term does not fall toward
+     zero at high output, and UNDEFINED -- not a finite figure approaching an astronomical
+     dollar value -- below a minimum-production threshold, rather than the flat $5,000/kg
+     constant this coefficient carried before this step, frozen at whatever output rate
+     produced it and then carried unchanged to every other output rate. The old constant's own
+     source string already called itself a fixed annual cost over pilot-scale output; this is a
+     form correction to what that string always said the coefficient was, not a re-sourcing.
+     inp.op_prop, when supplied, is taken literally and bypasses the reform entirely: every
+     test in this suite written before this step pins op_prop to a literal number and is
+     exercising that override path on purpose, and every one of them reproduces unchanged. */
+  const op_propF = (inp.op_propF != null) ? inp.op_propF : VALUE.op_propF.value;
+  const op_propV = (inp.op_propV != null) ? inp.op_propV : VALUE.op_propV.value;
+  const waterMinTpy = VALUE.waterMinTpy.value;
+  const preProduction = !(water_tpy >= waterMinTpy);
+  const op_prop = (inp.op_prop != null) ? inp.op_prop
+                : preProduction ? null
+                : Math.max(op_propF / (water_tpy * 1000), op_propV);
+
+  // per-kg production cost and margin. Step 58 install 2: the plant is bought and then
+  // shipped, so the capital term is r*(C_hw+D), not r*D; margin = D*(1-r) - r*C_hw - op.
+  // C_hw defaults to 0 (see above), so this reduces to the pre-Step-58 form bit-for-bit
+  // wherever a caller does not dial it.
+  const P_prop  = (op_prop != null) ? r_prop  * (C_hw + D) + op_prop : null;
+  const P_const = r_const * (C_hw + D) + op_const;
+  const margin_prop  = (P_prop != null) ? D - P_prop : null;
   const margin_const = D - P_const;
 
-  // total value $/yr = live tonnage * 1000 * margin/kg. Zero output -> zero value
-  // (keeps the result finite even where the plant makes nothing).
-  const value_prop  = (water_tpy        > 0) ? water_tpy        * 1000 * margin_prop  : 0;
+  // total value $/yr = live tonnage * 1000 * margin/kg. Zero output, or a margin the
+  // pre-production branch above left undefined -> zero value (keeps the result finite
+  // even where the plant makes nothing or makes too little to price).
+  const value_prop  = (water_tpy        > 0 && margin_prop != null) ? water_tpy        * 1000 * margin_prop  : 0;
   const value_const = (construction_tpy > 0) ? construction_tpy * 1000 * margin_const : 0;
 
-  // soft launch-price crossover for propellant: exists only when op_prop>0 and
-  // r_prop<1. Zero op_prop -> no crossover (capital-only, positive multiple of D).
-  const Dstar_prop = (op_prop > 0 && r_prop < 1 && Number.isFinite(r_prop))
-                     ? op_prop / (1 - r_prop) : 0;
+  // soft launch-price crossover for propellant, D*. Step 58 install 2 folded C_hw into the
+  // capital term, so a crossover now exists whenever the plant pays back at all (r_prop<1)
+  // and carries ANY charge, operating or capital; op_prop=0 alone no longer means "no
+  // crossover" the way it did before C_hw existed; the narrower true no-crossover case is
+  // r_prop<=0, no standing plant, no capital charge of any kind. Undefined (0) in the
+  // pre-production branch, the same sentinel the zero-op_prop case already used.
+  const Dstar_prop = (op_prop != null && r_prop > 0 && r_prop < 1 && Number.isFinite(r_prop))
+                     ? (op_prop + r_prop * C_hw) / (1 - r_prop) : 0;
+
+  /* Chw_breakeven, Step 58 install 2, Quinn's ruling of 2026-09-08: the hardware cost at
+     which margin_prop crosses zero, given the LIVE D and r_prop for the state the reader is
+     standing in -- solved from the same identity Dstar_prop solves in the other direction.
+     margin_prop = D*(1-r_prop) - r_prop*C_hw - op_prop = 0  =>  C_hw* = (D-op_prop)/r_prop - D.
+     NEVER PRINTED AS A NUMERAL. It exists only to place paintBreakevenMark() on the C_hw rail;
+     see that function for the negative-value suppression this ruling also specifies. null
+     wherever no finite answer exists to mark: pre-production (op_prop undefined) or r_prop<=0
+     (no capital charge binds at this state, so no hardware price can fail it either). */
+  const Chw_breakeven = (op_prop != null && Number.isFinite(r_prop) && r_prop > 0)
+                       ? (D - op_prop) / r_prop - D : null;
 
   // ranking factor: construction-over-propellant plant-mass-payback advantage,
   // launch-price-independent and equal to the output-per-plant advantage.
@@ -10624,7 +10798,7 @@ function valueModel(inp){
   const massBinds = (m.binding === 'landed mass' || m.binding === 'power-system mass');
 
   return {
-    D, L, op_prop, op_const,
+    D, L, op_prop, op_const, C_hw, preProduction, Chw_breakeven, waterMinTpy,
     cap, Cfull, mass, water_tpy, construction_tpy, binding:m.binding, feasible:m.feasible,
     /* THE PROPELLANT STREAM IS CHARGED phi_c's RESIDUAL, not both fractions'.
        Under Step 56 sub-step 4-B2 the oxygen line pays for what it draws out of the two shared
@@ -11399,7 +11573,7 @@ function runValueTests(fileText){
     /* The nine keys the evidence migration added are declared here rather than discovered.
        EXT2 fails on an undeclared key by design, and it did, which is the gate working: the
        migration could not land quietly. */
-    const required = ['CONFIG','VALUE','VALUE_TRACE','LANDED_COST','SLUGS','CLAIMS','SECTIONS','BLURB_PENDING','BLURB','DERIVATION','FFIS_LANDMARKS',
+    const required = ['CONFIG','VALUE','VALUE_TRACE','LANDED_COST','C_HW','SLUGS','CLAIMS','SECTIONS','BLURB_PENDING','BLURB','DERIVATION','FFIS_LANDMARKS',
                       'LEDGER','LEDGER_JOIN','COUNTER_JOIN','REFERENCES','SECTION_REFS','HANDLES','HANDLES_ADJUDICATED','HANDLES_UNRESOLVED','EXCLUSIONS','PRESETS','BINDING_SCOPE','__pin'];
     for(const k of required){ if(KD[k]==null){ pass=false; why.push('missing top-level key '+k); } }
     for(const k of topKeys){ if(required.indexOf(k)<0){ pass=false; why.push('undeclared top-level key '+k+', which nothing checks'); } }
@@ -13031,16 +13205,33 @@ function composeDerivation(state, m, v){
     {text:'alloy = rMetal * oxygen = '+_dnum(CONFIG.rMetal.value)+' * '+_dnum(m.oxygen)+' = '+_dnum(LV('alloy',m.alloy,'model'))+' t/yr'},
     {text:'R_metals = oxygen / yO2 = '+_dnum(m.oxygen)+' / '+_dnum(CONFIG.yO2.value)+' = '+_dnum(LV('regolithMetals',m.regolithMetals,'model'))+' t regolith/yr'}
   ];
+  /* r_prop depends on mass/cap/L, never on water, so it is well-defined (or Infinity, its own
+     pre-existing degenerate case, at cap=0) whether or not this state is pre-production; it is
+     printed unconditionally, the one existing gate-population invariant (DR1) this branch must
+     not silently drop. op_prop, P_prop, margin_prop and value_prop are the quantities the
+     F/water singularity actually reaches, and only those four branch on preProduction.
+     margin_prop and value_prop are still recorded via LV() in the pre-production branch (null
+     and 0 respectively) so DR1's chain-coverage population, which is not preProduction-aware
+     and should not need to be, still finds both refs at every state it walks. */
   const propSteps = [
-    {text:'r_prop = mass * (1 - (1 - decayRate)^decayLife) / (decayLife * cap) = '+_dnum(m.mass)+' * (1 - (1 - '+_dn(VALUE.decayRate.value,2)+')^'+_dn(VALUE.decayLife.value,0)+') / ('+_dn(VALUE.decayLife.value,0)+' * '+_dnum(m.cap)+') = '+_d6(LV('r_prop',v.r_prop,'value'))},
-    {text:'P_prop = r_prop * D + op_prop = '+_d6(v.r_prop)+' * '+_dusd(D)+' + '+_dusd(op_prop)+' = '+_dusd(LV('P_prop',v.P_prop,'value'))+'/kg'},
-    {text:'margin_prop = D - P_prop = D * (1 - r_prop) - op_prop = '+_dusd(LV('margin_prop',v.margin_prop,'value'))+'/kg'},
-    {text:'value_prop = water * 1000 * margin_prop = '+_dnum(m.water)+' * 1000 * '+_dusd(v.margin_prop)+' = '+_dusd(LV('value_prop',v.value_prop,'value'))+'/yr'}
+    {text:'r_prop = mass * (1 - (1 - decayRate)^decayLife) / (decayLife * cap) = '+_dnum(m.mass)+' * (1 - (1 - '+_dn(VALUE.decayRate.value,2)+')^'+_dn(VALUE.decayLife.value,0)+') / ('+_dn(VALUE.decayLife.value,0)+' * '+_dnum(m.cap)+') = '+_d6(LV('r_prop',v.r_prop,'value'))}
   ];
+  if(v.preProduction){
+    LV('margin_prop', v.margin_prop, 'value');
+    LV('value_prop', v.value_prop, 'value');
+    propSteps.push({text:'Pre-production at this state: water = '+_dnum(m.water)+' t/yr, below the '+_dnum(v.waterMinTpy)+' t/yr minimum-production threshold ([[propellant-operating-floor]]). op_prop and P_prop are not computed as finite figures through the F/water singularity here, so margin_prop carries no finite figure either; value_prop is reported as zero rather than a non-finite margin at zero-or-near-zero output.'});
+  } else {
+    propSteps.push(
+      {text:'op_prop = max(op_propF / (water * 1000), op_propV) = max('+_dusd(VALUE.op_propF.value)+' / ('+_dnum(m.water)+' * 1000), '+_dusd(VALUE.op_propV.value)+') = '+_dusd(LV('op_prop',op_prop,'value'))+'/kg'},
+      {text:'P_prop = r_prop * (C_hw + D) + op_prop = '+_d6(v.r_prop)+' * ('+_dusd(v.C_hw)+' + '+_dusd(D)+') + '+_dusd(op_prop)+' = '+_dusd(LV('P_prop',v.P_prop,'value'))+'/kg'},
+      {text:'margin_prop = D - P_prop = D * (1 - r_prop) - r_prop * C_hw - op_prop = '+_dusd(LV('margin_prop',v.margin_prop,'value'))+'/kg'},
+      {text:'value_prop = water * 1000 * margin_prop = '+_dnum(m.water)+' * 1000 * '+_dusd(v.margin_prop)+' = '+_dusd(LV('value_prop',v.value_prop,'value'))+'/yr'}
+    );
+  }
   const constValSteps = [
     {text:'r_const = mass * (1 - (1 - decayRate)^decayLife) / (decayLife * C_full) = '+_dnum(m.mass)+' * (1 - (1 - '+_dn(VALUE.decayRate.value,2)+')^'+_dn(VALUE.decayLife.value,0)+') / ('+_dn(VALUE.decayLife.value,0)+' * '+_dnum(m.Cfull)+') = '+_d6(LV('r_const',v.r_const,'value'))},
-    {text:'P_const = r_const * D + op_const = '+_d6(v.r_const)+' * '+_dusd(D)+' + '+_dusd(op_const)+' = '+_dusd(LV('P_const',v.P_const,'value'))+'/kg'},
-    {text:'margin_const = D - P_const = D * (1 - r_const) - op_const = '+_dusd(LV('margin_const',v.margin_const,'value'))+'/kg'},
+    {text:'P_const = r_const * (C_hw + D) + op_const = '+_d6(v.r_const)+' * ('+_dusd(v.C_hw)+' + '+_dusd(D)+') + '+_dusd(op_const)+' = '+_dusd(LV('P_const',v.P_const,'value'))+'/kg'},
+    {text:'margin_const = D - P_const = D * (1 - r_const) - r_const * C_hw - op_const = '+_dusd(LV('margin_const',v.margin_const,'value'))+'/kg'},
     {text:'value_const = construction * 1000 * margin_const = '+_dnum(m.construction)+' * 1000 * '+_dusd(v.margin_const)+' = '+_dusd(LV('value_const',v.value_const,'value'))+'/yr'}
   ];
 
@@ -13050,8 +13241,14 @@ function composeDerivation(state, m, v){
     ? 'ranking = C_full / cap = r_prop / r_const = '+_dnum(LV('ranking',v.ranking,'value'))+'x: construction out-produces propellant per tonne of standing plant.'
     : 'ranking = C_full / cap: no output at this state (cap = 0), so the ratio is not defined here.'});
   let crossKey, crossText;
-  if(!isFinite(v.r_prop) || v.r_prop >= 1){ crossKey='RPROP-FAILS'; crossText=DERIVATION.honesty.crossFail; }
-  else if(op_prop <= 0){ crossKey='CROSS-NONE'; crossText=DERIVATION.honesty.crossNone; }
+  /* Step 58 install 2: a crossover now exists whenever the plant carries ANY charge, operating
+     or capital, so op_prop<=0 alone no longer means "no crossover" now that C_hw can be nonzero.
+     The true no-crossover case is r_prop<=0, no standing plant, no capital charge of any kind.
+     preProduction (water below the minimum-production threshold, op_prop undefined) is checked
+     first: it is a different degenerate state from RPROP-FAILS and gets its own honesty text. */
+  if(v.preProduction){ crossKey='PRE-PRODUCTION'; crossText=DERIVATION.honesty.crossPreProduction; }
+  else if(!isFinite(v.r_prop) || v.r_prop >= 1){ crossKey='RPROP-FAILS'; crossText=DERIVATION.honesty.crossFail; }
+  else if(v.r_prop <= 0){ crossKey='CROSS-NONE'; crossText=DERIVATION.honesty.crossNone; }
   else { crossKey='CROSS-BAND'; crossText=DERIVATION.honesty.crossBand+' Here D* = '+_dusd(LV('Dstar_prop',v.Dstar_prop,'value'))+'/kg.'; }
   rankSteps.push({text:crossText});
   /* THE MASS LEDGER SENTENCE, Step 58. It states the quantity in the units an engineer checks,
@@ -16170,19 +16367,32 @@ function runAbstractTests(){
     // Two properties replace the table and neither spells a rung word. First, the class a
     // status paints must be decided by the word it OPENS on and by nothing after it, which is
     // stated as an equality between the whole status and its own first word rather than against
-    // a list. Second, the fall-through arm is PROBED rather than assumed, and a rung word that
-    // lands on it must be the word the legend says that chip is for; any other word landing
-    // there is a rung with no class of its own, wearing another rung's colour.
+    // a list. Second, the fall-through arm is PROBED rather than assumed.
+    //
+    // STEP 58, 2026-09-08: THE FALL-THROUGH ARM NO LONGER PAINTS A CHIP AT ALL. Quinn's
+    // ruling retired the silent default: a rung word with no arm now throws rather than
+    // landing on the assumption chip wearing another rung's colour, so this row's own
+    // fall-through probe is rewritten to require a throw instead of a chip, and every
+    // per-entry badge() call below is wrapped the same way. A row that kept expecting a chip
+    // from the retired contract would either crash on the first real call or, worse, pass
+    // vacuously by never reaching the code that now throws; neither is acceptable, so the
+    // probe and the per-entry loop are both rewritten against the new contract rather than
+    // left to rot against the old one. BADGE-01, immediately below, is the seeded proof that
+    // badge() actually refuses VERIFIED-family text; this row stays scoped to CONFIG's own
+    // live population and to the anchoring/legend properties it always carried.
     (function(){
-      const NAME = 'every status is badged by the rung word it OPENS on and by nothing after it, no rung word the app actually uses falls through to a chip the legend gives to a different word, and the legend carries an entry for every class a status paints (DECOY: two statuses whose whole content is a denial of sourcing are confirmed to be refused the sourced chip)';
+      const NAME = 'every status is badged by the rung word it OPENS on and by nothing after it, badge() REFUSES a rung word with no arm rather than falling through to a chip that wears another rung’s colour, and the legend carries an entry for every class a status paints (DECOY: two statuses whose whole content is a denial of sourcing are confirmed to be refused the sourced chip)';
       const cls = function(s){ const mm = /class="srcbadge ([a-z]+)"/.exec(badge(s)); return mm ? mm[1] : null; };
       const rungOf = function(s){ const m = /^([A-Z][A-Z]+)\b/.exec(String(s||'').trim()); return m ? m[1] : null; };
       const why = []; let checked = 0;
-      /* THE FALL-THROUGH IS PROBED, NOT ASSUMED. badge() ends in a default arm, and a rung word
-         with no arm of its own lands there wearing some other word's colour. The probe is a
-         token no arm can match by construction, so whatever class comes back IS the default. */
-      const fall = cls('ZZUNCLAIMEDRUNG (a probe by OX-14, matching no matcher arm by construction)');
-      if (!fall) why.push('EMPTY POPULATION: badge() returned no class for the fall-through probe, so this row cannot tell a defaulted chip from a matched one');
+      /* THE FALL-THROUGH IS PROBED, NOT ASSUMED, AND IT IS NOW A REFUSAL RATHER THAN A CHIP.
+         The probe is a token no arm can match by construction; badge() must throw, naming the
+         reason, rather than return a chip of any colour for it. */
+      let fallThrew = false, fallMsg = '';
+      try { cls('ZZUNCLAIMEDRUNG (a probe by OX-14, matching no matcher arm by construction)'); }
+      catch(e){ fallThrew = true; fallMsg = String((e && e.message) || e); }
+      if (!fallThrew) why.push('badge() returned a chip for a rung word with no arm of its own, rather than refusing it; the fall-through this row probes is supposed to be a red condition since Step 58, not a default chip');
+      else if (!/rung word/i.test(fallMsg)) why.push('badge() refused the fall-through probe, but not for the declared reason: '+fallMsg);
       /* THE LEGEND IS READ AS THE LEGEND AND NOT AS THE WHOLE REFERENCE BODY. The first cut of
          this clause grepped buildRefBody() entire, and the coefficient table beneath the legend
          renders a chip for every status, so a legend with its DERIVED entry deleted still
@@ -16197,15 +16407,18 @@ function runAbstractTests(){
       Object.keys(CONFIG).forEach(function(k){
         const t = String(CONFIG[k].status||'').trim();
         if (!t){ why.push(k+' carries no status at all, so nothing can be badged from it'); return; }
-        const w = rungOf(t), got = cls(t);
+        const w = rungOf(t);
+        let got = null, threw = false;
+        try { got = cls(t); } catch(e){ threw = true; }
         checked++;
+        if (threw){ why.push(k+': badge() refused this live CONFIG status, which should always open on a rung word the legend defines: "'+t+'"'); return; }
         if (got) painted[got] = 1;
         if (!w){ why.push(k+': the status opens on no rung word, so what it is badged as cannot follow from one: "'+t+'"'); return; }
         /* the anchoring property, with no vocabulary in it: the tail may not decide the chip */
-        if (got !== cls(w)) why.push(k+': the badge class depends on text AFTER the rung word, since the whole status paints "'+got+'" while its own opening word "'+w+'" alone paints "'+cls(w)+'"');
-        /* the class property: a word on the default arm must be the word that arm belongs to */
-        if (fall && got === fall && legendWord[fall] && w !== legendWord[fall])
-          why.push(k+': the status opens on "'+w+'", badge() carries no arm for it, and it falls through to the "'+got+'" chip, which the legend gives to "'+legendWord[fall]+'", so a reader meets '+w+' painted as '+legendWord[fall]);
+        let gotW = null, threwW = false;
+        try { gotW = cls(w); } catch(e){ threwW = true; }
+        if (threwW) why.push(k+': the bare rung word "'+w+'" that this status opens on is itself refused by badge(), which cannot be right for a status the app actually ships');
+        else if (got !== gotW) why.push(k+': the badge class depends on text AFTER the rung word, since the whole status paints "'+got+'" while its own opening word "'+w+'" alone paints "'+gotW+'"');
       });
       const DECOYS = ['ASSUMPTION (NOT SOURCED by any held primary)',
                       'ASSUMPTION (no SOURCED figure exists for this term)'];
@@ -16216,16 +16429,56 @@ function runAbstractTests(){
         if (got) painted[got] = 1;
       });
       // The legend a reader meets, scored over the classes this build actually paints rather
-      // than over a list of four typed here. A fifth chip with no legend entry is a chip a
-      // reader has no way to read.
+      // than over a list of four typed here.
       Object.keys(painted).forEach(function(c){
-        if (!legendWord[c]) why.push('the badge legend carries no entry for the "'+c+'" class, which '+ (c===fall?'the fall-through arm and ':'') + 'at least one live status paints, so a reader meets a chip the legend does not describe');
+        if (!legendWord[c]) why.push('the badge legend carries no entry for the "'+c+'" class, which at least one live status paints, so a reader meets a chip the legend does not describe');
       });
       if (!checked) why.push('EMPTY POPULATION: no CONFIG entry carried a status, so this zero means nothing');
       if (!Object.keys(legendWord).length) why.push('EMPTY POPULATION: the legend paragraph yielded no chip at all, so the class-to-word map this row scores against is empty');
       rec('OX-14','GATE',NAME, why.length===0,
         why.length ? why.slice(0,3).join('  ')
-          : checked+' statuses badged by the word they open on and by nothing after it, '+Object.keys(painted).length+' classes painted and all of them in the legend ('+Object.keys(legendWord).map(function(c){ return c+'='+legendWord[c]; }).join(', ')+'), the fall-through arm probed as "'+fall+'" and carrying only '+legendWord[fall]+', and both negated decoys refused the sourced chip [red-first, artifact: the shipped badge() returned "src" for both negated strings and "asm" for both DERIVED labels, observed by running the function rather than by reading it; the four-arm rung table was struck 2026-09-04 after this row returned green over a PINNED status painting the assumption chip, and the replacement was proved red against that same unfixed build]');
+          : checked+' statuses badged by the word they open on and by nothing after it, '+Object.keys(painted).length+' classes painted and all of them in the legend ('+Object.keys(legendWord).map(function(c){ return c+'='+legendWord[c]; }).join(', ')+'), the fall-through probe refused with "'+fallMsg+'", and both negated decoys refused the sourced chip [red-first, artifact: the shipped badge() returned "src" for both negated strings and "asm" for both DERIVED labels, observed by running the function rather than by reading it; the four-arm rung table was struck 2026-09-04 after this row returned green over a PINNED status painting the assumption chip, and the replacement was proved red against that same unfixed build; re-proved 2026-09-08 against the pre-Step-58 badge(), which returned a chip rather than refusing the fall-through probe and echoed VERIFIED-family text verbatim for every BADGE-01 seed below]');
+    })();
+
+    // ---- BADGE-01 (GATE): badge() refuses VERIFIED-family process vocabulary, seeded ----
+    // Quinn's ruling of 2026-09-08. VERIFIED-family vocabulary (VERIFIED, UNVERIFIED-pending,
+    // PROJECTED, DEMONSTRATED) is internal process chatter and does not belong on any
+    // reader-facing surface. VFAM-01 measures zero occurrences reaching a reader today, and
+    // that measurement is real, but it is green over an EMPTY POPULATION for badge()
+    // specifically: about 65 status fields carry this vocabulary, VALUE.op_prop among them,
+    // and nothing in the shipped file calls badge() on any of them. A row that only walked
+    // today's call sites would prove nothing about what happens the day a call site is added,
+    // which is exactly the shape this project's own history names (eRefine, Step 49): latent
+    // at the shipped value, live the moment the value moves. This row seeds badge() directly,
+    // including with VALUE.op_prop's own live status VERBATIM, not a copy of it, so the row
+    // and the field cannot drift apart unnoticed.
+    (function(){
+      const NAME = 'badge() refuses to echo VERIFIED-family process vocabulary: seeded directly with statuses carrying it, including VALUE.op_prop’s own live status verbatim, every call refuses rather than returning a chip, and none of the four banned words reaches a return value on the chance a future revision returns instead of throwing';
+      const BANNED = /\b(VERIFIED|UNVERIFIED(?:-pending)?|PROJECTED|DEMONSTRATED)\b/;
+      const SEEDS = [
+        VALUE.op_prop.status,
+        'VERIFIED',
+        'DEMONSTRATED (flight heritage)',
+        'UNVERIFIED-pending on a named external primary, a synthetic probe string'
+      ];
+      const why = [];
+      let refused = 0;
+      SEEDS.forEach(function(s){
+        let out = null, threw = false, msg = '';
+        try { out = badge(s); } catch(e){ threw = true; msg = String((e && e.message) || e); }
+        if (threw){
+          refused++;
+          if (!/rung word/i.test(msg)) why.push('badge("'+s+'") threw, but not for the declared reason: '+msg);
+        } else if (out == null || BANNED.test(out)) {
+          why.push('badge("'+s+'") returned without refusing and its return value still carries VERIFIED-family text: '+out);
+        }
+      });
+      if (VALUE.op_prop.status !== SEEDS[0] || !BANNED.test(SEEDS[0]))
+        why.push('EMPTY POPULATION: VALUE.op_prop.status no longer carries VERIFIED-family text at all, so seeding this row from it verbatim proves nothing about the exposure it was written for');
+      if (!SEEDS.length) why.push('EMPTY POPULATION: no seed statuses declared');
+      rec('BADGE-01','GATE',NAME, why.length===0,
+        why.length ? why.slice(0,3).join('  ')
+          : SEEDS.length+' VERIFIED-family statuses seeded directly into badge(), '+refused+' of '+SEEDS.length+' refused with a rung-word error and none returned VERIFIED-family text, including VALUE.op_prop’s own live status "'+SEEDS[0]+'" [red-first, seeded: the shipped badge() before this install returned normally for every one of these four seeds and echoed the whole status verbatim into the painted chip, observed by running the retired function against the same seeds rather than by reading it]');
     })();
 
     // ---- OX-15 (GATE): the energy allocation is printed and not draggable ----
@@ -18066,7 +18319,11 @@ const KNOBS = {
   phi_c: {label:'Constr. share', unit:'φc', fmt:v=>v.toFixed(2)},
   phi_o: {label:'Oxygen share', unit:'φo', fmt:v=>v.toFixed(2)},
   landed_cost:{label:'Delivery cost avoided', unit:'$/kg',
-               fmt:v=> v>=1e6 ? '$'+(v/1e6)+'M' : (v>=1000 ? '$'+(v/1000)+'k' : '$'+v)}
+               fmt:v=> v>=1e6 ? '$'+(v/1e6)+'M' : (v>=1000 ? '$'+(v/1000)+'k' : '$'+v)},
+  /* Step 58 install 2: hardware cost, the reader-dialled CONTROL, same fmt convention as
+     landed_cost since both are $/kg rails spanning multiple orders of magnitude. */
+  chw:{label:'Hardware cost, landed plant', unit:'$/kg',
+       fmt:v=> v>=1e6 ? '$'+(v/1e6)+'M' : (v>=1000 ? '$'+(v/1000)+'k' : '$'+v)}
 };
 function knobVal(k){ return DETENTS[k][state[k]]; }
 function snapIdx(key,v){ return nearestIdx(DETENTS[key], v); }
@@ -18079,6 +18336,10 @@ function fmtT(v){ const dp = v<1?2:(v<10?1:0); return fmtNum(v,dp); }
    ============================================================ */
 let state = { ice:snapIdx('ice',5), power:0, mass:0, phi_c:0, phi_o:snapIdx('phi_o', CONFIG.phiM.value),
               landed_cost:snapIdx('landed_cost', LANDED_COST.eraDefault['2055']),
+              /* Step 58 install 2: opens on the SOURCED $80,000/kg corridor default (C_HW.default),
+                 a free dial like landed_cost; no preset and no era touches it (applyPreset() does
+                 not reset it, matching landed_cost's own "free dial" treatment). */
+              chw:snapIdx('chw', KNOB_DATA.C_HW.default),
               funding:'med', phase:'2055', fission:true, mix:1 };/* THE DRAWN CURVE JOINS `state` AS A READ-ONLY DERIVED KEY. It is NON-ENUMERABLE on purpose:
    runAbstractTests() snapshots the state with JSON.parse(JSON.stringify(state)) and restores it
    with Object.keys(save).forEach, and viewFingerprint() stringifies the same object, so an
@@ -18410,7 +18671,7 @@ function bindDetentSlider(inputEl, key){
    the funding control deleted, funding entering this array would restore a
    setter that no preset governs, and nothing else in the file would fail. The
    guard is here rather than in a comment because a comment does not fire. */
-const DETENT_KEYS=['ice','power','mass','phi_c','phi_o','landed_cost'];
+const DETENT_KEYS=['ice','power','mass','phi_c','phi_o','landed_cost','chw'];
 if(DETENT_KEYS.indexOf('funding')>=0) throw new Error('funding is a preset-governed field and must not take a detent slider; see the Step 38 reachability verification');
 DETENT_KEYS.forEach(key=>{
   bindDetentSlider(document.getElementById(key==='landed_cost'?'k_landedcost':key==='phi_c'?'k_phic':key==='phi_o'?'k_phio':'k_'+key), key);
@@ -19024,12 +19285,15 @@ function render(){
 
   syncSliderRange(document.getElementById('k_landedcost'), 'landed_cost');
   document.getElementById('v_landedcost').textContent = knobText('landed_cost');
+  syncSliderRange(document.getElementById('k_chw'), 'chw');
+  document.getElementById('v_chw').textContent = knobText('chw');
   const v=valueModel({ice:knobVal('ice'), power:fs.power, mass:fs.mass,
                       fission:state.fission, phi_c:knobVal('phi_c'), phi_o:knobVal('phi_o'), funding:state.funding,
-                      phase:state.phase, landed_cost:knobVal('landed_cost'), mix:state.mix,
+                      phase:state.phase, landed_cost:knobVal('landed_cost'), C_hw:knobVal('chw'), mix:state.mix,
                       fSolOvr:state.solOvr/1000, fFisOvr:state.fisOvr/1000,
                       phi_c0:(state.phiC0Ovr!=null?state.phiC0Ovr:CONFIG.phiC0.value)});
   renderValueTab(v);
+  paintBreakevenMark(v);
 
   renderBlurbPanel(m);
   renderNotesPanel(m);
@@ -19095,6 +19359,46 @@ function _usd(v){ const a=Math.abs(v), s=v<0?'-':'';
   if(a>=1e3) return s+'$'+(a/1e3).toFixed(1)+'k';
   return s+'$'+a.toFixed(0);
 }
+/* Step 58 install 2, Quinn's ruling of 2026-09-08. The break-even hardware cost is a
+   POSITIONAL MARK on the C_hw rail, never a printed numeral -- same class as #mk_power and
+   #mk_mass, which mark their own envelope ceilings and print no number. Position is
+   recomputed at every render from v.Chw_breakeven (itself computed live in valueModel() from
+   the state's own r_prop, D and op_prop), a continuous log-scaled fraction of the rail's
+   declared [lo,hi], not an index into DETENTS.chw, because the break-even value is continuous
+   and the rail's detents are only slider stops. Suppressed wherever no positive hardware
+   price clears this cell: a mark parked at the cheap end would read as "hardware is nearly
+   cheap enough" when the truth is the opposite, so a negative or undefined breakeven hides
+   the mark rather than clamping it there. Clamped to the rail's own top end where the true
+   break-even exceeds it, or where r_prop<=0 (no capital charge binds at all): both are
+   headroom in the GOOD direction, so clamping upward does not invert the mark's meaning the
+   way clamping a negative value downward would. */
+function paintBreakevenMark(v){
+  const mk = document.getElementById('mk_chw');
+  if(!mk) return;
+  const rail = KNOB_DATA.C_HW.rail, lo = rail[0] > 0 ? rail[0] : rail[1], hi = rail[rail.length-1];
+  const b = v.Chw_breakeven;
+  const anyPriceWorks = v.preProduction || (Number.isFinite(v.r_prop) && v.r_prop <= 0);
+  const noPriceWorks = (!anyPriceWorks) && (b == null || b <= 0);
+  if(v.preProduction){
+    mk.hidden = true;
+    mk.title = 'Pre-production at this state: no output, so no hardware price is being tested.';
+    return;
+  }
+  if(noPriceWorks){
+    mk.hidden = true;
+    mk.title = 'No hardware price clears this cell: freight and operations alone already exceed the delivery cost avoided.';
+    return;
+  }
+  mk.hidden = false;
+  const target = anyPriceWorks ? hi : Math.max(lo, Math.min(hi, b));
+  const frac = (Math.log(target) - Math.log(lo)) / (Math.log(hi) - Math.log(lo));
+  mk.style.left = (clamp01(frac) * 100) + '%';
+  mk.title = anyPriceWorks
+    ? 'No standing plant to amortise at this state: hardware cost does not bind here.'
+    : (b > hi
+        ? 'Break-even hardware cost is above the top of this rail: even the most expensive point on the dial still clears this cell.'
+        : 'The propellant margin crosses zero at this position on the hardware-cost rail, at the delivery cost and plant-mass fraction you are standing on.');
+}
 function renderValueTab(v){
   document.getElementById('m_deliv').textContent = _usd(v.D);
   document.getElementById('m_deliv_sub').textContent = 'per kg, '+state.phase+' era';
@@ -19110,12 +19414,14 @@ function renderValueTab(v){
     ' Oxygen and alloy are not priced here, because no source states a delivery '+
     'cost avoided per tonne for either.';
   let cross;
-  if(!Number.isFinite(v.r_prop)){
+  if(v.preProduction){
+    cross='This state is pre-production: water output is below the minimum-production threshold, so op_prop carries no finite figure and no launch-price crossover is stated.';
+  } else if(!Number.isFinite(v.r_prop)){
     cross='Propellant makes no output at this state, so no launch-price crossover applies.';
   } else if(v.r_prop>=1){
     cross='Propellant plant does not pay back its own landed mass here, r_prop is '+v.r_prop.toFixed(2)+', so its margin is negative at every launch price.';
-  } else if(v.op_prop<=0){
-    cross='With the operating floor at zero there is no launch-price crossover. Propellant carries a positive margin at every launch price, thinner than construction.';
+  } else if(v.r_prop<=0){
+    cross='With no standing plant to amortise there is no launch-price crossover. Propellant carries a positive margin at every launch price, thinner than construction.';
   } else {
     /* Item 6, Step 39.5, extended: this is the Value tab's own separate rendering of the
        crossover step, a hand-duplicated near-copy of DERIVATION.honesty.crossBand living in
@@ -19428,13 +19734,39 @@ function badge(status){
      legend entry in the same edit, because either without the other is the same defect in a
      different place. OX-14 no longer carries a second copy of this list: it probes the
      fall-through arm and requires the word landing there to be the word the legend gives it,
-     so the next rung word added without an arm is a red rather than a silent recolouring. */
-  const c = /^(?:SOURCED|CONSTANT)\b/.test(t) ? 'src'
-          : /^CONTROL\b/.test(t)              ? 'ctl'
-          : /^DERIVED\b/.test(t)              ? 'drv'
-          : /^PINNED\b/.test(t)               ? 'pin'
-          :                                     'asm';
-  return '<span class="srcbadge '+c+'">'+status+'</span>';
+     so the next rung word added without an arm is a red rather than a silent recolouring.
+
+     Step 58, 2026-09-08, Quinn's ruling: the fall-through above painted the RAW status string
+     verbatim, whatever it said, and the only thing keeping VERIFIED-family process vocabulary
+     (VERIFIED, UNVERIFIED-pending, PROJECTED, DEMONSTRATED) off a reader's screen was that
+     nothing called badge() on the roughly 65 status fields that carry it, op_prop among them.
+     Latent at the shipped value, live the moment a caller reaches those fields, the identical
+     shape as eRefine at Step 49: a coefficient (here, a piece of TEXT) sitting unread until it
+     is not. badge() now paints ONE of the five ladder words the legend defines and never the
+     status string itself; a status opening on a word with no arm is a RED, not a silent
+     default. A legitimate parenthetical immediately after the rung word is admitted
+     explicitly, verbatim, because the legend's own chips already carry a parenthetical
+     qualifier for exactly this class of case; anything else after the word, including a
+     second sentence or a VERIFIED-family qualifier further down the status, is never painted
+     -- a reader who wants the whole status reads the coefficient's own source string, not the
+     chip. */
+  /* MODELED and FORMALLY (EXCLUDED) are a second, smaller vocabulary this function has
+     always painted: the reconciliation-record branch of the Evidence Ledger (renderEvidenceLedgerTab,
+     the c.tier===undefined branch) calls badge(c.status) with these two words for sections that
+     carry a ruling instead of a numbered claim tier. Neither is VERIFIED-family vocabulary and
+     both already reached this fall-through arm before Step 58 and painted the assumption chip;
+     they are named explicitly now, at the same class, rather than left to rediscover the same
+     crash BADGE-01's own red-before-green run found against renderLedgerPanel(). */
+  const RUNGS = {SOURCED:'src', CONSTANT:'src', CONTROL:'ctl', DERIVED:'drv', PINNED:'pin', ASSUMPTION:'asm',
+                MODELED:'asm', FORMALLY:'asm'};
+  const m = /^([A-Z][A-Z]+)\b(.*)$/.exec(t);
+  const word = m ? m[1] : null;
+  const c = word ? RUNGS[word] : undefined;
+  if (!c) throw new Error('badge(): status opens on no rung word this legend defines: "'+t+'"');
+  const rest = m[2] || '';
+  const paren = /^\s*(\([^)]*\))/.exec(rest);
+  const shown = word + (paren ? ' '+paren[1] : '');
+  return '<span class="srcbadge '+c+'">'+shown+'</span>';
 }
 function buildRefBody(){
   const scen=[];
