@@ -7539,7 +7539,7 @@ const SIDECAR_ONLY = ['EXT1','DEPLOY-01','VFAM-01','RECON-01',
    `away` lists below simply say nothing about them, which is how every other shared ID in
    this file is already treated. */
 const DOM_SCOPED = ['ADV-01','DEF-06','DEF-07',
-                    'NAME-01','VIEW-01','HARN-01','LEDG-09','LEDG-10'];
+                    'NAME-01','VIEW-01','HARN-01','LEDG-09','LEDG-10','OVR-01'];
 /* producedIds is every identifier the calling harness produced BEFORE this row is appended, so
    the population this row reports counts itself explicitly rather than by implication. */
 function scopeCheck(producedIds, where){
@@ -13266,10 +13266,21 @@ function composeDerivation(state, m, v){
              : (meta.claimNote ? meta.claimNote : 'scenario premise'); }
     else if(meta.kind==='config'){
       const c=CONFIG[k];
-      const _isFisOvr=(k==='fFis' && state.fFisOvr!=null);
-      const _isSolOvr=(k==='fSol' && state.fSolOvr!=null);
+      /* Step 58 item 1 residual, found by probing this table rather than reading the diff:
+         this branch read state.fFisOvr/state.fSolOvr, which are never assigned anywhere in
+         this file (the real properties are state.fisOvr/state.solOvr); both reads were
+         always undefined, so _isFisOvr/_isSolOvr were always false and this row painted the
+         flat CONFIG.fFis.value/CONFIG.fSol.value regardless of a genuine drag AND regardless
+         of fFisAt()'s own power-law live default, the same override-invisibility class as
+         model()'s own fFisEff (line 8157) and the Notes-tab ratio (renderNotesPanel). Fixed
+         to the corrected property names and given the identical live-tracking guard: at the
+         untouched sentinel this now paints fFisAt(m.power), not the frozen anchor value. */
+      const _fisLive = (state.fisOvr!=null && state.fisOvr/1000!==CONFIG.fFis.value) ? state.fisOvr/1000 : fFisAt(m.power);
+      const _solLive = (state.solOvr!=null) ? state.solOvr/1000 : CONFIG.fSol.value;
+      const _isFisOvr=(k==='fFis' && state.fisOvr!=null && state.fisOvr/1000!==CONFIG.fFis.value);
+      const _isSolOvr=(k==='fSol' && state.solOvr!=null);
       const _isPhiC0=(k==='phiC0');
-      value=_isFisOvr?state.fFisOvr:(_isSolOvr?state.fSolOvr:(_isPhiC0?_livePhiC0:c.value));
+      value=(k==='fFis')?_fisLive:((k==='fSol')?_solLive:(_isPhiC0?_livePhiC0:c.value));
       unit=c.unit;
       grade=_isPhiC0?(c.status+(_livePhiC0>0?', ADVANCED, dragged live':', ADVANCED, functional default 0 (inert)'))
            :(_isFisOvr||_isSolOvr)?(c.status+', ADVANCED OVERRIDE (ephemeral, not written to CONFIG)'):c.status;
@@ -19649,8 +19660,28 @@ function renderValueTab(v){
     cross='This state is pre-production: water output is below the minimum-production threshold, so op_prop carries no finite figure and no launch-price crossover is stated.';
   } else if(!Number.isFinite(v.r_prop)){
     cross='Propellant makes no output at this state, so no launch-price crossover applies.';
-  } else if(v.r_prop>=1){
-    cross='Propellant plant does not pay back its own landed mass here, r_prop is '+v.r_prop.toFixed(2)+', so its margin is negative at every launch price.';
+  } else if(v.r_prop>=1 || (v.op_prop != null && v.D*(1-v.r_prop) <= v.op_prop)){
+    /* Step 58 item 3. This is the state step58_opprop_margins_measured.md's break-even table
+       calls "impossible at any price": even C_hw=0 already fails, D*(1-r_prop) <= op_prop,
+       so raising or lowering the hardware-cost dial cannot move this cell into positive
+       margin (r_prop>=1 is the special case of this where D*(1-r_prop) is not even positive).
+       What CAN move it is a lighter plant, since r_prop scales with standing plant mass: the
+       floor on how much lighter is computed live from the same identity Chw_breakeven
+       solves, margin_prop=0 at C_hw=0 requires r_prop below (D-op_prop)/D, so the plant needs
+       to weigh at least r_prop*D/(D-op_prop) times less than it does now before free
+       hardware could even begin to clear it -- a necessary floor, not the price this
+       project's own written record separately measured for a realistic hardware cost, and
+       named as a floor rather than as that stronger figure. No literal from that record is
+       reproduced here; every figure is v's own live D, op_prop and r_prop. When D itself does
+       not exceed op_prop, mass has no floor that helps: even a massless plant could not clear
+       operations alone, and the sentence says so instead of dividing by a number at or below
+       zero. */
+    const massFloor = (v.op_prop != null && v.D > v.op_prop) ? (v.r_prop * v.D / (v.D - v.op_prop)) : null;
+    cross='Propellant plant does not pay back its own landed mass here, r_prop is '+v.r_prop.toFixed(2)+
+      ', so its margin is negative at every launch price and at every hardware cost.'+
+      (massFloor && massFloor > 1
+        ? ' Even free hardware needs this plant at least '+massFloor.toFixed(2)+'x lighter before it clears.'
+        : ' Operations alone already cost more than this delivery price recovers, so no plant-mass reduction fixes it by itself.');
   } else if(v.r_prop<=0){
     cross='With no standing plant to amortise there is no launch-price crossover. Propellant carries a positive margin at every launch price, thinner than construction.';
   } else {
@@ -20042,7 +20073,7 @@ function buildRefBody(){
   }).join('');
   return '<h3 style="font-family:var(--mono);font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--ice);margin:22px 0 8px">Coefficients and sources</h3>'+
     '<p>Every number in this tool is here with a value, a unit, and a source, or an explicit assumption flag. Coefficients live in CONFIG; the physics is a DOM-free model() block. What that block computes at the three named scenarios, printed from model() rather than from a string: '+scenLine()+'.</p>'+
-    '<p class="badgelegend"><span class="lg">'+badge('SOURCED')+' traces to a public source</span><span class="lg">'+badge('DERIVED')+' our arithmetic on a source’s own printed figures</span><span class="lg">'+badge('ASSUMPTION')+' engineering estimate, flagged</span><span class="lg">'+badge('CONTROL')+' display setting, not physics</span><span class="lg">'+badge('PINNED')+' the author’s value inside a bracket we built, not computed and not a source’s own range</span></p>'+
+    '<p class="badgelegend"><span class="lg">'+badge('SOURCED')+' traces to a public source</span><span class="lg">'+badge('DERIVED')+' our arithmetic on a source’s own printed figures</span><span class="lg">'+badge('ASSUMPTION')+' engineering estimate, flagged</span><span class="lg">'+badge('CONTROL')+' set directly by the reader or the app’s author, not a figure the model computes</span><span class="lg">'+badge('PINNED')+' the author’s value inside a bracket we built, not computed and not a source’s own range</span></p>'+
     '<div class="refscroll"><table class="reftbl"><thead><tr><th>Symbol</th><th>Value</th><th>Unit</th><th>Source / basis</th><th>Status</th></tr></thead><tbody>'+coefRows+'</tbody></table></div>'+
     '<h3 style="font-family:var(--mono);font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--ice);margin:22px 0 8px">Ice concentration range: provenance</h3>'+
     '<p>The ice knob carries '+DETENTS.ice.length+' detents spanning '+DETENTS.ice[0]+' to '+DETENTS.ice[DETENTS.ice.length-1]+' wt% ('+DETENTS.ice.join(', ')+' wt%), inside the study’s adopted modeling envelope of 1 to 30 wt%, which is not a measured distribution. The only ground-truth anchor is the LCROSS about 5.6 wt% measurement at Cabeus (Colaprete et al. 2010): one site, one depth. No measurement establishes the distribution across this range; VIPER (2027) will add one more point.</p>'+
@@ -20556,20 +20587,25 @@ function renderNotesPanel(m){
   const pend=(b.claims||[]).filter(s=>BLURB_PENDING.indexOf(s)>=0);
   const breaks=Object.keys(CLAIMREG['break-conditions']).filter(s=>SLUGREG[s].state!=='excluded');
   const excl=_reachableExclusions(m, b.claims);
-  /* Step 56 install 6. This was the BARE coefficient ratio fFis/fSol, printed beside the
-     power-system mass the reader is looking at, and that mass moves by a different factor.
-     The transmission cabling is an ADDITIVE term carried identically on both branches and it
-     does not switch when the power source does, so what a kilowatt actually costs moves by
-     (fFis+t)/(fSol+t) and not by fFis/fSol. On the live coefficients that is 0.6624 against
-     0.6245: the sentence printed the second while the number beside it moved by the first.
-     Both are printed now and the gap between them is named. The cabling term is read off
-     CONFIG and the state's own transDistKm, never typed, so it tracks a move in either.
-     Found by the claim sweep, which measured the delivered ratio off the painted mass and
-     scored it against the number the sentence printed. */
+  /* Step 56 install 6, corrected Step 58 item 4. This was the BARE coefficient ratio fFis/fSol,
+     printed beside the power-system mass the reader is looking at, and that mass moves by a
+     different factor. The transmission cabling is an ADDITIVE term carried identically on both
+     branches and it does not switch when the power source does, so what a kilowatt actually
+     costs moves by (fFis+t)/(fSol+t) and not by fFis/fSol. Both are printed and the gap between
+     them is named. The cabling term is read off CONFIG and the state's own transDistKm, never
+     typed, so it tracks a move in either.
+     THE STALE READ, found by step56_se_claimclass.js's S5 row three call sites from
+     fFisAt()'s own site: state.fisOvr is never null (see the fFisEff comment above model()'s
+     own fission branch), so reading it raw here reproduced the frozen CONFIG.fFis.value even
+     after fFisAt() made the coefficient a function of power, while the mass painted beside this
+     sentence (#keyP, m.mPwr) already ran on the live fFisAt(m.power). The same guard fFisEff
+     uses is applied here so this sentence and the painted mass share one live source. */
   const _cabT = (CONFIG.transmission.value/1000) * (m.transDistKm != null ? m.transDistKm : 3);
-  const ratio = (state.fisOvr>0 && state.solOvr>0) ? (state.fisOvr/state.solOvr) : null;
-  const ratioDel = (state.fisOvr>0 && state.solOvr>0)
-    ? ((state.fisOvr/1000 + _cabT) / (state.solOvr/1000 + _cabT)) : null;
+  const _fisLive = (state.fisOvr != null && state.fisOvr/1000 !== CONFIG.fFis.value) ? state.fisOvr/1000 : fFisAt(m.power);
+  const _solLive = (state.solOvr != null) ? state.solOvr/1000 : CONFIG.fSol.value;
+  const ratio = (_fisLive>0 && _solLive>0) ? (_fisLive/_solLive) : null;
+  const ratioDel = (_fisLive>0 && _solLive>0)
+    ? ((_fisLive + _cabT) / (_solLive + _cabT)) : null;
   const _rateM = knobVal('mass'), _rateP = knobVal('power');
 
   let h='<p class="q">Where this result comes from. This page is written for the state you have dialed, and it changes when you change a knob.</p>';
@@ -21285,6 +21321,208 @@ function readerText(){
   clone.querySelectorAll('script,style').forEach(function(n){ n.parentNode.removeChild(n); });
   return clone.textContent || '';
 }
+/* OVR-01. THE OVERRIDE-INVISIBILITY CLASS, GENERAL.
+   Step 49's eRefine sat at zero, numerically invisible and causally absent, with every
+   sourcing and register row green over it. Step 58 found the same shape one layer over:
+   state.fisOvr is never null, so render()'s own call into model() supplies it unconditionally,
+   and a defeated guard (Mutation 2, step58_manager_close.md Section 5) let the frozen snapshot
+   silently win over fFisAt()'s live, power-dependent default while GATE 213/213, REVIEW 19/19,
+   relation 10/0 and page harness 221/0 all stayed green, because none of them drives render()
+   with the override held at its own untouched value and asks whether the live default is still
+   reachable. Two more instances turned up the same round: a property-name typo (composeDerivation
+   read state.fFisOvr/state.fSolOvr, names never assigned anywhere, so the equations table
+   painted the flat CONFIG value at every power) and a local ratio (renderNotesPanel read
+   state.fisOvr raw rather than through the guard model() itself uses). All four are one class: a
+   coefficient the model can compute correctly and a surface downstream of it disagreeing about
+   what value is live, because a never-null override sits between them and nothing ever asked
+   whether "untouched" still means what its own author intended.
+
+   THIS ROW IS KEYED TO THE CLASS, NOT TO fFis. The population is discovered at check time: every
+   key of the live state object ending in Ovr, plus every state.<x>Ovr token the rendered document
+   itself contains, so a key that exists in text but was never assigned (the composeDerivation
+   typo's own shape) is its own population member rather than silently absent from both sides.
+
+   TWO PARTS, because they reach two different failure sites and neither structurally reaches the
+   other's. PART A drives the real render()/model() pipeline at several cells with each at-risk
+   override left untouched, then asks whether model() computed with that untouched value present
+   agrees with model() computed with the same argument deleted outright, which is what "untouched"
+   is supposed to mean; this is exactly Mutation 2's shape, reaches any coefficient wired the same
+   way fFis is without this row naming fFis anywhere in its own logic, and discovers which captured
+   argument each override maps to by matching values rather than by a typed table. PART A CANNOT
+   reach a defect like renderNotesPanel's or composeDerivation's, because both build a painted
+   number without ever calling model() again; nothing in Part A's method touches a site that is
+   not a model() call. PART B is what reaches those two: it sweeps the rendered document's own
+   script text for every non-assignment use of an at-risk override and requires each surviving use
+   to be textually guarded against its own frozen default, a direct hand-off into model()'s own
+   fFisOvr/fSolOvr argument names (which Part A already exercises independently), or on the short,
+   justified, anchor-checked exemption list below. An exemption that stops matching its own anchor
+   because the code under it changed is a row that goes red, not one that keeps passing on a stale
+   excuse. */
+/* OVR-01-SOURCE:START -- this row must not score its own source text. Its exemption list
+   below carries the literal strings state.solOvr/state.fisOvr as anchors, and a sweep that
+   read its own code would flag its own anchors as unguarded uses of themselves. The markers
+   bracketing this function are cut out of the text before either the population discovery or
+   the Part B sweep runs, the same technique E2-guard already uses (fileText.slice(0,a)+
+   fileText.slice(b)) to keep a row from being tripped by the language it is written in. */
+function overrideTrackCheck(){
+  const why = [];
+  const overrideKeys = Object.keys(state).filter(function(k){ return /Ovr$/.test(k); });
+  if (!overrideKeys.length){
+    return { id:'OVR-01', tier:'GATE',
+      name:'every override-carrying coefficient this build declares tracks the live default it stands in for once the reader has left it untouched',
+      pass:false, detail:'EMPTY POPULATION: no key of the live state object ends in Ovr, so this row has nothing to test' };
+  }
+
+  function stripComments(src){
+    let out = '', i = 0;
+    const blank = function(s){ return s.replace(/[^\n]/g, ' '); };
+    while (i < src.length){
+      if (src[i]==='/' && src[i+1]==='*'){
+        const end = src.indexOf('*/', i+2), stop = end<0 ? src.length : end+2;
+        out += blank(src.slice(i, stop)); i = stop;
+      } else if (src[i]==='/' && src[i+1]==='/'){
+        let end = src.indexOf('\n', i); if (end<0) end = src.length;
+        out += blank(src.slice(i, end)); i = end;
+      } else { out += src[i]; i++; }
+    }
+    return out;
+  }
+  const rawText = document.documentElement.outerHTML;
+  /* Built by concatenation so this line's own text never contains the marker string whole,
+     the same reason the marker cannot just be searched for bare: a self-referential sweep
+     must not be able to find its own search term sitting in its own source. */
+  const selfA = rawText.indexOf('/* OVR-01-SOURCE' + ':START'), selfB = rawText.indexOf('OVR-01-SOURCE:END' + ' */');
+  const scoped = (selfA >= 0 && selfB > selfA) ? (rawText.slice(0, selfA) + rawText.slice(selfB)) : rawText;
+  const fullText = stripComments(scoped);
+  const textRoots = {};
+  (fullText.match(/state\.[A-Za-z0-9_]+Ovr\b/g) || []).forEach(function(s){
+    textRoots[s.slice('state.'.length, -('Ovr'.length))] = true;
+  });
+  const liveRoots = {};
+  overrideKeys.forEach(function(k){ liveRoots[k.slice(0, -('Ovr'.length))] = true; });
+  const danglingRoots = Object.keys(textRoots).filter(function(r){ return !liveRoots[r]; });
+  if (danglingRoots.length){
+    why.push('REFERENCED-BUT-NEVER-ASSIGNED: state.' + danglingRoots.join('Ovr, state.') +
+      'Ovr appears in the rendered script but is not a key of the live state object, the exact ' +
+      'shape of the composeDerivation typo this round (state.fFisOvr/state.fSolOvr) fixed');
+  }
+
+  applyPreset(PRESETS.artemis);
+  const untouched = {};
+  overrideKeys.forEach(function(k){ untouched[k] = state[k]; });
+  const safeKeys = overrideKeys.filter(function(k){ return untouched[k] === null; });
+  const riskKeys = overrideKeys.filter(function(k){ return untouched[k] !== null; });
+
+  // ================= PART A: behavioral, model()-level =================
+  const CELLPAIRS = [['artemis','2030'],['artemis','2040'],['artemis','2055'],
+                      ['contested','2030'],['contested','2055'],
+                      ['commercial','2030'],['commercial','2055']];
+  const origModel = model;
+  const mapped = {}, unmapped = [], disagreements = [];
+  riskKeys.forEach(function(k){ mapped[k] = 0; });
+  CELLPAIRS.forEach(function(pair){
+    applyPreset(PRESETS[pair[0]]);
+    state.phase = pair[1];
+    let captured = null;
+    model = function(a){ if (!captured) captured = a; return origModel(a); };
+    render();
+    model = origModel;
+    if (!captured) return;
+    riskKeys.forEach(function(k){
+      const kv = state[k];
+      if (kv == null) return;
+      let argName = null;
+      Object.keys(captured).forEach(function(p){
+        if (argName) return;
+        const v = captured[p];
+        if (typeof v !== 'number') return;
+        [1, 0.001, 1000].forEach(function(s){
+          if (argName) return;
+          const want = kv * s;
+          const tol = 1e-9 * Math.max(1, Math.abs(want));
+          if (Math.abs(v - want) < tol) argName = p;
+        });
+      });
+      if (!argName){
+        unmapped.push(k + ' at ' + pair.join('/') + ': no model() argument the render pipeline actually passed matches state.' + k + ' at scale 1, 0.001 or 1000');
+        return;
+      }
+      mapped[k]++;
+      const withOvr = Object.assign({}, captured);
+      const withoutOvr = Object.assign({}, captured);
+      delete withoutOvr[argName];
+      const mWith = origModel(withOvr), mWithout = origModel(withoutOvr);
+      Object.keys(mWith).forEach(function(f){
+        const a = mWith[f], b = mWithout[f];
+        if (typeof a !== 'number' || typeof b !== 'number') return;
+        const rel = Math.abs(a) > 1e-9 ? Math.abs(a - b) / Math.abs(a) : Math.abs(a - b);
+        if (rel > 1e-9) disagreements.push(k + '/' + argName + ' at ' + pair.join('/') + ': model() field ' + f +
+          ' is ' + a + ' with the untouched override present and ' + b + ' with the same argument deleted, so an ' +
+          'override the reader never touched is not tracking the live default it stands in for');
+      });
+    });
+  });
+
+  // ================= PART B: textual, every surface outside model() =================
+  /* THE EXEMPTION LIST. Each entry is a stable substring this seat read and confirmed safe; the
+     check is that the anchor is STILL PRESENT, not that the row trusts its own label. */
+  const EXEMPTIONS = [
+    { anchor: "solOvr:state.solOvr, fisOvr:state.fisOvr,",
+      reason: "abstractCurrent(): compares the raw dragged position against abstractPresetRef()'s own raw reference to decide whether a control has moved, a comparison of slider positions rather than a claim about what model() used" },
+    { anchor: "const fSolEff = state.solOvr/1000, fFisEff = state.fisOvr/1000;",
+      reason: "regimeSlopeTperKW(): the regime caption's slope is defined at the 100 kWe reference point on every era, the same power-independent quantity FLEET-08's own fRef closed form uses, so no fFisAt(power) call belongs here; CAPEQ-01 independently bisects the painted number against a live model() call and requires a live coefficient perturbation to move it" }
+  ];
+  const unsanctioned = [];
+  riskKeys.forEach(function(k){
+    const re = new RegExp('state\\.' + k + '\\b', 'g');
+    let mm;
+    while ((mm = re.exec(fullText)) !== null){
+      const idx = mm.index;
+      const after = fullText.slice(idx + mm[0].length, idx + mm[0].length + 3);
+      if (/^\s*=[^=]/.test(after)) continue;
+      const lineStart = fullText.lastIndexOf('\n', idx) + 1;
+      const nlIdx = fullText.indexOf('\n', idx);
+      const lineEnd = nlIdx < 0 ? fullText.length : nlIdx;
+      const line = fullText.slice(lineStart, lineEnd);
+      const guarded = /!=\s*null/.test(line) || /==\s*null/.test(line) ||
+                      new RegExp('state\\.' + k + '\\s*={2,3}').test(line) || new RegExp('state\\.' + k + '\\s*!={1,2}').test(line);
+      const isCanonicalHandoff = /(?:fSolOvr|fFisOvr)\s*:\s*state\.(?:sol|fis)Ovr\s*\/\s*1000/.test(line);
+      const isEcho = /getElementById\(['"][kv]_(fisovr|solovr|phic0)/i.test(line) || /fmtOvr\(/.test(line) ||
+                     new RegExp('state\\.' + k + '\\.toFixed\\(').test(line);
+      const exempted = EXEMPTIONS.some(function(ex){
+        const a = fullText.indexOf(ex.anchor);
+        return a >= 0 && idx >= a && idx < a + ex.anchor.length;
+      });
+      if (!(guarded || isCanonicalHandoff || isEcho || exempted)){
+        unsanctioned.push(k + ' -> ' + line.trim().slice(0, 140));
+      }
+    }
+  });
+
+  applyPreset(PRESETS.artemis);
+  render();
+
+  const nCells = CELLPAIRS.length;
+  if (unmapped.length) why.push('UNMAPPED: ' + unmapped.slice(0,3).join('  '));
+  if (disagreements.length) why.push('PART A DISAGREEMENT: ' + disagreements.slice(0,3).join('  '));
+  if (unsanctioned.length) why.push('PART B UNSANCTIONED RAW READ: ' + unsanctioned.slice(0,3).join('  '));
+
+  const pass = why.length === 0;
+  return { id:'OVR-01', tier:'GATE',
+    name:'every override-carrying coefficient this build declares (state.*Ovr, enumerated at check time rather than listed) tracks the live default it stands in for once the reader has left it untouched, checked by driving the real render()/model() pipeline (PART A, catches a model()-level regression like Mutation 2) and by sweeping the rendered script for every other surface that reads the same override raw (PART B, catches a painted surface built without calling model() again)',
+    pass: pass,
+    detail: pass
+      ? overrideKeys.length + ' override keys discovered (' + overrideKeys.join(', ') + '), ' +
+        safeKeys.length + ' null-safe (' + (safeKeys.join(', ')||'none') + ', excluded by the null-means-omitted convention), ' +
+        riskKeys.length + ' at risk (' + riskKeys.join(', ') + '); Part A mapped ' +
+        riskKeys.map(function(k){ return k+':'+mapped[k]+'/'+nCells; }).join(', ') +
+        ' cells with 0 disagreements between the untouched override present and the same argument deleted; ' +
+        'Part B swept every non-assignment use of each at-risk key and found 0 unsanctioned raw reads beyond ' +
+        EXEMPTIONS.length + ' named, anchor-checked exemptions; 0 dangling referenced-but-never-assigned roots'
+      : why.slice(0,4).join('  ')
+  };
+}
+/* OVR-01-SOURCE:END */
 /* ADV-01. THE ADVANCED CONTROL MUST DESCRIBE BOTH THINGS IT DOES.
    312 of the 724 covered inventory rows, 43.1 percent of everything this app carries, are
    reachable only after a reader presses this one button. It opens three sensitivity sliders
@@ -21740,6 +21978,7 @@ function renderDevPanel(){
   res.push(advancedLabelCheck());
   res.push(definitionsPopulationCheck());
   res.push(definitionsSymbolCoverageCheck());
+  res.push(overrideTrackCheck());
   res.push(viewCheck(view0));
   /* First paint. The panel's own output really enters the document here, which is what gives
      HARN-01 a subject to measure rather than a hypothesis to assert. */
