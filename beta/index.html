@@ -1129,7 +1129,7 @@
  "iron-production-energy": {
   "kind": "section",
   "parent": "non-water-routes",
-  "title": "Iron Production Energy",
+  "title": "Metal Co-Product Energy",
   "state": "modeled"
  },
  "offtake-record": {
@@ -2173,13 +2173,13 @@
    "ruled": "Step 38 reconciliation, 2026-08-23"
   },
   "iron-production-energy": {
-   "source": "Molten regolith electrolysis co-product: Schreiner et al. 2016, Advances in Space Research 57:1585, DOI 10.1016/j.asr.2016.01.006, p1601 and Fig. 14, where at high operating temperature the cumulative metal produced is \"almost equal to the oxygen production level\", and where the metals \"alloy at the bottom of the reactor\" so that \"post-reactor processing will be required if the metals are to be separated\". Those two sentences are what the app's rMetal and eRefine rest on, and this section's evidence item 1 already printed both of them while the section was out of scope.",
+   "source": "Molten regolith electrolysis reduces a lunar melt's oxides in a fixed order set by decomposition potential (Guerrero-Gonzalez and Zabel's Fig. 5, digitized 305 to 3000 K; at 1223 K: FeO 0.95 V, SiO2 1.82 V, TiO2 1.83 V, Al2O3 2.19 V, MgO 2.20 V, CaO 2.37 V). A cell run hot enough to touch oxygen evolution has already reduced FeO and SiO2, and probably TiO2, before it ever reaches Al2O3, which is why every melt this corpus reports comes out as iron and silicon: Runyon's own costed plant taps 16 kg oxygen, 14 kg reduced silicon and 79 kg aluminium-calcium slag from 109 kg regolith, not iron. None of the six MRE primaries this project holds, Sibille 2011, Vai 2010, Sirk 2011, Grossman 2020, Patel 2023 and Runyon 2022, reports a current efficiency measured on an iron-bearing lunar-composition melt or a product composition of any kind: Sibille's 92 to 96 percent ran with the iron oxides stripped out, and Vai's own JSC-1A run returned about 2 percent against 35 to 90 percent on a clean synthetic electrolyte. Iron by itself is not a usable structural product: steel needs 0.02 to 2.1 wt% carbon and lunar rock carries carbon at 20 to 200 ppm, and Patel, the one paper naming a steel product, ships its alloying carbon and manganese from Earth by its own page-4 sentence and never runs the alloying step. Titanium is not unreducible; the decomposition order above puts it ahead of aluminium. It is excluded downstream, where the vacuum distillation that lifts aluminium and silicon off the melt runs at a temperature below titanium's vapour-pressure threshold (Guerrero-Gonzalez and Zabel's Fig. 9), the same mechanism that leaves calcium and magnesium behind at an earlier, cooler step. Aluminium is separable, on a different plant: molten-salt electrolysis plus vacuum distillation delivers an Al-Si alloy above 96.5 wt% aluminium at 114.5 kWh per kg of metal (Guerrero-Gonzalez and Zabel 2023), on a CaCl2 bath that is landed once and reused rather than resupplied (correcting this project's own prior \"consumable\" label on the same 65,047 kg figure). A first-principles sizing of a reagent-free route to the same alloy puts the thermodynamic floor at 5 to 6.6 kWh per kg and a plant-sizing case at 114.5 kWh per kg, 17 to 23 times theoretical, and finds the answer turns more on which power-system specific-mass coefficient prices the plant, a factor of 37 between the source's own 7.2 kg/kW and this model's own 166.9 to 267.3 kg/kWe, than on the chemistry. This section carries the energy this melt's unseparated co-product draws and books it against oxygen (eRefine*rMetal, at zero by Quinn's 2026-09-05 ruling because no source allocates co-production energy between products); it does not carry a metals product line, because no source in this corpus assays one.",
    "status": "VERIFIED (derived)",
    "tier": "VERIFIED (derived)",
    "state": "modeled",
-   "reason": "Reinstated 2026-09-04. The Step 38 exclusion read \"the construction leg is sintered regolith rather than metal\". That sentence is still true and it is no longer a sufficient reason, because it was sufficient only on the premise that metal can reach this app through the construction leg alone, and Step 49 falsified that premise: the model computes the alloy as rMetal times the oxygen on its own line, prints an alloy tonnage, charges eRefine for separating it and prints a specific energy per kilogram of alloy. The distinction between a true sentence and a sufficient reason is kept rather than collapsed, because collapsing it would put a false sentence in this record in order to reach a true ruling.",
+   "reason": "Reinstated 2026-09-04. The Step 38 exclusion read \"the construction leg is sintered regolith rather than metal\". That sentence is still true and it is no longer a sufficient reason, because it was sufficient only on the premise that metal can reach this app through the construction leg alone, and Step 49 falsified that premise: the model computes the alloy as rMetal times the oxygen on its own line, prints an alloy tonnage, charges eRefine for separating it and prints a specific energy per kilogram of alloy. The distinction between a true sentence and a sufficient reason is kept rather than collapsed, because collapsing it would put a false sentence in this record in order to reach a true ruling. Corrected 2026-09-09: this section's own text previously read as a claim that iron is a producible line. It is not, on this corpus's own evidence, and the section is retitled and rewritten to state the energy an unassayed co-product draws rather than a product a builder could use.",
    "ruled": "Step 38 reconciliation, 2026-08-23",
-   "counterCase": "A4 (a second group reaches the same architecture and the same silence). Guerrero-Gonzalez and Zabel (2023) build the molten regolith electrolysis plant this section describes, ship a ferrosilicon alloy as its product, print a 60 kg metal depot drawing no power as the whole of its metal processing subsystem, and report that the purity of the recovered cathode alloys is unknown and that oxide impurity levels there could be high enough to require an additional metal-refining step they do not model or size. NO COPY OF THIS PAPER IS ON THIS MACHINE AND NO PAGE OF IT CAN BE CHECKED HERE: this statement was carried until 2026-09-08 as a verbatim quotation cited to p196, and it is restated in this app's own words on the strength of this project's own summary of the paper, which paraphrases the same content in different words. Every page citation attached to this paper in this record is unverifiable here for the same reason. That corroborates this section's posture and prices nothing. Their zero is a zero for an operation they do not perform, so it is not a price for the operation eRefine names."
+   "counterCase": "A4 (a second group reaches the same architecture and the same silence). Guerrero-Gonzalez, F. J., and Zabel, P., 2023, System analysis of an ISRU production plant: Extraction of metals and oxygen from lunar regolith, Acta Astronautica 203:187-201, DOI 10.1016/j.actaastro.2022.11.050, build the molten regolith electrolysis plant this section describes and ship a ferrosilicon alloy as its product, not iron. Their Table 2 at p197 prices the whole metal processing subsystem of that plant as a 60 kg metal depot drawing no power, and the Fe-Si power column sums to the printed plant total exactly, so the blank is arithmetically a zero rather than an omission. They report that the purity of the recovered cathode alloys is unknown and that oxide impurity levels there could be high enough to require an additional metal-refining step they do not model or size. NO COPY OF THIS PAPER IS ON THIS MACHINE AND NO PAGE OF IT CAN BE CHECKED HERE: this statement was carried until 2026-09-08 as a verbatim quotation cited to p196, and it is restated in this app's own words on the strength of this project's own summary of the paper, which paraphrases the same content in different words. Every page citation attached to this paper in this record is unverifiable here for the same reason. Two groups now reach the same architecture and the same silence, which strengthens this section's posture and prices nothing. Their zero is a zero for an operation they do not perform, so it must not be read as pricing the separation step at zero."
   }
  },
  "demand": {
@@ -4711,60 +4711,110 @@
   "tags": ""
  },
  "iron-production-energy": {
-  "was": "Iron Energy Ranges from Cheap Magnetic Separation to a Near-Free MRE Co-Product",
+  "was": "The Metal Co-Product Is Unassayed, Iron Alone Is Not a Usable Product, and the Energy Still Books Against Oxygen",
   "claim": "non-water-routes",
-  "statement": "Iron can be obtained cheaply by magnetic separation of native or meteoritic FeNi, about 0.4 kWh/kg, or as a molten co-product of oxygen production by molten regolith electrolysis, tens of kWh/kg but nearly free when oxygen is being made anyway. Plant mass runs about 400-500 kg per t/yr of iron. No lunar iron market exists yet, so the value is delivery-avoidance only.",
+  "statement": "Molten regolith electrolysis reduces a lunar melt's oxides in a fixed order set by decomposition potential, FeO first, then SiO2 and TiO2, then Al2O3 and MgO, then CaO last, which is why every melt this corpus reports comes out as iron and silicon rather than a separated metal. Not one of the six MRE primaries this project holds reports a current efficiency measured on an iron-bearing lunar-composition melt, and not one reports a product composition. Iron by itself is not a usable structural product: steel needs 0.02 to 2.1 wt% carbon and lunar rock carries carbon at 20 to 200 ppm, and the one paper naming a steel product ships its alloying carbon from Earth and never runs the alloying step. Runyon's own costed plant taps silicon metal and an aluminium-calcium slag, not iron. Titanium is not unreducible; the decomposition order puts it ahead of aluminium. It is excluded downstream, where the vacuum distillation that lifts aluminium and silicon off the melt runs below titanium's vapour-pressure threshold, the same mechanism that leaves calcium and magnesium behind at an earlier, cooler step. Aluminium is separable, on a different plant: molten-salt electrolysis plus vacuum distillation delivers an Al-Si alloy above 96.5 wt% aluminium, on a CaCl2 bath landed once and reused rather than resupplied. A first-principles sizing of a reagent-free route to the same alloy puts the thermodynamic floor at 5 to 6.6 kWh per kg and a plant-sizing case at 114.5 kWh per kg, and finds the answer turns more on which power-system specific-mass coefficient prices the plant, a factor of 37 between this project's own coefficients and the source's, than on the chemistry. This section carries the energy this melt's unseparated co-product draws and books it against oxygen; it does not carry a metals product line, because no source in this corpus assays one.",
   "evidence": [
    {
     "n": "1",
-    "text": "Molten regolith electrolysis co-product: Schreiner et al. 2016, Advances in Space Research 57:1585, DOI 10.1016/j.asr.2016.01.006, p1601 and Fig 14 (p1600-1601): at high temperature and 10 mT oxygen/yr, \"the cumulative amount of metal produced is almost equal to the oxygen production level,\" meaning iron-plus-metal co-product mass runs about equal to oxygen mass. Iron current efficiency is \"30-60% (Sirk et al., 2010)\" (p1590, distinct from the whole-reactor oxygen current efficiency of 57.5-82% at p1601). Metals \"alloy at the bottom of the reactor; post-reactor processing will be required if the metals are to be separated, though this should be feasible without significant additional energy\" (p1601). Molten-regolith-electrolysis iron is therefore a low-marginal-energy co-product of oxygen rather than an additive line. What share of the joint energy it should be booked for is a choice and not a measurement, and this section and the app make the same one. Until 2026-09-04 this sentence closed by bundling the alloy's energy into [[oxygen-extraction-energy]]'s oxygen budget and calling it not additive, which is an allocation of zero to the alloy. The app books alphaMetal at 0 on the same basis, which is what its own model computes, and prints two per-product specific energies on that basis. No source in this corpus allocates the energy of a co-production process between its products, so neither figure is sourced. The allocation rule was Quinn's to set and he set it at zero on 2026-09-05."
+    "text": "Molten regolith electrolysis co-product and its reduction order: Schreiner et al. 2016, Advances in Space Research 57:1585, DOI 10.1016/j.asr.2016.01.006, p1601 and Fig 14 (p1600-1601): at high temperature and 10 mT oxygen/yr, \"the cumulative amount of metal produced is almost equal to the oxygen production level,\" meaning iron-plus-metal co-product mass runs about equal to oxygen mass. Iron current efficiency is \"30-60% (Sirk et al., 2010)\" (p1590, distinct from the whole-reactor oxygen current efficiency of 57.5-82% at p1601). Metals \"alloy at the bottom of the reactor; post-reactor processing will be required if the metals are to be separated, though this should be feasible without significant additional energy\" (p1601). Guerrero-Gonzalez and Zabel's own Fig. 5, oxide decomposition potential from Gibbs free energy digitized 305 to 3000 K, orders the six regolith oxides at every printed temperature: at 1223 K, FeO 0.95 V, SiO2 1.82 V, TiO2 1.83 V, Al2O3 2.19 V, MgO 2.20 V, CaO 2.37 V. Any applied potential sufficient to reach Al2O3 has already passed every lower threshold, so FeO and SiO2 are already reduced and TiO2 probably is. Molten-regolith-electrolysis iron is therefore a low-marginal-energy co-product of oxygen rather than an additive line. What share of the joint energy it should be booked for is a choice and not a measurement, and this section and the app make the same one. The app books alphaMetal at 0, which is what its own model computes, and prints two per-product specific energies on that basis. No source in this corpus allocates the energy of a co-production process between its products, so neither figure is sourced. The allocation rule was Quinn's to set and he set it at zero on 2026-09-05."
    },
    {
     "n": "2",
-    "text": "Magnetic-separation path (about 0.4 kWh/kg): traces to a 1981-era NASA lunar-bases source not on disk; the 0.4 kWh/kg figure is not sourced."
+    "text": "No composition, no current efficiency on an iron-bearing melt, across the six MRE primaries this project holds: Sibille 2011 measured 92 to 96 percent current efficiency on JSC-1A with the iron oxides removed, and carries no current-efficiency measurement on any iron-bearing melt anywhere in the document. Vai 2010 measured about 2 percent on actual JSC-1A against 35 to 90 percent on SCLS, a clean synthetic electrolyte; electrolyte identity, not anode material, drives the spread, in a paper titled for its anodes. Sirk 2011 and Grossman 2020 are each a one-page conference abstract with no decomposition ordering, no current efficiency and no product composition. Not one of the six reports a product assay, purity figure or mass balance on a metal product."
    },
    {
     "n": "3",
-    "text": "Plant mass about 400-500 kg per t/yr: consistent with Schreiner's reactor mass and power curves but figure-derived rather than a quotable sentence; flagged as approximate."
+    "text": "Iron is not steel without carbon, and the carbon is not there: Patel et al. 2023 names cast steel as its architecture but states its own demonstrated result is unalloyed iron, and its Future Work section says usable steel comes \"once sufficient metal has been obtained through electrolysis\" (p12), a condition not met inside that paper. Its alloying elements, \"Carbon, Manganese, etc.,\" are \"assumed to be brought from Earth, until lunar sources are found and developed\" (p4), at a combined rate of about 1 wt%, with no carbon-only figure printed. No anode material or consumable carbon source is named anywhere in the paper. The carbon its own EDS reading did detect is attributed by the paper's authors to \"carbon contamination from the polishing compound used to prepare the samples\" (p12), not to alloy content."
+   },
+   {
+    "n": "4",
+    "text": "The one costed MRE plant in this corpus yields silicon and slag, not iron: Runyon et al. 2022, IAC-22-A3,IPB,4,x69869, prints the only metals denominator in the six-source acquisition, 109 kg regolith to 16 kg oxygen, 14 kg \"partially or totally reduced silicon,\" and 79 kg \"aluminum-calcium slag.\" The paper calls the aluminium-bearing fraction slag twice on the same page and calls it a waste product both times, while separately floating an unbuilt possibility that \"a foundry could likely connect to the metal tap to draw off and process molten-reduced metal oxides, notably Al and Fe, and perhaps Mg and Ti.\" Its own duty cycle supports 16.677 t regolith/yr against a 10 t O2/yr goal it calls half of what is needed."
+   },
+   {
+    "n": "5",
+    "text": "Titanium is excluded by a separation mechanism, not by being unreducible: the decomposition order in evidence item 1 puts TiO2 ahead of Al2O3, so a cell run hot enough to reduce aluminium has already reduced titanium into the melt. It is left behind at the vacuum-distillation step instead, which lifts aluminium and silicon off at a temperature high enough to volatilise them but not titanium, the lowest vapour pressure of the four structural metals in Guerrero-Gonzalez and Zabel's Fig. 9, the same mechanism that leaves calcium and magnesium behind at an earlier, cooler step. No third distillation stage for titanium is modeled anywhere in that source, and no source in this corpus reports a separated titanium product, composition or yield on any feed."
+   },
+   {
+    "n": "6",
+    "text": "Aluminium is separable, on a different plant: Guerrero-Gonzalez, F. J., and Zabel, P., 2023, System analysis of an ISRU production plant, Acta Astronautica 203:187-201, DOI 10.1016/j.actaastro.2022.11.050, model molten-salt electrolysis (the FFC-Cambridge process) followed by vacuum distillation, whose named product is \"hypoeutectic Al-Si alloy,\" condensing to \"a final alloy of 3 wt% Si and under 0.5 wt% Fe\" with the balance, above 96.5 wt%, aluminium. Table 2 gives 435.31 kW total power for 25.00 t/a of Al-Si metal over a 274-day, 6,576-hour sunlit window, which is 114.5 kWh per kg of metal, DERIVED by dividing two printed Table 2 cells. That plant totals 76,145 kg against this branch's own Fe-Si plant at 6,776 kg, over eleven times heavier, 85 percent of it the CaCl2 salt inventory. Readiness rests on three inhomogeneous laboratory current-efficiency runs (current efficiency fixed at 40% from one of them) and an unbuilt plant sizing model, the same readiness class as the Fe-Si branch this project already carries, not higher."
+   },
+   {
+    "n": "7",
+    "text": "The CaCl2 bath is landed inventory, not an annual consumable: the source states electrolyte loss is modeled \"only through anode degradation,\" with \"additional losses or resupply masses ... neglected for the electrolyte\" beyond a named CaRuO3 anode consumption rate. A batch-cycle mass balance, 6,576 sunlit hours per year at 45 hours per batch, gives 146.1 batches/yr; treating the printed 65,047 kg as a bath reused across all 146.1 cycles reproduces the plant's printed 85.03 t/a oxygen yield at 44.7 percent oxygen by mass, inside the expected range for a Highlands-type oxide mix, while treating it as a true per-cycle consumable would require 9,505 t/yr, two orders of magnitude off the printed figure. This corrects this project's own prior record, which had called the same 65,047 kg figure a consumable shipped from Earth."
+   },
+   {
+    "n": "8",
+    "text": "A reagent-free route to the same alloy is priced lower on readiness, not proven: the thermodynamic floor is 6.6 kWh per kg Al at Hall-Heroult temperature (1223 K) and 4.9 to 5.4 kWh per kg at MRE temperatures (2000 to 2300 K), from standard formation data cross-checked against Guerrero-Gonzalez and Zabel's own digitized decomposition potential within reading error. The central plant-sizing case is 114.5 kWh per kg on a 60 to 200 kWh per kg band, 17 to 23 times theoretical rather than the terrestrial inert-anode industry's 2 to 2.5 times, because this corpus's own current-efficiency evidence on a multi-oxide melt (Sibille, Vai, Schreiner) is worse than any terrestrial multiplier assumes. Plant mass lands at 444 kg per t/yr on the source's own 7.2 kg/kW solar-array figure, against 3,227 to 4,975 kg per t/yr on this model's own fSol (267.3 kg/kWe) and fFis (166.93 kg/kWe) coefficients, a factor of 37 on the identical 435.3 kW electrical load, larger than the spread the energy-multiplier uncertainty produces and this project's own unresolved R3 finding. Cost runs $1.9B to $21B depending on which of those coefficients prices the plant. This is a sizing at assumed efficiency, not a demonstrated process: no source in this corpus has run this electrolysis on an anorthite-dominant feed and reported a separated aluminium product."
+   },
+   {
+    "n": "9",
+    "text": "The silicon citation does not resolve: the 3 wt% silicon manufacturability cap this project has attributed to Grossman et al. 2020 does not originate there; no silicon quantity of any kind, mass, fraction or otherwise, appears anywhere in that one-page extended abstract's figure or text. The corpus's only silicon figure near 80 wt% is this project's own arithmetic under full, unselective reduction, self-flagged as illustrative rather than sourced. What this corpus actually knows about silicon content in the MRE product is close to nothing."
+   },
+   {
+    "n": "10",
+    "text": "Magnetic-separation path (about 0.4 kWh/kg): traces to a 1981-era NASA lunar-bases source not on disk; the figure is not sourced. It would not close the product gap even if it were: magnetic FeNi is iron, and iron alone carries the same carbon deficit named in evidence item 3."
    }
   ],
   "argument": [
    {
     "id": "A1",
-    "head": "two paths, opposite energy stories, only one held",
+    "head": "the co-product is unassayed, and that is the section's honest headline",
     "role": "support",
-    "text": "Molten-regolith-electrolysis iron is a held, analytic co-product; magnetic FeNi is cheap (about 0.4 kWh/kg) but unverified until its source is on disk. Iron energy runs from about 0.4 to tens of kWh/kg depending on route, with the low end unsourced pending that acquisition."
+    "text": "Not one of the six MRE primaries this project holds reports a current efficiency measured on an iron-bearing lunar-composition melt, and not one reports a product composition. That absence, not a production figure, is what this section states first."
    },
    {
     "id": "A2",
-    "head": "co-product economics is the honest framing",
+    "head": "iron alone is not a usable product",
     "role": "support",
-    "text": "If oxygen is being made ([[oxygen-extraction-energy]]), molten-regolith-electrolysis iron is nearly free mass; its standalone specific energy (tens of kWh/kg) overstates the true marginal cost. Making iron for its own sake means paying the full oxygen-scale energy."
+    "text": "Steel needs 0.02 to 2.1 wt% carbon; lunar rock carries carbon at 20 to 200 ppm. Patel, the one paper naming a steel product, ships its alloying carbon from Earth and never runs the alloying step. A thing a builder cannot use is not a product, and unalloyed iron is that thing."
    },
    {
     "id": "A3",
-    "head": "no market, so value is notional",
+    "head": "the melt comes out iron and silicon, by mechanism",
     "role": "support",
-    "text": "As with water, no signed lunar-iron offtake exists; value is delivery-avoidance for on-Moon construction feedstock only."
+    "text": "The oxide decomposition order, FeO and SiO2 and TiO2 before Al2O3 and MgO before CaO, explains Runyon's own tapped product (silicon and an aluminium-calcium slag) without needing a special-case reading of any one paper. Titanium's absence from every product this corpus names is the same mechanism read forward: it reduces early, into the melt, and is left behind only at the later vacuum-distillation step, not because it will not reduce."
    },
    {
     "id": "A4",
+    "head": "aluminium has a route, on a different plant, at a real cost",
+    "role": "support",
+    "text": "Molten-salt electrolysis plus vacuum distillation delivers an Al-Si alloy above 96.5 wt% aluminium, at 114.5 kWh per kg and a plant over eleven times heavier than this branch's own Fe-Si line. A reagent-free electrolytic route reaches a comparable energy figure by a different argument and is priced, not demonstrated. Neither route has run on an anorthite-dominant feed and weighed a separated aluminium product."
+   },
+   {
+    "id": "A5",
+    "head": "the largest uncertainty in the aluminium figures is not chemistry",
+    "role": "support",
+    "text": "A factor of 37 separates the source's own 7.2 kg/kW solar-array figure from this model's own fSol and fFis power-system coefficients, on the identical electrical load. That spread swings every aluminium plant-mass and cost figure in this section more than the 17 to 23 times theoretical energy-multiplier uncertainty does, and it is this project's own unresolved R3 finding, not a gap in the aluminium literature."
+   },
+   {
+    "id": "A6",
+    "head": "the energy accounting still holds, and it is not a product claim",
+    "role": "support",
+    "text": "If oxygen is being made, molten-regolith-electrolysis alloy is nearly free mass; its standalone specific energy (tens of kWh/kg) overstates the true marginal cost, which is why the app books alphaMetal at zero against oxygen. That is a disclosed modeling choice about energy, unaffected by anything above, and it is what this section prices. It is not a statement that the alloy is usable."
+   },
+   {
+    "id": "A7",
     "head": "a second group reaches the same architecture and the same silence",
     "role": "counter",
-    "text": "Guerrero-Gonzalez, F. J., and Zabel, P., 2023, System analysis of an ISRU production plant: Extraction of metals and oxygen from lunar regolith, Acta Astronautica 203:187-201, DOI 10.1016/j.actaastro.2022.11.050, build the molten regolith electrolysis plant this section describes and ship a ferrosilicon alloy as its product. Their Table 2 at p197 prices the whole metal processing subsystem of that plant as a 60 kg metal depot drawing no power, and the Fe-Si power column sums to the printed plant total exactly, so the blank is arithmetically a zero rather than an omission. They report that the purity of the recovered cathode alloys is unknown and that oxide impurity levels there could be high enough to require an additional metal-refining step they do not model or size. NO COPY OF THIS PAPER IS ON THIS MACHINE AND NO PAGE OF IT CAN BE CHECKED HERE: this statement was carried until 2026-09-08 as a verbatim quotation cited to p196, and it is restated in this app's own words on the strength of this project's own summary of the paper, which paraphrases the same content in different words. Every page citation attached to this paper in this record is unverifiable here for the same reason. Two groups now reach the same architecture and the same silence, which strengthens this section's posture and prices nothing. Their zero is a zero for an operation they do not perform, so it must not be read as pricing the separation step at zero."
+    "text": "Guerrero-Gonzalez and Zabel build the molten regolith electrolysis plant this section describes and ship a ferrosilicon alloy as its product, not iron, and report that the purity of the recovered cathode alloys is unknown. No copy of this paper is on this machine; every citation to it in this record rests on this project's own prior summary. Two groups now reach the same architecture and the same silence, which strengthens this section's posture and prices nothing."
    }
   ],
   "extras": [
    {
     "label": "What is still needed",
-    "text": "The 1981-era magnetic-beneficiation source that reports about 0.4 kWh/kg, so the low end of the iron-energy range can be stated as sourced.",
+    "text": "A source that measures current efficiency and reports a product composition on an iron-bearing, lunar-composition melt: none of the six MRE primaries this project holds does either. A source that runs molten oxide electrolysis on an anorthite-dominant simulant with no added salt and reports a separated aluminium product. A source that targets ilmenite or titanium oxide reduction from a lunar-representative regolith and reports a separated titanium product; none exists in this corpus at any readiness level.",
+    "role": "open"
+   },
+   {
+    "label": "The power-system mass swing",
+    "text": "The factor of 37 between this model's own fSol/fFis and the sourced 7.2 kg/kW solar-array figure is this project's own unresolved finding R3, and it is the largest single driver of every aluminium plant-mass figure this section carries, larger than the chemistry uncertainty. It is recorded here rather than adjudicated.",
     "role": "open"
    }
   ],
-  "links": "[[oxygen-extraction-energy]] to [[iron-production-energy]] (iron co-product, shares Schreiner), [[bound-oxygen-mare]] (bound oxygen), [[polar-cold-trap-water]]/[[ice-grade-evidence]] (the ice-grade risk oxygen sidesteps), [[net-value-identity]]/one further claim of the retiring ledger that the register cannot resolve to a section, and [[grade-independent-demand]]; [[helium-procurement-energy]] to [[bound-oxygen-mare]] (multi-volatile inventory and co-stream), [[offtake-record]]/[[signed-offtake-break]] (He-3 is the only signed offtake), and [[net-value-identity]]; [[iron-production-energy]] to [[oxygen-extraction-energy]] (same reactor, shared Schreiner evidence), [[sintering-specific-energy]]/[[sintering-yield]] (construction feedstock), and [[net-value-identity]].",
-  "tags": "oxygen, carbothermal, propellant, helium-3, mare, iron, electrolysis, regolith. ---"
- },
- "offtake-record": {
+  "links": "[[oxygen-extraction-energy]] to [[iron-production-energy]] (iron and silicon co-product, shares Schreiner and the decomposition-potential ordering), [[bound-oxygen-mare]] (bound oxygen), [[polar-cold-trap-water]]/[[ice-grade-evidence]] (the ice-grade risk oxygen sidesteps), [[net-value-identity]]/one further claim of the retiring ledger that the register cannot resolve to a section, and [[grade-independent-demand]]; [[helium-procurement-energy]] to [[bound-oxygen-mare]] (multi-volatile inventory and co-stream), [[offtake-record]]/[[signed-offtake-break]] (He-3 is the only signed offtake), [[net-value-identity]], and [[iron-production-energy]] (solar-wind helium-3 is preferentially retained in ilmenite, the titanium ore, so the high-titanium mare basalts targeted for helium-3 are the same terrain this section's titanium and iron chemistry concentrates in); [[iron-production-energy]] to [[oxygen-extraction-energy]] (same reactor, shared Schreiner evidence and decomposition order), [[sintering-specific-energy]]/[[sintering-yield]] (construction feedstock), [[net-value-identity]], and [[helium-procurement-energy]] (ilmenite is the shared ore; beneficiating high-titanium mare regolith for one concentrates the other).",
+  "tags": "oxygen, carbothermal, propellant, helium-3, mare, iron, silicon, aluminium, titanium, carbon, electrolysis, regolith. ---"
+ }, "offtake-record": {
   "was": "Zero Water or Propellant Offtakes Are Signed; He-3 Is the Only Signed ISRU Market",
   "claim": "demand",
   "statement": "Supply designs for water and propellant are viable, but no signed lunar water or propellant offtake agreement exists; the only signed ISRU offtake to date is helium-3, a fusion-fuel co-product play. Near-term demand for grade-independent products is anchored to government-led surface build-out, not a commercial propellant market. This is the demand-side reality behind the value identity ([[net-value-identity]]) and the falsification test [[signed-offtake-break]].",
@@ -5309,7 +5359,7 @@
   "evidence": [
    {
     "n": "1",
-    "text": "Landed-plant-per-output X by product, all model values sourced in their own claims: construction about 1 to 2 kg per t/yr ([[sintering-specific-energy]], [[sintering-yield]]), water about 330 to 1,000 kg per t/yr (Kleinhenz 2020, Kornuta 2019; [[energy-per-tonne]], [[energy-per-kilogram]]), oxygen about 150 to 400 kg per t/yr (Colozza 2020; [[oxygen-extraction-energy]]), iron about 400 to 500 kg per t/yr ([[iron-production-energy]]), helium-3 about 760,000 kg per t/yr ([[helium-procurement-energy]]). The construction X of about 1 to 2 kg is itself a design construct, not a Metzger-reported number."
+    "text": "Landed-plant-per-output X by product, all model values sourced in their own claims: construction about 1 to 2 kg per t/yr ([[sintering-specific-energy]], [[sintering-yield]]), water about 330 to 1,000 kg per t/yr (Kleinhenz 2020, Kornuta 2019; [[energy-per-tonne]], [[energy-per-kilogram]]), oxygen about 150 to 400 kg per t/yr (Colozza 2020; [[oxygen-extraction-energy]]), an unassayed alloy co-product about 400 to 500 kg per t/yr on the shared oxygen reactor, not a priced iron product line ([[iron-production-energy]]), helium-3 about 760,000 kg per t/yr ([[helium-procurement-energy]]). The construction X of about 1 to 2 kg is itself a design construct, not a Metzger-reported number."
    },
    {
     "n": "2",
@@ -6388,6 +6438,84 @@
    "ledger"
   ]
  },
+ "sibille-2011": {
+  "authors": "Sibille, L., Sadoway, D. R., Sirk, A., Tripathy, P., Melendez, O., Standish, E., & Stefanescu, D. M.",
+  "year": "2011",
+  "title": "Performance testing of molten regolith electrolysis with transfer of molten material for the production of oxygen and metals on the Moon",
+  "venue": "NASA Technical Reports Server",
+  "locator": "NTRS 20110008524",
+  "doi": "",
+  "url": "https://ntrs.nasa.gov/citations/20110008524",
+  "note": "An 11-page scanned report. Contains no numbered tables and no tabulated product composition anywhere; every current-efficiency and yield figure cited from it in this app is read off its Figures 1 to 10.",
+  "seenIn": [
+   "ledger"
+  ]
+ },
+ "sirk-2011": {
+  "authors": "Sirk, A. H. C., Sadoway, D. R., & Sibille, L.",
+  "year": "2011",
+  "title": "Direct electrolysis of molten lunar regolith for the production of oxygen and metals on the Moon",
+  "venue": "NASA Technical Reports Server",
+  "locator": "NTRS 20110008535",
+  "doi": "",
+  "url": "https://ntrs.nasa.gov/citations/20110008535",
+  "note": "A one-page scanned conference abstract, two figures, zero tables. The conference venue is not printed anywhere in the source and is not constructed.",
+  "seenIn": [
+   "ledger"
+  ]
+ },
+ "grossman-2020": {
+  "authors": "Grossman, K. D., Sibille, L., Petersen, E., Bell, E., Toro-Medina, J., Wang, J., Williams, H., Newbold, T., Zacny, K., & Bates, I.",
+  "year": "2020",
+  "title": "Development of a cold-walled molten regolith electrolysis reactor for lunar oxygen production",
+  "venue": "",
+  "locator": "",
+  "doi": "",
+  "url": "",
+  "note": "A one-page extended abstract, one figure, zero tables. Its conference venue is not printed anywhere in the source and is not constructed. No silicon quantity of any kind, mass, fraction or otherwise, appears in this source; a manufacturability cap attributed to it elsewhere in this corpus does not resolve here.",
+  "seenIn": [
+   "ledger"
+  ]
+ },
+ "patel-2023": {
+  "authors": "Patel, P. B., Soto, J., Adams, Z. K., et al.",
+  "year": "2023",
+  "title": "Producing lunar steel and oxygen using molten lunar regolith electrolysis",
+  "venue": "AIAA ASCEND 2023",
+  "locator": "",
+  "doi": "10.2514/6.2023-4794",
+  "url": "",
+  "note": "13 pages. Its demonstrated result is unalloyed iron at bench scale; its named steel product is a design target the paper states it has not yet built, and its alloying carbon and manganese are stated as Earth-supplied.",
+  "seenIn": [
+   "ledger"
+  ]
+ },
+ "runyon-2022": {
+  "authors": "Runyon, K. D., Berdis, J., Summers, B., Clyde, B., Hibbitts, K., Nord, M., & Fuhrman, W.",
+  "year": "2022",
+  "title": "A systems-level approach to extracting oxygen from lunar regolith via molten regolith electrolysis",
+  "venue": "73rd International Astronautical Congress, Paris, France",
+  "locator": "IAC-22-A3,IPB,4,x69869",
+  "doi": "",
+  "url": "",
+  "note": "13 pages, zero tables; every mass, power and throughput figure lives in running prose. Its own metals denominator is 109 kg regolith to 16 kg oxygen, 14 kg reduced silicon and 79 kg aluminium-calcium slag.",
+  "seenIn": [
+   "ledger"
+  ]
+ },
+ "vai-2010": {
+  "authors": "Vai, A. T., Yurko, J. A., Wang, D. H., & Sadoway, D. R.",
+  "year": "2010",
+  "title": "Molten oxide electrolysis for lunar oxygen generation using in-situ resources",
+  "venue": "EPD Congress 2010 (Jim Evans Honorary Symposium), TMS",
+  "locator": "301-308",
+  "doi": "",
+  "url": "",
+  "note": "Its central data object, Figure 3, is a table delivered as a raster image inside the PDF; every figure cited from it in this app is transcribed from that printed table, not digitized from artwork.",
+  "seenIn": [
+   "ledger"
+  ]
+ },
  "azami-2024": {
   "authors": "Azami et al.",
   "year": "2024",
@@ -6897,7 +7025,13 @@
  ],
  "iron-production-energy": [
   "schreiner-2016",
-  "guerrero-gonzalez-zabel-2023"
+  "guerrero-gonzalez-zabel-2023",
+  "sibille-2011",
+  "vai-2010",
+  "sirk-2011",
+  "grossman-2020",
+  "runyon-2022",
+  "patel-2023"
  ],
  "offtake-record": [
   "kornuta-2019",
@@ -7413,7 +7547,7 @@
        says what a positive propellant value is in words: Earth delivery cost the programme
        does not pay. No numeric leaf moved and no claim changed its subject.
        The value below is EXT3's own recompute against the patched file. */
-    __pin: "05056aca"
+    __pin: "792b895d"
   };
 
   root.KNOB_DATA = KNOB_DATA;
