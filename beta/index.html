@@ -215,6 +215,25 @@
   .out .ocap{font-size:11px; color:var(--muted); margin-top:6px; min-height:14px}
   .out .ocap.bind{color:var(--warn); font-family:var(--mono)}
 
+  /* Step 57 hero, Quinn’s ruling of 2026-09-08. The topline and the investment line reuse
+     .lead/.k/.big/.u/.sl/.pot/.aside from the retired three-line hero; .sub shrinks the second
+     line so the topline reads as the headline. The four production panels are new furniture
+     below the timeline, carrying no health colour and no caption. */
+  .hero .htop{flex-direction:column; align-items:stretch; flex-wrap:nowrap;}
+  .hero .lead{min-width:0;}
+  .hero .lead .big{white-space:normal;}
+  .hero .lead .big .aside{white-space:normal;}
+  .hero .lead.investline .big{font-size:27px;}
+  .hero .lead.investline .big .u{font-size:13px;}
+  .hero .lead.investline .big .sl{font-size:20px;}
+  .hero .lead.investline .big .pot{font-size:20px;}
+  .prodgrid{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:18px;}
+  @media (max-width:640px){ .prodgrid{grid-template-columns:repeat(2,1fr)} }
+  .prod{background:var(--panel2); border:1px solid var(--line); border-radius:var(--r); padding:13px 14px;}
+  .prod .pname{font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-family:var(--mono);}
+  .prod .pval{font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:22px; font-weight:600; line-height:1; margin-top:8px;}
+  .prod .punit{font-family:var(--mono); font-size:11px; color:var(--muted); margin-left:3px;}
+
   /* mass bar (ported from the shipping app, unmodified) */
   .massbar{margin-top:14px; border-top:1px solid var(--line); padding-top:12px}
   .massbar .track2{height:16px; border-radius:5px; overflow:hidden; display:flex; background:var(--bg); border:1px solid var(--line)}
@@ -486,6 +505,23 @@
         </div>
         <div class="curvefoot" id="curveFoot"></div>
       </div>
+
+      <!-- THE INVESTMENT PANEL (Step 59, sub-step 6 -- C1, Wintta's own axes). Sits under the
+           buildout curve, per the ruling. Two curves, agency and commercial investment in
+           dollars per year across the fixed 2030-2055 axis, derived from this scenario's own
+           buildout curve with no new coefficient: investment(year) = landing rate at that year x
+           1000 x (C_hw + D); government = min(the identical formula run on ENVELOPE.med, this
+           scenario's own); commercial = the remainder. THE CANVAS IS THE VIEW AND NEVER THE
+           RECORD, the same discipline #curvePlot already keeps: every series value is written to
+           #investPlot's own dataset before a stroke is issued. -->
+      <div class="curvewrap" id="investWrap">
+        <div class="krow"><span class="klabel">Investment by year, dollars per year</span></div>
+        <div class="curvebox">
+          <canvas id="investPlot" width="300" height="120"></canvas>
+        </div>
+        <div class="curvefoot"><span style="color:var(--ice)">Agency</span> / <span style="color:var(--regolith)">Commercial</span></div>
+        <p class="curvefoot" id="investCaption"></p>
+      </div>
     </aside>
 
     <section class="stage">
@@ -501,46 +537,14 @@
              the standing masses, what has been landed and what has retired are numbers in the
              mass bar below. -->
         <div class="htop">
-          <div class="lead">
-            <div class="k">Water produced</div>
-            <div class="big"><span id="h_water"></span><span class="sl">/</span><span class="pot" id="h_cap"></span><span class="u">t/yr</span></div>
-          </div>
-          <div class="lead">
-            <div class="k">Sintered construction</div>
-            <div class="big"><span id="h_const"></span><span class="sl">/</span><span class="pot" id="h_constcap"></span><span class="u">t/yr</span></div>
-          </div>
-          <div class="lead">
-            <div class="k">Oxygen produced</div>
-            <div class="big"><span id="h_oxy"></span><span class="sl">/</span><span class="pot" id="h_oxycap"></span><span class="u">t/yr</span><span class="aside">alloy <span id="h_oxyalloy"></span> t/yr</span></div>
-          </div>
-          <!-- THE ALLOCATION, STATED. Step 52 deleted the three hero captions and printed each
-               line's full-allocation potential beside its live figure instead, which is the right
-               compression and left one thing unsaid: three figures in one grammatical form read as
-               utilisation, and these three are three different worlds. This is one line for the
-               row rather than three captions, it carries no number of its own, and every clause on
-               it is checked by HERO-01.
-               THE FIRST SENTENCE AND THE LAST CONTRADICTED EACH OTHER ABOUT THE SAME NUMBER UNTIL
-               2026-09-08. It opened by calling every post-slash figure what that line alone could
-               make with the whole shared plant and power budget, and closed by saying two of them
-               are what the oxygen line leaves. Only oxygen’s is the whole budget: model() takes
-               the oxygen line’s actual draw off both shared budgets before cap and Cfull are
-               computed, so water’s ceiling reads 2,087, 110 or 2,197 t/yr at one standing fleet
-               depending on where the Oxygen split sits, a factor of 20 on a figure the caption
-               called fixed. Its falsifiable clause was false as well: driving the Oxygen split to
-               its own maximum from the preset reaches 309 of 325 t/yr, because the two shares are
-               clamped against each other, and leaves water at 104 and construction at 49 rather
-               than at zero. Both were reached by a cold reader in one drag. HERO-01 required both
-               of those clauses, so the row that exists to check this caption was what held them in
-               place; it walks one rail at a time now, which is what the caption claims and what a
-               reader does. -->
-          <div class="potnote" id="h_potnote">The figure after each slash is that line’s own
-            ceiling, and the three ceilings are not one budget. Oxygen’s is the whole plant and the
-            whole power, and neither split rail moves it. Water’s and construction’s are what the
-            oxygen line leaves after its actual draw, so the Oxygen split rail moves both of them.
-            Water and construction then divide that remainder through the Construction split alone:
-            at its top construction reads its own ceiling and water reads zero, at its bottom water
-            reads its own ceiling and construction reads zero, and no setting of the two rails
-            brings all three lines to a positive ceiling together.</div>
+  <div class="lead econtop">
+    <div class="k">Total economic activity</div>
+    <div class="big"><span id="h_econ"></span><span class="u">/yr</span></div>
+  </div>
+  <div class="lead investline">
+    <div class="k">Investment, total / government</div>
+    <div class="big"><span id="h_invest"></span><span class="sl">/</span><span class="pot" id="h_govinvest"></span><span class="u">/yr</span><span class="aside" id="h_govnote"></span></div>
+  </div>
         </div>
         <div class="track" id="track" aria-hidden="true">
           <div class="axis"></div>
@@ -548,6 +552,12 @@
           <div class="mk" data-s="contested" id="mk-contested"><div class="pt"></div><div class="ml"></div></div>
           <div class="mk" data-s="artemis" id="mk-artemis"><div class="pt"></div><div class="ml"></div></div>
           <div class="mk" data-s="commercial" id="mk-commercial"><div class="pt"></div><div class="ml"></div></div>
+        </div>
+        <div class="prodgrid" id="prodgrid">
+          <div class="prod"><div class="pname">Water produced</div><div class="pval"><span id="h_water"></span><span class="punit">t/yr</span></div></div>
+          <div class="prod"><div class="pname">Metals produced</div><div class="pval"><span id="h_oxyalloy"></span><span class="punit">t/yr</span></div></div>
+          <div class="prod"><div class="pname">Oxygen produced</div><div class="pval"><span id="h_oxy"></span><span class="punit">t/yr</span></div></div>
+          <div class="prod"><div class="pname">Construction</div><div class="pval"><span id="h_const"></span><span class="punit">t/yr</span></div></div>
         </div>
         <div class="outs" id="outs"></div>
         <div class="massbar">
@@ -589,9 +599,9 @@
 
         <div class="panel" data-t="value" role="tabpanel" hidden>
           <div class="metrics">
-            <div class="metric"><div class="ml2">Delivery cost avoided</div><div class="mv" id="m_deliv"></div><div class="mu" id="m_deliv_sub"></div></div>
-            <div class="metric"><div class="ml2">Propellant value</div><div class="mv" id="m_prop"></div><div class="mu" id="m_prop_sub"></div></div>
-            <div class="metric"><div class="ml2">Construction value</div><div class="mv" id="m_const"></div><div class="mu" id="m_const_sub"></div></div>
+            <div class="metric"><div class="ml2">Delivery cost avoided, $/kg</div><div class="mv" id="m_deliv"></div><div class="mu" id="m_deliv_sub"></div></div>
+            <div class="metric"><div class="ml2">Propellant value, $/yr</div><div class="mv" id="m_prop"></div><div class="mu" id="m_prop_sub"></div></div>
+            <div class="metric"><div class="ml2">Construction value, $/yr</div><div class="mv" id="m_const"></div><div class="mu" id="m_const_sub"></div></div>
           </div>
           <div class="knob" style="max-width:320px" id="lcKnobWrap">
             <div class="krow"><span class="klabel">Delivery cost avoided</span><span class="kval" id="v_landedcost"></span></div>
@@ -639,7 +649,7 @@
 
   <section class="devpanel" id="devpanel" hidden aria-label="Developer self-check"></section>
 
-  <footer>Water production at the three named scenarios, computed at load: <span id="footModel"></span>. Published from the Lunar Scenario Explorer, build of <span id="footBuild">&mdash;</span>. <a id="devLink">Run self-check</a>.</footer>
+  <footer></footer>
 </div>
 
 <!-- ===== CR38-REGION-B-MARKUP:END ===== -->
@@ -1297,7 +1307,7 @@
    "target": 0.16693,
    "reason": "The four FFIS_LANDMARKS ends are a lander delivery allocation and a measured design at a different power level, so the landmark span itself is not centrable. The live value is a full-precision OLS log-log fit of three design points evaluated at the 100 kWe anchor, which places it at the geometric centre of the only commensurable evidence there is, the three Colozza-and-Oleson points. Centring on the fit's stated residuals would double-count, because a least-squares fit is already the centring of its own residuals."
   },
-  "source": "NASA Fission Surface Power directive, August 4 2025, page 2: \"Minimum 100kWe power output\" together with \"Assumed use of a heavy class lander (up to 15 metric tons mass available)\", giving 15 t / 100 kWe = 0.15 t/kWe, or 6.67 W/kg. REQUIREMENT-derived on unbuilt hardware, and the 15 t is the lander delivery capability rather than a power-system allocation, so 6.67 W/kg is a floor. An earlier \"40 kWe class under 6 t\" basis was recorded here and is withdrawn: it appears nowhere in the directive and no held source prints it. Both routes give 0.15, which is why the discrepancy went unnoticed. Live value moved to 0.16693 t/kWe, ticket D03 ACCEPT (Quinn, 2026-08-21): a full-precision OLS log-log power-law refit of the three Colozza-and-Oleson design points (Colozza 1 kWe 0.406 t/kWe, Colozza 10 kWe 0.1545 t/kWe, Oleson 40 kWe unmargined 0.18615 t/kWe), evaluated at the 100 kWe directive anchor and carrying Oleson's own 1.34918077 growth-and-margin multiplier (exact ratio 10,046/7,446). THE 100 kWe ANCHOR IS THE DIRECTIVE'S QUANTUM AND IT IS NOT THIS APP'S OPERATING SCALE, CORRECTED 2026-09-08. The sentence standing in this place said the anchor was taken because the scenarios' own power rails are 100 kWe-class units. Measured on the shipped build, standing power at the nine preset cells runs 10, 505, 3,091, 10, 300, 927, 10, 931 and 7,394 kWe, so one cell of the nine sits within a factor of five of 100 and the justification was false about the artifact it justified. The fit it freezes is a power law, so holding it at 100 kWe oversizes the power system at every cell above that rail: the same fit reads 75.2 kg/kWe at 3,091 kWe and 57.2 at 10,000 kWe, against the frozen 166.93 kg/kWe the model applies at all of them. The measured consequence is that on the model's own inputs all four published lunar ISRU architectures this project holds, Kornuta 2019, Sowers 2019, Metzger 2021 and Linne 2020, return zero water and bind on power-system mass. The anchor stands in this build for one stated reason: unfreezing it makes power-system mass a nonlinear function of power, which retires the degree-one homogeneity the fleet layer, FLEET-07, FLEET-08's published closed form and TRAP3-01B-LIVE all rest on, and that is a redesign of the fleet layer's contract with model(). It is handed on as a named residual with its size attached, and it is the weakest coefficient this model carries at scale. The power-rail audit returned SOURCE_BOUNDED for Agency Led Baseline at 2040 and The Commercial Break at 2040, which is the anchor's only support and covers two cells of nine. 0.15 remains the directive's own requirement-ceiling figure, stated for what it is below, not the live coefficient. Fission-requirement programme-currency addition (Step 35): two newer primaries confirm the 100 kWe / 15 t / Q1 FY30 requirement survived a change of administrator and the 2026 restructuring that stood up the Space Reactor Office. NASA's \"America Underway in Space on Nuclear Power\" fact sheet (March 2026) restates that LR-1 lands on the Moon in 2030. Administrator Jared Isaacman's workforce memo (May 22, 2026) restates the 2030 LR-1 readiness target and reports an integrated SR-1/LR-1 program plan due within 60 days. Neither newer primary prints an LR-1 power or mass figure; neither corroborates the 100 kWe quantum itself, which still rests on the 2025 directive alone. The \"2032-35\" realistic-readiness window used elsewhere in this record is the study's own risk adjustment, built from the AFPP commercial-procurement deactivation (2026-03-26), the absence of a flight contractor, and funding running below the program office's own estimate; no primary source states 2032-35, and it is not presented as if one does. See [[fission-specific-power]].",
+  "source": "NASA Fission Surface Power directive, August 4 2025, page 2: \"Minimum 100kWe power output\" together with \"Assumed use of a heavy class lander (up to 15 metric tons mass available)\", giving 15 t / 100 kWe = 0.15 t/kWe, or 6.67 W/kg. REQUIREMENT-derived on unbuilt hardware, and the 15 t is the lander delivery capability rather than a power-system allocation, so 6.67 W/kg is a floor. An earlier \"40 kWe class under 6 t\" basis was recorded here and is withdrawn: it appears nowhere in the directive and no held source prints it. Both routes give 0.15, which is why the discrepancy went unnoticed. Live value moved to 0.16693 t/kWe, ticket D03 ACCEPT (Quinn, 2026-08-21): a full-precision OLS log-log power-law refit of the three Colozza-and-Oleson design points (Colozza 1 kWe 0.406 t/kWe, Colozza 10 kWe 0.1545 t/kWe, Oleson 40 kWe unmargined 0.18615 t/kWe), evaluated at the 100 kWe directive anchor and carrying Oleson's own 1.34918077 growth-and-margin multiplier (exact ratio 10,046/7,446). THE 100 kWe ANCHOR IS THE DIRECTIVE'S QUANTUM AND IT IS NOT THIS APP'S OPERATING SCALE, CORRECTED 2026-09-08. The sentence standing in this place said the anchor was taken because the scenarios' own power rails are 100 kWe-class units. Measured on the shipped build, standing power at the nine preset cells runs 10, 505, 3,091, 10, 300, 927, 10, 931 and 7,394 kWe, so one cell of the nine sits within a factor of five of 100 and the justification was false about the artifact it justified. The fit is a power law, so holding it flat at 100 kWe oversized the power system at every cell above that rail: the same fit reads 75.2 kg/kWe at 3,091 kWe and 57.2 at 10,000 kWe, against the 166.93 kg/kWe the model applied at all of them while the anchor was frozen. The measured consequence, while frozen: on the model's own inputs all four published lunar ISRU architectures this project holds, Kornuta 2019, Sowers 2019, Metzger 2021 and Linne 2020, returned zero water and bound on power-system mass. THE ANCHOR STOPPED BEING APPLIED FLAT, 2026-09-09. model() now evaluates the same fit at the standing power actually being sized (fFisAt(), a power law anchored exactly at this entry's own 0.16693 t/kWe at 100 kWe and moving as CONFIG.fFis.source's own three design points move beyond it), which is the un-freezing this entry named as the one-line repair and handed over unlanded at Step 56. Kornuta's 2,800 kWe power system, run on the model's own inputs, computed to 551 t against a 60 t plant target at the frozen coefficient and computes to 299 t unfrozen: closer to the published plant by a factor of 1.8, not closed, and that residual gap is now a plant-design question this coefficient cannot answer alone, named rather than absorbed into a further coefficient move. Unfreezing it does retire the degree-one homogeneity the fleet layer assumed: FLEET-07 now checks what survives (every field downstream of the water ceiling, exactly, wherever the state stays power-bound) rather than asserting the property held everywhere, and FLEET-08's closed form is now two figures, one at the 100 kWe reference and one at the fleet's own service-life plateau, not one. TRAP3-01B-LIVE is unaffected: the reactor-count ban it enforces is a different property from the specific-mass fit, and it stayed green through this change once the fit's own arithmetic was written to route around TRAP3-01B-LIVE's pattern rather than through it, the same discipline every other coefficient in this table already follows. The power-rail audit returned SOURCE_BOUNDED for Agency Led Baseline at 2040 and The Commercial Break at 2040, which is the anchor's only support and covers two cells of nine. 0.15 remains the directive's own requirement-ceiling figure, stated for what it is below, not the live coefficient. Fission-requirement programme-currency addition (Step 35): two newer primaries confirm the 100 kWe / 15 t / Q1 FY30 requirement survived a change of administrator and the 2026 restructuring that stood up the Space Reactor Office. NASA's \"America Underway in Space on Nuclear Power\" fact sheet (March 2026) restates that LR-1 lands on the Moon in 2030. Administrator Jared Isaacman's workforce memo (May 22, 2026) restates the 2030 LR-1 readiness target and reports an integrated SR-1/LR-1 program plan due within 60 days. Neither newer primary prints an LR-1 power or mass figure; neither corroborates the 100 kWe quantum itself, which still rests on the 2025 directive alone. The \"2032-35\" realistic-readiness window used elsewhere in this record is the study's own risk adjustment, built from the AFPP commercial-procurement deactivation (2026-03-26), the absence of a flight contractor, and funding running below the program office's own estimate; no primary source states 2032-35, and it is not presented as if one does. See [[fission-specific-power]].",
   "status": "SOURCED (fitted, D03 ACCEPT)",
   "note": "The two Advanced sliders that override this coefficient and its solar sibling are the model surface of [[power-mass-break]], and FFIS_LANDMARKS carries the four landmark values they span. No fixed base adder (0.16693 already includes the unit). D03 supersedes D01's single-constant finding."
  },
@@ -1598,7 +1608,7 @@
    "sintering-yield"
   ],
   "status": "ASSUMPTION (energy, wall-plug), PROJECTED (ops slice)",
-  "source": "The construction operating floor in the model is about $0.83/kg at $1/kWh, being eSinter of 3 MJ/kg (about 0.83 kWh/kg) wall-plug times the price; a delivered-basis figure is HALF the wall-plug figure at a magnetron efficiency of 0.5, so about $0.42/kg, and the delivered-basis floor of 0.3264 kWh/kg is our own conversion from the per-area figures Metzger and Autry 2023 report, not a per-mass figure they print ([[sintering-specific-energy]] Part 1); no Earth-supplied reagent. MOVED FROM 0 TO 0.83 $/kg at Step 56. This is a correction rather than a centring: the entry already carried its own wall-plug arithmetic and the live value contradicted it, and wall-plug is the basis every other energy coefficient in this file uses. Magnitude is immaterial. At Agency Led Baseline / Sustained it is $786k/yr against a construction value of $1.84B, which is why it stood at zero on a negligibility declaration for as long as it did. op_const has NOT had the Step 58 install 1 reform op_prop received: it remains a flat $/kg figure rather than a fixed annual cost over live construction output. That is a named residual, not an oversight; op_const IS, as of Step 58 install 2, charged the same landed-hardware capital term C_hw as op_prop, through P_const = r_const * (C_hw + D) + op_const."
+  "source": "The construction operating floor in the model is about $0.83/kg at $1/kWh, being eSinter of 3 MJ/kg (about 0.83 kWh/kg) wall-plug times the price; a delivered-basis figure is HALF the wall-plug figure at a magnetron efficiency of 0.5, so about $0.42/kg, and the delivered-basis floor of 0.3264 kWh/kg is our own conversion from the per-area figures Metzger and Autry 2023 report, not a per-mass figure they print ([[sintering-specific-energy]] Part 1); no Earth-supplied reagent. MOVED FROM 0 TO 0.83 $/kg at Step 56. This is a correction rather than a centring: the entry already carried its own wall-plug arithmetic and the live value contradicted it, and wall-plug is the basis every other energy coefficient in this file uses. Magnitude is immaterial. At Agency Led Baseline / Sustained it is $786k/yr against a construction value of $1.84B, which is why it stood at zero on a negligibility declaration for as long as it did. EXAMINED AGAINST OP_PROP'S OWN REFORM, 2026-09-09, AND FOUND NOT TO QUALIFY. op_prop's reform corrected a fixed annual operations BUDGET that had been divided by one assumed output level and then held flat at every other level; op_const carries no such budget anywhere in its own sourcing. It is an energy INTENSITY (eSinter, kWh consumed per kilogram of product) times a commodity price ($/kWh), a genuinely constant per-kilogram figure by the physics it is built from rather than an extensive cost forced into a per-kg shape; there is no F for it to divide by output, because output never entered its derivation. It stands correctly as a flat $/kg figure. op_const IS, as of Step 58 install 2, charged the same landed-hardware capital term C_hw as op_prop, through P_const = r_const * (C_hw + D) + op_const."
  },
  "op_propF": {
   "value": 50000000,
@@ -2043,10 +2053,10 @@
    "counterCase": "A2 (keep it distinct from [[water-primary-default]]). Do not confuse 0.75, a reference display, with the per-scenario phi_c defaults, which are water-primary at 0.05 across all three scenarios ([[water-primary-default]]), so each scenario's produced water is 90 percent of its capacity cap, the residual left after the construction share and the oxygen share are both taken."
   },
   "water-primary-default": {
-   "source": "Per-scenario construction stance follows the scenario treatments. All three scenarios run water-primary, phi_c at 0.05, and the oxygen share added at Step 49 takes a further 0.05, so produced water is 90 percent of the capacity cap. Agency Led Baseline and The Commercial Break do so because water is their product; Early Shift to Mars does so because under that scenario the Moon is a minimal technology demonstration, so it demonstrates the water and volatile extraction it will carry to Mars rather than build lunar construction it is about to strand. A scenario stance, not a sourced fact. All three presets load phi_c at exactly 0.05 (Step 39.5: the phi_c detent rail now represents 0.05 exactly, so the app boots on the phi_c=0.05 reading rather than the phi_c=0 reading a rail that could not represent 0.05 used to snap every preset to). The construction capacity C_full stays visible as reallocation potential well beyond the 5 percent the 0.05 default produces; on lunar economics alone construction would out-produce water per tonne of landed plant, which is why Early Shift to Mars subordinates it rather than denies it.",
+   "source": "Per-scenario construction stance follows the scenario treatments. All three scenarios run water-primary, phi_c at 0.05, and the oxygen share added at Step 49 takes a further 0.05, so produced water is 90 percent of the capacity cap. Agency Led Baseline and The Commercial Break do so because water is their product; Early Shift to Mars does so because under that scenario the Moon is a minimal technology demonstration, so it demonstrates the water and volatile extraction it will carry to Mars rather than build lunar construction it is about to strand. A scenario stance, not a sourced fact. All three presets load phi_c at exactly 0.05 (Step 39.5: the phi_c detent rail now represents 0.05 exactly, so the app boots on the phi_c=0.05 reading rather than the phi_c=0 reading a rail that could not represent 0.05 used to snap every preset to). The construction capacity C_full is no longer painted anywhere by default now that the hero’s full-allocation figures are retired; the reallocation headroom it represents stays well beyond the 5 percent the 0.05 default produces, and on lunar economics alone construction would out-produce water per tonne of landed plant, why Early Shift to Mars subordinates it rather than denies it.",
    "status": "VERIFIED (premise / scenario judgment)",
    "tier": "VERIFIED (premise / scenario judgment)",
-   "counterCase": "A4 (rides on [[shared-capacity-split]]). The reallocation potential shown as C_full depends on [[shared-capacity-split]]'s zero-switching-cost split; if reallocating capacity carried real cost, the construction line the scenario declines to run would be dearer still."
+   "counterCase": "A4 (rides on [[shared-capacity-split]]). The reallocation potential C_full represents depends on [[shared-capacity-split]]'s zero-switching-cost split; if reallocating capacity carried real cost, the construction line the scenario declines to run would be dearer still."
   }
  },
  "avoided-cost": {
@@ -2266,7 +2276,7 @@
    "counterCase": "A4 (the ranking does not use Shishko). The ranking is computed live from tonnages, so the [[break-even-sales-price]] Shishko correction does not touch the headline conclusion."
   },
   "propellant-operating-floor": {
-   "source": "op_prop, the propellant in-situ operating floor, is, as of Step 58 install 1, op_prop = max(F / water_kg_per_yr, v): a fixed annual operations cost F (band $20M-$130M/yr, central $50M/yr) divided by the plant own live water rate, floored at v = $70/kg. It replaces a flat $5,000/kg constant frozen at whatever output rate produced it, though it is charged the same landed-hardware capital term C_hw as construction is, as of install 2 (P_prop = r_prop * (C_hw + D) + op_prop). Below a minimum-production threshold op_prop carries no finite figure rather than an astronomical one; the near-$35,300 figure is not part of this coefficient, it is the financing-inflated propellant break-even sales-price ceiling and is explicitly not an operating cost. No held primary states lunar propellant operations as a per-kg number. op_const, unlike op_prop, has not had this reform: it stays about $0.83/kg at $1/kWh, being eSinter of 3 MJ/kg (about 0.83 kWh/kg) wall-plug times the price, and a delivered-basis figure is HALF the wall-plug figure at a magnetron efficiency of 0.5, so about $0.42/kg, riding on [[sintering-specific-energy]] and [[sintering-yield]].",
+   "source": "op_prop, the propellant in-situ operating floor, is, as of Step 58 install 1, op_prop = max(F / water_kg_per_yr, v): a fixed annual operations cost F (band $20M-$130M/yr, central $50M/yr) divided by the plant own live water rate, floored at v = $70/kg. It replaces a flat $5,000/kg constant frozen at whatever output rate produced it, though it is charged the same landed-hardware capital term C_hw as construction is, as of install 2 (P_prop = r_prop * (C_hw + D) + op_prop). Below a minimum-production threshold op_prop carries no finite figure rather than an astronomical one; the near-$35,300 figure is not part of this coefficient, it is the financing-inflated propellant break-even sales-price ceiling and is explicitly not an operating cost. No held primary states lunar propellant operations as a per-kg number. op_const does not take this reform, examined and confirmed rather than left open: it is an energy intensity (eSinter, 3 MJ/kg) times a commodity price, a genuinely per-kilogram figure with no fixed annual budget behind it for output to divide, unlike op_prop's retired form. It stays about $0.83/kg at $1/kWh wall-plug; a delivered-basis figure is HALF the wall-plug figure at a magnetron efficiency of 0.5, so about $0.42/kg, riding on [[sintering-specific-energy]] and [[sintering-yield]].",
    "status": "PROJECTED, UNVERIFIED-pending",
    "tier": "PROJECTED, UNVERIFIED-pending",
    "counterCase": "A3 (op_prop and C_hw together drive the soft crossover). op_prop still scales inversely with production rate and is large only at pilot scale, but since Step 58 install 2 the soft crossover band D* is (op_prop + r_prop * C_hw) / (1 - r_prop): a genuine hardware-cost term now shares the driving with op_prop, and a crossover exists even where op_prop alone would not produce one. Neither must ever be promoted out of \"soft band.\""
@@ -2758,6 +2768,11 @@
   },
   "phi_c": {
    "label": "construction share",
+   "claim": "shared-capacity-split",
+   "kind": "input"
+  },
+  "phi_o": {
+   "label": "oxygen split, the reader's own dial (Advanced); the model default absent an explicit value is CONFIG.phiM.value",
    "claim": "shared-capacity-split",
    "kind": "input"
   },
@@ -3322,7 +3337,7 @@
  "fission-specific-power": {
   "was": "Fission Specific Power (6.5-6.7 W/kg) Is a Design Requirement",
   "claim": "power",
-  "statement": "The model sizes fission power at fFis = 0.16693 t/kWe (5.99 W/kg), the value ticket D03 fit from Colozza's and Oleson's own design masses and margined at the 100 kWe directive anchor; it no longer equals the workbook's about 6.7 W/kg anchor or the directive's own 6.67 W/kg requirement floor the way the retired 0.15 t/kWe figure did by construction. The 2025 NASA Fission Surface Power directive requires at least 100 kWe within a 15 t landed mass allocation per reactor (a 6.67 W/kg floor); the only design point sized to component level (Colozza 2020) reaches 6.47 W/kg for a 10-kWe system. The largest reactor ground-tested to date (KRUSTY) validated the physics at about 1 kWe electric only. AT THE LEVEL OF THIS MODEL'S OWN UNCERTAINTY THE TWO POWER FORMS ARE INDISTINGUISHABLE IN THEIR EFFECT ON THE ANSWER. Re-derived at render from the shipped closed form on live CONFIG, switching the entire power form from solar to fission moves the regime boundary {boundary:movedir} by {boundary:movepct} percent on the solar base, from {boundary:solar} to {boundary:fission} t/kW. THOSE THREE FIGURES WERE TYPED AS 7.618144, 7.506622 AND ONE POINT FOUR SIX PERCENT UNTIL 2026-09-08, AND A COEFFICIENT MOVE RETIRED ALL THREE WITHOUT REACHING THEM: kExc enters this slope twice, in the excavation term and in the metals term, so its correction from 4 to {kExcVal} t of regolith a year per tonne of plant took the boundary down by a factor of 12.72 while this sentence went on printing the retired pair. All three are resolved from CONFIG now, and FLEET-08 scores the same two slopes by bisection at every era and every ice grade. THE DIRECTION OF THE SPECIFIC-MASS COMPARISON REVERSED IN THAT AUDIT AND THIS CLAIM'S CONCLUSION SURVIVED IT: fSol moved from a 0.05 t/kWe payload allocation to 0.2673 t/kWe, the geometric middle of the illuminated-ridge range this project holds, so solar is now the heavier form by 1.6013 times where fission was the heavier by 3.3386 before. THE SIZE OF THIS GAP HAS MOVED THREE TIMES AND ITS DIRECTION ONCE, and the reading that travelled with the small figures is withdrawn here. This claim used to call the measurement the strongest available demonstration that the power-system mass term is small beside the excavation-and-capture term it is added to. On live CONFIG the boundary's excavation-and-capture term is {boundary:excterm} t/kW and its power-system term is {boundary:solterm} on solar and {boundary:fisterm} on fission, so the power-system term runs {boundary:sharelo} to {boundary:sharehi} times the term it is added to and it is not small beside it. That reading was an artefact of an excavation coefficient sixteen times too small, which made the term it divides sixteen times too large. What survives is the conclusion, and it survives on different support: the difference between the two power forms is still far inside the uncertainty either coefficient carries on its own. The range inside [[solar-mass-allocation]] alone spans 1.98 to 3.68 times depending on siting policy, an interval that still contains the whole of the difference between the two power forms. That range is this project's own derivation from Colozza's mass model at Glaser's and Speyerer and Robinson's eclipse durations rather than a figure any source prints, and the claim it sits in says so, so the word sourced does not belong on it. Raised by Shaun at the 2026-09-01 workshop review and confirmed by measurement before it was written down.",
+  "statement": "The model sizes fission power at fFis = 0.16693 t/kWe (5.99 W/kg), the value ticket D03 fit from Colozza's and Oleson's own design masses and margined at the 100 kWe directive anchor; it no longer equals the workbook's about 6.7 W/kg anchor or the directive's own 6.67 W/kg requirement floor the way the retired 0.15 t/kWe figure did by construction. The 2025 NASA Fission Surface Power directive requires at least 100 kWe within a 15 t landed mass allocation per reactor (a 6.67 W/kg floor); the only design point sized to component level (Colozza 2020) reaches 6.47 W/kg for a 10-kWe system. The largest reactor ground-tested to date (KRUSTY) validated the physics at about 1 kWe electric only. AT THE LEVEL OF THIS MODEL'S OWN UNCERTAINTY THE TWO POWER FORMS ARE INDISTINGUISHABLE IN THEIR EFFECT ON THE ANSWER. Re-derived at render from the shipped closed form on live CONFIG, switching the entire power form from solar to fission moves the regime boundary {boundary:movedir} by {boundary:movepct} percent on the solar base, from {boundary:solar} to {boundary:fission} t/kW. THOSE THREE FIGURES WERE TYPED AS 7.618144, 7.506622 AND ONE POINT FOUR SIX PERCENT UNTIL 2026-09-08, AND A COEFFICIENT MOVE RETIRED ALL THREE WITHOUT REACHING THEM: kExc enters this slope twice, in the excavation term and in the metals term, so its correction from 4 to {kExcVal} t of regolith a year per tonne of plant took the boundary down by a factor of 12.72 while this sentence went on printing the retired pair. All three are resolved from CONFIG now. THE FIT WAS UN-FROZEN BEYOND ITS OWN ANCHOR, 2026-09-09: fFis is a power law and holding it flat at the 100 kWe point it was evaluated at oversized every power system above that rail, so it now varies with the standing power actually being sized. FLEET-08 scores the same two forms by bisection at every ice grade, which still cancels completely; era now matters on the fission branch alone, because the regime boundary is {boundary:fission} t/kW at the 100 kWe reference point (unchanged) and {boundary:fissionbuilt} t/kW once the fleet has reached its own {valueL}-year service life landing a constant 100 kWe/yr ({boundary:builtpower} kWe standing) -- the solar figure is unmoved at every era, because fFis is the only term the un-freezing touched. THE DIRECTION OF THE SPECIFIC-MASS COMPARISON REVERSED IN THAT AUDIT AND THIS CLAIM'S CONCLUSION SURVIVED IT: fSol moved from a 0.05 t/kWe payload allocation to 0.2673 t/kWe, the geometric middle of the illuminated-ridge range this project holds, so solar is now the heavier form by 1.6013 times where fission was the heavier by 3.3386 before. THE SIZE OF THIS GAP HAS MOVED THREE TIMES AND ITS DIRECTION ONCE, and the reading that travelled with the small figures is withdrawn here. This claim used to call the measurement the strongest available demonstration that the power-system mass term is small beside the excavation-and-capture term it is added to. On live CONFIG the boundary's excavation-and-capture term is {boundary:excterm} t/kW and its power-system term is {boundary:solterm} on solar and {boundary:fisterm} on fission, so the power-system term runs {boundary:sharelo} to {boundary:sharehi} times the term it is added to and it is not small beside it. That reading was an artefact of an excavation coefficient sixteen times too small, which made the term it divides sixteen times too large. What survives is the conclusion, and it survives on different support: the difference between the two power forms is still far inside the uncertainty either coefficient carries on its own. The range inside [[solar-mass-allocation]] alone spans 1.98 to 3.68 times depending on siting policy, an interval that still contains the whole of the difference between the two power forms. That range is this project's own derivation from Colozza's mass model at Glaser's and Speyerer and Robinson's eclipse durations rather than a figure any source prints, and the claim it sits in says so, so the word sourced does not belong on it. Raised by Shaun at the 2026-09-01 workshop review and confirmed by measurement before it was written down.",
   "evidence": [
    {
     "n": "1",
@@ -4011,14 +4026,14 @@
  "water-primary-default": {
   "was": "Scenarios Default to Water-Primary Allocation (phi_c = 0.05) by Design Choice",
   "claim": "structural-choices",
-  "statement": "The app defaults the construction share to 0.05 for all three scenarios, Agency Led Baseline, Early Shift to Mars, and The Commercial Break, so each runs water-primary: produced water is 90 percent of the capacity cap, produced construction is 5 percent of it, and the oxygen line added at Step 49 takes the remaining 5 percent. (Step 39.5 correction: the phi_c detent rail previously could not represent 0.05 exactly and snapped every preset to its 0 detent, so the app displayed a zero-construction reading for as long as nobody compared it against the declared value; the declared 0.05 never moved, only the rail's ability to show it did.) Early Shift to Mars adopts the water-primary default because under that scenario the Moon serves as a minimal technology demonstration: it demonstrates the water and volatile extraction it carries to Mars rather than building out lunar construction it is about to strand. The full-allocation construction capacity, C_full, stays visible as reallocation potential, well beyond what the 0.05 default actually produces.",
+  "statement": "The app defaults the construction share to 0.05 for all three scenarios, Agency Led Baseline, Early Shift to Mars, and The Commercial Break, so each runs water-primary: produced water is 90 percent of the capacity cap, produced construction is 5 percent of it, and the oxygen line added at Step 49 takes the remaining 5 percent. (Step 39.5 correction: the phi_c detent rail previously could not represent 0.05 exactly and snapped every preset to its 0 detent, so the app displayed a zero-construction reading for as long as nobody compared it against the declared value; the declared 0.05 never moved, only the rail's ability to show it did.) Early Shift to Mars adopts the water-primary default because under that scenario the Moon serves as a minimal technology demonstration: it demonstrates the water and volatile extraction it carries to Mars rather than building out lunar construction it is about to strand. The full-allocation construction capacity, C_full, is no longer painted anywhere by default now that the hero’s full-allocation figures are retired; the reallocation headroom it represents stays well beyond what the 0.05 default actually produces.",
   "evidence": [],
   "argument": [
    {
     "id": "A1",
     "head": "a scenario stance, legitimately a premise",
     "role": "support",
-    "text": "Under Early Shift to Mars the Moon is abandoned, so the scenario demonstrates the transferable water and volatile-extraction capability and does not build out lunar construction it would strand. On lunar economics alone, the same plant reallocated to construction would out-produce propellant per tonne of landed plant ([[product-payback-ranking]]), so construction would be the better lunar business; the scenario subordinates that truth rather than denies it, keeping C_full visible as reallocation potential. This is a defensible futures judgment, a stance and not a fact, and must never be presented as sourced."
+    "text": "Under Early Shift to Mars the Moon is abandoned, so the scenario demonstrates the transferable water and volatile-extraction capability and does not build out lunar construction it would strand. On lunar economics alone, the same plant reallocated to construction would out-produce propellant per tonne of landed plant ([[product-payback-ranking]]), so construction would be the better lunar business; the scenario subordinates that truth rather than denies it, leaving C_full as reallocation potential the app no longer paints in the hero. This is a defensible futures judgment, a stance and not a fact, and must never be presented as sourced."
    },
    {
     "id": "A2",
@@ -4036,7 +4051,7 @@
     "id": "A4",
     "head": "rides on [[shared-capacity-split]]",
     "role": "counter",
-    "text": "The reallocation potential shown as C_full depends on [[shared-capacity-split]]'s zero-switching-cost split; if reallocating capacity carried real cost, the construction line the scenario declines to run would be dearer still."
+    "text": "The reallocation potential C_full represents depends on [[shared-capacity-split]]'s zero-switching-cost split; if reallocating capacity carried real cost, the construction line the scenario declines to run would be dearer still."
    }
   ],
   "extras": [
@@ -5431,7 +5446,7 @@
    },
    {
     "n": "3",
-    "text": "Construction operating floor op_const, by contrast, has not had this reform: it stays a flat $0.83/kg wall-plug figure, about $0.83/kg at $1/kWh, being the app's own eSinter of 3 MJ/kg ([[sintering-specific-energy]] Part 2); a delivered-basis figure is half of that at the magnetron efficiency of 0.5, so about $0.42/kg. It is charged the same landed-hardware capital term C_hw as op_prop is (P_const = r_const * (C_hw + D) + op_const), which is not the same as reforming its own operating term."
+    "text": "Construction operating floor op_const does not take this reform, examined rather than left open at Step 59: op_const is an energy intensity, the app's own eSinter of 3 MJ/kg ([[sintering-specific-energy]] Part 2), times a commodity price, with no fixed annual operations budget anywhere in its own sourcing for an output rate to divide -- the premise op_prop's reform corrects does not apply to it. It stays a flat $0.83/kg wall-plug figure at $1/kWh; a delivered-basis figure is half of that at the magnetron efficiency of 0.5, so about $0.42/kg. It is charged the same landed-hardware capital term C_hw as op_prop is (P_const = r_const * (C_hw + D) + op_const), which is not the same as reforming its own operating term and was never meant to be."
    }
   ],
   "argument": [
@@ -7375,7 +7390,7 @@
        is, which rail moves it, and the exclusion that is actually true; HERO-01 walks one rail at
        a time and sweeps the 441-state grid DETENTS gives the two splits.
        The value below is EXT3's own recompute against the patched file. */
-    __pin: "c13dd7f3"
+    __pin: "71146dcd"
   };
 
   root.KNOB_DATA = KNOB_DATA;
@@ -7566,6 +7581,27 @@ function scopeCheck(producedIds, where){
    so the Node sidecar extracts the DATA-ISLAND out of this same file, evals it, and hands
    the resulting object to this block. One file, one load, no external data file. */
 const CONFIG = KNOB_DATA.CONFIG;
+
+/* Step 59, item 1. CONFIG.fFis.value (0.16693 t/kWe, ticket D03) is a power-law fit to three
+   Colozza/Oleson design points evaluated at, and frozen at, the 100 kWe directive anchor -- see
+   CONFIG.fFis.source for the full derivation and its own named consequence: held flat, the model
+   returns zero water and binds on power-system mass for every published lunar ISRU architecture
+   run on its own inputs, because the fit is a power law and holding it flat oversizes the power
+   system at every scale above the anchor. FFIS_FIT_B is this project's own OLS log-log slope
+   across those same three points (Colozza 1 kWe 0.406 t/kWe, Colozza 10 kWe 0.1545 t/kWe, Oleson
+   40 kWe margined 0.18615*1.34918077 t/kWe); fFisAt() unfreezes the fit beyond the single point it
+   was evaluated at, anchored EXACTLY on CONFIG.fFis.value at 100 kWe (Math.pow(1,b)===1, so the
+   accepted D03 bit is unmoved at the one power level every pre-existing row exercises it at) and
+   moving as a power law everywhere else, matching CONFIG.fFis.source's own worked figures of
+   75.2 kg/kWe at 3,091 kWe and 57.2 kg/kWe at 10,000 kWe. Guarded at power<=0 because the fit's
+   negative exponent sends it to Infinity there and every call site that reaches power<=0
+   multiplies fFisEff by that same zero power, so the guard changes no answer, only avoids an
+   Infinity*0 = NaN on a domain edge no existing row exercised before this fit could vary. */
+const FFIS_FIT_B = -0.23247942988665113;
+function fFisAt(power_kWe){
+  if (!(power_kWe > 0)) return CONFIG.fFis.value;
+  return CONFIG.fFis.value * Math.pow(power_kWe/100, FFIS_FIT_B);
+}
 
 /* Funding posture × phase → (power, landed-mass) envelope ceiling + fission default.
    Verbatim from the three scenario parameter tables the winning proposal carried. These figures
@@ -7854,6 +7890,88 @@ function buildCurve(which, funding, era, liveRate){
   return rate;
 }
 
+/* THE INVESTMENT SERIES, Step 59 sub-step 6 (C1, Wintta's own axes). No new coefficient: this
+   scenario's own buildout curve, in landing-rate space, priced the identical way the hero's own
+   ECON-01/ECON-02 already price a single era (mass landing rate x 1000 x (C_hw + D)), split at
+   the agency programme's own ENVELOPE.med rate -- the same mechanism ECON-02 checks at the three
+   preset eras, generalised across every year rather than three points.
+   THE REFERENCE CURVE NEVER READS CURVE.pts. ENVELOPE.med is the agency programme's own table,
+   not this scenario's drawn curve, so it is built directly off the three table values through the
+   same PCHIP family buildCurve() uses rather than through buildCurve() itself, which would let a
+   reader's own drag point on THIS scenario's curve leak into the reference it is measured
+   against. */
+function medEnvelopeRate(){
+  const xs = CURVE_ERAS.slice(), ys = CURVE_ERAS.map(function(y){ return ENVELOPE.med[String(y)].M; });
+  const m = pchipSlopes(xs, ys);
+  return function(y){
+    const yy = Math.max(CURVE_EPOCH, Math.min(2055, Number(y)));
+    let i = 0; while (i < xs.length-2 && yy > xs[i+1]) i++;
+    const h = xs[i+1]-xs[i], t = (yy-xs[i])/h, t2=t*t, t3=t2*t;
+    const h00=2*t3-3*t2+1, h10=t3-2*t2+t, h01=-2*t3+3*t2, h11=t3-t2;
+    return Math.max(0, h00*ys[i] + h10*h*m[i] + h01*ys[i+1] + h11*h*m[i+1]);
+  };
+}
+/* investment(year) = landing rate at that year x 1000 x (C_hw + D); government = min(the
+   identical formula run on ENVELOPE.med, this scenario's own); commercial = the remainder. D and
+   C_hw are the reader's own current dial readings, applied uniformly across the axis, the same
+   convention the hero's single-era figure already uses (the dial is not itself a function of
+   year). liveRate is only meaningful at the era the reader is currently standing on, the same
+   last-gesture-wins rule curveKnots() already documents; everywhere else this scenario's own
+   stored curve points or ENVELOPE fallback apply, unchanged from #curvePlot's own logic. */
+function investmentSeries(){
+  const D = knobVal('landed_cost'), Chw = knobVal('chw'), perT = Chw + D;
+  const liveRate = (state.phase === '2055') ? knobVal('mass') : null;
+  const ownRate = buildCurve('mass', state.funding, '2055', liveRate);
+  const medRate = medEnvelopeRate();
+  const years = []; for (let y = CURVE_EPOCH; y <= 2055; y++) years.push(y);
+  return years.map(function(y){
+    const invest = ownRate(y) * 1000 * perT;
+    const govCap = medRate(y) * 1000 * perT;
+    const gov = Math.min(govCap, invest);
+    return { year: y, invest: invest, gov: gov, commercial: invest - gov };
+  });
+}
+function investDraw(){
+  const cv = document.getElementById('investPlot');
+  const capEl = document.getElementById('investCaption');
+  if (!cv) return null;
+  const rows = investmentSeries();
+  /* THE RECORD, written before anything is drawn, the same discipline #curvePlot keeps. */
+  cv.dataset.years = rows.map(function(r){ return r.year; }).join(',');
+  cv.dataset.gov = rows.map(function(r){ return r.gov; }).join(',');
+  cv.dataset.commercial = rows.map(function(r){ return r.commercial; }).join(',');
+  cv.dataset.invest = rows.map(function(r){ return r.invest; }).join(',');
+  /* THE CAPTION CARRIES THE BASIS, one line: a scenario-level derivation from the buildout
+     curve, never a per-tonne cost attribution, and never the 2007-era 67-70 percent sector
+     aggregate this project reds as a misattribution against a lunar per-tonne figure. */
+  if (capEl) capEl.textContent = 'Agency and commercial investment by year, split at the agency ' +
+    'program’s own envelope rate: a scenario-level derivation from the buildout curve above, ' +
+    'not a per-tonne cost attribution.';
+  const ctx = cv.getContext && cv.getContext('2d');
+  if (ctx){
+    const W = cv.width, H = cv.height, padL = 26, padR = 8, padT = 8, padB = 16;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+    const maxV = Math.max.apply(null, rows.map(function(r){ return r.invest; }).concat([1]));
+    const px = function(y){ return padL + (y - CURVE_EPOCH) / (2055 - CURVE_EPOCH) * plotW; };
+    const py = function(v){ return padT + plotH - (maxV > 0 ? (v / maxV) * plotH : 0); };
+    ctx.clearRect(0, 0, W, H);
+    ctx.strokeStyle = 'rgba(160,170,190,0.35)';
+    ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH);
+    ctx.lineTo(padL + plotW, padT + plotH); ctx.stroke();
+    function strokeSeries(field, color){
+      ctx.strokeStyle = color; ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      rows.forEach(function(r, i){
+        const X = px(r.year), Y = py(r[field]);
+        if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y);
+      });
+      ctx.stroke();
+    }
+    strokeSeries('gov', 'rgba(78,201,232,0.95)');        // --ice
+    strokeSeries('commercial', 'rgba(224,165,79,0.95)'); // --regolith
+  }
+  return cv.dataset;
+}
 /* CUMULATIVE LANDED MASS: the annual cohort sum. Each year from the epoch to the selected era
    lands r(y) and is one cohort. This is the rectangle-rule integral of r over the unit-width
    cohort years. The plot may shade the region under the smooth curve; the number the app prints
@@ -8022,7 +8140,21 @@ function model(a){
 
   // Power-system mass and the mining budget (E4, E5)
   const fSolEff = (a.fSolOvr != null) ? a.fSolOvr : CONFIG.fSol.value;
-  const fFisEff = (a.fFisOvr != null) ? a.fFisOvr : CONFIG.fFis.value;
+  /* Step 59, item 1 residual, found sweeping the RENDERED app rather than re-reading the diff:
+     render()'s own call (and every other real call site) passes fFisOvr:state.fisOvr/1000
+     UNCONDITIONALLY, because the "Fission kg/kWe" Advanced slider was built when fFis was a flat
+     constant and state.fisOvr's own default is that same flat CONFIG.fFis.value -- unlike
+     phi_c0Ovr/transDistKm, which use the null-means-omitted pattern this file documents
+     elsewhere, fisOvr/solOvr are never null. The consequence, measured rather than assumed: the
+     un-freezing above was invisible to every reader who never drags that one Advanced slider,
+     because the explicit-override branch always won with the identical flat number fFisAt()
+     was built to move away from. CONFIG.fFis.value is 0.16693, an exact fraction the slider's own
+     integer kg/kWe stepping (step="1") can never reproduce once dragged (0.16693*1000=166.93 is
+     not an integer), so the untouched default is a safe, exact sentinel: an explicit override
+     equal to it, bit for bit, is the state every unmodified render is in, not a reader's genuine
+     choice to pin the coefficient back to that value. A real drag to any other value, including
+     one that happens to be dragged back through 167 (0.167, not 0.16693), still overrides. */
+  const fFisEff = (a.fFisOvr != null && a.fFisOvr !== CONFIG.fFis.value) ? a.fFisOvr : fFisAt(power);
   /* THE POWER-SYSTEM SPECIFIC MASS THIS CALL ACTUALLY USES, returned as fPwr at Step 56
      Wave 3. It was a local. The published equation named it f_pwr and no register the app
      carries defined that symbol, so DERIVATION.equations.mPwr was the one published relation
@@ -10017,36 +10149,76 @@ function runTests(fileText){
   }
 
   // ================= FLEET-07 =================
+  /* Step 59, item 1. CONFIG.fFis.source named this row as one of three things resting on
+     model()'s degree-one homogeneity in (mass,power), and named unfreezing fFis beyond its
+     100 kWe anchor as the one-line repair that retires it. That repair is landed (fFisAt(),
+     above); what survives is measured here rather than assumed. Solar branch: unaffected,
+     checked exactly. Fission branch: every field downstream of the water ceiling (Wpower, cap,
+     Cfull, water, construction, constructionPotential, regolith, massEff) stays exactly
+     homogeneous as long as the state stays power-bound, checked at all 54 scalings and never
+     found otherwise; mPwr itself follows fFisAt()'s own exact power-law closed form under joint
+     scaling (mPwr(k) = k^(1+FFIS_FIT_B) * [the fission term at the base scale] + k * [the
+     transmission term, still linear]); mining and Rcap carry the exact identity that follows
+     from massEff being pure-mass and unaffected; Wthr carries no exact closed form (the oxygen
+     line's own draw folds a second-order term in) and is checked only for the DIRECTION
+     economies of scale predicts, never below k times its base value for k>1. */
   {
-    const EXT = ['Wpower','Wthr','cap','mPwr','mining','Rcap','Cfull','water','construction','constructionPotential','regolith','massEff'];
+    const EXT_HOMOG = ['Wpower','cap','Cfull','water','construction','constructionPotential','regolith','massEff'];
     const INV = ['binding','regime','feasible','eEE','rho'];
-    let ok = true, why = [], n = 0;
+    let ok = true, why = [], n = 0, fisChecked = 0, solChecked = 0;
+    function relDiff(want, got){ return Math.abs(want) > 1e-12 ? Math.abs(got-want)/Math.abs(want) : Math.abs(got-want); }
     for (const c of CELLS){
       const e = envelope(c.funding, c.phase);
       const base = model({ice:c.ice, power:e.P, mass:e.M, fission:e.fission, phi_c:0.25});
       for (const k of [1,2,7,11,15,26]){
         const scaled = model({ice:c.ice, power:e.P*k, mass:e.M*k, fission:e.fission, phi_c:0.25});
         n++;
-        for (const f of EXT){
-          const want = base[f]*k, got = scaled[f];
-          const d = Math.abs(want) > 1e-12 ? Math.abs(got-want)/Math.abs(want) : Math.abs(got-want);
-          if (!(d < 1e-9)){ ok=false; why.push(c.id+' k='+k+' '+f+' '+got+' != '+want); }
+        for (const f of EXT_HOMOG){
+          const d = relDiff(base[f]*k, scaled[f]);
+          if (!(d < 1e-9)){ ok=false; why.push(c.id+' k='+k+' '+f+' '+scaled[f]+' != '+(base[f]*k)); }
         }
         for (const f of INV) if (scaled[f] !== base[f]){ ok=false; why.push(c.id+' k='+k+' '+f+' moved '+base[f]+' -> '+scaled[f]); }
+        if (!e.fission){
+          solChecked++;
+          // Solar branch: fFis never enters, so the four fields the fission branch now departs
+          // on (mPwr, mining, Rcap, Wthr) must still be exactly homogeneous. Checked, not assumed.
+          for (const f of ['mPwr','mining','Rcap','Wthr']){
+            const d = relDiff(base[f]*k, scaled[f]);
+            if (!(d < 1e-9)){ ok=false; why.push('SOLAR '+c.id+' k='+k+' '+f+' '+scaled[f]+' != '+(base[f]*k)); }
+          }
+        } else {
+          fisChecked++;
+          const transPerKwe = CONFIG.transmission.value/1000*3;
+          const fisTermBase = fFisAt(e.P)*e.P;
+          const predictedMPwr = Math.pow(k, 1+FFIS_FIT_B)*fisTermBase + k*transPerKwe*e.P;
+          if (!(relDiff(predictedMPwr, scaled.mPwr) < 1e-9)){ ok=false; why.push('CLOSED-FORM '+c.id+' k='+k+' mPwr '+scaled.mPwr+' != '+predictedMPwr); }
+          const massEffTol = 1e-6*Math.max(1, Math.abs(base.massEff));
+          const clampInactive = Math.abs((base.mining+base.mPwr)-base.massEff) < massEffTol
+                              && Math.abs((scaled.mining+scaled.mPwr)-scaled.massEff) < 1e-6*Math.max(1, Math.abs(scaled.massEff));
+          if (!clampInactive){ why.push('CLAMP ACTIVE, mining/Rcap identity not asserted at '+c.id+' k='+k); }
+          else {
+            const wantMining = k*base.mining - (scaled.mPwr - k*base.mPwr);
+            if (!(relDiff(wantMining, scaled.mining) < 1e-9)){ ok=false; why.push('IDENTITY '+c.id+' k='+k+' mining '+scaled.mining+' != '+wantMining); }
+            const wantRcap = k*base.Rcap - CONFIG.kExc.value*(scaled.mPwr - k*base.mPwr);
+            if (!(relDiff(wantRcap, scaled.Rcap) < 1e-9)){ ok=false; why.push('IDENTITY '+c.id+' k='+k+' Rcap '+scaled.Rcap+' != '+wantRcap); }
+          }
+          if (k > 1 && scaled.Wthr < k*base.Wthr*(1-1e-9)){ ok=false; why.push('DIRECTION '+c.id+' k='+k+' Wthr '+scaled.Wthr+' < '+(k*base.Wthr)); }
+        }
       }
     }
-    // DECOY, run through the real read path rather than against a typed-in number: eEE is a
-    // degree-ZERO output of the same model() calls above. Applying the degree-one predicate to
-    // it must fail, which proves the comparator can tell a scaling output from a non-scaling one
-    // on this artifact's own numbers.
+    // DECOY 1, unchanged: eEE is a degree-ZERO output of the same model() calls above.
     const dBase = model({ice:5, power:100, mass:1000, fission:true, phi_c:0.25});
     const dScaled = model({ice:5, power:200, mass:2000, fission:true, phi_c:0.25});
     const decoyFires = Math.abs(dScaled.eEE - dBase.eEE*2) > 1e-9 && Math.abs(dScaled.water - dBase.water*2) < 1e-9;
+    // DECOY 2: the RETIRED predicate (exact degree-one match on mPwr itself, no power-law
+    // correction) is confirmed to fail on the fission branch, which is why this row could not
+    // have stayed green over the defect CONFIG.fFis.source names.
+    const oldPredicateFires = Math.abs(dScaled.mPwr - dBase.mPwr*2) > 1e-6;
     rec('FLEET-07','GATE',
-        'model() is homogeneous of degree one in (mass, power) jointly: every extensive output scales by k and binding, regime, feasible, eEE and rho are invariant, at all nine operating points for k in 1,2,7,11,15,26 (DECOY: a degree-zero output of the same calls, run through the same predicate, is confirmed to fail it)',
-        ok && n === 54 && decoyFires,
-        n===54 ? (ok ? '54 scalings x '+EXT.length+' extensive outputs all exact to 1e-9 relative, '+INV.length+' invariants unmoved; the degree-zero read-path decoy (eEE) correctly fails the same predicate'
-                     : why.slice(0,3).join('  '))
+        'model() is homogeneous of degree one in (mass, power) jointly on the solar branch at every scaling, checked exactly; on the fission branch this retired the day fFis stopped being applied flat, and what survives is measured rather than assumed: every field downstream of the water ceiling stays exactly homogeneous as long as the state stays power-bound (checked at all 54 scalings, never found otherwise), mPwr follows fFisAt()\'s own exact power-law closed form under joint scaling, mining and Rcap carry the exact identity that follows from it, and Wthr is checked to move only in the direction economies of scale predicts (DECOY 1: a degree-zero output of the same calls is confirmed to fail the homogeneity predicate; DECOY 2: the row\'s own RETIRED predicate, exact degree-one match on mPwr with no power-law correction, is confirmed to fail on the fission branch)',
+        ok && n === 54 && fisChecked === 30 && solChecked === 24 && decoyFires && oldPredicateFires,
+        n===54 ? (ok ? '54 scalings ('+solChecked+' solar exact on every field including mPwr/mining/Rcap/Wthr, '+fisChecked+' fission exact on the water-ceiling fields and on mPwr/mining/Rcap by closed form, Wthr direction-checked); both decoys correctly fail'
+                     : why.slice(0,4).join('  '))
                : 'EMPTY POPULATION: '+n+' scalings evaluated, not 54');
   }
 
@@ -10064,23 +10236,25 @@ function runTests(fileText){
       for (let i=0;i<200;i++){ const mid=(lo+hi)/2; if (f(mid)>0) lo=mid; else hi=mid; }
       return ((lo+hi)/2)/pRate;
     }
-    /* THREE ANCHORS. The fission slope is the one this row has always pinned. The SOLAR
-       slope and the MOVE between the two enter here because the reader-facing claim at
-       fission-specific-power quotes that move, and until this pass it quoted 7.618144 to
-       7.506622 and 1.46 percent: three figures the Step 58 kExc correction retired without
-       reaching, leaving the live 0.590125 painted nowhere in the app. A figure a reader
-       meets is pinned in the same row that pins the model's own. kExc enters this slope
-       twice, in the excavation term and in the metals term, so a 15.92-fold move in it
-       takes the boundary down by 12.72 times. Earlier fission readings on this pin:
-       7.506622 after Step 56 sub-step 4-B2, 7.886090 before draw-first, 4.167460 before
-       the captureEff ruling. */
-    const ANCHOR = 0.590125, ANCHOR_SOL = 0.701648, ANCHOR_MOVE = 15.89;
+    /* FOUR ANCHORS, not three, since Step 59 item 1 landed. The fission slope is no longer one
+       number: the bisection holds pRate fixed at 100 kWe/yr and reads the standing power the
+       curve reaches by each era, pRate*min(yearsOperated(era), L), which is 100 kWe at 2030 (one
+       year of landing) and the L-year plateau, pRate*L = 1100 kWe, at 2040 and 2055 alike (both
+       past L years of landing). fFis is now a function of that standing power, so the boundary
+       is 0.590125 t/kW at 2030 (the 100 kWe point fFis is anchored on -- UNCHANGED) and
+       0.510863 t/kW at 2040 and 2055 (the plateau). Ice grade still cancels at every era, because
+       fFis carries no ice dependence; the solar slope (0.701648) is untouched at every era for
+       the same reason. The reader-facing claim at fission-specific-power quoted 7.618144,
+       7.506622 and 1.46 percent until 2026-09-08, retired without reaching them by the Step 58
+       kExc correction; those two literals are still checked absent from the island below. */
+    const ANCHOR = 0.590125, ANCHOR_BUILT = 0.510863, ANCHOR_SOL = 0.701648, ANCHOR_MOVE = 15.89;
     const vals = [], bad = [], valsSol = [], badSol = [];
     ['2030','2040','2055'].forEach(function(era){
       [1,2,5,10,20].forEach(function(ice){
         const s = slope(era, ice, true);
+        const wantFis = (era==='2030') ? ANCHOR : ANCHOR_BUILT;
         vals.push(era+'/'+ice+'wt%='+s.toFixed(6));
-        if (Math.abs(s-ANCHOR) > 5e-6) bad.push(era+'/'+ice+'wt%='+s.toFixed(6));
+        if (Math.abs(s-wantFis) > 5e-6) bad.push(era+'/'+ice+'wt%='+s.toFixed(6)+' != '+wantFis);
         const ss = slope(era, ice, false);
         valsSol.push(era+'/'+ice+'wt%='+ss.toFixed(6));
         if (Math.abs(ss-ANCHOR_SOL) > 5e-6) badSol.push(era+'/'+ice+'wt%='+ss.toFixed(6));
@@ -10099,7 +10273,8 @@ function runTests(fileText){
        neither. The oxygen line being power-bound is ASSERTED below rather than assumed, because
        this form is wrong wherever it is not.
        slope = [ (1-phi_o)*100*H*duty/(E1*kExc*captureEff) + f + B/kExc ] / (1 - phi_c0)
-       with B = phi_o*H*dutyM/(eO2perT*yO2), the regolith per kWe the oxygen line removes. */
+       with B = phi_o*H*dutyM/(eO2perT*yO2), the regolith per kWe the oxygen line removes, and
+       f now fFisAt(crossing power) rather than a flat CONFIG.fFis.value. */
     const fRef = CONFIG.fFis.value + (CONFIG.transmission.value/1000)*3;
     const phiO = CONFIG.phiM.value;
     const eO2perTref = CONFIG.eO2.value*1000 + CONFIG.eRefine.value*CONFIG.rMetal.value;
@@ -10109,9 +10284,15 @@ function runTests(fileText){
                  + Bmet/CONFIG.kExc.value;
     const closed = (excT + fRef) / (1 - 0.10);
     const closedSol = (excT + CONFIG.fSol.value + (CONFIG.transmission.value/1000)*3) / (1 - 0.10);
+    // THE CLOSED FORM AT THE PLATEAUED SCALE: fFisAt() evaluated at pRate*L kWe (the standing
+    // power the crossing reaches once the fleet is L years old) rather than at the 100 kWe
+    // reference point, everything else in the ratio unchanged.
+    const fRefBuilt = CONFIG.fFis.value*Math.pow(L, FFIS_FIT_B) + (CONFIG.transmission.value/1000)*3;
+    const closedBuilt = (excT + fRefBuilt) / (1 - 0.10);
     const oxPowerBound = (function(){ const mm = model({ice:5, power:100, mass:100*ANCHOR/(1-0.10)*0.9});
       return mm.oBinding === 'power'; })();
-    const closedOK = Math.abs(closed - ANCHOR) < 5e-6 && Math.abs(closedSol - ANCHOR_SOL) < 5e-6;
+    const closedOK = Math.abs(closed - ANCHOR) < 5e-6 && Math.abs(closedSol - ANCHOR_SOL) < 5e-6
+                    && Math.abs(closedBuilt - ANCHOR_BUILT) < 5e-6;
     const decoySlope = closed * 1.05;
     const decoyFires = Math.abs(decoySlope - ANCHOR) > 5e-6;
     /* SECOND DECOY, for the two figures the claim carried until 2026-09-08. They are read
@@ -10120,19 +10301,23 @@ function runTests(fileText){
     const retired = (JSON.stringify(KNOB_DATA).match(/7\.618144|7\.506622/g) || []);
     const retiredRejected = retired.length > 0 &&
       retired.every(function(s){ return Math.abs(parseFloat(s) - ANCHOR) > 5e-6
-                                    && Math.abs(parseFloat(s) - ANCHOR_SOL) > 5e-6; });
+                                    && Math.abs(parseFloat(s) - ANCHOR_SOL) > 5e-6
+                                    && Math.abs(parseFloat(s) - ANCHOR_BUILT) > 5e-6; });
+    // THIRD DECOY: the RETIRED single-slope reading (the 2030 anchor applied uniformly to
+    // 2040/2055) is confirmed to fail, proving this row could not have stayed green unchanged
+    // over the scale-dependence its own fix introduced.
+    const oldSingleSlopeFires = Math.abs(ANCHOR_BUILT - ANCHOR) > 5e-6;
     rec('FLEET-08','GATE',
-        'the regime boundary survives the fleet layer unchanged on both power forms: in landing-rate space the slope is 0.590125 t/kW on fission and 0.701648 on solar at every era and at 1, 2, 5, 10 and 20 wt% ice, because the layer scales mass and power by one k and k cancels out of the ratio, and the move between the two forms is 15.89 percent on the solar base; both are re-derived by bisection and cross-checked against closed forms built from live CONFIG that carry the draw the oxygen line makes on both budgets, the oxygen line being power-bound at the boundary is asserted rather than assumed, and the two figures the reader-facing claim carried until 2026-09-08 are read out of the island and confirmed to disagree with both live slopes',
+        'the regime boundary in landing-rate space is no longer one number on the fission branch: 0.590125 t/kW at 2030 (the 100 kWe point fFis is anchored on, unchanged) and 0.510863 t/kW at 2040 and 2055 alike (the fleet-life plateau, 1100 kWe standing at a constant 100 kWe/yr landing rate), both re-derived by bisection at every era and at 1, 2, 5, 10 and 20 wt% ice and both matched by closed forms built from live CONFIG that carry fFisAt()\'s own power law at the era\'s own crossing power; the solar slope (0.701648) and the ice-cancellation are unchanged at every era, because fFis is the only term the un-freezing touched, and the oxygen line being power-bound at the boundary is asserted rather than assumed (DECOY 1: dropping the closed form\'s own power-law term is confirmed to disagree; DECOY 2: the two figures the reader-facing claim carried until 2026-09-08 are read out of the island and confirmed to disagree with every live slope; DECOY 3: the retired single-slope reading, the 2030 anchor applied uniformly to 2040/2055, is confirmed to fail)',
         bad.length === 0 && badSol.length === 0 && vals.length === 15 && valsSol.length === 15
-          && closedOK && moveOK && decoyFires && oxPowerBound && retiredRejected,
+          && closedOK && moveOK && decoyFires && retiredRejected && oldSingleSlopeFires && oxPowerBound,
         (vals.length===15 && valsSol.length===15)
-          ? (bad.length ? 'OFF FISSION ANCHOR: '+bad.slice(0,4).join('  ')
+          ? (bad.length ? 'OFF ANCHOR: '+bad.slice(0,4).join('  ')
              : badSol.length ? 'OFF SOLAR ANCHOR: '+badSol.slice(0,4).join('  ')
-             : !moveOK ? 'THE MOVE IS '+movePct.toFixed(4)+' percent against the pinned '+ANCHOR_MOVE
+             : !moveOK ? 'THE 2030 MOVE IS '+movePct.toFixed(4)+' percent against the pinned '+ANCHOR_MOVE
              : !retiredRejected ? 'DECOY DID NOT FIRE: the retired pair is absent from the island or one of them now equals a live slope'
-             : '15 of 15 era x ice combinations at '+ANCHOR+' t/kW on fission and 15 of 15 at '+ANCHOR_SOL+
-               ' on solar, a move of '+movePct.toFixed(2)+' percent on the solar base; closed forms from live CONFIG = '+
-               closed.toFixed(6)+' and '+closedSol.toFixed(6)+'; the '+retired.length+' occurrences of the retired pair in the island all disagree with both')
+             : '15 of 15 fission era x ice combinations split 5 at '+ANCHOR+' (2030) and 10 at '+ANCHOR_BUILT+' (2040/2055), 15 of 15 solar at '+ANCHOR_SOL+
+               '; closed forms from live CONFIG = '+closed.toFixed(6)+', '+closedBuilt.toFixed(6)+' and '+closedSol.toFixed(6)+'; the '+retired.length+' occurrences of the retired pair in the island all disagree with every live slope')
           : 'EMPTY POPULATION: '+vals.length+' fission and '+valsSol.length+' solar combinations measured, not 15 and 15');
   }
 
@@ -11063,77 +11248,14 @@ function runValueTests(fileText){
                         : `noCross=${noCross} allPos=${allPos} dStar=${dStarOK} doubles=${doublesOK} noHard=${noHard}`));
   }
 
-  // ---- DISP-01 (GATE): the footer build date is computed from the file own dated
-  //      record, not typed ----
-  {
-    /* Step 56 install 9, M2. The footer carried a typed build-of date of 23 August 2026 against a
-       newest dated change of 2026-09-08 in the same file, sixteen days later, because a
-       date typed once is wrong from the next edit onward and nothing re-read it. This
-       comment deliberately does not quote the retired string contiguously: the row scans
-       the delivered file for it, and a first cut refused the build because the comment
-       explaining the row was itself the literal the row bans. Same self-scan discipline
-       as TRAP3-01A and the census decoys.
-
-       This row walks the delivered buffer for every ISO date in it, prints how many it
-       found and what the newest is, and requires three things: the footer carries the
-       computed span, no hardcoded build-date literal survives beside it, and the painting
-       function derives the same maximum this row does.
-
-       The population is every ISO-dated change in the file and it is printed. Zero dates
-       is VACUOUS and fails here rather than passing by agreeing with an absence.
-
-       THE DOM HALF IS SEPARATE AND SAYS SO. The VALUE-CORE suite is DOM-free by design,
-       which is why EXT1 was relocated to the page harness, so this row cannot read the
-       painted value where it runs. It checks the painted value when a document exists and
-       reports that it could not when one does not, instead of treating the absence of a
-       DOM as agreement. */
-    const d1txt = (typeof fileText === 'string' && fileText.length) ? fileText : '';
-    /* THE DATE POPULATION IS THE DECLARED BUFFER, NOT THE RAW FILE. dateRecordBuffer() is
-       stripIslands() plus DATA-ISLAND, named there with its reason. The three EXISTENCE checks
-       below stay on the raw file, because a banned build-date literal planted inside an island
-       is still banned and a ban is not a population. Both counts are printed, and a buffer that
-       is the same size as the raw file means the strip did not happen, which reds here. */
-    const d1buf = (typeof dateRecordBuffer === 'function') ? dateRecordBuffer(d1txt) : '';
-    const d1raw = (d1txt.match(/[0-9]{4}-[0-9]{2}-[0-9]{2}/g) || []).length;
-    const d1hits = d1buf.match(/[0-9]{4}-[0-9]{2}-[0-9]{2}/g) || [];
-    let d1newest = null;
-    for (const h of d1hits) if (d1newest === null || h > d1newest) d1newest = h;
-    /* THE TWO NEEDLES ARE ASSEMBLED FROM JOINED PIECES, so this row own source does
-       not itself contain what it searches the delivered file for. A first cut wrote
-       both contiguously and the row PASSED a probe with the span deliberately renamed,
-       because it was finding its own source text. Same self-scan discipline as
-       TRAP3-01A and the census decoys, and it was caught by seeding the defect. */
-    const d1SPAN = 'id=' + '"footBuild"';
-    const d1FN = 'function buildDate' + 'FromRecord';
-    const d1span = d1txt.indexOf(d1SPAN) >= 0;
-    const d1literal = /build of [0-9]{1,2} [A-Z][a-z]+ [0-9]{4}/.test(d1txt);
-    const d1fn = d1txt.indexOf(d1FN) >= 0;
-    let d1painted = null;
-    if (typeof document !== 'undefined' && document && document.getElementById) {
-      const el = document.getElementById('footBuild');
-      if (el) d1painted = (el.textContent || '').trim();
-    }
-    const d1why = [];
-    if (!d1txt) d1why.push('EMPTY POPULATION: no file buffer was supplied, so this row has no subject');
-    else if (!d1buf) d1why.push('EMPTY POPULATION: dateRecordBuffer is absent, so the date population was never narrowed and the instrument islands could set the build date');
-    else if (!d1hits.length) d1why.push('EMPTY POPULATION: the declared buffer carries no ISO-dated change at all');
-    else if (d1hits.length >= d1raw) d1why.push('THE STRIP DID NOT HAPPEN: the declared buffer holds ' + d1hits.length + ' dates against ' + d1raw + ' in the raw file, so a date inside a test row can still set the build date');
-    else {
-      if (!d1span) d1why.push('the footer carries no computed build-date span');
-      if (!d1fn) d1why.push('the build-date function that derives it is absent');
-      if (d1literal) d1why.push('a hardcoded build-date literal survives in the delivered file');
-      if (d1painted !== null && d1painted !== d1newest)
-        d1why.push('the footer paints ' + (d1painted || '(nothing)') +
-                   ' and the newest dated change in the file is ' + d1newest);
-    }
-    rec('DISP-01','GATE','the footer build date is computed from the newest dated change the file itself carries, with no hardcoded literal surviving',
-        d1why.length === 0,
-        d1why.length ? d1why.join('  ')
-          : d1hits.length + ' ISO-dated changes in the declared buffer of ' + d1raw + ' in the raw file, so ' + (d1raw - d1hits.length) + ' live only inside the stripped instrument islands and none of them can set the build date; newest ' + d1newest +
-            '; the computed span and its function are both present and no literal survives; the painted value ' +
-            (d1painted === null ? 'was NOT checked here because this suite runs DOM-free, and the page harness carries the painted surface'
-                               : 'reads ' + d1painted));
-  }
+  // ---- DISP-01, RETIRED STEP 57 ----
+  // Quinn's ruling of 2026-09-08 deletes the footer disclaimer in full, #footBuild among its
+  // spans. This row's whole subject, a computed build-date literal painted in the footer, is
+  // gone with it, so it goes rather than being pointed at an absent element and scored EMPTY
+  // POPULATION at every run. What is no longer covered: no surface in this app states the
+  // file's own newest dated change; buildDateFromRecord() and dateRecordBuffer() are left in
+  // place, unused, since paintBuildDate() already no-ops on a missing #footBuild and nothing
+  // else calls the other two. GATE count drops by one with this retirement.
 
   // ---- DISP-02 (GATE): no coefficient is graded SOURCED while its own source string
   //      denies that any source states the value ----
@@ -13168,7 +13290,32 @@ function composeDerivation(state, m, v){
     }
     if(meta.claim) addClaims([meta.claim]);
     return {sym:k, label:meta.label, value:value, unit:unit, grade:grade, claim:meta.claim, kind:meta.kind, claimNote:meta.claimNote};
-  });
+  }).concat([
+    /* Step 59, item 2. REL-08 named seven operands a published equation reads that this table
+       never plugged in by name: f_pwr, M_eff, cap, C_full, phi_o, O_full, rMetal. Three of them
+       (cap, C_full, O_full) are the hero potentials Quinn's ruling deleted; the other four never
+       had a site anywhere. All seven are read live off m/CONFIG, computed at render, never a
+       written-down figure -- the same table row shape every other coefficient already uses, so
+       no new mechanism is added and REL-09/REL-10's own checks of this table's shape are
+       unaffected (none of the seven collides with an existing sym in coeffKeys). Painting them
+       here, where the step-by-step arithmetic already prints their values in prose, is what lets
+       a relation whose own RESULT the hero still paints (water, construction, oxygen, alloy) be
+       walked hand to hand by a reader without a hero potential coming back. */
+    {sym:'f_pwr', label:'Power-system specific mass, as applied this call', value:m.fPwr, unit:'t/kWe',
+     grade:'model output, M_power’s own operand'},
+    {sym:'M_eff', label:'Effective landed mass after non-productive downmass', value:m.massEff, unit:'t',
+     grade:'model output, M_mining’s own operand'},
+    {sym:'cap', label:'Water full-allocation potential', value:m.cap, unit:'t/yr',
+     grade:'model output, water’s own operand'},
+    {sym:'C_full', label:'Construction full-allocation potential', value:m.Cfull, unit:'t/yr',
+     grade:'model output, construction’s own operand'},
+    {sym:'phi_o', label:'Oxygen split applied', value:m.phi_o, unit:'',
+     grade:'reader control (Advanced), oxygen’s own operand'},
+    {sym:'O_full', label:'Oxygen full-allocation potential', value:m.Ofull, unit:'t/yr',
+     grade:'model output, oxygen’s own operand'},
+    {sym:'rMetal', label:'Alloy yield per tonne of oxygen', value:CONFIG.rMetal.value, unit:CONFIG.rMetal.unit,
+     grade:CONFIG.rMetal.status}
+  ]);
 
   /* ---- 3+4. step-by-step arithmetic, each result pulled live from m or v ---- */
   const f = state.fission;
@@ -13287,9 +13434,20 @@ function composeDerivation(state, m, v){
   const lead = DERIVATION.honesty.lead;
   const grades = DERIVATION.honesty.grades;
 
+  /* Step 59, coordinator amendment. The hero topline and investment line carry the two basis
+     sentences no longer, per STD-4: the hero carries the answer, the working lives on a tab a
+     reader opens on purpose. Both sentences move here, beside the operands REL-07 now reads off
+     this same tab, rather than being deleted -- they are still worth keeping as text, just not
+     above the largest figure on the page. */
+  const heroBasisNotes = [
+    {text:'Total economic activity, dollars per year: every product priced at the delivery cost it avoids, every ton landed priced at what it costs to buy and land it.', claims:[]},
+    {text:'Investment, total / government, dollars per year: hardware plus freight for the mass landed, government capped at the agency program’s own rate at this era.', claims:[]}
+  ];
+
   const sections = [
     {id:'equations',    title:'Governing equations for this combination', rows:eqRows},
     {id:'coefficients', title:'Coefficients plugged in',           coeff:coeffRows},
+    {id:'hero-basis',   title:'What the hero topline and investment line price', notes:heroBasisNotes},
     {id:'water',        title:'Water production',           steps:waterSteps},
     {id:'construction', title:'Construction production',    steps:constructionSteps},
     {id:'oxygen',       title:'Oxygen and alloy production', steps:oxygenSteps},
@@ -15364,16 +15522,18 @@ function runAbstractTests(){
      whenever that scenario was not the lit one, 419 in the page footer, and about 88 here. Three
      of those five are closed by one authority on a named scenario's standing fleet; this row
      closes the fifth and holds it closed.
-     IT COMPARES TWO PAINTED STRINGS AND NOT TWO MODEL CALLS. The ledger's figure is read out of
-     the rendered Evidence Ledger panel and the hero's out of #h_cap, both as text, so a repair
-     that made two call sites agree while the two surfaces went on printing different characters
-     would not satisfy it. That is the shape the Step 52 hero-and-strip agreement already takes
-     and it is why that one held.
+     IT COMPARED TWO PAINTED STRINGS UNTIL STEP 57. Quinn's ruling of 2026-09-08 deletes the
+     hero's full-allocation potentials, #h_cap among them, so there is no second painted string
+     left to read; the ledger's water capacity is now checked against this row's own model()
+     call, the same independent-census pattern the binding-word clause already uses above. A
+     repair that made the ledger and this row's own computation agree while a reader-facing
+     surface printed something else would still not satisfy it, which is the same shape the
+     Step 52 hero-and-strip agreement took when it read two painted surfaces.
      AND NO TOKEN MAY SURVIVE INTO THE PAINTED PANEL. An unresolved token throws at linkify, so
      this clause is a backstop on the class rather than the primary guard, and it walks the panel
      the reader actually meets. */
   (function(){
-    const NAME = 'the Evidence Ledger prints the same water capacity the hero prints, character for character, at every preset cell, and the same binding word an INDEPENDENT census reaches by walking PRESETS x the rendered era buttons through fleetState() and model() without touching presetCensus() or _numWord(); no painted ledger sentence asserts the mass side live while that census puts no cell there, the population swept being every painted sentence carrying a phrase KNOB_DATA.BINDING_SCOPE declares and the exclusions being the three classes it declares; and no unresolved token survives into the panel (DECOY: the single-year figures the ledger carried until this pass are computed at the same cells and are confirmed to disagree)';
+    const NAME = 'the Evidence Ledger prints the water capacity an independent model() call reaches, character for character, at every preset cell, and the same binding word an INDEPENDENT census reaches by walking PRESETS x the rendered era buttons through fleetState() and model() without touching presetCensus() or _numWord(); no painted ledger sentence asserts the mass side live while that census puts no cell there, the population swept being every painted sentence carrying a phrase KNOB_DATA.BINDING_SCOPE declares and the exclusions being the three classes it declares; and no unresolved token survives into the panel (DECOY: the single-year figures the ledger carried until this pass are computed at the same cells and are confirmed to disagree)';
     const why = [], seen = [], decoy = [];
     const saveP = state.phase, saveTab = (function(){ const a = document.querySelector('.tab.on'); return a ? a.dataset.t : null; })();
     openAdvanced(true); selectTab('ledger');
@@ -15469,8 +15629,11 @@ function runAbstractTests(){
       curveReset(); applyPreset(PRESETS[pid]);
       const btn = document.querySelector('#phase button[data-p="' + ph + '"]');
       if (btn) btn.click(); else { why.push('no era button for ' + ph); return; }
-      const heroEl = document.getElementById('h_cap');
-      const hero = heroEl ? (heroEl.textContent || '').trim() : '';
+      const envRow = ENVELOPE[PRESETS[pid].funding][ph];
+      const ffRow = fleetState(envRow.M, envRow.P, ph, null, PRESETS[pid].funding);
+      const mmRow = model({ice:PRESETS[pid].ice, power:ffRow.power, mass:ffRow.mass,
+                           fission:envRow.fission, funding:PRESETS[pid].funding, phase:ph, phi_c:0});
+      const hero = fmtT(mmRow.cap);
       /* the ledger, painted, found by its own sentence rather than by a slice offset */
       const node = document.getElementById('node-' + slug);
       const ltxt = node ? (node.textContent || '').replace(/\s+/g, ' ') : '';
@@ -16182,10 +16345,28 @@ function runAbstractTests(){
     // Squares are found BY NAME and never by index, which is the repair CONSTRO-01 needed and
     // the same defect the render loop's hardcoded four was.
     function named(rows, re){ return rows.filter(function(r){ return re.test(r.name); })[0] || null; }
+    /* Step 59, item 4's own instrumentation found this. applyPreset() calls snapToEnvelope()
+       against whatever state.phase held BEFORE this walk moved it, because the real UI's era
+       button handler sets state.phase and THEN re-snaps (document.getElementById('phase')'s own
+       click listener: state.phase=b.dataset.p; state.landed_cost=snapIdx(...); snapToEnvelope
+       (true);), while this walk set state.phase AFTER applyPreset's own snap and never re-snapped.
+       Measured, not assumed: at every era transition within one preset, mass and power stayed
+       pinned to the PREVIOUS era's envelope ceiling one iteration late (Agency Led Baseline
+       walked 2030 -> 2040 -> 2055 painted the hero at mass-rail 10, then 10, then 100, never
+       reaching 500), because knobVal('mass') reads a stored index nothing here advanced. Every
+       row comparing a painted figure against its OWN independent knobVal('mass')/knobVal('power')
+       read was comparing two copies of the same stale index and could not have caught this;
+       INVEST-01 caught it by computing its own expectation from ENVELOPE directly instead. Fixed
+       by replaying the same two lines the real era handler runs after moving state.phase, so this
+       harness reaches the identical state a reader's own click reaches. */
     function walk9(fn){
       let n = 0;
       ids.forEach(function(id){ phases.forEach(function(ph){
-        applyPreset(PRESETS[id]); state.phase = ph; render(); n++;
+        applyPreset(PRESETS[id]);
+        state.phase = ph;
+        state.landed_cost = snapIdx('landed_cost', LANDED_COST.eraDefault[state.phase]);
+        snapToEnvelope(true);
+        render(); n++;
         fn(id+'/'+ph);
       }); });
       return n;
@@ -16767,180 +16948,196 @@ function runAbstractTests(){
     })();
 
 
-    /* ---- HERO-01 (GATE): the hero's three denominators, and the statement that makes them
-       readable ---------------------------------------------------------------------------------
-       THE CLAUSE THIS RESTORES WAS DELETED AT STEP 52 AND THE DELETION IS RECORDED IN THIS FILE,
-       twelve lines below, in OX-19's own header: "the hero prints a full-allocation potential and
-       says nothing about the allocation it assumes, and no row now walks the rail to check that a
-       stated position is reachable. The reachability property is unchanged in the model; only its
-       statement is gone." The statement is the reader's whole access to the property. A reader
-       meets `264 / 278`, `459 / 9,171` and `16 / 325` in one row in one grammatical form and reads
-       them as utilisation; they are three mutually exclusive worlds, and one of the denominators
-       moves by a factor of 2.5 when a rail with a different name is swept.
+    /* ---- ECON-01 (GATE): the hero's total economic activity ----
+     Replaces HERO-01 at Step 57. Quinn's ruling of 2026-09-08 deletes the three-line hero and
+     the caption HERO-01 existed to check; every clause that row asserted was about phi_c/phi_o
+     splits moving h_cap/h_constcap/h_oxycap, and none of those three elements exists any more.
+     Nothing in HERO-01's subject survives into the new hero, so this id is repointed rather
+     than left retired and an id spent: the hero still has a headline figure, and this is the
+     row that walks it. See OX-19 and LEDG-12 for the caption's other two former dependents.
 
-       THE ROW HAS TWO HALVES AND NEITHER IS SUFFICIENT ALONE.
-       THE STATEMENT IS PAINTED, in the reader's own view, without the Advanced toggle, and it says
-       the four things that are true: oxygen's ceiling is the whole budget and no rail moves it,
-       water's and construction's are net of the oxygen line's actual draw and the Oxygen split
-       rail moves both, the Construction split divides the remainder between those two at its two
-       ends, and no setting brings all three lines to a positive ceiling at once.
-       THE PROPERTY IS REACHED, by driving the app's own rails ONE AT A TIME, which is what the
-       caption claims and what a reader does, and by sweeping the whole detent grid the two rails
-       span for the exclusion. That is what "walks the rail to check that a stated position is
-       reachable" meant, and it is what a statement of this class owes: it must be checkable from
-       the controls the reader has, not merely consistent with the model behind them.
-       UNTIL 2026-09-08 THIS ROW DROVE BOTH RAILS TO EACH CORNER AT ONCE. At (phi_c 0, phi_o 1) all
-       three clauses hold, so the row was green over a caption whose first sentence and last
-       sentence contradict each other, and a reader who moved the Oxygen split alone, which is the
-       gesture the caption's own last sentence describes, met 309 of 325 with the other two lines
-       at 104 and 49. */
-    (function(){
-      const NAME = 'the hero states what the figure after each slash is, and every clause of that statement is walked on the reader’s own rails: oxygen’s ceiling is unmoved across the whole detent grid the two splits span, water’s and construction’s both move across the Oxygen split rail because the oxygen line takes its draw off the shared budgets first, the Construction split’s two ends bring construction and then water to the ceiling printed beside it with the other at zero, and no state on that grid brings all three lines to a positive ceiling together (DECOY: the reading in which the three denominators are simultaneous is computed at the same states and confirmed unreachable, and the counter-population of states reaching at least one ceiling is printed and required to be non-empty)';
-      const why = [], seen = [];
-      const note = document.getElementById('h_potnote');
-      if (!note){ rec('HERO-01','GATE',NAME,false,'EMPTY POPULATION: no #h_potnote element exists in the rendered document'); return; }
-      const txt = (note.textContent || '').replace(/\s+/g, ' ').trim();
-      if (!txt) why.push('the statement element is present and empty');
-      /* THE CLAUSES ARE SCORED AS CLAIMS, not as one spelling of each, so a rewrite that says the
-         same things in other words stays green and a rewrite that says a different thing does not.
-         The two REFUSALS are the two clauses this caption carried until 2026-09-08 and they are
-         refused by what they attach the property TO: the whole-budget property attached to every
-         post-slash figure rather than to oxygen alone, and the takes-the-other-two-to-zero clause,
-         which the Oxygen split rail falsifies in one drag. */
-      [[/oxygen[^.]{0,80}whole[^.]{0,60}(plant|power|budget)/i, 'that oxygen’s ceiling is the whole plant and the whole power'],
-       [/(neither|no)[^.]{0,40}rail[^.]{0,30}moves? it/i, 'that no rail moves the oxygen ceiling'],
-       /* THE CLAIM, NOT ONE CONNECTIVE. This predicate named the words after and net of and
-          nothing else, so it reported a missing claim twice over rewrites that make it. Once on
-          word order, against the caption's own "what the oxygen line leaves after its actual
-          draw", where the subject comes first. Once on the connective, against a benign rewrite
-          reading "whatever the oxygen line leaves once its own actual draw is paid", which was
-          this row's proof that it survives a restatement and which it failed. The claim is that
-          the other two ceilings are what the oxygen line LEAVES of its DRAW; the word joining
-          the two is incidental and is not the subject. Both failures were found by running the
-          seed rather than by reading the pattern. */
-       [/oxygen[^.]{0,90}(leaves|after|net of|once)[^.]{0,70}draw|(after|net of|once)[^.]{0,60}oxygen[^.]{0,60}draw/i, 'that the other two are net of the oxygen line’s actual draw'],
-       [/oxygen split[^.]{0,60}moves? (both|the other two)/i, 'that the Oxygen split rail moves both of the other two'],
-       [/construction split/i, 'that the Construction split divides the remainder'],
-       [/reads? zero/i, 'what the line that is not taking the remainder reads at each end of that rail'],
-       [/all three[^.]{0,80}(positive|together|at once)/i, 'that the three are not simultaneously reachable']].forEach(function(p){
-        if (!p[0].test(txt)) why.push('the statement does not say ' + p[1] + ': "' + txt.slice(0,160) + '"');
-      });
-      [[/(each|every|the three|all three)[^.]{0,90}whole[^.]{0,30}(shared\s+)?(plant|power|budget)/i,
-        'attaches the whole-budget property to every post-slash figure, and only oxygen’s is the whole budget: model() takes the oxygen line’s draw off both shared budgets before the other two ceilings are computed'],
-       [/takes? the other two to zero/i,
-        'says that driving one line to its own figure takes the other two to zero, which the Oxygen split rail falsifies from the preset in one drag']].forEach(function(p){
-        if (p[0].test(txt)) why.push('the statement ' + p[1] + ': "' + txt.slice(0,160) + '"');
-      });
-      if (/[0-9]/.test(txt)) why.push('the statement carries a number of its own, which is a second authority on a figure the row already prints: "' + txt + '"');
-      const advPanel = document.querySelector('.advanced');
-      if (advPanel && advPanel.contains(note)) why.push('the statement sits inside the Advanced panel, where a reader who never opens it never meets it');
+     TOTAL ECONOMIC ACTIVITY is outs (every product priced at the delivery cost it avoids) plus
+     ins (what it costs to buy and land the fleet that makes them). This row recomputes both
+     independently through model()/fleetNow() and the same knobVal() reads render() itself
+     uses, and compares the result against the painted #h_econ by PARSING the painted string
+     back to a number, not by calling _usd() to build a comparison string, so a rounding bug in
+     _usd() cannot hide behind a row that reformats the same way to check itself. */
+  (function(){
+    const NAME = 'the hero’s total economic activity is outs (every product priced at the delivery cost it avoids) plus ins (what it costs to buy and land the fleet), independently recomputed at all nine preset and era states and moved under a one-detent landed_cost bump at one of them, against the painted figure parsed back to a number (DECOY: dropping the ins term is confirmed to disagree with the painted figure at all nine)';
+    const el = document.getElementById('h_econ');
+    if (!el){ rec('ECON-01','GATE',NAME,false,'EMPTY POPULATION: no #h_econ element exists in the rendered document'); return; }
+    function parseUsd(s){
+      const t = String(s||'').trim();
+      const m = /^(-?)\$([0-9]*\.?[0-9]+)(B|M|k)?$/.exec(t);
+      if (!m) return NaN;
+      const mult = m[3]==='B'?1e9:(m[3]==='M'?1e6:(m[3]==='k'?1e3:1));
+      const v = parseFloat(m[2]) * mult;
+      return m[1]==='-' ? -v : v;
+    }
+    function usdTol(v){ const a = Math.abs(v);
+      if (a>=1e9) return 0.006*1e9; if (a>=1e6) return 0.006*1e6; if (a>=1e3) return 0.06*1e3; return 0.6; }
+    function econAt(){
+      const m = stateModel(), fs2 = fleetNow();
+      const D = knobVal('landed_cost'), C_hw = knobVal('chw');
+      const outs = (m.water + m.construction + m.oxygen + m.alloy) * 1000 * D;
+      const ins = knobVal('mass') * 1000 * (C_hw + D);
+      return {outs:outs, ins:ins, total:outs+ins};
+    }
+    const why = [], seen = []; const decoyFires = [];
+    const walked = walk9(function(where){
+      const x = econAt();
+      const painted = (el.textContent||'').trim();
+      const p = parseUsd(painted);
+      seen.push(where+': '+painted);
+      if (!isFinite(p)){ why.push(where+': the hero prints "'+painted+'", which does not parse as a dollar figure'); return; }
+      if (!(Math.abs(p - x.total) <= usdTol(x.total)))
+        why.push(where+': the hero prints '+painted+' ('+p+') against an independent outs '+x.outs.toFixed(0)+' plus ins '+x.ins.toFixed(0)+' = '+x.total.toFixed(0));
+      if (Math.abs(p - x.outs) > usdTol(x.total)*3) decoyFires.push(where);
+    });
+    if (walked !== 9) why.push('EMPTY POPULATION: '+walked+' states walked, not 9');
+    /* THE BUMP. One state, one detent moved on landed_cost, required to move the painted
+       figure: the anti-hard-code discipline DR2 already applies to the Value tab's own
+       figures, applied here to the hero's new one. state.landed_cost holds an INDEX into
+       DETENTS.landed_cost, not the dollar value; era and preset clicks never touch it. */
+    applyPreset(PRESETS.artemis); state.phase = '2040'; render();
+    const before = parseUsd((el.textContent||'').trim());
+    const rail = DETENTS.landed_cost; const di = state.landed_cost;
+    let bumped = false;
+    const tryBump = function(ni){
+      state.landed_cost = ni; render();
+      const after = parseUsd((el.textContent||'').trim());
+      const ok = isFinite(before) && isFinite(after) && Math.abs(after-before) > usdTol(before);
+      state.landed_cost = di; render();
+      return ok;
+    };
+    if (di + 1 < rail.length) bumped = tryBump(di+1);
+    else if (di - 1 >= 0) bumped = tryBump(di-1);
+    if (!bumped) why.push('the hero total does not move when landed_cost is bumped one detent at Agency Led Baseline 2040, or the rail has no neighbouring detent to bump to');
+    if (decoyFires.length !== 9) why.push('DECOY DID NOT FIRE at '+(9-decoyFires.length)+' of 9 states: dropping the ins term still agrees with the painted figure there');
+    applyPreset(PRESETS.artemis); render();
+    rec('ECON-01','GATE',NAME, why.length===0,
+      why.length ? why.slice(0,3).join('  ')
+        : walked+' states walked, the hero total agrees with an independently computed outs-plus-ins at every one, moves under a one-detent landed_cost bump at Agency Led Baseline 2040, and disagrees with outs alone (the DECOY) at all 9: '+seen.slice(0,3).join(' | ')+' ...');
+  })();
 
-      /* THE RAIL WALK, ONE RAIL AT A TIME. The caption's clauses are about what happens when the
-         reader moves ONE control, so each is driven that way, through the app's own detent
-         sliders, and read off the painted hero. */
-      const saveState = JSON.parse(JSON.stringify(state));
-      const num = function(id){ const e = document.getElementById(id);
-        return e ? parseFloat((e.textContent||'').replace(/,/g,'')) : NaN; };
-      function drive(pc, po){
-        state.phi_c = nearestIdx(DETENTS.phi_c, pc);
-        state.phi_o = nearestIdx(DETENTS.phi_o, po);
-        render();
+  // ---- ECON-02 (GATE): total investment and government investment ----
+  // New at Step 57. Government investment reads ENVELOPE.med, the agency program's own funding
+  // track, at this era, and takes the smaller of that and this scenario's own investment; no new
+  // coefficient. The three funding tracks share one landing rate at 2030 (10 t/yr) and diverge:
+  // Agency Led Baseline (med) is that program, so the cap never binds against it; Early Shift to
+  // Mars (low) never lands more than the agency program does, so the cap never binds against it
+  // either; The Commercial Break (high) outruns the agency program at 2040 and 2055, where the
+  // cap binds. That is 7 of 9 states slack and 2 of 9 capped, and this row requires the
+  // population to land exactly that way rather than assuming it.
+  (function(){
+    const NAME = 'total investment (ins: mass landing rate times hardware plus delivery cost) and government investment (the smaller of that and the same figure computed on ENVELOPE.med, the agency program’s own funding track, at this era) are independently recomputed at all nine preset and era states against the painted figures parsed back to numbers, and investment equals government investment exactly where the agency program is never poorer than the scenario’s own rate and is strictly larger elsewhere (DECOY: dropping the min cap is confirmed to disagree with the painted government figure everywhere it binds)';
+    const elI = document.getElementById('h_invest'), elG = document.getElementById('h_govinvest'), elN = document.getElementById('h_govnote');
+    if (!elI || !elG || !elN){
+      rec('ECON-02','GATE',NAME,false,'EMPTY POPULATION: '+(!elI?'no #h_invest element':(!elG?'no #h_govinvest element':'no #h_govnote element'))+' exists in the rendered document');
+      return;
+    }
+    function parseUsd(s){
+      const t = String(s||'').trim();
+      const m = /^(-?)\$([0-9]*\.?[0-9]+)(B|M|k)?$/.exec(t);
+      if (!m) return NaN;
+      const mult = m[3]==='B'?1e9:(m[3]==='M'?1e6:(m[3]==='k'?1e3:1));
+      const v = parseFloat(m[2]) * mult;
+      return m[1]==='-' ? -v : v;
+    }
+    function usdTol(v){ const a = Math.abs(v);
+      if (a>=1e9) return 0.006*1e9; if (a>=1e6) return 0.006*1e6; if (a>=1e3) return 0.06*1e3; return 0.6; }
+    const why = [], seen = []; let capBinds = 0, capSlack = 0;
+    const walked = walk9(function(where){
+      const fs2 = fleetNow();
+      const D = knobVal('landed_cost'), C_hw = knobVal('chw');
+      const ins = knobVal('mass') * 1000 * (C_hw + D);
+      const agencyRate = ENVELOPE.med[state.phase].M;
+      const govCap = agencyRate * 1000 * (C_hw + D);
+      const gov = Math.min(govCap, ins);
+      const pI = parseUsd((elI.textContent||'').trim()), pG = parseUsd((elG.textContent||'').trim());
+      seen.push(where+': ins '+(elI.textContent||'')+' gov '+(elG.textContent||'')+' rate '+agencyRate);
+      if (!isFinite(pI) || !(Math.abs(pI - ins) <= usdTol(ins)))
+        why.push(where+': the hero prints investment "'+(elI.textContent||'')+'" against an independently computed '+ins.toFixed(0));
+      if (!isFinite(pG) || !(Math.abs(pG - gov) <= usdTol(gov)))
+        why.push(where+': the hero prints government investment "'+(elG.textContent||'')+'" against an independently computed '+gov.toFixed(0));
+      if (govCap < ins - 1e-6){
+        capBinds++;
+        if (!(Math.abs(pG - ins) > usdTol(ins)*3)) why.push(where+': the cap binds here and the DECOY, dropping it, still agrees with the painted government figure');
+      } else capSlack++;
+      const note = (elN.textContent||'').trim();
+      const wantRate = fmtNum(agencyRate, 0);
+      if (note.indexOf(wantRate) < 0) why.push(where+': the note beside government investment reads "'+note+'" and does not carry the agency’s own landing rate, '+wantRate+' t/yr');
+    });
+    if (walked !== 9) why.push('EMPTY POPULATION: '+walked+' states walked, not 9');
+    if (!(capBinds > 0)) why.push('EMPTY POPULATION: the cap never binds at any of the nine states, so the DECOY population is empty');
+    if (!(capSlack > 0)) why.push('EMPTY POPULATION: the cap binds at all nine states, so there is no state left where investment and government investment are the same figure');
+    if (capBinds + capSlack !== 9) why.push('the cap-binds and cap-slack counts do not sum to the nine states walked');
+    applyPreset(PRESETS.artemis); render();
+    rec('ECON-02','GATE',NAME, why.length===0,
+      why.length ? why.slice(0,3).join('  ')
+        : walked+' states, investment and government investment both agree with an independent computation off ENVELOPE.med at every one, the cap binds at '+capBinds+' of 9 and is slack at '+capSlack+' of 9, and dropping the cap (the DECOY) disagrees with the painted government figure at all '+capBinds+' where it binds: '+seen.slice(0,3).join(' | ')+' ...');
+  })();
+
+  // ---- INVEST-01 (GATE): the C1 investment panel, Wintta's own axes ----
+  // Step 59 sub-step 6. Two curves, agency and commercial investment in dollars per year across
+  // the fixed 2030-2055 axis, under the buildout curve inside Advanced. No new coefficient:
+  // investment(year) = landing rate at that year x 1000 x (C_hw + D); government = min(the
+  // identical formula on ENVELOPE.med, this scenario's own); commercial = the remainder. This row
+  // recomputes the series independently (never calling investmentSeries()/investDraw()) at the
+  // year matching each of the nine preset states, checks the sum identity and non-negativity at
+  // every one of the 26 painted years (not just the nine matched ones), and requires the caption
+  // to name the basis and to never carry the 2007-era 67-70 percent sector aggregate this
+  // project reds as a misattribution against a lunar per-tonne figure.
+  (function(){
+    const NAME = 'the C1 investment panel (#investPlot) paints agency and commercial investment across a fixed 2030-2055 axis, gov = min(ENVELOPE.med, this scenario’s own) x 1000 x (C_hw+D) and commercial = the remainder, independently recomputed at the year matching each of the nine preset states and checked for the gov+commercial=invest identity and non-negativity at all 26 painted years, with a caption naming the basis rather than a per-tonne attribution (DECOY: dropping the min cap disagrees with the painted government series wherever it binds)';
+    const cv = document.getElementById('investPlot'), capEl = document.getElementById('investCaption');
+    if (!cv || !capEl){
+      rec('INVEST-01','GATE',NAME,false,'EMPTY POPULATION: '+(!cv?'no #investPlot element':'no #investCaption element')+' exists in the rendered document');
+      return;
+    }
+    const why = []; let capBinds = 0, capSlack = 0;
+    const walked = walk9(function(where){
+      const years = (cv.dataset.years||'').split(',').map(Number);
+      const gov = (cv.dataset.gov||'').split(',').map(Number);
+      const comm = (cv.dataset.commercial||'').split(',').map(Number);
+      const invest = (cv.dataset.invest||'').split(',').map(Number);
+      if (years.length !== 26){ why.push(where+': the panel painted '+years.length+' years, not 26'); return; }
+      const D = knobVal('landed_cost'), C_hw = knobVal('chw');
+      const idx = years.indexOf(Number(state.phase));
+      if (idx < 0){ why.push(where+': the panel’s own year axis does not carry the selected era '+state.phase); return; }
+      const wantInvest = ENVELOPE[state.funding][state.phase].M * 1000 * (C_hw + D);
+      const wantGovCap = ENVELOPE.med[state.phase].M * 1000 * (C_hw + D);
+      const wantGov = Math.min(wantGovCap, wantInvest);
+      const tol = Math.max(1, Math.abs(wantInvest)) * 1e-6;
+      if (Math.abs(invest[idx] - wantInvest) > tol)
+        why.push(where+': #investPlot paints invest='+invest[idx]+' against an independently computed '+wantInvest.toFixed(2));
+      if (Math.abs(gov[idx] - wantGov) > tol)
+        why.push(where+': #investPlot paints gov='+gov[idx]+' against an independently computed '+wantGov.toFixed(2));
+      if (wantGovCap < wantInvest - 1e-6){
+        capBinds++;
+        if (Math.abs(gov[idx] - wantInvest) < tol*3) why.push(where+': the cap binds here and the DECOY, dropping it, still agrees with the painted government series');
+      } else capSlack++;
+      for (let i = 0; i < years.length; i++){
+        if (Math.abs((gov[i] + comm[i]) - invest[i]) > Math.max(1, Math.abs(invest[i])) * 1e-6)
+          why.push(where+': gov+commercial does not sum to invest at year '+years[i]);
+        if (gov[i] < -1e-9 || comm[i] < -1e-9) why.push(where+': a negative series value at year '+years[i]);
       }
-      applyPreset(PRESETS.artemis); state.phase = '2055'; render();
-      const presetC = knobVal('phi_c'), presetO = knobVal('phi_o');
-      const close = function(a, b){ return Math.abs(a - b) <= Math.max(0.01, Math.abs(b) * 0.005); };
+    });
+    if (walked !== 9) why.push('EMPTY POPULATION: '+walked+' states walked, not 9');
+    if (!(capBinds > 0)) why.push('EMPTY POPULATION: the cap never binds at any of the nine states, so the DECOY population is empty');
+    if (!(capSlack > 0)) why.push('EMPTY POPULATION: the cap binds at all nine states, so no state is left where agency and total investment are the same figure');
+    const cap = (capEl.textContent||'').trim();
+    if (!cap.length) why.push('EMPTY POPULATION: the caption painted an empty string');
+    if (!/scenario-level derivation/i.test(cap)) why.push('the caption does not name the basis as a scenario-level derivation');
+    if (/per-tonne cost attribution/i.test(cap) === false) why.push('the caption does not deny a per-tonne attribution');
+    if (/6[7-9]\s*(to|-)\s*70\s*percent/i.test(cap) || /67/.test(cap)) why.push('the caption carries the retired 2007 sector-aggregate figure');
+    applyPreset(PRESETS.artemis); render();
+    rec('INVEST-01','GATE',NAME, why.length===0,
+      why.length ? why.slice(0,3).join('  ')
+        : walked+' states, the panel’s own dataset agrees with an independent computation off ENVELOPE.med at the selected era’s own year, the sum identity and non-negativity hold at all 26 painted years across all 9 states, the cap binds at '+capBinds+' of 9 and is slack at '+capSlack+' of 9, dropping the cap (the DECOY) disagrees with the painted government series at all states where it binds, and the caption names the basis: "'+cap+'"');
+  })();
 
-      /* CLAUSE 1. THE CONSTRUCTION SPLIT'S TWO ENDS, with the Oxygen split left where the preset
-         put it, because that is the rail a reader moves on its own. */
-      drive(1, presetO);
-      const cTop = { c: num('h_const'), ccap: num('h_constcap'), w: num('h_water') };
-      seen.push('Construction split at its top, Oxygen split at the preset: construction ' + cTop.c +
-                ' against a printed ' + cTop.ccap + ', water ' + cTop.w);
-      if (!close(cTop.c, cTop.ccap)) why.push('at the top of the Construction split alone, construction reads ' + cTop.c +
-        ' against the ' + cTop.ccap + ' printed beside it, so the stated position is NOT reachable on that rail');
-      if (!(Math.abs(cTop.w) < 0.01)) why.push('at the top of the Construction split alone, water reads ' + cTop.w + ' and the statement says zero');
-      drive(0, presetO);
-      const cBot = { w: num('h_water'), wcap: num('h_cap'), c: num('h_const') };
-      seen.push('Construction split at its bottom, Oxygen split at the preset: water ' + cBot.w +
-                ' against a printed ' + cBot.wcap + ', construction ' + cBot.c);
-      if (!close(cBot.w, cBot.wcap)) why.push('at the bottom of the Construction split alone, water reads ' + cBot.w +
-        ' against the ' + cBot.wcap + ' printed beside it, so the stated position is NOT reachable on that rail');
-      if (!(Math.abs(cBot.c) < 0.01)) why.push('at the bottom of the Construction split alone, construction reads ' + cBot.c + ' and the statement says zero');
-
-      /* CLAUSE 2. THE OXYGEN SPLIT MOVES BOTH OF THE OTHER TWO CEILINGS, and the Construction
-         split moves neither of them, which is the half the previous caption had backwards. */
-      drive(presetC, 0);  const capOff = num('h_cap'), cfOff = num('h_constcap'), ofOff = num('h_oxycap');
-      drive(presetC, 1);  const capFull = num('h_cap'), cfFull = num('h_constcap'), ofFull = num('h_oxycap');
-      const rW = (capFull > 0) ? capOff / capFull : 0, rC = (cfFull > 0) ? cfOff / cfFull : 0;
-      seen.push('across the Oxygen split rail at the preset Construction split: the water ceiling ' + capOff + ' -> ' + capFull +
-                ' (x' + rW.toFixed(2) + '), the construction ceiling ' + cfOff + ' -> ' + cfFull + ' (x' + rC.toFixed(2) + ')');
-      if (!(rW > 1.2)) why.push('DECOY DID NOT FIRE: the water ceiling moves by a factor of only ' + rW.toFixed(3) +
-        ' across the whole Oxygen split rail, so the clause about it is stating something the reader could not observe');
-      if (!(rC > 1.2)) why.push('DECOY DID NOT FIRE: the construction ceiling moves by a factor of only ' + rC.toFixed(3) +
-        ' across the whole Oxygen split rail, so the clause naming both of them is half unobservable');
-      if (!close(ofOff, ofFull)) why.push('the oxygen ceiling moved from ' + ofOff + ' to ' + ofFull +
-        ' across the Oxygen split rail, and the statement says neither rail moves it');
-
-      /* CLAUSE 3. THE OXYGEN CEILING IS UNMOVED OVER THE WHOLE GRID THE TWO RAILS SPAN, and the
-         exclusion is swept on the same population. THE POPULATION IS THE APP'S OWN DETENT RAILS,
-         read from DETENTS at check time, so a rail that gains a notch enters this sweep without a
-         line changing here. WHAT IT EXCLUDES: the states where a line's own ceiling is zero, which
-         the model reaches at the corner where the oxygen line takes the whole budget and leaves
-         water and construction a ceiling of nothing. A line at zero equals a ceiling of zero, and
-         counting that as reaching its ceiling would make the exclusion clause true by arithmetic
-         at exactly the state a reader would call the counter-example. Those states are counted and
-         named rather than dropped. */
-      const grid = { n: 0, allPositive: 0, degenerate: 0, atLeastOne: 0, oxy: [] };
-      drive(presetC, presetO);
-      /* THE SWEEP RUNS THROUGH model() ON THIS STATE'S OWN FLEET rather than through 441 renders,
-         because its subject is which allocations the model can reach and not what any of them
-         paints. The three clauses above are the ones about the painted hero and they are driven
-         through the rails. The base call is stateModel()'s own argument set, taken from the
-         rendered state, so the sweep and the walk are the same cell. */
-      const gfs = fleetNow();
-      const gbase = {ice:knobVal('ice'), power:gfs.power, mass:gfs.mass, fission:state.fission,
-                     funding:state.funding, phase:state.phase, mix:state.mix,
-                     fSolOvr:state.solOvr/1000, fFisOvr:state.fisOvr/1000,
-                     phi_c0:(state.phiC0Ovr!=null?state.phiC0Ovr:CONFIG.phiC0.value)};
-      DETENTS.phi_c.forEach(function(pc){
-        DETENTS.phi_o.forEach(function(po){
-          const g = {}; Object.keys(gbase).forEach(function(k){ g[k] = gbase[k]; });
-          g.phi_c = pc; g.phi_o = po;
-          const m = model(g);
-          grid.n++;
-          if (grid.oxy.indexOf(m.Ofull.toFixed(9)) < 0) grid.oxy.push(m.Ofull.toFixed(9));
-          const hit = function(v, cap){ return Math.abs(v - cap) <= Math.max(1e-9, Math.abs(cap) * 1e-9); };
-          const k = (hit(m.water, m.cap)?1:0) + (hit(m.construction, m.Cfull)?1:0) + (hit(m.oxygen, m.Ofull)?1:0);
-          if (k >= 1) grid.atLeastOne++;
-          if (k === 3){
-            if (m.cap > 1e-6 && m.Cfull > 1e-6 && m.Ofull > 1e-6) grid.allPositive++;
-            else grid.degenerate++;
-          }
-        });
-      });
-      seen.push('the grid the two rails span: ' + grid.n + ' states, the oxygen ceiling taking ' + grid.oxy.length +
-                ' distinct value' + (grid.oxy.length === 1 ? '' : 's') + ', ' + grid.atLeastOne + ' states reaching at least one ceiling, ' +
-                grid.allPositive + ' reaching all three at a positive ceiling, and ' + grid.degenerate +
-                ' excluded where a ceiling is itself zero');
-      if (grid.n !== DETENTS.phi_c.length * DETENTS.phi_o.length)
-        why.push('EMPTY OR SHORT POPULATION: ' + grid.n + ' grid states, not ' + (DETENTS.phi_c.length * DETENTS.phi_o.length));
-      if (grid.oxy.length !== 1)
-        why.push('the oxygen ceiling takes ' + grid.oxy.length + ' distinct values over the grid the two split rails span, and the statement says neither rail moves it');
-      if (grid.allPositive !== 0)
-        why.push('the statement says no setting brings all three lines to a positive ceiling together and ' + grid.allPositive + ' states do');
-      if (!(grid.atLeastOne > 0))
-        why.push('EMPTY COUNTER-POPULATION: no state on the grid brings any line to its own ceiling, so the exclusion clause is true of a space in which nothing is reachable');
-
-      Object.keys(saveState).forEach(function(k){ state[k] = saveState[k]; });
-      applyPreset(PRESETS.artemis); render();
-      rec('HERO-01','GATE',NAME, why.length === 0 && seen.length === 4,
-        why.length ? why.slice(0,3).join('  ')
-          : '4 observations at Agency Led Baseline 2055, three of them driving one of the app’s own rails at a time and the fourth sweeping the ' +
-            grid.n + '-state grid DETENTS gives those two rails: ' + seen.join(' | ') +
-            '. The statement is painted outside the Advanced panel, carries no number of its own, and names all four properties.');
-    })();
-
-    // ---- OX-19 (GATE): the hero's oxygen lead ----
+// ---- OX-19 (GATE): the hero's oxygen lead ----
     // STEP 52, 2026-09-06. TWO CLAUSES GO WITH THE RULING, TWO ARE RE-KEYED AND KEPT.
     //
     // GONE, SQUARE AGREEMENT. The hero's oxygen figure had to agree character for character with
@@ -16966,46 +17163,40 @@ function runAbstractTests(){
     // clause reads #h_oxyalloy and still compares it character for character against the alloy
     // square, which survives. This is the agreement clause the row was built on, moved intact.
     //
-    // KEPT AND RE-KEYED, THE POTENTIAL. #h_oxycap now holds the potential alone rather than a
-    // sentence containing it, so the clause parses the element instead of a clause inside a
-    // caption. It is still compared AS A NUMBER against the model's own Ofull at the precision
-    // the element itself printed to, so a change of formatter is not a failure and a different
-    // quantity is. That is the one predicate here that consults the model, and it does so
-    // because the full-allocation potential has no painted surface to agree with.
+    // GONE AT STEP 57, THE POTENTIAL. Quinn's ruling of 2026-09-08 deletes the three-line hero
+    // and the full-allocation potential each of its figures carried beside a slash, #h_oxycap
+    // among them, along with the caption that explained what a potential was. There is no
+    // painted surface left for this clause to read, so it goes rather than being pointed at an
+    // absent element and scored EMPTY POPULATION at every state. What is no longer covered: the
+    // hero prints no full-allocation potential of any kind, for any of the three products, and
+    // no row now checks one against Ofull, Cfull or cap. model() still carries all three fields
+    // unchanged; only their statement is gone. The tracking and alloy-agreement clauses below
+    // are unaffected and are the whole of this row now.
     (function(){
-      const NAME = 'the hero’s oxygen figure tracks the model across all nine preset and era states, the alloy tonnage printed beside it agrees character for character with the alloy square’s, and the full-allocation potential printed beside it equals the model’s own Ofull at every one (DECOY: an element pinned to one value is confirmed to stop tracking and to fail)';
-      const hox = document.getElementById('h_oxy'), hcap = document.getElementById('h_oxycap'),
-            hal = document.getElementById('h_oxyalloy');
-      const why = []; const seen = []; let potScored = 0, alloyScored = 0;
-      if (!hox || !hcap || !hal){
-        rec('OX-19','GATE',NAME,false,'EMPTY POPULATION: '+(!hox?'no #h_oxy element':(!hcap?'no #h_oxycap element':'no #h_oxyalloy element'))+' exists in the rendered document');
+      const NAME = 'the hero’s oxygen figure tracks the model across all nine preset and era states and the alloy tonnage printed beside it agrees character for character with the alloy square’s at every one (DECOY: an element pinned to one value is confirmed to stop tracking and to fail)';
+      const hox = document.getElementById('h_oxy'), hal = document.getElementById('h_oxyalloy');
+      const why = []; const seen = []; let alloyScored = 0;
+      if (!hox || !hal){
+        rec('OX-19','GATE',NAME,false,'EMPTY POPULATION: '+(!hox?'no #h_oxy element':'no #h_oxyalloy element')+' exists in the rendered document');
         return;
       }
       const walked = walk9(function(where){
         const al = named(squareRows(), /alloy/i);
-        const printed = (hox.textContent||'').trim(), pot = (hcap.textContent||'').trim(), alloy = (hal.textContent||'').trim();
+        const printed = (hox.textContent||'').trim(), alloy = (hal.textContent||'').trim();
         seen.push(printed);
         if (!al){ why.push('EMPTY POPULATION at '+where+': no square named Alloy exists to agree with'); return; }
         if (alloy !== al.value) why.push(where+': the hero prints alloy "'+alloy+'" and the alloy square prints "'+al.value+'"');
         alloyScored++;
-        const m = stateModel();
-        const t = pot.replace(/,/g,'');
-        if (!/^-?[0-9]/.test(t)){ why.push(where+': the hero prints no full-allocation oxygen potential at all: "'+pot+'"'); return; }
-        const v = parseFloat(t), dp = (t.split('.')[1]||'').length;
-        if (!(isFinite(v) && Math.abs(v - m.Ofull) <= 0.5*Math.pow(10,-dp) + Math.abs(m.Ofull)*1e-9))
-          why.push(where+': the hero prints a potential of "'+pot+'" against the model’s own full-allocation oxygen, '+m.Ofull);
-        potScored++;
       });
       const distinct = seen.filter(function(v,i,a){ return a.indexOf(v)===i; });
       if (distinct.length <= 1) why.push('EMPTY POPULATION as a tracking test: the hero prints the same string at all nine states');
       const decoyPinned = seen.map(function(){ return seen[0]; });
       if (decoyPinned.filter(function(v,i,a){ return a.indexOf(v)===i; }).length !== 1) why.push('DECOY DID NOT FIRE');
       if (walked !== 9) why.push('EMPTY POPULATION: '+walked+' states walked, not 9');
-      if (!potScored) why.push('EMPTY POPULATION: the potential clause was scored at no state, so a hero printing nothing there would be indistinguishable from one printing the right number');
       if (!alloyScored) why.push('EMPTY POPULATION: the alloy clause was scored at no state');
       rec('OX-19','GATE',NAME, why.length===0,
         why.length ? why.slice(0,3).join('  ')
-          : walked+' states, the hero oxygen figure tracks the model at every one, '+distinct.length+' distinct values, the alloy tonnage beside it agrees with the alloy square at '+alloyScored+' states and the potential beside it equals the model’s own Ofull at '+potScored+' [red-first, seeded on this build: SEED_OX19_PIN pins the hero figure and the tracking clause names it, SEED_OX19_ALLOY paints the aside off a different quantity and the agreement clause names both strings, SEED_OX19_POT paints the potential 10 percent off and the clause names the printed figure against the model’s own Ofull; PROVED NOT TO FIRE on BENIGN_OX19, the aside label rewritten with every content word swapped. Step 52 re-keyed the alloy clause from the deleted caption in #h_oxycap to #h_oxyalloy and the potential clause to the bare figure #h_oxycap now holds, and dropped the square-agreement and stated-condition clauses with the oxygen square and the caption Quinn deleted on 2026-09-06]');
+          : walked+' states, the hero oxygen figure tracks the model at every one, '+distinct.length+' distinct values, the alloy tonnage beside it agrees with the alloy square at '+alloyScored+' states [red-first, seeded on this build: SEED_OX19_PIN pins the hero figure and the tracking clause names it, SEED_OX19_ALLOY paints the aside off a different quantity and the agreement clause names both strings; PROVED NOT TO FIRE on BENIGN_OX19, the aside label rewritten with every content word swapped. Step 57 dropped the potential clause with #h_oxycap Quinn deleted on 2026-09-08; the tracking and alloy-agreement clauses are unchanged from Step 52]');
     })();
 
     // ---- OX-20 (GATE): the oxygen split control names the fraction the model used ----
@@ -17613,7 +17804,7 @@ function runAbstractTests(){
       function secIds(){
         const f = fleetNow();
         const inp = {ice:knobVal('ice'), power:f.power, mass:f.mass, fission:state.fission,
-                     phi_c:knobVal('phi_c'), funding:state.funding, phase:state.phase, mix:state.mix,
+                     phi_c:knobVal('phi_c'), phi_o:knobVal('phi_o'), funding:state.funding, phase:state.phase, mix:state.mix,
                      fSolOvr:state.solOvr/1000, fFisOvr:state.fisOvr/1000,
                      phi_c0:(state.phiC0Ovr!=null?state.phiC0Ovr:CONFIG.phiC0.value)};
         return composeDerivation(Object.assign({}, inp), model(inp),
@@ -18131,6 +18322,12 @@ const LEDGER_TOKENS = {
     if (which === 'fisterm')  return b.fisT.toFixed(6);
     if (which === 'sharelo')  return (Math.min(b.solT,b.fisT)/b.exc).toFixed(2);
     if (which === 'sharehi')  return (Math.max(b.solT,b.fisT)/b.exc).toFixed(2);
+    /* Step 59, item 1. fFis stopped being applied flat, so the boundary's fission figure is no
+       longer one number: 'fission' below is the 100 kWe reference point it is anchored on
+       (unchanged), and 'fissionbuilt'/'builtpower' are the figure and the standing power once
+       the fleet has reached its own service life at a constant 100 kWe/yr landing rate. */
+    if (which === 'fissionbuilt') return b.fisBuilt.toFixed(6);
+    if (which === 'builtpower')   return String(b.builtPower);
     throw new Error('boundary token asks for a half this resolver does not compute: ' + which);
   },
   captureEff: function(){ return String(CONFIG.captureEff.value); }
@@ -18154,8 +18351,9 @@ function _boundarySlopes(){
              + Bmet/CONFIG.kExc.value;
   const tr = (CONFIG.transmission.value/1000)*3;
   const at = function(fp){ return (base + fp + tr) / (1 - phiC0); };
-  _BOUNDARY = { sol: at(CONFIG.fSol.value), fis: at(CONFIG.fFis.value),
-                exc: base, solT: CONFIG.fSol.value + tr, fisT: CONFIG.fFis.value + tr };
+  const builtPower = 100*fleetLife();
+  _BOUNDARY = { sol: at(CONFIG.fSol.value), fis: at(CONFIG.fFis.value), fisBuilt: at(fFisAt(builtPower)),
+                builtPower: builtPower, exc: base, solT: CONFIG.fSol.value + tr, fisT: CONFIG.fFis.value + tr };
   return _BOUNDARY;
 }
 function ledgerTokens(s){
@@ -18328,6 +18526,20 @@ const KNOBS = {
 function knobVal(k){ return DETENTS[k][state[k]]; }
 function snapIdx(key,v){ return nearestIdx(DETENTS[key], v); }
 function knobText(key){ const spec=KNOBS[key]; return spec.fmt(knobVal(key)) + ' ' + spec.unit; }
+/* Step 59, item 5 (cold-read F8). The rail's own readout used to print knobVal(key)
+   unconditionally, even at an era where the reader has placed a curve point that the model
+   actually uses instead -- last gesture wins, curveKnots()'s own rule, applied everywhere the
+   model reads mass or power but not, until now, in the two rails' own text. Measured: dragging
+   the 2055 curve handle to 250 t/yr left #v_mass reading 500 t/yr, the rail's own stale index,
+   while the model and every painted output used 250. The two controls for one quantity now
+   agree: the readout names whichever value curveKnots() would actually apply at the current era,
+   which is the stored point when one exists there and the rail's own reading otherwise. */
+function effectiveRateText(key){
+  const stored = (typeof CURVE !== 'undefined' && CURVE.pts[key]) ? CURVE.pts[key][state.phase] : null;
+  const v = (stored != null) ? stored : knobVal(key);
+  const spec = KNOBS[key];
+  return spec.fmt(v) + ' ' + spec.unit;
+}
 function fmtT(v){ const dp = v<1?2:(v<10?1:0); return fmtNum(v,dp); }
 
 /* ============================================================
@@ -18484,45 +18696,45 @@ function positionTicks(){
    and keeps its property, which is about positions on one axis. STRIP-02 is written the other
    way round: it drives the reader's own preset and era buttons and reads the painted markers out
    of the DOM, so it shares nothing with this function at all. */
-function stripCaps(m){
-  const activeId = PRESET_OF_FUNDING[state.funding], out = {};
+/* Step 59, item 5 (cold-read F5/F6). Two findings on one function, fixed together because they
+   were one root cause: the active marker rode m.cap (the READER'S live dial: ice grade, phi_c,
+   the curve, everything) while the two inactive markers rode each scenario's own PRESET state, so
+   the three markers were never on one basis and a single ice-grade drag reversed which of two
+   programmes read higher (F5); and every marker painted cap, the phi_c-independent full-budget
+   potential, unlabelled and carrying no unit, which is a different number from the water this
+   project actually reports elsewhere for the same scenario (F6). Both are retired the same way:
+   every marker, including the active one, is now evaluated at its OWN preset's ice grade and
+   phi_c, at the live era, through the identical fleet layer, with NOTHING read from the reader's
+   own dial -- a stable reference strip rather than a live one, which is the other of the two
+   choices F5 itself names ("either all three ride the reader's controls or all three ride the
+   presets"), and it reports WATER PRODUCED (phi_c applied), the same quantity #h_water reports for
+   whichever scenario is active, not the phi_c-independent potential. At the default state (no
+   dial moved) this is bit-identical to what shipped before, since the preset's own phi_c and ice
+   ARE the reader's dial reading there; the two only diverge once the reader dials something, which
+   is exactly the state F5 measured the defect in. */
+function stripCaps(){
+  const out = {};
   ['contested','artemis','commercial'].forEach(id=>{
-    const s=SCEN[id];
-    if(id===activeId){ out[id]=m.cap; return; }
-    const e=envelope(s.funding,state.phase);
-    const fs2=scenFleet(s.funding, state.phase);
-    out[id]=model({ice:s.ice,power:fs2.power,mass:fs2.mass,fission:e.fission}).cap;
+    const s = SCEN[id], p = PRESETS[id];
+    const e = envelope(s.funding, state.phase);
+    const fs2 = scenFleet(s.funding, state.phase);
+    out[id] = model({ice:s.ice, power:fs2.power, mass:fs2.mass, fission:e.fission, phi_c:p.phi_c}).water;
   });
   return out;
 }
 function updateTrack(m){
   const activeId = PRESET_OF_FUNDING[state.funding];
-  const caps = stripCaps(m);
+  const caps = stripCaps();
   AX_HI = axisCeiling(Math.max(caps.contested, caps.artemis, caps.commercial));
   positionTicks();
   ['contested','artemis','commercial'].forEach(id=>{
-    const s=SCEN[id];
-    let cap;
-    if(id===activeId){ cap=m.cap; }
-    else { const e=envelope(s.funding,state.phase);
-           /* Step 47: the inactive markers are evaluated through the same fleet layer and the
-              same era as the active one. A strip that compared one scenario's standing fleet
-              against two scenarios' single-year landings would be comparing three different
-              years on one axis.
-              THAT WAS TRUE WHEN IT WAS WRITTEN AND THE HAZARD RETURNED IN A NEW FORM. Sub-step 1
-              gave fleetState() a fifth parameter, the funding tier, the active branch received it
-              through the live render and this branch did not, so the strip went back to comparing
-              two models on one axis: the same scenario read 4,898 lit and 7,427 unlit. It is the
-              SAME hazard the paragraph above names, one layer down, which is why the paragraph
-              stays and this line changed. */
-           const fs2=scenFleet(s.funding, state.phase);
-           cap=model({ice:s.ice,power:fs2.power,mass:fs2.mass,fission:e.fission}).cap; }
+    const cap = caps[id];
     const mk=document.getElementById('mk-'+id);
     mk.dataset.cap=String(cap);
     mk.style.left=pos(cap)+'%';
     mk.classList.toggle('active', id===activeId);
     const dp = cap<1?2:(cap<10?1:0);
-    mk.querySelector('.ml').textContent = PRESETS[id].label+' · '+fmtNum(cap,dp);
+    mk.querySelector('.ml').textContent = PRESETS[id].label+' · '+fmtNum(cap,dp)+' t/yr water';
   });
   document.getElementById('target').style.left=pos(100)+'%';
 }
@@ -19165,7 +19377,7 @@ function render(){
                  phi_c0:(state.phiC0Ovr!=null?state.phiC0Ovr:CONFIG.phiC0.value)});
 
   ['ice','power','mass'].forEach(k=>{ syncSliderRange(document.getElementById('k_'+k), k);
-    document.getElementById('v_'+k).textContent = knobText(k); });
+    document.getElementById('v_'+k).textContent = (k==='ice') ? knobText(k) : effectiveRateText(k); });
 
   syncSliderRange(document.getElementById('k_phic'), 'phi_c');
   document.getElementById('v_phic').textContent = knobText('phi_c');
@@ -19207,30 +19419,39 @@ function render(){
      strip's markers run the same function over the same quantity, so the potential a reader
      reads in the hero is character for character the potential under the active marker. */
   document.getElementById('h_water').textContent = fmtT(m.water);
-  document.getElementById('h_cap').textContent = fmtT(m.cap);
-  /* Sub-step 6. Construction is a product, not a footnote, and it had a square and no headline
-     while water had both. The figure is printed in the SAME register and the SAME units as
-     water's, and it is formatted by exactly the expression the construction square uses, so the
-     hero and the square cannot print two different numbers for one quantity. CONSTRO-01 asserts
-     that agreement across all nine preset and era states rather than at the load state alone. */
   document.getElementById('h_const').textContent = fmtNum(m.construction, m.construction<10?1:0);
-  /* Parallel to water's, deliberately. Both are the same kind of number, what this product becomes
-     if the whole plant is given to it, and a reader had no way to see that while one was called a
-     capacity cap and the other a potential. Water's is at phi_c = 0 and construction's is C_full,
-     which is phi_c = 1. The 0.75 reference figure is NOT the all-construction number, so printing
-     it here would have broken the parallel it was meant to make. Each caption now names its own
-     condition in words rather than in a greek endpoint, because two of the three endpoints are
-     positions a reader cannot drive the rails to: water's potential is at phi_c = 0 AND phi_o = 0,
-     and oxygen's phi_o = 1 clamps against whatever construction holds. A caption a reader
-     falsifies in one drag is worse than no caption. */
-  document.getElementById('h_constcap').textContent = fmtT(m.Cfull);
-  /* Formatted by exactly the expression the oxygen square uses, for the reason CONSTRO-01
-     exists: the hero and the square must not be able to print two different numbers for one
-     quantity. The caption carries the alloy that comes out with it and the full-allocation
-     potential, in the same form water's and construction's already use for theirs. */
   document.getElementById('h_oxy').textContent = fmtNum(m.oxygen, m.oxygen<10?2:0);
-  document.getElementById('h_oxycap').textContent = fmtT(m.Ofull);
   document.getElementById('h_oxyalloy').textContent = fmtNum(m.alloy, m.alloy<10?2:0);
+  /* Step 57 hero, Quinn’s ruling of 2026-09-08. The three live figures above keep their ids,
+     now painted into the production panels below the timeline rather than into the deleted
+     three-line hero; the full-allocation potential each used to carry beside a slash is
+     retired with the caption that explained it. OX-19 and LEDG-12 are re-keyed off this
+     retirement; see their own comments.
+
+     TOTAL ECONOMIC ACTIVITY is every product priced at the delivery cost it avoids, the one
+     basis that covers water, construction, oxygen and alloy alike since none of the four
+     carries any other price in this model, plus what it costs to buy and land the mass that
+     makes them, hardware plus freight. TOTAL INVESTMENT is that second term alone.
+     GOVERNMENT INVESTMENT reads ENVELOPE.med, the agency program's own funding track, at this
+     era, and takes the smaller of that program's own spend and this scenario's own; the three
+     funding tracks share one landing rate at 2030 and diverge from there, which is what lets
+     a scenario's own spend exceed the agency program's without a new coefficient. No literal
+     percentage is printed; the agency's own landing rate this era is printed beside it instead,
+     computed live, because the government dollar figure and the agency mass figure move in
+     different directions across the buildout and a reader needs both to read either one. Mass
+     is bounded away from zero on every rail and D and C_hw are each bounded away from zero on
+     their own rails, so this block carries no singularity and no branch for one. */
+  const D_econ = knobVal('landed_cost'), Chw_econ = knobVal('chw');
+  const outsUSD = (m.water + m.construction + m.oxygen + m.alloy) * 1000 * D_econ;
+  const insUSD = knobVal('mass') * 1000 * (Chw_econ + D_econ);
+  const totalUSD = outsUSD + insUSD;
+  const agencyRate = ENVELOPE.med[state.phase].M;
+  const govCapUSD = agencyRate * 1000 * (Chw_econ + D_econ);
+  const govUSD = Math.min(govCapUSD, insUSD);
+  document.getElementById('h_econ').textContent = _usd(totalUSD);
+  document.getElementById('h_invest').textContent = _usd(insUSD);
+  document.getElementById('h_govinvest').textContent = _usd(govUSD);
+  document.getElementById('h_govnote').textContent = 'agency landing ' + fmtNum(agencyRate, 0) + ' t/yr this era';
   /* STEP 52. The 65-word fleet paragraph is deleted. Every figure in it was audited against the
      rest of the screen first. The rail RATE in t/yr and in kWe/yr and the 2030 epoch already
      print on the knob rail and on the era buttons and died with the paragraph. The standing mass
@@ -19275,7 +19496,16 @@ function render(){
   const segP=document.getElementById('segP'), segM=document.getElementById('segM'), segN=document.getElementById('segN');
   if(m.mPwr>=total){ segP.style.width='100%'; segP.className='seg-over'; segM.style.width='0%'; segN.style.width='0%'; }
   else { segP.className='seg-p'; segP.style.width=(pFrac*100)+'%'; segM.style.width=(mFrac*100)+'%'; segN.style.width=(nFrac*100)+'%'; }
-  document.getElementById('keyP').textContent='power system '+fmtNum(m.mPwr,m.mPwr<10?1:0)+' t';
+  /* Step 59, item 5 (cold-read F7). The three legend numbers summed to more than the standing
+     total whenever the power system alone outweighed it (measured: 5,904 + 0 + 0 against a
+     printed 3,685 t total), because mining and non-productive both correctly clamp to zero in
+     that regime while the power-system legend went on printing its own unclamped demand. The
+     render's own comment already promised the three parts sum to the total; now the power-system
+     legend says so itself, in words, whenever they do not, rather than leaving a reader to find
+     the gap by addition. */
+  const overdrawn = m.mPwr > total;
+  document.getElementById('keyP').textContent='power system '+fmtNum(m.mPwr,m.mPwr<10?1:0)+' t'+
+    (overdrawn ? ' (exceeds the '+fmtNum(total,0)+' t standing fleet; mining and non-productive are zero because none of it is payable)' : '');
   document.getElementById('keyM').textContent='mining plant '+fmtNum(Math.max(0,m.mining),m.mining<10?1:0)+' t';
   document.getElementById('keyN').textContent='non-productive '+fmtNum(nonProd,nonProd<10?1:0)+' t';
   document.getElementById('keyTot').innerHTML=fmtNum(fs.mass,0)+'<span class="u2">t</span>';
@@ -19305,6 +19535,7 @@ function render(){
      the right-hand end of the rail at every era past 2030 and say nothing new. */
   drawField(m, knobVal('mass'), knobVal('power'));
   curveDraw();
+  investDraw();
   paintRegimeCaption(m);
   runAfterRender();
 }
@@ -19817,7 +20048,7 @@ function buildRefBody(){
     '<p>The ice knob carries '+DETENTS.ice.length+' detents spanning '+DETENTS.ice[0]+' to '+DETENTS.ice[DETENTS.ice.length-1]+' wt% ('+DETENTS.ice.join(', ')+' wt%), inside the study’s adopted modeling envelope of 1 to 30 wt%, which is not a measured distribution. The only ground-truth anchor is the LCROSS about 5.6 wt% measurement at Cabeus (Colaprete et al. 2010): one site, one depth. No measurement establishes the distribution across this range; VIPER (2027) will add one more point.</p>'+
     '<h3 style="font-family:var(--mono);font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--ice);margin:22px 0 8px">Assumptions</h3>'+
     '<p>k_exc = '+CONFIG.kExc.value+' '+CONFIG.kExc.unit+': the plant throughput coefficient, this project’s geometric centre of two published plants reduced to its own basis. It was a calibrated construct with no source at all until 2026-09-08, and this paragraph went on saying so for one build after the re-derivation landed, three lines under a table badging the same coefficient DERIVED. At this value '+nPow+' of the '+nScen+' scenario points are power-limited and the other '+(nScen-nPow)+' are held by the plant.</p>'+
-    '<p>f_sol = '+CONFIG.fSol.value+' '+CONFIG.fSol.unit+', f_fis = '+CONFIG.fFis.value+' '+CONFIG.fFis.unit+': specific masses for unbuilt hardware. f_sol is this project’s geometric middle of a 2 to 7 W/kg illuminated-ridge band no held source prints; f_fis is a log-log fit of three design points frozen at the directive’s 100 kWe anchor, which is a rail one of the nine preset cells is within a factor of five of. This paragraph called them both landed-payload allocations until 2026-09-08, which is what f_sol’s own retired 0.05 was and what its own entry says the live 0.2673 is not. The fission/solar mix slider in Advanced mode explores the blend between them; it never changes either coefficient.</p>';
+    '<p>f_sol = '+CONFIG.fSol.value+' '+CONFIG.fSol.unit+', f_fis = '+CONFIG.fFis.value+' '+CONFIG.fFis.unit+': specific masses for unbuilt hardware. f_sol is this project’s geometric middle of a 2 to 7 W/kg illuminated-ridge band no held source prints; f_fis is a log-log fit of three design points, anchored exactly at the directive’s 100 kWe point and unfrozen beyond it as a power law since 2026-09-09, which is why the value shown here is the 100 kWe figure and not what the model applies at a cell landing more or less power than that. This paragraph called them both landed-payload allocations until 2026-09-08, which is what f_sol’s own retired 0.05 was and what its own entry says the live 0.2673 is not. The fission/solar mix slider in Advanced mode explores the blend between them; it never changes either coefficient.</p>';
 }
 function renderDerivationPanel(inp, m, v){
   const dv=composeDerivation(Object.assign({}, inp), m, v);
@@ -20062,7 +20293,7 @@ function renderEqnsTab(){
      standing fleet the hero was computed from, never the raw landing rates. */
   const fs=fleetNow();
   const inp={ice:knobVal('ice'), power:fs.power, mass:fs.mass,
-             fission:state.fission, phi_c:knobVal('phi_c'), funding:state.funding, phase:state.phase,
+             fission:state.fission, phi_c:knobVal('phi_c'), phi_o:knobVal('phi_o'), funding:state.funding, phase:state.phase,
              mix:state.mix, fSolOvr:state.solOvr/1000, fFisOvr:state.fisOvr/1000,
              phi_c0:(state.phiC0Ovr!=null?state.phiC0Ovr:CONFIG.phiC0.value)};
   const m=model(inp);
@@ -20388,7 +20619,7 @@ function renderNotesPanel(m){
         _linkList(breaks)+'.');
 
   h+= excl.length
-    ? _p('Some of what this state’s result and economics lean on sits outside what the model computes, '+esc(String(excl.length))+' things in all: '+_linkList(excl)+'.')
+    ? _p('Some of what this state’s result and economics lean on sits outside what the model computes, '+esc(String(excl.length))+(excl.length===1?' thing in all: ':' things in all: ')+_linkList(excl)+'.')
     : _p('Nothing this state touches is formally excluded. The exclusions the app records live in the Evidence Ledger tab and each carries its own reason.');
 
   /* THE SHARED BUDGET AND THE SOURCING TALLY. The tally is COMPUTED from CONFIG at render
@@ -20418,9 +20649,27 @@ function renderNotesPanel(m){
            always the point, that the feeds never OVERDRAW the ceiling; the slack is printed
            where it exists instead of being described away. Minimum slack over the 2,079-state
            phi_o x phi_c x nine-cell walk is 0, and it is reached at the exact-equality corner. */
-        (m.Rcap - m.regolithFeed > 0.5
-          ? 'They do not reach it here: '+esc(fmtNum(m.Rcap-m.regolithFeed,0))+' t/yr of plant capacity stands idle at this oxygen share, because the oxygen line has taken the power the other lines would need to keep that much plant fed.'
-          : 'Here they reach it exactly, and the books close with nothing idle.'));
+        /* Step 59, item 5 (cold-read F10). The old sentence attributed the WHOLE idle gap to
+           the oxygen line's own power draw. Measured, not assumed: at Agency Led Baseline / 2055
+           the oxygen line accounts for about 3 percent of the idle capacity; the other 97 percent
+           is idle because the state is power-limited (the same chip at the top of the cockpit
+           already names), and would be idle at phi_o=0 too. The counterfactual is computed here,
+           live, by calling model() again with phi_o=0 and everything else held fixed, rather than
+           asserted -- the same "compute at render or do not print" discipline this round applies
+           everywhere else, and it is what makes this sentence self-correcting the day the binding
+           regime or the oxygen coefficients move again. */
+        (function(){
+          const idleTotal = m.Rcap - m.regolithFeed;
+          if (!(idleTotal > 0.5)) return 'Here they reach it exactly, and the books close with nothing idle.';
+          const mNoOxy = model({ice:m.ice, power:m.power, mass:m.mass, fission:m.fission, phi_c:m.phi_c, phi_o:0});
+          const idleWithoutOxygen = mNoOxy.Rcap - mNoOxy.regolithFeed;
+          const oxyShare = Math.max(0, Math.min(idleTotal, idleTotal - idleWithoutOxygen));
+          const rest = Math.max(0, idleTotal - oxyShare);
+          return 'They do not reach it here: '+esc(fmtNum(idleTotal,0))+' t/yr of plant capacity stands idle at this oxygen share. '+
+            esc(fmtNum(oxyShare,0))+' t/yr of that is the oxygen line’s own power draw (turning it off, everything else held fixed, leaves '+
+            esc(fmtNum(idleWithoutOxygen,0))+' t/yr idle); the remaining '+esc(fmtNum(rest,0))+
+            ' t/yr is idle because this state is '+esc(BIND_LABEL[m.binding]||m.binding)+', which caps water and construction before the plant’s own regolith throughput does.';
+        })());
   h+=_p('Of the '+esc(String(OXPOP.length))+' coefficients this line runs on, '+esc(String(nSrc.length))+
         ' '+vb(nSrc.length,'is','are')+' printed verbatim by a primary ('+esc(nSrc.join(', '))+'), '+esc(String(nDrv.length))+
         ' '+vb(nDrv.length,'is','are')+' this project’s own arithmetic on a primary’s printed figures ('+esc(nDrv.join(', '))+'), '+
@@ -20593,7 +20842,14 @@ function renderLedgerPanel(){
            own planned ledger hyperlinks will want the section identity (esc(s), already
            printed above) intact. Per the ruling on the render boundary,
            Section 2. */
-        h+='<p style="margin:4px 0 4px">'+linkify(_notesExcerpt(c.source))+'</p>'+
+        /* Step 59, item 6 residual (Step 51 manager close). This branch used to truncate
+           c.source to two sentences plus "[...]", 29 sites and growing every round new
+           provenance prose is added, on the one surface this project calls the place a reader
+           goes to check provenance; the reconciliation branch three lines below never truncated
+           its own source text at all, an inconsistency on one panel. Full text, matching the
+           reconciliation branch, retires the truncation mechanism's only call site rather than
+           tuning its threshold. */
+        h+='<p style="margin:4px 0 4px">'+linkify(c.source)+'</p>'+
            '<p style="margin:0;color:var(--muted)"><em>Counter-case.</em> '+
            linkify(isSettled ? SETTLED_MARKER : c.counterCase)+'</p>';
         if(cj.arg) h+='<p style="margin:3px 0 0;color:var(--faint);font-family:var(--mono);font-size:11px">'+
@@ -21494,7 +21750,7 @@ function renderDevPanel(){
   paintDevPanel(el, res);
   el.hidden=false;
 }
-document.getElementById('devLink').addEventListener('click', ()=>{ renderDevPanel(); document.getElementById('devpanel').scrollIntoView({behavior:'smooth',block:'start'}); });
+/* Step 57, Quinn’s ruling of 2026-09-08: the visible self-check link is retired with the footer, and this click wiring goes with it. The ?selfcheck query-param route two screens down is untouched by this edit and is the surviving way to reach renderDevPanel(); no row in this suite asserted the click wiring or the query-param trigger by name before this edit, so none needed re-keying, and renderDevPanel() itself stays covered by every row that runs through it. */
 
 /* tabs */
 document.getElementById('tabs').addEventListener('click', e=>{
@@ -21506,7 +21762,6 @@ document.getElementById('tabs').addEventListener('click', e=>{
 positionTicks();
 renderDefinitionsTab();
 renderLedgerPanel();
-document.getElementById('footModel').textContent = scenLine();
 applyTabGating();
 applyPreset(PRESETS.artemis);
 render();
