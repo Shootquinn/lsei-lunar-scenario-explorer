@@ -617,10 +617,24 @@
             <div class="metric"><div class="ml2">Earth delivery cost</div><div class="mv"><span id="m_deliv"></span><span class="munit">/kg</span></div></div>
             <div class="metric"><div class="ml2">Propellant value</div><div class="mv"><span id="m_prop"></span><span class="munit">/yr</span></div></div>
             <div class="metric"><div class="ml2">Construction value</div><div class="mv"><span id="m_const"></span><span class="munit">/yr</span></div></div>
+            <div class="metric" title="Utilisation rides beside N because ceil() leaves the last plant partly idle unless Ofull divides the per-plant ceiling exactly."><div class="ml2">Plants standing</div><div class="mv"><span id="m_plants" data-step60-plantcount></span><span class="munit" id="m_plants_sub"></span></div></div>
+            <div class="metric" title="Wright's law at the dialed progress ratio. target 50 kg/t/yr (Step 58) · Jones 2019 109 kg/t/yr for comparison."><div class="ml2">Specific mass</div><div class="mv"><span id="m_specmass" data-step60-specificmass></span><span class="munit">kg/t/yr</span></div></div>
+            <div class="metric" title="The progress ratio that closes this cell's gap to the Step 58 target; undefined where N_cum=1 has no doubling yet."><div class="ml2">Rate required for target</div><div class="mv"><span id="m_reqrate" data-step60-requiredrate></span><span class="munit" id="m_reqrate_sub">PR</span></div></div>
           </div>
           <div class="knob" style="max-width:320px" id="lcKnobWrap">
             <div class="krow"><span class="klabel">Earth delivery cost</span><span class="kval" id="v_landedcost"></span></div>
             <input type="range" id="k_landedcost">
+          </div>
+          <div class="knob" style="max-width:320px" id="rateDialWrap">
+            <div class="krow"><span class="klabel">Learning rate</span><span class="kval" id="v_ratedial"></span></div>
+            <div class="seg" id="rateDial" role="group" aria-label="Learning rate progress ratio">
+              <button type="button" data-r="0.56" aria-pressed="true">0.56</button>
+              <button type="button" data-r="0.788" aria-pressed="false">0.788</button>
+              <button type="button" data-r="0.85" aria-pressed="false">0.85</button>
+              <button type="button" data-r="0.90" aria-pressed="false">0.90</button>
+              <button type="button" data-r="0.95" aria-pressed="false">0.95</button>
+              <button type="button" data-r="2.0" aria-pressed="false" title="Grubler French PWR, negative learning">2.0</button>
+            </div>
           </div>
           <div class="knob" style="max-width:320px" id="chwKnobWrap">
             <div class="krow"><span class="klabel">Hardware cost</span><span class="kval" id="v_chw"></span></div>
@@ -19273,6 +19287,13 @@ document.getElementById('phase').addEventListener('click', e=>{
   render();
 });
 
+document.getElementById('rateDial').addEventListener('click', e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  step60Rate = Number(b.dataset.r);
+  Array.prototype.forEach.call(e.currentTarget.children, c=>c.setAttribute('aria-pressed', c===b?'true':'false'));
+  render();
+});
+
 document.getElementById('fis_chip').addEventListener('click', ()=>{ state.fission=!state.fission; render(); });
 
 const advBtn=document.getElementById('advToggle'), advPanel=document.getElementById('advPanel');
@@ -19723,6 +19744,68 @@ function curveKeyDown(ev){
 if (typeof window !== 'undefined' && window.addEventListener)
   window.addEventListener('resize', function(){ try { curveDraw(); } catch(e){} });
 function fleetNow(){ return fleetState(knobVal('mass'), knobVal('power'), state.phase, null, state.funding); }
+/* ============================================================
+   STEP 60 MATURITY AXIS (Systems/Space Resources/Software/Designer, sub-steps 1-4). Plant
+   count, utilisation, Wright's-law specific mass at a reader-selectable progress ratio, and the
+   required progress ratio to close the Step 58 target, ALL COMPUTED from model()/curveFleet()
+   output at render time -- none of the four is authored. Reference figures this block
+   reproduces bit-for-cell live in the Step 60 model file; the N_cum ruling (learning
+   curve indexes cumulative, non-retiring plant count, never the standing count) is
+   the Step 60 plant-count spec section 5. Exposure markup and wording per
+   the Step 60 exposure spec, landed in the Value tab's existing .metrics grid
+   and .knob pattern. */
+const STEP60_UNIT_CAPACITY_KG_O2_YR = 5000; // Schreiner 2016 pp.1601-1602, per-reactor ceiling at design margin 1.0
+const STEP60_M1_KG_PER_T_YR = 271;          // Guerrero-Gonzalez plant specific mass at unit N=1
+const STEP60_TARGET_KG_PER_T_YR = 50;       // Step 58's measured margins measured target
+let step60Rate = 0.56; // reader-dial progress ratio, six discrete positions wired below
+
+/* N = ceil(Ofull/unit_capacity): the last plant built is partly idle whenever Ofull is not an
+   exact multiple of the per-plant ceiling. Utilisation is returned beside N because N alone
+   hides that partial-plant idle time and overstates efficiency -- it is never rendered without
+   it (m_plants_sub). */
+function step60Plants(ofull_kg, capacity){
+  if(!(capacity>0)) return {N:NaN, utilisation:NaN};
+  if(!(ofull_kg>0)) return {N:0, utilisation:null};
+  const N = Math.ceil(ofull_kg/capacity);
+  return {N:N, utilisation:ofull_kg/(N*capacity)};
+}
+
+/* Writes the three Value-tab tiles (m_plants/m_specmass/m_reqrate and their _sub lines) and the
+   rate-dial mirror/aria-pressed state. m is the standing model() result render() already
+   computed this cycle; Ofull does not read phi_c (Opower and Othr are both phi-free in
+   model()), so m.Ofull is already the standing pre-allocation ceiling and needs no second call.
+   fs is the same fleetNow() fleet state render() read fs.mass/fs.power off; the cumulative
+   ceiling is the one new model() call, run on fs.landed/fs.landedPower -- curveCumulative()
+   never reads L, so N_cum is independent of fleet life by construction. Only m_specmass moves
+   with the dial; N/utilisation and the required rate do not. */
+function step60RenderValueTab(m, fs){
+  const cumModel = model({ice:knobVal('ice'), power:fs.landedPower, mass:fs.landed,
+                          fission:state.fission, phi_c:0});
+  const ofullStanding_kg = m.Ofull * 1000;
+  const ofullCumulative_kg = cumModel.Ofull * 1000;
+  const standing = step60Plants(ofullStanding_kg, STEP60_UNIT_CAPACITY_KG_O2_YR);
+  const cumulative = step60Plants(ofullCumulative_kg, STEP60_UNIT_CAPACITY_KG_O2_YR);
+  const b = Math.log(step60Rate)/Math.log(2);
+  const specificMass = STEP60_M1_KG_PER_T_YR * Math.pow(cumulative.N, b);
+  let reqText, reqSub;
+  if(cumulative.N === 1){
+    reqText = 'undefined'; reqSub = 'no doubling yet';
+  } else {
+    const bReq = Math.log(STEP60_TARGET_KG_PER_T_YR/STEP60_M1_KG_PER_T_YR)/Math.log(cumulative.N);
+    reqText = (100*Math.pow(2,bReq)).toFixed(1)+'%';
+    reqSub = '56% default \u00b7 85% / 90% / 95% anchors';
+  }
+  document.getElementById('m_plants').textContent = String(standing.N);
+  document.getElementById('m_plants_sub').textContent =
+    (standing.utilisation==null?'n/a':(standing.utilisation*100).toFixed(1))+'% util';
+  document.getElementById('m_specmass').textContent = fmtNum(specificMass,1);
+  document.getElementById('m_reqrate').textContent = reqText;
+  document.getElementById('m_reqrate_sub').textContent = reqSub;
+  document.getElementById('v_ratedial').textContent = String(step60Rate);
+  Array.prototype.forEach.call(document.querySelectorAll('#rateDial button[data-r]'), function(rb){
+    rb.setAttribute('aria-pressed', String(Number(rb.dataset.r)===step60Rate));
+  });
+}
 function render(){
   const fs=fleetNow();
   const m=model({ice:knobVal('ice'), power:fs.power, mass:fs.mass,
@@ -19873,7 +19956,8 @@ function render(){
                       phase:state.phase, landed_cost:knobVal('landed_cost'), C_hw:knobVal('chw'), mix:state.mix,
                       fSolOvr:state.solOvr/1000, fFisOvr:state.fisOvr/1000,
                       phi_c0:(state.phiC0Ovr!=null?state.phiC0Ovr:CONFIG.phiC0.value)});
-  renderValueTab(v);
+  renderValueTab(v);renderValueTab(v);
+  step60RenderValueTab(m, fs);
   paintBreakevenMark(v);
 
   renderBlurbPanel(m);
@@ -20429,7 +20513,15 @@ function buildRefBody(){
     '<p>The ice knob carries '+DETENTS.ice.length+' detents spanning '+DETENTS.ice[0]+' to '+DETENTS.ice[DETENTS.ice.length-1]+' wt% ('+DETENTS.ice.join(', ')+' wt%), inside the study’s adopted modeling envelope of 1 to 30 wt%, which is not a measured distribution. The only ground-truth anchor is the LCROSS about 5.6 wt% measurement at Cabeus (Colaprete et al. 2010): one site, one depth. No measurement establishes the distribution across this range; VIPER (2027) will add one more point.</p>'+
     '<h3 style="font-family:var(--mono);font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--ice);margin:22px 0 8px">Assumptions</h3>'+
     '<p>k_exc = '+CONFIG.kExc.value+' '+CONFIG.kExc.unit+': the plant throughput coefficient, this project’s geometric centre of two published plants reduced to its own basis. It was a calibrated construct with no source at all until 2026-09-08, and this paragraph went on saying so for one build after the re-derivation landed, three lines under a table badging the same coefficient DERIVED. At this value '+nPow+' of the '+nScen+' scenario points are power-limited and the other '+(nScen-nPow)+' are held by the plant.</p>'+
-    '<p>f_sol = '+CONFIG.fSol.value+' '+CONFIG.fSol.unit+', f_fis = '+CONFIG.fFis.value+' '+CONFIG.fFis.unit+': specific masses for unbuilt hardware. f_sol is this project’s geometric middle of a 2 to 7 W/kg illuminated-ridge band no held source prints; f_fis is a log-log fit of three design points, anchored exactly at the directive’s 100 kWe point and unfrozen beyond it as a power law since 2026-09-09, which is why the value shown here is the 100 kWe figure and not what the model applies at a cell landing more or less power than that. This paragraph called them both landed-payload allocations until 2026-09-08, which is what f_sol’s own retired 0.05 was and what its own entry says the live 0.2673 is not. The fission/solar mix slider in Advanced mode explores the blend between them; it never changes either coefficient.</p>';
+    '<p>f_sol = '+CONFIG.fSol.value+' '+CONFIG.fSol.unit+', f_fis = '+CONFIG.fFis.value+' '+CONFIG.fFis.unit+': specific masses for unbuilt hardware. f_sol is this project’s geometric middle of a 2 to 7 W/kg illuminated-ridge band no held source prints; f_fis is a log-log fit of three design points, anchored exactly at the directive’s 100 kWe point and unfrozen beyond it as a power law since 2026-09-09, which is why the value shown here is the 100 kWe figure and not what the model applies at a cell landing more or less power than that. This paragraph called them both landed-payload allocations until 2026-09-08, which is what f_sol’s own retired 0.05 was and what its own entry says the live 0.2673 is not. The fission/solar mix slider in Advanced mode explores the blend between them; it never changes either coefficient.</p>'+
+    '<p>unit_capacity = 5,000 kg O2/yr (Schreiner 2016, reactor scope) against m1 = 271 kg/t/yr (Guerrero-Gonzalez, nine-subsystem plant scope): SCOPE MISMATCH, ASSUMED 1:1, NOT SOURCED. No source in this corpus states how many Schreiner reactors sit inside one Guerrero-Gonzalez plant.</p>'+
+    '<p>Learning rate 0.56 (Brehm, Bui, Trancik et al. 2024, post-1990 launch vehicles) applied to ISRU plant units: transfer assumption, not measured. No source measures a learning rate for an ISRU plant, or any few-unit process plant, at commercial-space cadence.</p>'+
+    '<p>Oxide reduction order at 1873 K, kJ per mol O2, derived from standard formation data: FeO 285, SiO2 569, TiO2 597, Al2O3 726, MgO 797, CaO 874. Aluminium is fourth of six and reduces before magnesium and calcium, which is the mechanism behind staged tapping: ferrosilicon comes off early, aluminium comes off late, on separate taps. Jehn 2024 runs it as two voltage stages on one melt, Stage 1 Si at 2.5 V and Mg at 2.8 V, Stage 2 Ti at 3.3 V and Al at 3.8 V.</p>'+
+    '<p>Al2O3 = 2Al + 3/2 O2 reversible minimum = 5.60 kWh/kg Al: dG at 1873 K, derived here from standard formation data. dH = 8.63 kWh/kg Al. Co-product oxygen = 0.889 kg per kg Al; charged across both products, 2.97 kWh/kg. Han 2026 Table 2\u2019s own MRE-route delta-G, on the mixed-alloy real product rather than this pure-Al2O3 reaction, is 14.66 kWh/kg Al: the two are different reactions on different products and do not cross-check each other, and no source in this corpus supplies a pure-Al2O3-reduction delta-G to check this derivation against directly.</p>'+
+    '<p>Aluminium practical energy = 9.5 kWh/kg Al: Jehn 2024 LAMPP, 56,355 kWh/yr over 195 batches, mass-allocated across its own metal split of Si 65.6, Al 22.4, Mg 11.0, Ti 1.1 percent, 1.70x the first-principles floor. Aluminium output on Jehn\u2019s plant is 1,328 kg/yr.</p>'+
+    '<p>Aluminium yield = 7.4 wt% of feed at 99.27 wt% purity: Schneiderman 2025 Table 2, page 7, tapped aluminium product drawn at Extraction Event 2, lambda-O2 = 0.37.</p>'+
+    '<p>Aluminium plant mass = 271 kg per t/yr at unit 1, the same plant: aluminium is a later tap on the same MRE reactor and carries no separate plant and no separate mass axis. It rides the same learning curve to the same 2055 position, at the same default progress ratio 0.56, as every other output of that plant.</p>'+
+    '<p>Aluminium containment is a duration, not a thermodynamic limit: the melt freezes against a 1675 C reactor line, Schneiderman\u2019s and Schreiner\u2019s own design choice carrying a stated 30 C margin, crossed at lambda-O2 = 0.375. CaO is last to reduce, concentrates to 69 mol%, and drives the liquidus up. Containment has a measured rate, 7 um/hr of YSZ recession, from Yu 2025.</p>';
 }
 function renderDerivationPanel(inp, m, v){
   const dv=composeDerivation(Object.assign({}, inp), m, v);
@@ -22356,6 +22448,26 @@ applyPreset(PRESETS.artemis);
 render();
 const _q=location.search;
 if(/[?&](test|selfcheck)\b/.test(_q) || /[?&](test|selfcheck)=/.test(_q)) renderDevPanel();
+/* Step 60 sub-step 4: reads #scenario=<full canonical name>&era=<yyyy> from the URL fragment and
+   drives that exact preset/era combination. Required by the Step 60 maturity check's
+   Check 4, which dumps the rendered DOM at each of the nine preset x era states this way. Phase
+   is set BEFORE applyPreset, matching every other call site in this file: applyPreset's own
+   snapToEnvelope(true) reads state.phase to size the mass/power rails, so applying the preset
+   first strands the rails on whatever phase the app loaded with. An absent or unrecognised hash
+   is a no-op; the normal load path above is untouched. */
+(function step60ApplyHashState(){
+  const h = location.hash;
+  const ms = /[#&]scenario=([^&]+)/.exec(h);
+  if(!ms) return;
+  const label = decodeURIComponent(ms[1]);
+  let id = null;
+  for(const k in PRESETS){ if(PRESETS[k].label === label){ id = k; break; } }
+  if(!id) return;
+  const me = /[#&]era=([^&]+)/.exec(h);
+  if(me) state.phase = decodeURIComponent(me[1]);
+  applyPreset(PRESETS[id]);
+  render();
+})();
 
 <!-- ===== CR38-REGION-B:END ===== -->
 </script>
