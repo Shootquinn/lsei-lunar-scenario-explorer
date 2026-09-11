@@ -1509,23 +1509,65 @@
   "derivLong": "The co-product mass ratio is calculated from Schreiner's oxide reduction expressions: Equation 2 for oxygen yield and Equation 3 for metal mass. Dividing metal by oxygen eliminates the reduction extent for each oxide, fixing individual metal-to-oxygen ratios by stoichiometry: 3.49 for FeO, 2.51 for CaO, 1.52 for MgO, 1.50 for TiO2, 1.12 for Al2O3, and 0.88 for SiO2. For any regolith mix, the net ratio is an oxygen-weighted sum of these components, bounded between 0.88 and 3.49. Evaluating an Apollo 16 highland composition under full reduction yields an oxygen mass fraction of 0.448 against Schreiner's maximum of 0.454. Leaving the refractory oxides CaO and MgO unreduced yields 0.380 oxygen fraction against his high-temperature 0.375, and a metal-to-oxygen ratio of 1.053, matching his finding that the two product masses are almost equal.",
   "note": "Band 1.00 to 1.20. The lower end is Schreiner's own printed sentence; the upper is arithmetic on his printed highland maximum, where complete reduction gives (1-kO2max)/kO2max = 1.2026. This coefficient MULTIPLIES the oxygen output. It is a mass ratio fixed by the chemistry of one reactor and no allocation fraction touches it. Demonstrated production on a metals denominator is zero kilograms: the 25 kg Kennedy Space Center run measured oxygen and weighed no metal, and nothing in this corpus reports a weighed mass of metal from any lunar reduction experiment on any route. CENTRED at Step 56: the live value is 1.10, the arithmetic middle of that 1.00 to 1.20 band, and not the 1.053 the derivation above produces. The derivation is the band's LOW END and is kept as the low end's provenance. The one plant-scale reactor reading in the corpus, 1.16 implied by Guerrero-Gonzalez and Zabel's Fig. 4 at their 1850 K design point, sits inside the band above the live value, so 1.10 is not the aggressive end of it."
  },
- "alphaMetal": {
-  "value": 0,
-  "unit": "fraction of process energy charged to metal",
+ "eMetalWholePlant": {
+  "value": 81.895,
+  "unit": "kWh / kg metal",
   "band": {
    "kind": "INTERVAL",
-   "lo": 0,
-   "hi": 1,
-   "loSource": "Definitional: none of the process energy charged to metal.",
-   "hiSource": "Definitional: all of the process energy charged to metal.",
+   "lo": 80.069,
+   "hi": 81.895,
+   "loSource": "Guerrero-Gonzalez and Zabel (2023), the same plant restricted to electrolysis-cell-alone power draw, excluding balance-of-plant.",
+   "hiSource": "Guerrero-Gonzalez and Zabel (2023), the same plant's whole-plant power draw: power source, feedstock prep and the electrolysis cell together.",
    "rule": "NOT-CENTRABLE",
    "disposition": "STANDS",
-   "reason": "DEFINITIONAL INTERVAL WITH NO EVIDENCE IN IT. No source in this corpus allocates the energy of a co-production process between its products, and this entry states that any other value is equally unsourced. 0.5 is not more central than 0; it is a different unsupported claim about which product the programme is for. 0 is additionally the value that matches what model() computes, since the branch's energy bill is denominated per kilogram of oxygen throughout. The 0.512 that stood here until 2026-09-05 printed a split the model does not run, and re-centring would reinstate it."
+   "reason": "Two scopes of one plant reading, not an uncertainty spread: electrolysis-cell-alone and whole-plant power each divided through the same printed metal tonnage. The live value sits at the whole-plant end because it is the comprehensive denominator, the one that charges the metals line for everything the plant actually draws rather than for the reactor cell alone."
   },
-  "source": "NONE. No source in this corpus allocates the energy of a co-production process between its products, and the search that establishes that is the same one that found every specific-energy figure in the lunar reduction literature denominated per kilogram of oxygen. The value is zero, which books the whole process energy against oxygen and is what model() already computes: the branch's energy bill is denominated per kilogram of oxygen through eO2perT and the alloy carries no energy term of its own. Until 2026-09-05 this value was 0.512, a mass allocation rMetal/(1+rMetal) at rMetal of 1.05, which printed a split the model does not run. It is this project's engineering judgement and it is not a finding.",
-  "status": "ASSUMPTION (no anchor of any kind)",
-  "useLabel": "ASSUMPTION (a modelling choice, not a measurement: the whole process energy is booked against oxygen, which is what the model computes, and no source allocates)",
-  "note": "This fraction allocates ENERGY. It does not allocate mass and it cannot move a tonnage. Oxygen and metal leave one reactor in the fixed ratio rMetal, so both tonnages rise and fall together and this control only changes which product the same energy is booked against. The per-product specific energies it produces are eO2·(1-alphaMetal) per kg of oxygen and eO2·alphaMetal/rMetal per kg of metal, and those two weighted by their own masses sum back to eO2 at every value of this coefficient, which is the invariant a test row asserts. Any other value is equally unsourced and is a statement about which product the programme is for."
+  "source": "Guerrero-Gonzalez and Zabel (2023), derived by this project from the plant's own printed 25.00 t/a of metal against its printed whole-plant power draw and operating window. Metal's energy denominator here is native to the source: the paper prints metal tonnage and plant power directly, and the only derivation step is the kWh/kg arithmetic, power times hours over mass, never a conversion through an oxygen-denominated figure.",
+  "status": "DERIVED (arithmetic on the plant primary's own printed metal tonnage and power draw)",
+  "useLabel": "DERIVED (kWh per kilogram of METAL, whole plant, from Guerrero-Gonzalez and Zabel's own printed tonnage and power)",
+  "note": "This is the metals contributor's own bill on its own denominator, Step 52 sub-step 2: kilograms of metal, never derived from eO2 or from any oxygen-denominated figure. The dedicated oxygen line keeps eO2 on its own kilogram-of-oxygen denominator; the two lines no longer share one energy bill split by a fraction, which is what retires the split fraction Step 52 sub-step 4 removes from CONFIG."
+ },
+ "eMetalReactorOnly": {
+  "value": 80.069,
+  "unit": "kWh / kg metal",
+  "band": {
+   "kind": "NO_BAND",
+   "rule": "NOT-CENTRABLE",
+   "disposition": "STANDS",
+   "reason": "The electrolysis-cell-alone restriction of eMetalWholePlant's own band, carried as its own named figure because a reader comparing the two scopes should find both printed rather than compute one from the other's note."
+  },
+  "source": "Guerrero-Gonzalez and Zabel (2023), derived by this project on the same plant primary, restricted to electrolysis-cell-alone power draw (excluding balance-of-plant: feedstock prep, product handling and thermal rejection).",
+  "status": "DERIVED (same source and tonnage as eMetalWholePlant, electrolysis-cell-alone power)",
+  "useLabel": "DERIVED (kWh per kilogram of METAL, electrolysis-cell-alone, same plant primary as eMetalWholePlant)",
+  "note": "Not read live by model(): kept as the record's own electrolysis-cell-alone figure beside the whole-plant value the model uses, the same convention the eO2 bracket already follows of printing the scope a coefficient was not pinned at alongside the one it was."
+ },
+ "ratioO2PerKgMetal": {
+  "value": 0.9560,
+  "unit": "kg O2 / kg metal",
+  "band": {
+   "kind": "NO_BAND",
+   "rule": "NOT-CENTRABLE",
+   "disposition": "STANDS",
+   "reason": "Not an uncertainty band: the source carries two DIFFERENT readings of this ratio, plant-delivery and reactor-yield, disagreeing by about 11 percent and never reconciled by its own author. The live value is a basis choice between two readings, not a centring of a spread."
+  },
+  "source": "Guerrero-Gonzalez and Zabel (2023) Table 2: 23.90 t/a of oxygen against 25.00 t/a of metal from the same integrated plant, the plant-delivery reading. RULED PLANT-DELIVERY, 2026-09-10: Table 2 is the paper's own integrated annual plant output, metal and oxygen tonnes actually delivered over the plant's stated operating year; Fig. 4's own caption reads \"Adapted from Schreiner,\" its axes are intensive per-kilogram stoichiometric yields with no year and no duty cycle printed on it anywhere, which is a reactor-chemistry reading and inverts to about 0.855 kg O2 per kg metal. The summing model sums annual plant production, so the plant-delivery reading is the one consistent with every other term in the sum. Composition was confirmed identical across both exhibits, 6 wt% FeO Highlands at the same 1850 K design point, which rules out a composition mismatch as the explanation for the gap. The paper's own Fig. 4 and Table 2 disagree on this ratio by about 11 percent, 11.8 percent precisely, and never reconcile it; the residual is either a metal-recovery loss or an operating-point mismatch between the figure's marker and the table's solved model point, recorded here as the source's own unresolved disagreement and not this project's.",
+  "status": "SOURCED (Guerrero-Gonzalez and Zabel Table 2, plant-delivery basis, ruled against the paper's own unreconciled Fig. 4 reading)",
+  "useLabel": "SOURCED (0.9560 kg O2 liberated per kg of metal, Table 2's plant-delivery reading, NOT Fig. 4's 0.855 reactor-yield reading)",
+  "note": "The keystone coefficient of Step 52 sub-step 3: it is what makes turning the metals allocation up raise total oxygen. It is a DIFFERENT measurand from rMetal, which stays the reactor-chemistry mass ratio (kg alloy per kg oxygen, Schreiner Eq. 2/Eq. 3) the dedicated oxygen line already used before this step and still uses; this coefficient is never substituted for rMetal and rMetal is not repurposed to carry the co-product line."
+ },
+ "phiMetalProd": {
+  "value": 0,
+  "unit": "fraction of the shared plant and power budget",
+  "band": {
+   "kind": "NO_BAND",
+   "rule": "NOT-CENTRABLE",
+   "disposition": "STANDS",
+   "reason": "USER ALLOCATION CONTROL, of the same class as phi_c and phi_o, not a claim about the Moon. Defaulted to 0 so today's shipped figures move by zero at every preset: the keystone identity Step 52 sub-step 3 is built on, that total oxygen equals the dedicated line's own figure bit for bit at zero metals, holds at every state this build ships with."
+  },
+  "source": "None required. A user allocation control of the same class as phi_c and phi_o, not a claim about the Moon. Introduced Step 52 sub-step 3, 2026-09-10, to give the metals-production line an allocation independent of phi_o so dedicated oxygen and co-product oxygen are separately legible and either can move without moving the other.",
+  "status": "CONTROL",
+  "useLabel": "CONTROL (fraction of the shared budget dedicated to metals production; 0 by default)",
+  "note": "Clamped against phi_c and phi_o exactly as phi_o is clamped against phi_c: the three cannot sum past one. It runs first and pays for what it uses, the same draw-first discipline phi_o's own line follows, so raising it never charges the water or construction lines for capacity it does not actually consume."
  },
  "eRefine": {
   "value": 0,
@@ -2890,7 +2932,7 @@
    "label": "oxygen extraction yield per tonne of regolith",
    "claim": "oxygen-extraction-energy",
    "kind": "config",
-   "claimNote": "Attached 2026-09-04: linked to [[oxygen-extraction-energy]], separate from [[bound-oxygen-mare]], which governs the bound-oxygen endowment. An endowment is what is in the regolith and this is what a reactor recovers from it, and the first bounds the second rather than being it. This is the one coefficient of the seven that a primary prints verbatim."
+   "claimNote": "Attached 2026-09-04: linked to [[oxygen-extraction-energy]], separate from [[bound-oxygen-mare]], which governs the bound-oxygen endowment. An endowment is what is in the regolith and this is what a reactor recovers from it, and the first bounds the second rather than being it. This is the one coefficient of the ten that a primary prints verbatim."
   },
   "rMetal": {
    "label": "alloy mass per unit oxygen mass, fixed by the reduction chemistry",
@@ -2898,11 +2940,29 @@
    "kind": "config",
    "claimNote": "Attached 2026-09-04. That section's evidence item 1 already quoted the Schreiner sentence this ratio rests on."
   },
-  "alphaMetal": {
-   "label": "share of the reactor's process energy booked against the alloy",
+  "eMetalWholePlant": {
+   "label": "metals contributor specific energy, whole plant",
    "claim": "iron-production-energy",
    "kind": "config",
-   "claimNote": "This fraction allocates energy and never mass, so it moves neither printed tonnage."
+   "claimNote": "The metals line's own bill on its own denominator, kilograms of metal, replacing the energy-split fraction Step 52 retires."
+  },
+  "eMetalReactorOnly": {
+   "label": "metals contributor specific energy, electrolysis-cell-alone",
+   "claim": "iron-production-energy",
+   "kind": "config",
+   "claimNote": "The same plant primary's electrolysis-cell-alone power draw, carried beside the whole-plant figure the model reads live; not itself read by model()."
+  },
+  "ratioO2PerKgMetal": {
+   "label": "oxygen liberated per kilogram of metal, the keystone co-product ratio",
+   "claim": "iron-production-energy",
+   "kind": "config",
+   "claimNote": "Guerrero-Gonzalez and Zabel Table 2, plant-delivery basis, ruled 2026-09-10 against the paper's own unreconciled Fig. 4 reading. This is what makes raising the metals allocation raise total oxygen."
+  },
+  "phiMetalProd": {
+   "label": "metals-production allocation, share of the shared plant and power budget",
+   "claim": null,
+   "kind": "config",
+   "claimNote": "A control of the same class as phi_c and phi_o, so no ledger claim is owed. Defaulted to 0, which is what keeps the keystone identity bit-for-bit at every preset this build ships with."
   },
   "eRefine": {
    "label": "post-reactor alloy separation energy",
@@ -2920,7 +2980,7 @@
    "label": "oxygen and alloy share of the shared plant and power budget",
    "claim": null,
    "kind": "config",
-   "claimNote": "A control of the same class as phi_c and phi_c0, so no ledger claim is owed; the split it belongs to is [[shared-capacity-split]]. It is the one coefficient of the oxygen and alloy line that carries no chip, and it is the only one of the seven that asserts nothing about the Moon. Water is the residual of this fraction and phi_c together."
+   "claimNote": "A control of the same class as phi_c and phi_c0, so no ledger claim is owed; the split it belongs to is [[shared-capacity-split]]. It is the one coefficient of the oxygen and alloy line that carries no chip, and it is one of two coefficients on this branch (with phiMetalProd) that assert nothing about the Moon. Water is the residual of this fraction and phi_c together."
   },
   "transmission": {
    "label": "transmission cabling specific mass",
@@ -4731,7 +4791,7 @@
   "evidence": [
    {
     "n": "1",
-    "text": "Molten regolith electrolysis co-product and its reduction order: Schreiner et al. 2016, Advances in Space Research 57:1585, DOI 10.1016/j.asr.2016.01.006, p1601 and Fig 14 (p1600-1601): at high temperature and 10 mT oxygen/yr, \"the cumulative amount of metal produced is almost equal to the oxygen production level,\" meaning iron-plus-metal co-product mass runs about equal to oxygen mass. Iron current efficiency is \"30-60% (Sirk et al., 2010)\" (p1590, distinct from the whole-reactor oxygen current efficiency of 57.5-82% at p1601). Metals \"alloy at the bottom of the reactor; post-reactor processing will be required if the metals are to be separated, though this should be feasible without significant additional energy\" (p1601). Guerrero-Gonzalez and Zabel's own Fig. 5, oxide decomposition potential from Gibbs free energy digitized 305 to 3000 K, orders the six regolith oxides at every printed temperature: at 1223 K, FeO 0.95 V, SiO2 1.82 V, TiO2 1.83 V, Al2O3 2.19 V, MgO 2.20 V, CaO 2.37 V. Any applied potential sufficient to reach Al2O3 has already passed every lower threshold, so FeO and SiO2 are already reduced and TiO2 probably is. Molten-regolith-electrolysis iron is therefore a low-marginal-energy co-product of oxygen rather than an additive line. What share of the joint energy it should be booked for is a choice and not a measurement, and this section and the app make the same one. The app books alphaMetal at 0, which is what its own model computes, and prints two per-product specific energies on that basis. No source in this corpus allocates the energy of a co-production process between its products, so neither figure is sourced. The allocation rule was Quinn's to set and he set it at zero on 2026-09-05."
+    "text": "Molten regolith electrolysis co-product and its reduction order: Schreiner et al. 2016, Advances in Space Research 57:1585, DOI 10.1016/j.asr.2016.01.006, p1601 and Fig 14 (p1600-1601): at high temperature and 10 mT oxygen/yr, \"the cumulative amount of metal produced is almost equal to the oxygen production level,\" meaning iron-plus-metal co-product mass runs about equal to oxygen mass. Iron current efficiency is \"30-60% (Sirk et al., 2010)\" (p1590, distinct from the whole-reactor oxygen current efficiency of 57.5-82% at p1601). Metals \"alloy at the bottom of the reactor; post-reactor processing will be required if the metals are to be separated, though this should be feasible without significant additional energy\" (p1601). Guerrero-Gonzalez and Zabel's own Fig. 5, oxide decomposition potential from Gibbs free energy digitized 305 to 3000 K, orders the six regolith oxides at every printed temperature: at 1223 K, FeO 0.95 V, SiO2 1.82 V, TiO2 1.83 V, Al2O3 2.19 V, MgO 2.20 V, CaO 2.37 V. Any applied potential sufficient to reach Al2O3 has already passed every lower threshold, so FeO and SiO2 are already reduced and TiO2 probably is. Molten-regolith-electrolysis iron is therefore a low-marginal-energy co-product of oxygen rather than an additive line. What share of the joint energy it should be booked for is a choice and not a measurement, and this section and the app make the same one. Until 2026-09-10 the app booked the whole of this energy against oxygen at a ruled energy-split fraction of 0 and printed two per-product specific energies split off that one bill. Step 52 retired the split: the dedicated oxygen line still runs on eO2, its own kilogram-of-oxygen denominator, and a metals-production line, where allocated, pays eMetalWholePlant on its own kilogram-of-metal denominator, sourced from Guerrero-Gonzalez and Zabel's own plant-scale tonnage and power draw rather than split off an oxygen-denominated figure. Nothing needs allocating once each contributor pays for itself."
    },
    {
     "n": "2",
@@ -4805,7 +4865,7 @@
     "id": "A6",
     "head": "the energy accounting still holds, and it is not a product claim",
     "role": "support",
-    "text": "If oxygen is being made, molten-regolith-electrolysis alloy is nearly free mass; its standalone specific energy (tens of kWh/kg) overstates the true marginal cost, which is why the app books alphaMetal at zero against oxygen. That is a disclosed modeling choice about energy, unaffected by anything above, and it is what this section prices. It is not a statement that the alloy is usable."
+    "text": "If oxygen is being made, molten-regolith-electrolysis alloy is nearly free mass; its standalone specific energy (tens of kWh/kg) overstated the true marginal cost of treating it as a byproduct, which is why, before Step 52, the app booked the whole process energy against oxygen as a disclosed modelling choice. Step 52 gives a metals-production line its own denominator instead, sourced from Guerrero-Gonzalez and Zabel's plant-scale tonnage and power draw rather than split off oxygen's bill, and that is what this section prices now. It is not a statement that the alloy is usable."
    },
    {
     "id": "A7",
@@ -7561,7 +7621,7 @@
        says what a positive propellant value is in words: Earth delivery cost the programme
        does not pay. No numeric leaf moved and no claim changed its subject.
        The value below is EXT3's own recompute against the patched file. */
-    __pin: "792b895d"
+    __pin: "fdd61c0d"
   };
 
   root.KNOB_DATA = KNOB_DATA;
@@ -8287,6 +8347,13 @@ function model(a){
      percent of a 25 percent allowance that exists for a different purpose. */
   const phi_o = Math.max(0, Math.min(1 - phi,
                   (a.phi_o != null) ? a.phi_o : CONFIG.phiM.value));
+  /* THE METALS-PRODUCTION ALLOCATION (Step 52 sub-step 3), the same omitted-vs-explicit and
+     clamped-against-what-is-left pattern phi_o already follows, one level further down: the
+     three fractions phi_c, phi_o and phi_m cannot sum past one, so phi_m is clamped against
+     what the other two leave. At phi_m = 0 (CONFIG.phiMetalProd's own default) the metals line
+     produces nothing and draws nothing, which is the keystone identity sub-step 3 is built on. */
+  const phi_m = Math.max(0, Math.min(1 - phi - phi_o,
+                  (a.phi_m != null) ? a.phi_m : CONFIG.phiMetalProd.value));
   // Step 33 wiring, Step 35 defaults. Both thread through the same
   // omitted-vs-explicit distinction (a caller that supplies an explicit
   // value, including explicit 0, always gets exactly that value); what
@@ -8399,10 +8466,9 @@ function model(a){
      could tell the difference. It enters here as eRefine*rMetal kWh per tonne of oxygen,
      which is exactly 0 at the stated value and moves every tonnage the moment it is set.
 
-     PRODUCTION IS JOINT AND THE SPLIT ALLOCATES ENERGY, NEVER MASS. rMetal multiplies the
-     oxygen output, so both tonnages leave one reactor together and neither moves with
-     alphaMetal. What alphaMetal moves is the two per-product specific energies below, which
-     weighted by their own masses sum back to eO2 at every value of it.
+     PRODUCTION IS JOINT ON THE DEDICATED LINE. rMetal multiplies the oxygen output, so both
+     tonnages leave one reactor together; the whole of this line's process energy sits
+     against oxygen, and nothing here allocates it between the two any more (Step 52).
 
      IT RUNS FIRST AND PAYS FOR WHAT IT USES (Step 56, sub-step 4-B2). It used to be handed a
      fixed phi_o share of BOTH shared budgets and to keep whichever share its own minimum did
@@ -8433,9 +8499,29 @@ function model(a){
   const regolithMetals = (yO2 > 0) ? oxygen / yO2 : 0; // the regolith this line ACTUALLY moves
   const powerMetals    = oxygen * eO2perT / (H * dutyM); // the power this line ACTUALLY draws
 
-  // What the oxygen line leaves. Both are non-negative by the two bounds proved above.
-  const powerRem = power - powerMetals;                // kWe left to water and construction
-  const RcapRem  = Rcap  - regolithMetals;             // t regolith/yr left to them
+  // ---- THE METALS-PRODUCTION LINE (Step 52 sub-step 3). Independent of phi_o: its own
+  // allocation phiMetalProd, its own denominator (kWh per kilogram of METAL, whole plant,
+  // Guerrero-Gonzalez and Zabel, never derived from eO2), and its own regolith yield off the
+  // same reduction chemistry the dedicated line already trusts (yO2*rMetal is t metal per t
+  // regolith, not a new yield claim). It liberates oxygen as ITS OWN co-product at
+  // ratioO2PerKgMetal kg O2 per kg metal (Guerrero-Gonzalez and Zabel Table 2, plant-delivery
+  // basis). It runs first and pays for what it uses, exactly like the dedicated line above, so
+  // at phiMetalProd = 0 it produces nothing, draws nothing, and moves nothing downstream --
+  // the keystone identity this sub-step is built on.
+  const eMetalPerT = CONFIG.eMetalWholePlant.value * 1000;  // kWh/kg -> kWh/t metal
+  const yMetal = yO2 * rMetal;                               // t metal / t regolith
+  const MpowerFull = power * H * dutyM / eMetalPerT;         // t metal/yr if all power -> metal
+  const MthrFull   = yMetal * Rcap;                          // t metal/yr if all plant -> metal
+  const Mfull      = Math.min(MpowerFull, MthrFull);         // metal at full allocation
+  const metalProduced = phi_m * Mfull;                       // metal at the live allocation
+  const coproductO2   = metalProduced * CONFIG.ratioO2PerKgMetal.value; // t O2 liberated with it
+  const regolithMetalProd = (yMetal > 0) ? metalProduced / yMetal : 0;  // regolith this line ACTUALLY moves
+  const powerMetalProd    = metalProduced * eMetalPerT / (H * dutyM);   // power this line ACTUALLY draws
+
+  // What the two lines leave. Each line's actual draw is bounded by its own entitlement on
+  // both budgets simultaneously, the same bound proved for the dedicated line above.
+  const powerRem = power - powerMetals - powerMetalProd; // kWe left to water and construction
+  const RcapRem  = Rcap  - regolithMetals - regolithMetalProd; // t regolith/yr left to them
 
   // The pre-branch model, unaltered, on the remainder (E1', E7)
   const Wpower = powerRem * H * duty / eEE;            // power-limited water
@@ -8503,12 +8589,13 @@ function model(a){
      could tell the difference. It enters here as eRefine*rMetal kWh per tonne of oxygen,
      which is exactly 0 at the stated value and moves every tonnage the moment it is set.
 
-     PRODUCTION IS JOINT AND THE SPLIT ALLOCATES ENERGY, NEVER MASS. rMetal multiplies the
-     oxygen output, so both tonnages leave one reactor together and neither moves with
-     alphaMetal. What alphaMetal moves is the two per-product specific energies below, which
-     weighted by their own masses sum back to eO2 at every value of it. A split wired to move
-     the two tonnages in opposite directions would assert something physically false about
-     the reactor. -------------------------------------------------------------- */
+     PRODUCTION IS JOINT ON THE DEDICATED LINE. rMetal multiplies the oxygen output, so both
+     tonnages leave one reactor together; the whole of this line's process energy sits
+     against oxygen, with nothing here allocating it between the two (Step 52). A SEPARATE
+     METALS-PRODUCTION LINE, below, pays its own bill on its own kilogram-of-metal
+     denominator and liberates oxygen as ITS OWN co-product, so the two contributions stay
+     separately legible rather than being two views of one split.
+     -------------------------------------------------------------- */
   // The line's own ceilings, its output and its two draws are all computed above, before the
   // water and construction branches run on what it leaves. Only its readouts are here.
   let oBinding;
@@ -8516,14 +8603,13 @@ function model(a){
   else if (Opower <= Othr) oBinding = 'power';
   else                     oBinding = 'landed mass';
   const oRegime = (oBinding === 'power') ? 'power-limited' : 'mass-limited';
-  // The energy allocation between the two products. PRINTED, NOT DRAGGABLE (Quinn, 2026-09-03):
-  // it moves neither tonnage at any value, in any state, so a slider for it would teach a
-  // reader that the knobs do not matter. These are the two numbers it does move.
-  const alphaM   = CONFIG.alphaMetal.value;
-  const eSpecO2  = CONFIG.eO2.value * (1 - alphaM);            // kWh / kg O2 under the split
-  const eSpecMet = (rMetal > 0) ? CONFIG.eO2.value * alphaM / rMetal : 0;  // kWh / kg alloy
+  // Step 52: each contributor pays its own bill on its own denominator now, so there is no
+  // split to print here (the retired allocation fraction is gone from CONFIG). oxygenTotal
+  // is the two contributors summed: the dedicated line above, unchanged, plus the metals
+  // line's own oxygen co-product.
+  const oxygenTotal = oxygen + coproductO2;
   // The whole plant's feed across every producing line, against the plant's own capacity.
-  const regolithFeed = regolith + (construction / CONFIG.ySinter.value) + regolithMetals;
+  const regolithFeed = regolith + (construction / CONFIG.ySinter.value) + regolithMetals + regolithMetalProd;
 
   /* Envelope utilisation was computed here and returned as envPowerFrac and envMassFrac,
      and nothing read either. Both came out at Step 56 install 7 with envelopeWarnings(),
@@ -8541,7 +8627,12 @@ function model(a){
     binding, regime, feasible,
     water, construction, constructionPotential, Cfull, regolith,
     phi_o, Opower, Othr, Ofull, oxygen, alloy, regolithMetals, regolithFeed,
-    oBinding, oRegime, eSpecO2, eSpecMet, eO2perT,
+    oBinding, oRegime, eO2perT,
+    /* Step 52 sub-step 3: the metals-production line's own readouts and the summed oxygen
+       readout. phi_m defaults to 0 (CONFIG.phiMetalProd), so at every preset this build ships
+       with, metalProduced, coproductO2, regolithMetalProd and powerMetalProd are all exactly 0
+       and oxygenTotal === oxygen bit for bit -- the keystone identity. */
+    phi_m, Mfull, metalProduced, coproductO2, regolithMetalProd, powerMetalProd, oxygenTotal,
     /* Step 56 install 6. The fission/solar MIX is now returned, because the reactor-count
        sentence on the Scenario tab gated on `fission` alone and never read it: at mix 0 the
        power system is entirely solar and that sentence still claimed fission power. A
@@ -10724,7 +10815,7 @@ function runTests(fileText){
        / Sustained with phi_o at 0.95 the retired shape read landed-mass limited while the plant
        ran at 12.2 percent of capacity; under draw-first the water branch there is genuinely
        power-starved and the chip says so. */
-    const MOVERS = ['phi_o','water','regolith','oxygen','alloy','regolithMetals','regolithFeed',
+    const MOVERS = ['phi_o','water','regolith','oxygen','oxygenTotal','alloy','regolithMetals','regolithFeed',
                     'Wpower','Wthr','cap','construction','constructionPotential','Cfull',
                     'binding','regime','feasible',
                     'powerRem','RcapRem','powerMetals'];
@@ -10764,42 +10855,46 @@ function runTests(fileText){
           : pts+' (cell x phi_c) points and '+swept+' swept phi_o values, water === (1-phi_c)*cap exactly at phi_o = 0 and at phi_o = 0.4 alike, oxygen and alloy exactly 0 at phi_o = 0, at least '+invMin+' returned fields bit-identical across the sweep and the only movers are '+MOVERS.join(', ')+' [red-first, seeded: SEED_OXMODEL_residual reads the CONFIG default in the water residual instead of the passed argument, and this row reports water 1.5579999999999998 against (1-phi_c)*cap 1.64]');
   }
 
-  // ---- OX-02 (GATE): the split allocates energy and never mass ----
-  // THE RATIO CLAUSE ALONE IS BLIND AND THAT IS MEASURED RATHER THAN ARGUED. A mass-allocating
-  // implementation produces alphaMetal/(1-alphaMetal), which at the ruled 0.512 is 1.049180
-  // against rMetal of 1.05, a gap of 0.0781 percent, and nobody writes a mass-ratio tolerance
-  // that tight. What separates the two implementations is the SWEEP: under a mass allocation
-  // both tonnages move with the split and under the correct one neither does. So tonnage
-  // identity is asserted first, the ratio second, and the energy recombination third, and the
-  // third is the only clause that tests that alphaMetal does anything at all.
+  // ---- OX-02 RETIRED, Step 52. It tested that the energy allocation between oxygen and
+  // alloy split energy and never mass. That allocation fraction retired with Step 52: each
+  // contributor now pays its own bill on its own denominator, so there is no split left to
+  // test. OX-K1 below is what replaces it: the keystone identity and the metals-allocation
+  // monotonicity this step is built on. ----
+
+  // ---- OX-K1 (GATE): the keystone identity and the metals-allocation monotonicity ----
+  // Step 52 sub-step 3. At phi_m = 0 total oxygen equals the dedicated line's own figure bit
+  // for bit -- the keystone identity nothing here is double-counted on. Raising phi_m raises
+  // total oxygen strictly at every one of the nine preset-era states, and the dedicated
+  // contribution itself never moves, which is what "separately legible" means as a check.
   {
-    const SPLITS = [0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1];
-    const why = []; let pts = 0, o2Fall = 0, metRise = 0;
+    const SWEEP = [0, 0.05, 0.1, 0.2, 0.3, 0.4];
+    const why = []; let pts = 0, keystoneChecked = 0, risingSteps = 0, risingTotal = 0;
     for (const c of CELLS){
-      const ref = model(opPoint(c, {phi_o:0.2}));
-      let lastO2 = null, lastMet = null;
-      for (const al of SPLITS){
+      let lastTotal = null, lastDedicated = null;
+      const base = model(opPoint(c, {phi_m:0}));
+      if (base.oxygenTotal !== base.oxygen) why.push(c.id+': at phi_m=0 oxygenTotal '+base.oxygenTotal+' !== the dedicated line\u2019s own oxygen '+base.oxygen+', not bit-for-bit');
+      else keystoneChecked++;
+      SWEEP.forEach(function(pm){
         pts++;
-        const s = withCoeff('alphaMetal', al, function(){ return model(opPoint(c, {phi_o:0.2})); });
-        if (s.oxygen !== ref.oxygen) why.push(c.id+' @alpha'+al+': a tonnage moved with the split ('+ref.oxygen+'->'+s.oxygen+')');
-        if (s.alloy  !== ref.alloy)  why.push(c.id+' @alpha'+al+': a tonnage moved with the split ('+ref.alloy+'->'+s.alloy+')');
-        if (s.oxygen > 0 && s.alloy / s.oxygen !== CONFIG.rMetal.value) why.push(c.id+' @alpha'+al+': alloy/oxygen '+(s.alloy/s.oxygen)+' !== rMetal '+CONFIG.rMetal.value);
-        const lhs = s.eSpecO2 * s.oxygen + s.eSpecMet * s.alloy, rhs = CONFIG.eO2.value * s.oxygen;
-        if (rhs > 0 && Math.abs(lhs - rhs)/rhs > 1e-9) why.push(c.id+' @alpha'+al+': the two per-product specific energies weighted by their own masses give '+lhs+' against eO2*oxygen '+rhs);
-        if (lastO2 !== null && s.eSpecO2 < lastO2) o2Fall++;
-        if (lastMet !== null && s.eSpecMet > lastMet) metRise++;
-        lastO2 = s.eSpecO2; lastMet = s.eSpecMet;
-      }
+        const s = model(opPoint(c, {phi_m:pm}));
+        if (s.coproductO2 + s.oxygen !== s.oxygenTotal) why.push(c.id+' @phi_m'+pm+': coproductO2 + oxygen ('+(s.coproductO2+s.oxygen)+') !== oxygenTotal ('+s.oxygenTotal+')');
+        if (lastDedicated !== null && s.oxygen !== lastDedicated) why.push(c.id+' @phi_m'+pm+': the dedicated contribution moved, '+lastDedicated+' -> '+s.oxygen+', so it is not separately legible');
+        if (lastTotal !== null){
+          risingTotal++;
+          if (s.oxygenTotal > lastTotal) risingSteps++;
+          else why.push(c.id+' @phi_m'+pm+': raising the metals allocation did not raise total oxygen, '+lastTotal+' -> '+s.oxygenTotal);
+        }
+        lastTotal = s.oxygenTotal; lastDedicated = s.oxygen;
+      });
     }
-    const steps = CELLS.length * (SPLITS.length - 1);
-    if (o2Fall !== steps) why.push('the oxygen specific energy did not fall strictly across the split at '+(steps-o2Fall)+' of '+steps+' steps, so alphaMetal is not moving it');
-    if (metRise !== steps) why.push('the alloy specific energy did not rise strictly across the split at '+(steps-metRise)+' of '+steps+' steps, so alphaMetal is not moving it');
-    if (pts < 81) why.push('EMPTY POPULATION: '+pts+' (cell x split) points, fewer than the 81 this row is stated over');
-    rec('OX-02','GATE',
-        'the oxygen and alloy split allocates ENERGY and never mass: across nine values of alphaMetal at all nine operating points both tonnages are === to their reference values, the mass ratio is === rMetal, and the two per-product specific energies weighted by their own masses recombine to eO2 while moving strictly in opposite directions (the ratio clause alone is blind to a mass allocation at the ruled default, and the sweep is what separates them)',
+    if (pts < 54) why.push('EMPTY POPULATION: '+pts+' (cell x sweep) points, fewer than the 54 this row is stated over');
+    if (keystoneChecked !== CELLS.length) why.push('EMPTY POPULATION: the keystone identity was checked at only '+keystoneChecked+' of '+CELLS.length+' states');
+    if (!risingTotal) why.push('EMPTY POPULATION: no consecutive sweep pair to test monotonicity on');
+    rec('OX-K1','GATE',
+        'Step 52 sub-step 3: at phi_m = 0 total oxygen equals the dedicated line\u2019s own figure bit for bit at all nine preset-era states, raising phi_m strictly raises total oxygen at every step of the sweep, the dedicated contribution never moves, and coproductO2 + oxygen === oxygenTotal exactly at every point',
         why.length===0,
         why.length ? why.slice(0,3).join('  ')
-          : pts+' (cell x split) points, both tonnages === across the whole sweep, alloy/oxygen === rMetal at every one, energy recombination inside 1e-9 at every one, eSpecO2 strictly falling and eSpecMet strictly rising at all '+steps+' steps [red-first, seeded: SEED_massalloc implements the split as a mass allocation, returns GATE green from the pre-install suite, and fails this row on 73 of 81 tonnage identities]');
+          : pts+' (cell x sweep) points across '+CELLS.length+' states, keystone identity exact at all '+keystoneChecked+', total oxygen strictly rising at '+risingSteps+' of '+risingTotal+' consecutive steps, dedicated contribution invariant throughout [red-first, seeded: SEED_OXK1 lets the metals line\u2019s draw reduce the dedicated line\u2019s own Rcap before oxygen is computed, and the dedicated contribution drifts down as phi_m rises]');
   }
 
   // ---- OX-03 (GATE): the branch carries its own availability ----
@@ -10949,12 +11044,12 @@ function runTests(fileText){
 
   // ---- OX-07 (GATE): the sourcing population and its printed total ----
   // A4 already asks whether every CONFIG key carries a source and a status, and its own printed
-  // total moves from 13 to 20 with this branch. What A4 cannot ask is whether the SEVEN RULED
+  // total moves with this branch. What A4 cannot ask is whether the TEN RULED
   // KEYS are in that population, because a population computed from CONFIG cannot notice a key
   // nobody added. The list below is therefore deliberately the ruling's list rather than a
   // computed one, and that is the whole reason this row exists beside A4.
   {
-    const RULED = ['eO2','yO2','rMetal','alphaMetal','eRefine','dutyM','phiM'];
+    const RULED = ['eO2','yO2','rMetal','eRefine','dutyM','phiM','eMetalWholePlant','eMetalReactorOnly','ratioO2PerKgMetal','phiMetalProd'];
     const keys = Object.keys(CONFIG);
     const absent = RULED.filter(function(k){ return keys.indexOf(k) < 0; });
     const unsourced = keys.filter(function(k){ return !String(CONFIG[k].source||'').trim() || !String(CONFIG[k].status||'').trim(); });
@@ -10963,20 +11058,20 @@ function runTests(fileText){
     if (unsourced.length) why.push('missing source/status: '+unsourced.join(','));
     if (!keys.length) why.push('EMPTY POPULATION: CONFIG carries no keys, so this zero means nothing');
     rec('OX-07','GATE',
-        'every CONFIG coefficient carries a non-empty source and status, and the seven coefficients this step’s ruling names are present in that population, checked against the ruling’s own list rather than against a list computed from CONFIG',
+        'every CONFIG coefficient carries a non-empty source and status, and the ten coefficients the Step 49 and Step 52 rulings name are present in that population, checked against the ruling’s own list rather than against a list computed from CONFIG',
         why.length===0,
         why.length ? why.slice(0,3).join('  ')
-          : 'all '+keys.length+' sourced, '+RULED.length+' of them ruled this step and all present [red-first, seeded: SEED_OXA4 empties phiM’s status string, and the shipped A4 fires on the same seed and takes BL9 down with it]');
+          : 'all '+keys.length+' sourced, '+RULED.length+' of them ruled and all present [red-first, seeded: SEED_OXA4 empties phiM’s status string, and the shipped A4 fires on the same seed and takes BL9 down with it]');
   }
 
   // ---- OX-22 (GATE): the register rows the new coefficients need ----
   // DEF-02 and DEF-04 assert PRESENCE and they are the two rows a correct oxygen build was
   // observed failing before this landed. Restating them here would be a row about rows and this
   // project does not promote one. What this row adds is the thing presence cannot say: each of
-  // the seven carries a null claim BY RULING, and a null claim with no stated reason is a lost
+  // the ten carries a null claim BY RULING, and a null claim with no stated reason is a lost
   // pointer wearing exactly the same shape as a ruling.
   {
-    const RULED = ['eO2','yO2','rMetal','alphaMetal','eRefine','dutyM','phiM'];
+    const RULED = ['eO2','yO2','rMetal','eRefine','dutyM','phiM','eMetalWholePlant','eMetalReactorOnly','ratioO2PerKgMetal','phiMetalProd'];
     const coeff = KNOB_DATA.DERIVATION.coeff;
     const why = []; let noted = 0;
     RULED.forEach(function(k){
@@ -10988,10 +11083,10 @@ function runTests(fileText){
     });
     if (!RULED.length) why.push('EMPTY POPULATION: no ruled coefficients to check');
     rec('OX-22','GATE',
-        'each of the seven coefficients this branch introduces resolves to a DERIVATION.coeff row carrying a label, and every one whose claim is null states WHY it is null, so an asymmetry by ruling cannot be read as a lost pointer',
+        'each of the ten coefficients the Step 49 and Step 52 rulings introduce resolves to a DERIVATION.coeff row carrying a label, and every one whose claim is null states WHY it is null, so an asymmetry by ruling cannot be read as a lost pointer',
         why.length===0,
         why.length ? why.slice(0,3).join('  ')
-          : noted+' of '+RULED.length+' ruled coefficients resolve in DERIVATION.coeff, each with a label and a stated reason for its null claim [red-first, artifact: DEF-02 and DEF-04 were observed red on a CORRECT oxygen build, both reporting missing: eO2,yO2,rMetal,alphaMetal,eRefine,dutyM,phiM]');
+          : noted+' of '+RULED.length+' ruled coefficients resolve in DERIVATION.coeff, each with a label and a stated reason for its null claim [red-first, artifact: DEF-02 and DEF-04 were observed red on a CORRECT oxygen build before Step 49 landed, reporting missing: eO2,yO2,rMetal,eRefine,dutyM,phiM]');
   }
 
   // ---- OX-09 (REVIEW): what the ruled default spends of the benchmark's allowance ----
@@ -16844,34 +16939,10 @@ function runAbstractTests(){
           : SEEDS.length+' VERIFIED-family statuses seeded directly into badge(), '+refused+' of '+SEEDS.length+' refused with a rung-word error and none returned VERIFIED-family text, including VALUE.op_prop’s own live status "'+SEEDS[0]+'" [red-first, seeded: the shipped badge() before this install returned normally for every one of these four seeds and echoed the whole status verbatim into the painted chip, observed by running the retired function against the same seeds rather than by reading it]');
     })();
 
-    // ---- OX-15 (GATE): the energy allocation is printed and not draggable ----
-    // Quinn's ruling of 2026-09-03. The split moves neither tonnage at any value in any state,
-    // so a slider for it would teach a reader that the knobs do not matter, which is the
-    // retired transmission-distance control's defect with the number set to nothing. The
-    // no-slider half of this row is green today for the trivial reason that no such slider
-    // exists, so the row carries a DECOY proving its own needle fires: the needle is run
-    // against the app's OWN painted sentence about the split and is required to match it.
-    (function(){
-      const NAME = 'the energy allocation between oxygen and alloy is PRINTED on the Scenario tab with both per-product specific energies beside it and no range input anywhere on the page sets it (DECOY: the needle is confirmed to fire against the app’s own painted sentence about the split, so a green here is not the needle failing to match anything)';
-      const FORBID = /process energy|energy (?:allocation|split)|alphaMetal/i;
-      const why = [];
-      applyPreset(PRESETS.artemis); state.phase = '2055'; render();
-      const scen = panelText('scenario');
-      if (!FORBID.test(scen)) why.push('DECOY DID NOT FIRE: the needle this row uses to find a forbidden control does not match the Scenario tab’s own sentence about the energy split, so its silence over the sliders proves nothing');
-      const inputs = Array.prototype.slice.call(document.querySelectorAll('input[type=range]'));
-      if (!inputs.length) why.push('EMPTY POPULATION: the page carries no range inputs at all, so a sweep of them cannot exclude anything');
-      inputs.forEach(function(el){
-        const wrap = el.closest('.knob'), txt = (el.id||'') + ' ' + (el.getAttribute('aria-label')||'') + ' ' + (wrap ? (wrap.textContent||'') : '');
-        if (FORBID.test(txt)) why.push('a range input sets the energy allocation: id "'+el.id+'" in a control reading "'+(wrap?(wrap.textContent||'').trim().slice(0,90):'')+'"');
-      });
-      const m = stateModel();
-      if (scen.indexOf(String(CONFIG.alphaMetal.value)) < 0) why.push('ABSENT: the Scenario tab states no energy allocation fraction');
-      if (scen.indexOf(m.eSpecO2.toFixed(2)) < 0) why.push('the Scenario tab does not print the per-product specific energy of oxygen beside the fraction');
-      if (scen.indexOf(m.eSpecMet.toFixed(2)) < 0) why.push('the Scenario tab does not print the per-product specific energy of the alloy beside the fraction');
-      rec('OX-15','GATE',NAME, why.length===0,
-        why.length ? why.slice(0,3).join('  ')
-          : inputs.length+' range inputs on the page and none of them sets the energy allocation, which is printed at '+CONFIG.alphaMetal.value+' with both per-product specific energies, '+m.eSpecO2.toFixed(2)+' and '+m.eSpecMet.toFixed(2)+' kWh/kg, beside it [red-first, seeded: SEED_OXALPHASLIDER adds a range input for the split and this row names the input and quotes its control]');
-    })();
+    // ---- OX-15 RETIRED, Step 52. It proved the energy allocation between oxygen and alloy
+    // was printed and not draggable. There is no such allocation any more: each contributor
+    // pays its own bill on its own denominator, so there is no split for a reader to meet and
+    // nothing for this row to hold to the model. ----
 
     /* ---- PROD-01 (GATE): the production row is the three things this programme makes --------
        THE OWNER'S COMPLAINT, WRITTEN AS A CHECK. Two rows shipped where one was asked for, and
@@ -16894,7 +16965,7 @@ function runAbstractTests(){
        matches nothing. */
     (function(){
       const NAME = 'the production row is three cards, water, oxygen and construction in that order, each printing the model’s own tonnage for that product to the precision it prints and a rate unit, and none of them naming the alloy, metals, the regolith feed or the standing mining plant, at all nine preset and era states (DECOY: the four retired names are run through this row’s own matcher on a constructed row and are required to be caught there)';
-      const WANT = [['Water produced','water'],['Oxygen produced','oxygen'],['Construction','construction']];
+      const WANT = [['Water produced','water'],['Oxygen produced','oxygenTotal'],['Construction','construction']];
       const RETIRED = /alloy|metals produced|regolith feed|mining plant/i;
       const why = []; let walked = 0, checked = 0; const seen = [];
       /* the matcher, and the decoy it is proved on before its silence counts */
@@ -17306,7 +17377,7 @@ function runAbstractTests(){
     function econAt(){
       const m = stateModel(), fs2 = fleetNow();
       const D = knobVal('landed_cost'), C_hw = knobVal('chw');
-      const outs = (m.water + m.construction + m.oxygen + m.alloy) * 1000 * D;
+      const outs = (m.water + m.construction + m.oxygenTotal + m.alloy) * 1000 * D;
       const ins = knobVal('mass') * 1000 * (C_hw + D);
       return {outs:outs, ins:ins, total:outs+ins};
     }
@@ -19177,8 +19248,8 @@ function squares(m){
   return [
     {name:'Water produced',  vid:'h_water',    v:m.water,        unit:'t/yr', accent:'water',
      dp:m.water<1?2:(m.water<10?1:0)},
-    {name:'Oxygen produced', vid:'h_oxy',      v:m.oxygen,       unit:'t/yr', accent:'oxygen',
-     dp:m.oxygen<10?2:0},
+    {name:'Oxygen produced', vid:'h_oxy',      v:m.oxygenTotal,  unit:'t/yr', accent:'oxygen',
+     dp:m.oxygenTotal<10?2:0},
     {name:'Construction',    vid:'h_const',    v:m.construction, unit:'t/yr', accent:'construction',
      dp:m.construction<10?1:0}
   ];
@@ -19876,7 +19947,7 @@ function render(){
      is bounded away from zero on every rail and D and C_hw are each bounded away from zero on
      their own rails, so this block carries no singularity and no branch for one. */
   const D_econ = knobVal('landed_cost'), Chw_econ = knobVal('chw');
-  const outsUSD = (m.water + m.construction + m.oxygen + m.alloy) * 1000 * D_econ;
+  const outsUSD = (m.water + m.construction + m.oxygenTotal + m.alloy) * 1000 * D_econ;
   const insUSD = knobVal('mass') * 1000 * (Chw_econ + D_econ);
   const totalUSD = outsUSD + insUSD;
   const agencyRate = ENVELOPE.med[state.phase].M;
@@ -20304,13 +20375,12 @@ function eO2DerivLong(){
 function oxygenScenarioBlocks(m){
   const C = CONFIG;
   const out = [];
-  out.push('This state charges the reactor process energy between oxygen and alloy at ' +
-    C.alphaMetal.value + ' to the alloy, booking the full energy against oxygen, because available studies do not allocate co-production energy between products. ' +
-    'Adjusting that fraction does not alter product tonnages: the two streams leave one reactor in a mass ratio fixed by the chemistry, so the split allocates energy rather than mass. ' +
-    'It changes the two per-product specific energies: ' +
-    m.eSpecO2.toFixed(2) + ' kWh per kg of oxygen and ' + m.eSpecMet.toFixed(2) +
-    ' kWh per kg of alloy. Weighted by their masses, these sum back to ' +
-    C.eO2.value + ' kWh per kg of oxygen at every value. Process energy is booked entirely against oxygen as a modelling choice.');
+  out.push('Oxygen on this screen sums two contributors (Step 52). The dedicated line runs on eO2, ' +
+    C.eO2.value + ' kWh per kilogram of oxygen, and produces ' + fmtT(m.oxygen) + ' t/yr at the current allocation. ' +
+    'A metals-production line, allocated ' + (m.phi_m*100).toFixed(1) + ' percent of the shared plant and power budget, ' +
+    'pays ' + C.eMetalWholePlant.value.toFixed(3) + ' kWh per kilogram of METAL (Guerrero-Gonzalez and Zabel\'s own plant-scale tonnage and power draw, never derived from eO2) and liberates ' +
+    C.ratioO2PerKgMetal.value.toFixed(4) + ' kilograms of oxygen per kilogram of metal as its own co-product: ' + fmtT(m.metalProduced) + ' t/yr of metal and ' + fmtT(m.coproductO2) + ' t/yr of co-product oxygen at this state. ' +
+    'The two sum to ' + fmtT(m.oxygenTotal) + ' t/yr. Raising the metals allocation raises total oxygen without moving the dedicated figure; at zero metals allocation the two are identical, an identity a self-check row holds bit for bit.');
   out.push('This state models oxygen and alloy production on molten regolith electrolysis alone, ' +
     'connecting metal mass directly to regolith mass. Hydrogen reduction of ilmenite is ' +
     'not modelled. Molten regolith electrolysis rests on a sizing model that gives ' +
@@ -21105,7 +21175,7 @@ function renderNotesPanel(m){
      coefficients it counts; the population is listed because it is the ruled set for this
      branch rather than the whole of CONFIG, and a count over a population nobody can see is
      a number a reader has to take on trust. */
-  const OXPOP = ['eO2','yO2','rMetal','kExc','dutyM','alphaMetal','eRefine','phiM'];
+  const OXPOP = ['eO2','yO2','rMetal','kExc','dutyM','eRefine','phiM','eMetalWholePlant','ratioO2PerKgMetal','phiMetalProd'];
   const rung = k => { const t=String(CONFIG[k].status||'').trim();
     return /^SOURCED\b/.test(t)?'sourced':/^DERIVED\b/.test(t)?'derived':/^PINNED\b/.test(t)?'pinned':/^CONTROL\b/.test(t)?'control':'stated'; };
   const nSrc = OXPOP.filter(k=>rung(k)==='sourced'), nDrv = OXPOP.filter(k=>rung(k)==='derived'),
@@ -21155,7 +21225,13 @@ function renderNotesPanel(m){
           ' an estimate set between two published figures ('+esc(nPin.join(', '))+'), ' : '')+
         esc(String(nAsm.length))+' '+vb(nAsm.length,'has','have')+' no numeric anchor of any kind ('+esc(nAsm.join(', '))+') and '+
         esc(String(nCtl.length))+' '+vb(nCtl.length,'is','are')+' a display control ('+esc(nCtl.join(', '))+'). '+
-        'Two of the '+esc(String(nAsm.length))+' with no numeric anchor, kExc and dutyM, came across from the water branch rather than being chosen for this one, and the reuse is named where each number is printed.');
+        (function(){
+          var buckets = [['printed verbatim by a primary', nSrc], ['this project\'s own arithmetic on a primary\'s printed figures', nDrv],
+                         ['an estimate set between two published figures', nPin], ['no numeric anchor of any kind', nAsm], ['a display control', nCtl]];
+          var biggest = buckets.slice().sort(function(a,b){ return b[1].length - a[1].length; })[0];
+          return 'The largest of these five groups is the '+esc(String(biggest[1].length))+' of '+esc(String(OXPOP.length))+
+            ' that are '+biggest[0]+': '+esc(biggest[1].join(', '))+'.';
+        })());
 
   el.innerHTML=h;
 }
