@@ -9,7 +9,7 @@
     --bg:#0b1420; --panel:#111e2d; --panel2:#0d1a27; --line:#25384d;
     --text:#e7eef6; --muted:#b9c7d6; --faint:#a1afbf;
     --ice:#4ec9e8; --regolith:#e0a54f;
-    --good:#5bd6a0; --warn:#e8b04e; --crit:#e8695f; --pin:#b48ee8;
+    --good:#5bd6a0; --warn:#e8b04e; --crit:#e8695f; --pin:#b48ee8; --alloy:#9fb0c3;
     --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
     --mono:ui-monospace,"Cascadia Code","SF Mono",Menlo,Consolas,monospace;
     --r:10px;
@@ -19,20 +19,20 @@
       --bg:#eef3f8; --panel:#ffffff; --panel2:#f4f8fc; --line:#d0dce7;
       --text:#152430; --muted:#374a5a; --faint:#4d5e6d;
       --ice:#0d7fa0; --regolith:#a9691a;
-      --good:#0f9d6b; --warn:#b5811f; --crit:#c74a40; --pin:#6d3fb0;
+      --good:#0f9d6b; --warn:#b5811f; --crit:#c74a40; --pin:#6d3fb0; --alloy:#46607a;
     }
   }
   :root[data-theme="dark"]{
     --bg:#0b1420; --panel:#111e2d; --panel2:#0d1a27; --line:#25384d;
     --text:#e7eef6; --muted:#b9c7d6; --faint:#a1afbf;
     --ice:#4ec9e8; --regolith:#e0a54f;
-    --good:#5bd6a0; --warn:#e8b04e; --crit:#e8695f; --pin:#b48ee8;
+    --good:#5bd6a0; --warn:#e8b04e; --crit:#e8695f; --pin:#b48ee8; --alloy:#9fb0c3;
   }
   :root[data-theme="light"]{
     --bg:#eef3f8; --panel:#ffffff; --panel2:#f4f8fc; --line:#d0dce7;
     --text:#152430; --muted:#374a5a; --faint:#4d5e6d;
     --ice:#0d7fa0; --regolith:#a9691a;
-    --good:#0f9d6b; --warn:#b5811f; --crit:#c74a40; --pin:#6d3fb0;
+    --good:#0f9d6b; --warn:#b5811f; --crit:#c74a40; --pin:#6d3fb0; --alloy:#46607a;
   }
 
   *{box-sizing:border-box}
@@ -202,8 +202,8 @@
   .mk.active .ml{color:var(--text); font-weight:600;}
   .mk:not(.active){opacity:.62;}
 
-  /* THE PRODUCTION ROW. One row of three cards, water, oxygen and construction, and nothing
-     else between the timeline and the mass bar.
+  /* THE PRODUCTION ROW. One row of four cards, water, oxygen, construction and electrical
+     silicon-iron, and nothing else between the timeline and the mass bar.
 
      STEP 57, QUINN'S RULING OF 2026-09-09. What stood here was two rows. Four flat panels
      carried the four products; three cards below them carried the alloy, the regolith feed and
@@ -218,15 +218,24 @@
      product. The tonnage the card printed is unchanged in the model and moves to the Scenario
      tab's own narrative, named for what it is.
 
+     STEP 62, QUINN'S RULING OF 2026-09-11. Two of the three grounds Step 60 stood on are
+     answered: Schneiderman 2025 Table 2 assays the melt, and separating elemental silicon out
+     of it is priced at 25 kWh/kg, PINNED inside a bracket of 12.5 to 33.9. The third ground is
+     not answered, and it is not softened: no lunar experiment has weighed a metal mass. The
+     card returns under the name `electrical silicon-iron`, ruled by Quinn 2026-09-09, never
+     "alloy" or "metals produced", and it carries no caption; the unanswered ground stays a
+     sentence on the Scenario tab, which OX-31 holds to the model.
+
      THE ACCENT MEANS THE PRODUCT. The coloured top border is the treatment the retired cards
      carried. It is no longer a health scale, because a colour meaning plant utilisation on one
      card and product identity on the next is two languages on one row. Each card takes one fixed
      token from the palette declared at the top of this file: water the ice it is mined from,
-     construction the regolith it is sintered from, oxygen the good green. Nothing here takes
-     warn or crit, which stay signals. The accent is a CLASS and never an inline colour, so the
-     stylesheet resolves it and the row is correct in both themes; OX-30 holds the classes the
-     render names against the rules declared here. */
-  .outs{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:18px;}
+     construction the regolith it is sintered from, oxygen the good green, electrical
+     silicon-iron its own steel-grey token. Nothing here takes warn or crit, which stay signals.
+     The accent is a CLASS and never an inline colour, so the stylesheet resolves it and the row
+     is correct in both themes; OX-30 holds the classes the render names against the rules
+     declared here. */
+  .outs{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:18px;}
   @media (max-width:640px){ .outs{grid-template-columns:repeat(2,1fr)} }
   .out{background:var(--panel2); border:1px solid var(--line); border-radius:var(--r);
     padding:14px; position:relative; overflow:hidden;}
@@ -242,6 +251,8 @@
   .out.acc-oxygen .ovalue{color:var(--good);}
   .out.acc-construction .swatch{background:var(--regolith);}
   .out.acc-construction .ovalue{color:var(--regolith);}
+  .out.acc-alloy .swatch{background:var(--alloy);}
+  .out.acc-alloy .ovalue{color:var(--alloy);}
 
   /* Step 57 hero, Quinn's rulings of 2026-09-08 and 2026-09-09. The topline and the investment
      line reuse .lead/.k/.big/.u/.sl/.pot/.aside from the retired three-line hero; .sub shrinks
@@ -417,7 +428,7 @@
     .main{grid-template-columns:1fr;}
     .hero .lead .big{font-size:38px;}
     .brand{margin-right:0; width:100%;}
-    .outs{grid-template-columns:repeat(3,1fr);}
+    .outs{grid-template-columns:repeat(4,1fr);}
   }
 
 </style>
@@ -16956,28 +16967,37 @@ function runAbstractTests(){
     // pays its own bill on its own denominator, so there is no split for a reader to meet and
     // nothing for this row to hold to the model. ----
 
-    /* ---- PROD-01 (GATE): the production row is the three things this programme makes --------
-       THE OWNER'S COMPLAINT, WRITTEN AS A CHECK. Two rows shipped where one was asked for, and
-       the second row held a duplicate of the first row's metals figure, a duplicate of the mass
-       bar's mining plant figure and a process intermediate. Step 57 folded that into one row of
-       four; Quinn's second ruling of 2026-09-09 takes the fourth card, Metals produced, out of
-       it too, because it printed an unseparated Fe-Si-Al-Ti melt under a name that reads as a
-       saleable metal and no basis in this corpus prices or weighs what it would take to make it
-       one. This row states what the row IS NOW: three cards, water, oxygen and construction, in
-       that order, each printing the model's own figure for that product and a rate unit, and
-       none of them printing any of the four things the two rulings retired.
+    /* ---- PROD-01 (GATE): the production row is the four things this programme makes ---------
+       THE OWNER'S COMPLAINT, WRITTEN AS A CHECK, STANDS FOR ITS OWN HISTORY. Two rows shipped
+       where one was asked for, and Step 57 folded four cards into one row; Quinn's second
+       ruling of 2026-09-09 then took the fourth card, Metals produced, out of it, because it
+       printed an unseparated Fe-Si-Al-Ti melt under a name that reads as a saleable metal, with
+       no basis in this corpus pricing or weighing what it would take to make it one, and no
+       lunar reduction experiment on any route reporting a weighed metal mass.
+
+       STEP 62 RESTORES THE FOURTH CARD UNDER THE CORRECTED NAME. Two of the three grounds the
+       retirement stood on are answered: Schneiderman 2025 Table 2 assays the melt, and
+       separating elemental silicon out of it is now priced at 25 kWh/kg, PINNED by Quinn
+       2026-09-11 inside a bracket of 12.5 to 33.9. The third ground is unclosed and this row
+       does not paper over it: no lunar experiment has weighed a metal mass, and that caveat
+       stays a sentence on the Scenario tab, which OX-31 holds to the model, because a card
+       carries a name, a number and a unit and nothing else. This row states what the row IS
+       NOW: four cards, water, oxygen, construction and the melt's own composition name,
+       electrical silicon-iron, in that order, each printing the model's own figure for that
+       product and a rate unit, and none of them printing the regolith feed, the standing mining
+       plant, or a name that asserts separated metal.
 
        THE FIGURES ARE PARSED OFF THE PAINTED NUMERALS AND COMPARED NUMERICALLY, with the
        tolerance taken from the number of decimals the card itself printed. Nothing is rebuilt
        with the render's own formatter and matched as a string, because a row that formats its
        expectation with the layer it is scoring is green over every defect in that layer.
 
-       THE DECOY IS THE RETIRED ROW, NAMED VERBATIM, run through the same name matcher, so this
-       row's silence about the four retired cards is a measurement rather than a needle that
-       matches nothing. */
+       THE DECOY IS THE RETIRED ROW'S OWN BAD NAMES, NAMED VERBATIM, run through the same name
+       matcher, so this row's silence about the names still forbidden is a measurement rather
+       than a needle that matches nothing. */
     (function(){
-      const NAME = 'the production row is three cards, water, oxygen and construction in that order, each printing the model’s own tonnage for that product to the precision it prints and a rate unit, and none of them naming the alloy, metals, the regolith feed or the standing mining plant, at all nine preset and era states (DECOY: the four retired names are run through this row’s own matcher on a constructed row and are required to be caught there)';
-      const WANT = [['Water produced','water'],['Oxygen produced','oxygenTotal'],['Construction','construction']];
+      const NAME = 'the production row is four cards, water, oxygen, construction and the melt’s own composition name in that order, each printing the model’s own tonnage for that product to the precision it prints and a rate unit, and none of them naming metals produced, the regolith feed or the standing mining plant, at all nine preset and era states (DECOY: the four retired names are run through this row’s own matcher on a constructed row and are required to be caught there)';
+      const WANT = [['Water produced','water'],['Oxygen produced','oxygenTotal'],['Construction','construction'],['Electrical silicon-iron','alloy']];
       const RETIRED = /alloy|metals produced|regolith feed|mining plant/i;
       const why = []; let walked = 0, checked = 0; const seen = [];
       /* the matcher, and the decoy it is proved on before its silence counts */
@@ -17010,9 +17030,9 @@ function runAbstractTests(){
       if (!checked) why.push('EMPTY POPULATION: no card was checked at any state');
       rec('PROD-01','GATE',NAME, why.length===0,
         why.length ? why.slice(0,3).join('  ')
-          : walked + ' states and ' + checked + ' card readings, the three products named in order and every numeral inside the tolerance its own printed precision allows (' +
-            seen.slice(0,3).join(' | ') + '), none of them naming the alloy, metals, the regolith feed or the standing mining plant, and the matcher confirmed against all ' +
-            caught + ' retired names on a constructed row [POPULATION: every #outs .out at each of the nine preset and era states; it excludes the mass bar and the comparison strip, which carry fleet stocks rather than production rates. The alloy tonnage the retired metals card printed is unchanged in the model and is stated in the Scenario tab’s own narrative, which OX-31 holds to the model; it is not a card in this row]');
+          : walked + ' states and ' + checked + ' card readings, the four products named in order and every numeral inside the tolerance its own printed precision allows (' +
+            seen.slice(0,3).join(' | ') + '), none of them naming metals produced, the regolith feed or the standing mining plant, the fourth card printing the melt’s own tonnage under the name electrical silicon-iron rather than as a saleable metal, and the matcher confirmed against all ' +
+            caught + ' retired names on a constructed row [POPULATION: every #outs .out at each of the nine preset and era states; it excludes the mass bar and the comparison strip, which carry fleet stocks rather than production rates. The alloy tonnage is restored to this row at Step 62 under the name electrical silicon-iron; the Scenario tab’s own narrative, which OX-31 holds to the model, continues to carry the same figure alongside the composition and purity caveats a card cannot carry, including that no lunar experiment has weighed a metal mass]');
     })();
     // ---- OX-16 (GATE): the regolith feed sentence ----
     // THE SUBJECT MOVED AND THE PROPERTY DID NOT. Until Step 57 the feed was a card in the
@@ -17568,16 +17588,27 @@ function runAbstractTests(){
     // leaf element in the hero whose whole text is that string. A second painting anywhere in
     // the hero pushes observed above expected and is named.
     //
-    // THE DECOY WAS THE RETIRED SECOND PAINTING, RECONSTRUCTED FROM #h_oxyalloy, until Quinn's
-    // second ruling of 2026-09-09 retired the metals card and its id along with it. There is no
-    // element left in the DOM to read the decoy's own value off of, so it is built off the
-    // model's own alloy figure, formatted exactly as the retired card formatted it, and the same
-    // counter is required to catch it appended to a clone of the hero before the live hero's
-    // count is trusted.
+    // THE DECOY WAS REBUILT AT STEP 62, method/tdd_method.md's 2026-09-10 rule in hand: A DECOY
+    // CONSTRUCTS THE BROKEN STATE IT NEEDS ON THE ARTIFACT ACTUALLY UNDER TEST, AND NEVER
+    // ASSUMES THE ARTIFACT ALREADY CONTAINS IT. Between Steps 60 and 62 no card painted the
+    // alloy tonnage, so this decoy manufactured that figure off the model and formatted it as a
+    // guess at how the retired card would have painted it, which is a decoy coupled to a data
+    // SHAPE, an unpainted alloy figure, rather than to the defect a second painting IS. Step 62
+    // restores the card, so that shape is gone: the alloy figure is real DOM content now,
+    // #h_alloy's own painted text, read back rather than recomputed, appended a second time to
+    // a clone of the hero and required to be caught by the same counter. Where the card is
+    // absent or paints nothing, this decoy reports INAPPLICABLE rather than assuming a target
+    // that may not exist, the distinct outcome the standing rule calls for.
+    //
+    // PROVED RED FIRST, AGAINST A DELIBERATELY BROKEN COPY: with #h_alloy renamed to
+    // #h_alloy_X in a scratch copy of this file, the decoy found no element, reported
+    // INAPPLICABLE at all nine states and zero applicable states, and the row went red on the
+    // EMPTY POPULATION clause below rather than passing on an absent target. Restoring the id
+    // returns the row to green, recorded in cr_scratch/step62_engineer_metals_card.md.
     (function(){
-      const NAME = 'the oxygen figure tracks the model across all nine preset and era states, and every production tonnage the hero prints is painted at exactly one element of it at every one of them (DECOY: an element pinned to one value is confirmed to stop tracking and to fail, and the retired second painting of the metals tonnage, rebuilt off the model since no element paints it any more, is reconstructed on a clone of the hero and confirmed to be caught)';
+      const NAME = 'the oxygen figure tracks the model across all nine preset and era states, and every production tonnage the hero prints is painted at exactly one element of it at every one of them (DECOY: an element pinned to one value is confirmed to stop tracking and to fail, and a second painting of the electrical silicon-iron card’s own live figure, read off #h_alloy rather than rebuilt, is appended to a clone of the hero and confirmed to be caught)';
       const hero = document.querySelector('.hero');
-      const why = []; const seen = []; let sited = 0, dup = 0, decoyCaught = 0;
+      const why = []; const seen = []; let sited = 0, dup = 0, decoyCaught = 0, decoyApplicable = 0;
       if (!hero){ rec('OX-19','GATE',NAME,false,'EMPTY POPULATION: no .hero element exists in the rendered document'); return; }
       /* THE COUNTER. Every leaf element under a given root whose whole trimmed text is s. Used
          on the live hero and on the decoy clone, so the two are measured by one instrument. */
@@ -17605,28 +17636,34 @@ function runAbstractTests(){
                      ' element(s) of the hero, so a reader meets one quantity at two places under two names');
           }
         });
-        /* the decoy, built out of this state's own alloy figure, since no card paints one any more */
-        const metals = fmtNum(m.alloy, m.alloy < 10 ? 2 : 0);
-        if (metals != null){
+        /* the decoy, a duplicate of the electrical silicon-iron card's own live text, read off
+           #h_alloy rather than rebuilt from m.alloy, since Step 62 means a card paints it */
+        const alloyEl = document.getElementById('h_alloy');
+        const alloyTxt = alloyEl ? (alloyEl.textContent || '').trim() : '';
+        if (!alloyTxt){
+          // INAPPLICABLE: no live #h_alloy text at this state for the decoy to duplicate
+        } else {
+          decoyApplicable++;
           const clone = hero.cloneNode(true);
           const extra = document.createElement('span');
-          extra.textContent = String(metals).trim();
+          extra.textContent = alloyTxt;
           clone.appendChild(extra);
-          if (leaves(clone, String(metals).trim()) > leaves(hero, String(metals).trim())) decoyCaught++;
+          if (leaves(clone, alloyTxt) > leaves(hero, alloyTxt)) decoyCaught++;
         }
       });
       const distinct = seen.filter(function(v,i,a){ return a.indexOf(v)===i; });
       if (distinct.length <= 1) why.push('EMPTY POPULATION as a tracking test: the oxygen figure prints the same string at all nine states');
       const decoyPinned = seen.map(function(){ return seen[0]; });
       if (decoyPinned.filter(function(v,i,a){ return a.indexOf(v)===i; }).length !== 1) why.push('DECOY DID NOT FIRE: pinning every reading to the first still produced more than one distinct value');
-      if (decoyCaught !== 9) why.push('DECOY DID NOT FIRE: a second painting of the metals figure appended to a clone of the hero was caught at ' + decoyCaught + ' of the nine states, so this row’s counter does not discriminate');
+      if (!decoyApplicable) why.push('INAPPLICABLE: no state painted a #h_alloy figure for the decoy to duplicate, so its silence over the live hero proves nothing');
+      else if (decoyCaught !== decoyApplicable) why.push('DECOY DID NOT FIRE: a second painting of the electrical silicon-iron figure appended to a clone of the hero was caught at ' + decoyCaught + ' of ' + decoyApplicable + ' applicable states, so this row’s counter does not discriminate');
       if (walked !== 9) why.push('EMPTY POPULATION: ' + walked + ' states walked, not 9');
       if (!sited) why.push('EMPTY POPULATION: no production figure was counted at any state');
       rec('OX-19','GATE',NAME, why.length===0,
         why.length ? why.slice(0,3).join('  ')
           : walked + ' states, the oxygen figure tracking the model at every one across ' + distinct.length + ' distinct values, and ' +
-            sited + ' figure-site counts taken with ' + dup + ' quantity painted at more than its own card; the reconstructed second painting was caught at ' +
-            decoyCaught + ' of the nine [POPULATION: every leaf element inside .hero, which is the production cards, the two headline figures, the comparison strip’s marker labels and the mass bar’s legend, at each of the nine states; it excludes the cockpit rail and the seven tab panels, which are not the hero. Step 57 replaced the alloy-agreement clause, which asserted that two paintings of one number agree, with the property that clause was a special case of; the tracking clause is unchanged from Step 52. Re-keyed at Step 60: the decoy source moved from #h_oxyalloy, which Quinn’s second ruling of 2026-09-09 deleted, to the model’s own alloy figure]');
+            sited + ' figure-site counts taken with ' + dup + ' quantity painted at more than its own card; a duplicate of the electrical silicon-iron card’s own live text was caught at ' +
+            decoyCaught + ' of ' + decoyApplicable + ' applicable states [POPULATION: every leaf element inside .hero, which is the production cards, the two headline figures, the comparison strip’s marker labels and the mass bar’s legend, at each of the nine states; it excludes the cockpit rail and the seven tab panels, which are not the hero. Step 57 replaced the alloy-agreement clause, which asserted that two paintings of one number agree, with the property that clause was a special case of; the tracking clause is unchanged from Step 52. Rebuilt at Step 62 per method/tdd_method.md’s 2026-09-10 rule: the decoy source moved from a value rebuilt off the model, coupled to the shape of an unpainted alloy figure, to #h_alloy’s own live text, now that Step 62 paints one]');
     })();
 
     // ---- OX-31 (GATE): the alloy tonnage moved off the retired card to the Scenario tab -----
@@ -17641,6 +17678,13 @@ function runAbstractTests(){
     // THE SECOND CLAUSE SWEEPS EVERY PANEL FOR THE CLAIM THE RULING EXISTS TO FORBID: that this
     // programme produces separated metal. The needle is proved live on a constructed sentence
     // before its silence over the seven panels is trusted.
+    //
+    // STEP 62 RESTORES A CARD PAINTING THE SAME TONNAGE, under the name electrical silicon-iron,
+    // once Step 53 answered two of the three grounds this section's retirement stood on. This
+    // row is unchanged and still correct: a card carries a name, a number and a unit and no
+    // caption, so the composition, the zero separation energy and the unweighed-metal caveat
+    // stay exactly where this row already holds them, on the Scenario tab. Nothing here claims
+    // the card and the tab disagree; PROD-01 holds the card's own figure to the model separately.
     (function(){
       const NAME = 'the Scenario tab states the alloy tonnage the retired metals card printed, the figure read back off the painted sentence agrees with the model at all nine preset and era states, the sentence names the material an unseparated alloy rather than a metal and states that the model does not separate or price it, and no painted panel in the app claims the app produces separated metal (DECOY: a constructed sentence claiming separated metal production is run through this row’s own needle and required to be caught)';
       const why = []; const seen = [];
@@ -19230,15 +19274,26 @@ function demoRateTpy(){ return (DEMO.batchKg / 1000) / DEMO.hours * CONFIG.H.val
 
 const BINDWORD = BIND_LABEL;   // one map, declared in MODEL-CORE; this name is the render layer's alias for it
 function squares(m){
-  /* THE THREE PRODUCTS, IN THE ORDER A READER MEETS THEM, AND NOTHING THAT IS NOT A PRODUCT.
+  /* THE FOUR PRODUCTS, IN THE ORDER A READER MEETS THEM, AND NOTHING THAT IS NOT A PRODUCT.
 
-     STEP 60, QUINN'S SECOND RULING OF 2026-09-09. Metals produced is retired from this row:
-     garbage is not a product. The card printed the model's alloy tonnage, an unseparated melt
-     of iron, silicon, aluminium and titanium that the model charges zero energy to separate on
-     a qualitative sentence, with no lunar reduction experiment on any route having weighed a
-     separated metal output. The tonnage is not deleted from the model; it is a real quantity
-     rMetal * oxygen still computes, and it is stated in the Scenario tab's own narrative now,
-     named for what it is rather than painted as a fourth product on this row.
+     STEP 60, QUINN'S SECOND RULING OF 2026-09-09, RETIRED THIS CARD. Metals produced printed
+     the model's alloy tonnage, an unseparated melt of iron, silicon, aluminium and titanium
+     that the model charges zero energy to separate on a qualitative sentence, under a name
+     that read as a saleable metal, with no lunar reduction experiment on any route having
+     weighed a separated metal output.
+
+     STEP 62 RESTORES IT UNDER THE CORRECTED NAME. Two of the three grounds for retiring it are
+     answered: Schneiderman 2025 Table 2 assays the melt at Si 84.75, Fe 10.99, Al 3.09, Ti 1.13
+     wt%, so the composition is no longer unknown, and separating elemental silicon out of it is
+     now priced at 25 kWh/kg, PINNED by Quinn 2026-09-11 inside a bracket of 12.5 to 33.9. The
+     card itself carries neither figure; eRefine, the melt's own phase-separation energy at the
+     reactor, stays zero on Schreiner's own sentence, unchanged from before, because separating
+     the melt off the oxygen is not the same operation as purifying silicon out of the melt. The
+     third ground is unclosed: no lunar experiment has weighed a metal mass, and that caveat is
+     not printable on a card under STD-4, so it stays a sentence on the Scenario tab, which
+     OX-31 holds to the model. What changed is the name: `electrical silicon-iron`, ruled by
+     Quinn 2026-09-09, never "alloy" or "metals produced", because a material name is a
+     compositional claim and the melt this card weighs is the one Schneiderman assayed.
 
      MINING PLANT STANDING AND REGOLITH FEED stay retired from Step 57 for the reasons stated
      then: the mass bar already prints the mining plant figure, and nothing downstream of the
@@ -19248,26 +19303,28 @@ function squares(m){
      NO CARD CARRIES A CAPTION. Every caption on the retired row was a coefficient's
      point-of-use label or an arithmetic the card needed in order to justify standing there,
      and a tile that needs a sentence to earn its place has not earned it. OX-18 holds the row
-     to a name, a number and a unit.
+     to a name, a number and a unit, the restored card included.
 
      THE ACCENT IS A TOKEN NAME, NOT A COLOUR. This layer says which product a card is; the
      stylesheet says what that product looks like. A colour computed here would be a dark-theme
      literal painted over a light-theme page, and it is what the retired health scale did.
 
-     dp REPRODUCES THE RETIRED PANELS EXACTLY, so no printed figure moves in this edit: water
-     kept fmtT's own three-way rule and the other two kept theirs. */
+     dp REPRODUCES THE RETIRED PANELS EXACTLY for the restored fourth card, and the other three
+     kept their own rules: water its three-way rule, oxygen and construction theirs. */
   return [
     {name:'Water produced',  vid:'h_water',    v:m.water,        unit:'t/yr', accent:'water',
      dp:m.water<1?2:(m.water<10?1:0)},
     {name:'Oxygen produced', vid:'h_oxy',      v:m.oxygenTotal,  unit:'t/yr', accent:'oxygen',
      dp:m.oxygenTotal<10?2:0},
     {name:'Construction',    vid:'h_const',    v:m.construction, unit:'t/yr', accent:'construction',
-     dp:m.construction<10?1:0}
+     dp:m.construction<10?1:0},
+    {name:'Electrical silicon-iron', vid:'h_alloy', v:m.alloy,   unit:'t/yr', accent:'alloy',
+     dp:m.alloy<10?2:0}
   ];
 }
 /* The accent tokens this layer is allowed to name. Declared once, here, so OX-30 holds the
    render against the stylesheet rather than against a second copy of this list. */
-const ACCENTS = ['water','oxygen','construction'];
+const ACCENTS = ['water','oxygen','construction','alloy'];
 function fmtNum(v,dp){ return v.toLocaleString(undefined,{minimumFractionDigits:dp,maximumFractionDigits:dp}); }
 
 const outsEl=document.getElementById('outs');
