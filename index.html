@@ -253,6 +253,13 @@
   .out.acc-construction .ovalue{color:var(--regolith);}
   .out.acc-alloy .swatch{background:var(--alloy);}
   .out.acc-alloy .ovalue{color:var(--alloy);}
+  /* Step 63: the reactor-products card, one accent and three named lines (aluminium, the
+     iron-silicon alloy, silicon), replacing the single-line card the same accent used to
+     carry alone. Each .oline reuses .oname/.ovalue/.ounit at a smaller size so three rows
+     fit the card the other three products size themselves against. */
+  .out .oline{display:flex; justify-content:space-between; align-items:baseline; margin-top:8px;}
+  .out .oline:first-child{margin-top:9px;}
+  .out .oline .ovalue{font-size:15px;}
 
   /* Step 57 hero, Quinn's rulings of 2026-09-08 and 2026-09-09. The topline and the investment
      line reuse .lead/.k/.big/.u/.sl/.pot/.aside from the retired three-line hero; .sub shrinks
@@ -1595,6 +1602,99 @@
   "useLabel": "ASSUMPTION (stated at zero; Schreiner says only that separating the molten alloy should not cost much, and prints no number)",
   "note": "Carrying zero obliges the readout to name the product an alloy rather than a metal, because an unseparated molten alloy of iron, silicon, aluminium and titanium pooled at the bottom of the reactor is exactly what the zero buys. Printing \"metal\" beside a water tonnage invites a reader to think the app has modelled something a builder could use, and the corpus holds no purification figure of any kind. The model READS this coefficient rather than merely declaring it: it enters the oxygen power ceiling as eRefine·rMetal kWh per tonne of oxygen, which is exactly zero at the stated value and moves every tonnage on the branch the moment somebody writes a figure here. A coefficient the model does not read is a number in a table."
  },
+ "ratioAlToAlloy": {
+  "value": 0.2662,
+  "unit": "kg Al tapped / kg alloy tapped",
+  "band": {
+   "kind": "NO_BAND",
+   "rule": "NOT-CENTRABLE",
+   "disposition": "STANDS",
+   "reason": "Arithmetic on two tap fractions of one source, not an uncertainty spread: 7.4 wt% of feed at Extraction Event 2 divided by 27.8 wt% of feed at Extraction Event 1, both Schneiderman's own printed shares of the same feed mass, so the feed mass cancels and only the ratio of the two events survives."
+  },
+  "source": "Schneiderman 2025 Table 2, p. 7, digit-checked: Extraction Event 1 at lambda-O2 = 0.30 taps 27.8 wt% of feed as the ferrosilicon alloy this file already models as `alloy`; Extraction Event 2 at lambda-O2 = 0.37, inside the same 1675 C envelope and before the 0.375 liquidus crossing, taps a further 7.4 wt% of the same feed batch at 99.27 wt% Al, iron and manganese absent. 7.4 / 27.8 = 0.26619, carried to four figures.",
+  "status": "DERIVED (arithmetic on two printed tap fractions of the same source, same feed basis)",
+  "useLabel": "DERIVED (the ratio of Schneiderman's own two tap fractions; ties aluminium to the alloy tonnage the dedicated oxygen line already computes, off the SAME batch, rather than to a new regolith or power ceiling)",
+  "note": "This is the whole of what makes aluminium share feed with the dedicated oxygen line rather than compete with it: no new regolith term and no new phi allocation. model() reads it as aluminium = ratioAlToAlloy * alloy."
+ },
+ "eAlPractical": {
+  "value": 9.5,
+  "unit": "kWh / kg Al",
+  "band": {
+   "kind": "INTERVAL",
+   "lo": 5.60,
+   "hi": 9.5,
+   "loSource": "This project's own dG at 1873 K from standard formation data, the reversible minimum, cross-checked inside Han 2026's published 5.42 to 6.06 kWh/kg band.",
+   "hiSource": "Jehn 2024 LAMPP, 56,355 kWh/yr over 195 batches, mass-allocated across its own metal split of Si 65.6, Al 22.4, Mg 11.0, Ti 1.1 percent.",
+   "rule": "NOT-CENTRABLE",
+   "disposition": "STANDS",
+   "reason": "A floor-and-practical pairing, the same shape eO2's own reactor figures already carry: 9.5 is 1.70x the 5.60 floor, an ordinary ratio for an electrolytic process, and it is the live figure because it is the one measured on hardware rather than derived from formation data alone."
+  },
+  "source": "Jehn 2024, LAMPP: 56,355 kWh/yr over 195 batches, mass-allocated across the plant's own metal split (Si 65.6, Al 22.4, Mg 11.0, Ti 1.1 percent) to give an aluminium-specific practical energy of 9.5 kWh/kg Al, against a reversible floor of 5.60 kWh/kg Al (Al2O3 = 2Al + 3/2 O2, dG at 1873 K, this project's own derivation from standard formation data, cross-checking inside Han 2026 Table 2's published 5.42 to 6.06 kWh/kg band) and a total enthalpy of 8.63 kWh/kg Al.",
+  "status": "SOURCED (Jehn 2024 LAMPP, mass-allocated across its own printed metal split)",
+  "useLabel": "SOURCED (9.5 kWh/kg Al, the live practical figure; 5.60 kWh/kg Al is the reversible floor this coefficient's own band carries and is not read live by model())",
+  "note": "This is the incremental practical energy the aluminium tap draws from the shared power pool, the competing-draw role eRefine plays for the alloy tap but at a real, sourced, nonzero figure. Charged as powerAl = aluminium * eAlPractical * 1000 / (H * dutyM), deducted from powerRem before water and construction run."
+ },
+ "siFracOfAlloy": {
+  "value": 0.8475,
+  "unit": "kg Si / kg alloy tapped",
+  "band": {
+   "kind": "NO_BAND",
+   "rule": "NOT-CENTRABLE",
+   "disposition": "STANDS",
+   "reason": "A single printed assay figure, not a spread: Schneiderman's own Table 2 composition of the first tap."
+  },
+  "source": "Schneiderman 2025 Table 2, p. 7, Extraction Event 1 at lambda-O2 = 0.30: 84.75 wt% Si, 10.99 Fe, 3.09 Al, 1.13 Ti, summing to 99.96 with the balance in trace Mn, Ca, Mg. This coefficient reads the Si figure alone.",
+  "status": "SOURCED (Schneiderman 2025 Table 2, digit-checked)",
+  "useLabel": "SOURCED (84.75 wt% Si in the same tapped alloy the dedicated oxygen line already computes as `alloy`)",
+  "note": "Feeds the silicon-purification band: siProcessed = siFracOfAlloy * alloy, the silicon CONTAINED in the tap before any purification loss."
+ },
+ "ySiStrict": {
+  "value": 0.2534,
+  "unit": "fraction of processed Si retained",
+  "band": {
+   "kind": "NO_BAND",
+   "rule": "NOT-CENTRABLE",
+   "disposition": "STANDS",
+   "reason": "The strict end of a two-target band this project derived by numerical Rayleigh integration (Step 53), not itself an uncertainty spread; ySiRelax is the band's other named point."
+  },
+  "source": "This project's own Rayleigh vacuum distillation derivation at 1793 K against the MRE ferrosilicon tap (84.75 wt% Si, 10.99 Fe, 3.09 Al, 1.13 Ti), integrated to a strict iron target of 5.37 ppb, the level a 20-micron diffusion-limited thin-film silicon absorber needs: 25.34 percent of the processed silicon retained in the residue, at 12.52 kWh/kg Si purification energy (this project's own reversible-heat-of-vaporisation derivation, latent heat only).",
+  "status": "DERIVED (numerical Rayleigh integration on a sourced feed assay and a sourced carrier-lifetime target)",
+  "useLabel": "DERIVED (25.34 percent of the alloy's own silicon content survives purification to the strict, diffusion-limited iron target; the low, power-charged end of the band ySiRelax completes)",
+  "note": "model() charges power at THIS end (the smaller, cheaper output), never at ySiRelax, so the live power draw is conservative rather than optimistic. Quinn has not chosen a point inside this band; both ends render on the card."
+ },
+ "ySiRelax": {
+  "value": 0.3676,
+  "unit": "fraction of processed Si retained",
+  "band": {
+   "kind": "NO_BAND",
+   "rule": "NOT-CENTRABLE",
+   "disposition": "STANDS",
+   "reason": "The relaxed end of the same two-target band ySiStrict names; not itself an uncertainty spread."
+  },
+  "source": "The same Rayleigh integration at a relaxed iron target of 537 ppb (100x looser, labelled ASSUMED there as a margin allowance and not itself sourced): 36.76 percent of the processed silicon retained, at 7.45 kWh/kg Si.",
+  "status": "ASSUMPTION (the relaxed target is this project's own margin allowance, not itself sourced; the Rayleigh integration that turns it into a yield is DERIVED)",
+  "useLabel": "ASSUMPTION (36.76 percent, the high, uncosted end of the band; a potential reading only, the role constructionPotential already carries)",
+  "note": "Not read into any power or regolith draw. It renders beside ySiStrict's own costed figure so a reader meets the band Quinn has not collapsed to a point, never the collapse itself."
+ },
+ "eSiPurify": {
+  "value": 25,
+  "unit": "kWh / kg Si",
+  "band": {
+   "kind": "INTERVAL",
+   "lo": 12.5,
+   "hi": 33.9,
+   "loSource": "This project's own derivation: purifying the MRE ferrosilicon tap's own silicon to the strict target.",
+   "hiSource": "The same derivation against NIAC's carbothermal Fe-Si nodules, a feedstock this architecture does not produce.",
+   "rule": "NOT-CENTRABLE",
+   "disposition": "STANDS",
+   "reason": "PINNED at 25 by Quinn, 2026-09-11: \"so why not go with 25 kwh/kg as a median value\". Not a median: 12.5 and 33.9 price two different feedstocks, this project's own MRE tap and NIAC's nodules, so averaging them would be the duty-cycle error this record already names elsewhere. 25 is a margin of 2x on this project's own feedstock figure, chosen inside the disclosed bracket rather than derived from it."
+  },
+  "source": "PINNED at 25, a 2x margin on this project's own 12.5 kWh/kg MRE-tap derivation, hedging that Schneiderman's tap assay is a single batch and a production tap may run dirtier. Everything else in this entry is the provenance of the bracket the pin sits inside, not of the live value. 12.5 kWh/kg Si is this project's own sum of each evaporated species' mass times its molar enthalpy of vaporisation (Si 383, Fe 354, Al 284 kJ/mol, DebRoy Table 1), divided by the silicon mass retained at the strict target, latent heat only; 33.9 kWh/kg Si is the same arithmetic against NIAC's carbothermal Fe-Si nodules (Table 5, p. 11), a feedstock more than twice the iron fraction of the MRE tap and one this architecture does not produce.",
+  "status": "PINNED (a 2x margin on this project's own 12.5 kWh/kg derivation, inside a 12.5 to 33.9 bracket; not a median of the two feedstocks)",
+  "useLabel": "PINNED (25 kWh/kg Si, the live practical purification energy per kilogram of silicon retained; the whole purification term at the ruled 2 percent solar-cell efficiency runs under two days of the array's own output at any point in the bracket)",
+  "derivShort": "2x margin on 12.5 kWh/kg Si, this project's own MRE-tap Rayleigh derivation",
+  "note": "model() charges this against siliconLow only, the costed end of the yield band: powerSi = siliconLow * eSiPurify * 1000 / (H * dutyM), deducted from powerRem before water and construction run. eRefine, by contrast, prices the reactor-side alloy separation and stays at zero; this coefficient prices the separate, later, silicon-specific distillation step."
+ },
  "dutyM": {
   "value": 0.6,
   "unit": "fraction of calendar time",
@@ -2637,8 +2737,20 @@
     "oxygen-extraction-energy"
    ]
   },
+  "powerAl": {
+   "expr": "P_al = aluminium * eAlPractical * 1000 / (H * dutyM)",
+   "claims": [
+    "iron-production-energy"
+   ]
+  },
+  "powerSi": {
+   "expr": "P_si = siliconLow * eSiPurify * 1000 / (H * dutyM)",
+   "claims": [
+    "iron-production-energy"
+   ]
+  },
   "powerRem": {
-   "expr": "power_rem = power - P_metals",
+   "expr": "power_rem = power - P_metals - P_al - P_si",
    "claims": [
     "shared-capacity-split"
    ]
@@ -2980,6 +3092,42 @@
    "claim": "iron-production-energy",
    "kind": "config",
    "claimNote": "Attached 2026-09-04. That section's evidence item 1 already quoted the post-reactor processing sentence this zero renders. Stated at zero, which is what obliges the readout to say alloy rather than metal."
+  },
+  "ratioAlToAlloy": {
+   "label": "aluminium mass per unit alloy mass, the two Schneiderman tap fractions divided",
+   "claim": null,
+   "kind": "config",
+   "claimNote": "Ties aluminium to the SAME batch the dedicated oxygen line's alloy co-product already prices; not itself a claim about the Moon beyond the two tap fractions Schneiderman prints."
+  },
+  "eAlPractical": {
+   "label": "aluminium practical specific energy, Jehn LAMPP mass-allocated",
+   "claim": null,
+   "kind": "config",
+   "claimNote": "Same energy-ledger family as eO2 and eMetalWholePlant; carried without a ledger claim ID because the Aluminium section of the Gameplan is this project's own working record of it rather than a claim page."
+  },
+  "siFracOfAlloy": {
+   "label": "silicon content of the tapped alloy, Schneiderman's own first-tap assay",
+   "claim": null,
+   "kind": "config",
+   "claimNote": "The same Table 2 assay rMetal's own claimNote already points to."
+  },
+  "ySiStrict": {
+   "label": "silicon purification yield, strict iron target",
+   "claim": null,
+   "kind": "config",
+   "claimNote": "This project's own strict-target derivation, by numerical Rayleigh integration; the low, power-charged end of the purification band."
+  },
+  "ySiRelax": {
+   "label": "silicon purification yield, relaxed iron target",
+   "claim": null,
+   "kind": "config",
+   "claimNote": "This project's own relaxed-target derivation, by numerical Rayleigh integration; the high, uncosted end of the purification band."
+  },
+  "eSiPurify": {
+   "label": "silicon purification specific energy, PINNED",
+   "claim": null,
+   "kind": "config",
+   "claimNote": "PINNED inside a 12.5 to 33.9 kWh/kg bracket this project derived; see eSiPurify's own CONFIG entry for the full ruling."
   },
   "dutyM": {
    "label": "metals-plant availability, a separate key from the water branch's duty",
@@ -7632,7 +7780,7 @@
        says what a positive propellant value is in words: Earth delivery cost the programme
        does not pay. No numeric leaf moved and no claim changed its subject.
        The value below is EXT3's own recompute against the patched file. */
-    __pin: "7f16d1d4"
+    __pin: "957e8129"
   };
 
   root.KNOB_DATA = KNOB_DATA;
@@ -8529,9 +8677,46 @@ function model(a){
   const regolithMetalProd = (yMetal > 0) ? metalProduced / yMetal : 0;  // regolith this line ACTUALLY moves
   const powerMetalProd    = metalProduced * eMetalPerT / (H * dutyM);   // power this line ACTUALLY draws
 
-  // What the two lines leave. Each line's actual draw is bounded by its own entitlement on
-  // both budgets simultaneously, the same bound proved for the dedicated line above.
-  const powerRem = power - powerMetals - powerMetalProd; // kWe left to water and construction
+  /* ---- ALUMINIUM, THE SECOND TAP OF THE SAME REACTOR (Step 63) ------------------------------
+     Schneiderman 2025 Table 2 p.7: Extraction Event 1 at lambda-O2 = 0.30 taps 27.8 wt% of feed
+     as the ferrosilicon alloy this file already models as `alloy` above; Extraction Event 2 at
+     lambda-O2 = 0.37, inside the same 1675 C envelope and before the 0.375 liquidus crossing,
+     taps a further 7.4 wt% of the SAME feed batch as 99.27 wt% Al, iron and manganese absent.
+     Both taps come off one batch, so aluminium is sized off the alloy tonnage already computed,
+     by the ratio of the two tap fractions, and draws no regolith or reactor power of its own:
+     the batch's regolith and reactor power are already paid by regolithMetals and powerMetals
+     above. Aluminium's own co-product O2, 0.889 kg per kg Al, is not added anywhere as a
+     further oxygen term: it is already inside `oxygen`, the same reactor's cumulative evolved
+     O2 through whatever lambda the power and throughput ceilings reach, of which the Event-2
+     tap is one further increment on the same curve. Adding it again to oxygenTotal would
+     double-count the same O2. The only new charge is the incremental practical energy to take
+     the tapped metal to usable Al, 9.5 kWh/kg (Jehn 2024 LAMPP, mass-allocated, 1.70x the 5.60
+     kWh/kg reversible floor), deducted from the same shared power pool water and construction
+     draw from, the role eRefine plays for the alloy tap but at a real, sourced, nonzero figure. */
+  const aluminium = CONFIG.ratioAlToAlloy.value * alloy;           // t/yr, the second tap, sized off the first
+  const powerAl   = aluminium * CONFIG.eAlPractical.value * 1000 / (H * dutyM); // kWe this tap draws
+
+  /* ---- SILICON, PURIFIED OUT OF THE FIRST TAP'S OWN ALLOY (Step 63) -------------------------
+     The Rayleigh vacuum distillation (Step 53) purifies elemental silicon OUT OF the tapped
+     alloy rather than off any new feed, so it draws no regolith or reactor power of its own
+     either; it reads the alloy's own silicon content, 84.75 wt% by the same Table 2 assay.
+     Purification yield, the fraction of processed silicon kept in the residue, is a band, the
+     strict iron target to the relaxed one, and it stays a band here rather than a picked point:
+     the low (strict) end is what draws power, the conservative choice, and the high (relaxed)
+     end is an uncosted potential reading, the shape constructionPotential already carries
+     beside construction. 25 kWh/kg is PINNED (Quinn 2026-09-11) as the practical purification
+     energy per kilogram of silicon retained, the same practical-versus-floor pairing
+     eAlPractical carries. */
+  const siProcessed = CONFIG.siFracOfAlloy.value * alloy;          // t/yr of Si CONTAINED in the tapped alloy
+  const siliconLow  = CONFIG.ySiStrict.value * siProcessed;        // t/yr purified, strict target, power-charged
+  const siliconHigh = CONFIG.ySiRelax.value  * siProcessed;        // t/yr purified, relaxed target, uncosted potential
+  const powerSi     = siliconLow * CONFIG.eSiPurify.value * 1000 / (H * dutyM); // kWe the costed (low) end draws
+
+  // What the four lines leave. The dedicated line and the metals-production line are each
+  // bounded by their own entitlement, proved above; aluminium and silicon draw no regolith of
+  // their own and their power draw is clamped against zero because neither carries that same
+  // formal bound.
+  const powerRem = Math.max(0, power - powerMetals - powerMetalProd - powerAl - powerSi); // kWe left to water and construction
   const RcapRem  = Rcap  - regolithMetals - regolithMetalProd; // t regolith/yr left to them
 
   // The pre-branch model, unaltered, on the remainder (E1', E7)
@@ -8644,6 +8829,10 @@ function model(a){
        with, metalProduced, coproductO2, regolithMetalProd and powerMetalProd are all exactly 0
        and oxygenTotal === oxygen bit for bit -- the keystone identity. */
     phi_m, Mfull, metalProduced, coproductO2, regolithMetalProd, powerMetalProd, oxygenTotal,
+    /* Step 63: aluminium and silicon, both derived from `alloy` above with no new regolith
+       draw of their own; their power draw already left powerRem before water and construction
+       ran on the remainder. */
+    aluminium, siliconLow, siliconHigh, powerAl, powerSi,
     /* Step 56 install 6. The fission/solar MIX is now returned, because the reactor-count
        sentence on the Scenario tab gated on `fission` alone and never read it: at mix 0 the
        power system is entirely solar and that sentence still claimed fission power. A
@@ -10514,13 +10703,14 @@ function runTests(fileText){
        curve reaches by each era, pRate*min(yearsOperated(era), L), which is 100 kWe at 2030 (one
        year of landing) and the L-year plateau, pRate*L = 1100 kWe, at 2040 and 2055 alike (both
        past L years of landing). fFis is now a function of that standing power, so the boundary
-       is 0.590125 t/kW at 2030 (the 100 kWe point fFis is anchored on -- UNCHANGED) and
-       0.510863 t/kW at 2040 and 2055 (the plateau). Ice grade still cancels at every era, because
-       fFis carries no ice dependence; the solar slope (0.701648) is untouched at every era for
+       is 0.586732 t/kW at 2030 (the 100 kWe point fFis is anchored on, MOVED at Step 63 by the
+       aluminium and silicon power draw joining phi_o's own boundary term) and 0.507470 t/kW at
+       2040 and 2055 (the plateau, same cause). Ice grade still cancels at every era, because
+       fFis carries no ice dependence; the solar slope (0.698254, also moved at Step 63) for
        the same reason. The reader-facing claim at fission-specific-power quoted 7.618144,
        7.506622 and 1.46 percent until 2026-09-08, retired without reaching them by the Step 58
        kExc correction; those two literals are still checked absent from the island below. */
-    const ANCHOR = 0.590125, ANCHOR_BUILT = 0.510863, ANCHOR_SOL = 0.701648, ANCHOR_MOVE = 15.89;
+    const ANCHOR = 0.586732, ANCHOR_BUILT = 0.507470, ANCHOR_SOL = 0.698254, ANCHOR_MOVE = 15.97; // Step 63: re-derived after aluminium and silicon joined the power draw the oxygen line's boundary already carried; the closed form above carries the new term and reproduces these bit for bit.
     const vals = [], bad = [], valsSol = [], badSol = [];
     ['2030','2040','2055'].forEach(function(era){
       [1,2,5,10,20].forEach(function(ice){
@@ -10551,8 +10741,18 @@ function runTests(fileText){
     const fRef = CONFIG.fFis.value + (CONFIG.transmission.value/1000)*3;
     const phiO = CONFIG.phiM.value;
     const eO2perTref = CONFIG.eO2.value*1000 + CONFIG.eRefine.value*CONFIG.rMetal.value;
+    /* Step 63: aluminium and silicon draw POWER ONLY off the same phi_o-gated batch, no
+       regolith of their own (see model()'s own comment on the point). At the boundary the
+       oxygen line is power-bound, so oxygen = phi_o*power*H*dutyM/eO2perT exactly, and both
+       new draws are linear in that same oxygen: powerAl+powerSi = phi_o*power*kAlSi, with
+       kAlSi the dimensionless constant below. The (1-phiO) factor that scaled the
+       power-limited branch becomes (1 - phiO*(1+kAlSi)), and Bmet, the regolith-side term,
+       is untouched because neither draw removes regolith.
+       kAlSi = 1000*rMetal*(ratioAlToAlloy*eAlPractical + siFracOfAlloy*ySiStrict*eSiPurify)/eO2perTref */
+    const kAlSi = 1000*CONFIG.rMetal.value*(CONFIG.ratioAlToAlloy.value*CONFIG.eAlPractical.value
+                  + CONFIG.siFracOfAlloy.value*CONFIG.ySiStrict.value*CONFIG.eSiPurify.value)/eO2perTref;
     const Bmet = phiO * CONFIG.H.value * CONFIG.dutyM.value / (eO2perTref * CONFIG.yO2.value);
-    const excT = (1-phiO)*100*CONFIG.H.value*CONFIG.duty.value
+    const excT = (1-phiO*(1+kAlSi))*100*CONFIG.H.value*CONFIG.duty.value
                  /(CONFIG.E1.value*CONFIG.kExc.value*CONFIG.captureEff.value)
                  + Bmet/CONFIG.kExc.value;
     const closed = (excT + fRef) / (1 - 0.10);
@@ -10595,7 +10795,7 @@ function runTests(fileText){
     // over the scale-dependence its own fix introduced.
     const oldSingleSlopeFires = Math.abs(ANCHOR_BUILT - ANCHOR) > 5e-6;
     rec('FLEET-08','GATE',
-        'the regime boundary in landing-rate space is no longer one number on the fission branch: 0.590125 t/kW at 2030 (the 100 kWe point fFis is anchored on, unchanged) and 0.510863 t/kW at 2040 and 2055 alike (the fleet-life plateau, 1100 kWe standing at a constant 100 kWe/yr landing rate), both re-derived by bisection at every era and at 1, 2, 5, 10 and 20 wt% ice and both matched by closed forms built from live CONFIG that carry fFisAt()\'s own power law at the era\'s own crossing power; the solar slope (0.701648) and the ice-cancellation are unchanged at every era, because fFis is the only term the un-freezing touched, and the oxygen line being power-bound at the boundary is asserted rather than assumed (DECOY 1: dropping the closed form\'s own power-law term is confirmed to disagree; DECOY 2: a stale reading manufactured from a live figure is confirmed to disagree with every live slope; DECOY 3: the retired single-slope reading, the 2030 anchor applied uniformly to 2040/2055, is confirmed to fail)',
+        'the regime boundary in landing-rate space is no longer one number on the fission branch: 0.586732 t/kW at 2030 (the 100 kWe point fFis is anchored on) and 0.507470 t/kW at 2040 and 2055 alike (the fleet-life plateau, 1100 kWe standing at a constant 100 kWe/yr landing rate), both re-derived by bisection at every era and at 1, 2, 5, 10 and 20 wt% ice and both matched by closed forms built from live CONFIG that carry fFisAt()\'s own power law at the era\'s own crossing power and, since Step 63, aluminium and silicon\'s own power draw off the same phi_o boundary; the solar slope (0.698254) and the ice-cancellation move together with the fission branch at every era, because the new draw is not a fission-specific term (DECOY 1: dropping the closed form\'s own power-law term is confirmed to disagree; DECOY 2: a stale reading manufactured from a live figure is confirmed to disagree with every live slope; DECOY 3: the retired single-slope reading, the 2030 anchor applied uniformly to 2040/2055, is confirmed to fail)',
         bad.length === 0 && badSol.length === 0 && vals.length === 15 && valsSol.length === 15
           && closedOK && moveOK && decoyFires && (retiredApplicable ? retiredRejected : true) && oldSingleSlopeFires && oxPowerBound,
         (vals.length===15 && valsSol.length===15)
@@ -10841,7 +11041,9 @@ function runTests(fileText){
     const MOVERS = ['phi_o','water','regolith','oxygen','oxygenTotal','alloy','regolithMetals','regolithFeed',
                     'Wpower','Wthr','cap','construction','constructionPotential','Cfull',
                     'binding','regime','feasible',
-                    'powerRem','RcapRem','powerMetals'];
+                    'powerRem','RcapRem','powerMetals',
+                    /* Step 63: derived off `alloy` above, so phi_o moving alloy legitimately moves these too. */
+                    'aluminium','siliconLow','siliconHigh','powerAl','powerSi'];
     const why = []; let pts = 0, invMin = Infinity, swept = 0;
     for (const c of CELLS){
       for (const pc of [0, 0.3, 0.6]){
@@ -11406,7 +11608,7 @@ function runValueTests(fileText){
     // captureEff, so 92004.45 is untouched and is deliberately left standing:
     // one anchor moving and the other not is the evidence that the move is the
     // coefficient and not a bad splice.
-    const anchorOK = rel(vc.margin_prop,20262.69)<1e-3 && rel(vc.margin_const,91583.64)<1e-3;
+    const anchorOK = rel(vc.margin_prop,19572.92)<1e-3 && rel(vc.margin_const,91505.96)<1e-3; // Step 63: aluminium and silicon draw off the same shared power pool at CONFIG.phiM's default phi_o, so cap and margin_prop move with them; margin_const is unmoved for the same reason it was unmoved before, Cfull carries no phi_o term.
     if(!anchorOK){ ok=false; why.push(`anchor margins ${vc.margin_prop.toFixed(2)}/${vc.margin_const.toFixed(2)}`); }
     rec('V1','GATE','margin identity: margin=D-(r*D+op), value=rate*1000*margin, over the whole rail', ok,
         ok?`identity holds at all ${RAIL.length} D; canonical margins ${vc.margin_prop.toFixed(2)}/${vc.margin_const.toFixed(2)} $/kg`:why.slice(0,4).join('  '));
@@ -11447,7 +11649,7 @@ function runValueTests(fileText){
              && Math.abs(r05.r_const-r50.r_const)<1e-9 && Math.abs(r50.r_const-r90.r_const)<1e-9;
     if(!inv){ ok=false; why.push('r not phi_c-invariant'); }
     // Step 35: truth recomputed under the live declining-balance default.
-    const truthOK = rel(r50.r_prop,0.747373)<1e-4 && rel(r50.r_const,0.084164)<1e-4;
+    const truthOK = rel(r50.r_prop,0.754271)<1e-4 && rel(r50.r_const,0.084940)<1e-4; // Step 63: recomputed against the same legitimate cap shift V1 records.
     if(!truthOK){ ok=false; why.push(`r ${r50.r_prop.toFixed(6)}/${r50.r_const.toFixed(6)}`); }
     rec('V2','GATE','r_stream = attributed form = reduced mass/(cap*L); invariant across phi_c under two allocation fractions', ok,
         ok?`r_prop=${r50.r_prop.toFixed(6)}, r_const=${r50.r_const.toFixed(6)}, both forms agree and invariant across phi_c {0.05,0.5,0.9} at a water share of ${r50.waterShare.toFixed(4)}`:why.slice(0,4).join('  '));
@@ -11466,7 +11668,7 @@ function runValueTests(fileText){
   {
     const masses=[1250,1400,1600];   // all three power-limited at both captureEff values; see the note above
     const vs=masses.map(mm=>valueModel(clone(CANON,{mass:mm})));
-    const waterSame = Math.abs(vs[0].water_tpy-50.641419)<1e-3 && Math.abs(vs[1].water_tpy-50.641419)<1e-3 && Math.abs(vs[2].water_tpy-50.641419)<1e-3;
+    const waterSame = Math.abs(vs[0].water_tpy-50.178311)<1e-3 && Math.abs(vs[1].water_tpy-50.178311)<1e-3 && Math.abs(vs[2].water_tpy-50.178311)<1e-3; // Step 63: down from 50.641419, aluminium and silicon's own power draw at this cell's default phi_o
     const mProp = vs.map(v=>v.margin_prop), mConst = vs.map(v=>v.margin_const);
     const propMoves  = Math.abs(mProp[0]-mProp[1])>1 && Math.abs(mProp[1]-mProp[2])>1;
     const constMoves = Math.abs(mConst[0]-mConst[1])>1 && Math.abs(mConst[1]-mConst[2])>1;
@@ -11489,8 +11691,8 @@ function runValueTests(fileText){
     // bit-identical to its pre-branch value. The stand-down handoff predicted that the two
     // margin truths would move with the water truth. On this build they do not, and the
     // prediction is recorded as corrected rather than quietly dropped.
-    const propTruth  = rel(mProp[0],1578.36)<2e-3 && rel(mProp[1],-9632.23)<2e-3 && rel(mProp[2],-24579.70)<2e-3;
-    const constTruth = rel(mConst[0],89479.55)<1e-3 && rel(mConst[1],88217.09)<1e-3 && rel(mConst[2],86533.82)<1e-3;
+    const propTruth  = rel(mProp[0],716.15)<2e-3 && rel(mProp[1],-10597.91)<2e-3 && rel(mProp[2],-25683.33)<2e-3; // Step 63
+    const constTruth = rel(mConst[0],89382.45)<1e-3 && rel(mConst[1],88108.34)<1e-3 && rel(mConst[2],86409.54)<1e-3; // Step 63
     const crosses1 = vs[0].r_prop<1 && vs[2].r_prop>1;   // the triple straddles r_prop = 1, wherever inside it the crossing falls
     const pass = waterSame && propMoves && constMoves && propTruth && constTruth && crosses1;
     rec('MA1','GATE','mass moves margin even where it does not move tonnage (anti-Option-B)', pass,
@@ -11516,7 +11718,7 @@ function runValueTests(fileText){
     let allPos=true; for(const D of RAIL){ const vd=valueModel(clone(base,{op_prop:0, landed_cost:D})); if(!(vd.margin_prop > 0)){ allPos=false; } }
     const v5=valueModel(clone(base,{op_prop:5000})), v10=valueModel(clone(base,{op_prop:10000}));
     // Step 35: anchor recomputed under the live declining-balance default.
-    const dStarOK = rel(v5.Dstar_prop, 5000/(1-v5.r_prop))<1e-6 && rel(v5.Dstar_prop,13708.66)<1e-3;
+    const dStarOK = rel(v5.Dstar_prop, 5000/(1-v5.r_prop))<1e-6 && rel(v5.Dstar_prop,13932.63)<1e-3; // Step 63: recomputed against the same legitimate cap shift V1 records.
     const doublesOK = Math.abs(v10.Dstar_prop/v5.Dstar_prop - 2) < 1e-9;
     // no hard $35,300 point and no "2040" printed adjacent to the crossover, in
     // the user-facing HTML shell (islands stripped so the scan misses its own source)
@@ -12127,7 +12329,7 @@ function runValueTests(fileText){
     const CANON = {ice:5, power:150, mass:1000, fission:true, phi_c:0.5, landed_cost:100000, op_prop:5000, op_const:0, L:VALUE.L.value};
     const dRate = VALUE.decayRate.value, dLife = VALUE.decayLife.value;
     const vBase = valueModel(CANON);
-    const anchorOK = Math.abs(vBase.cap-101.28284)<1e-3;
+    const anchorOK = Math.abs(vBase.cap-100.35662)<1e-3; // Step 63: recomputed against the same legitimate cap shift V1 records.
     const vDB = valueModel(Object.assign({},CANON,{decayBasis:'decliningBalance'}));
     const naiveDecayLife = CANON.mass/(vBase.cap*dLife), naiveStraightLine = CANON.mass/(vBase.cap*CANON.L);
     const notNaiveDecayLife = Math.abs(vDB.r_prop-naiveDecayLife)>1e-6, notStale = Math.abs(vDB.r_prop-naiveStraightLine)>1e-6;
@@ -13623,7 +13825,7 @@ function composeDerivation(state, m, v){
     {text:'e(ice) = E1 / ice = '+_dn(CONFIG.E1.value,0)+' / '+_dnum(m.ice)+' = '+_dnum(LV('eEE',m.eEE,'model'))+' kWh/t water'},
     {text:'rho = 100 / ice = '+_dnum(LV('rho',m.rho,'model'))+' t regolith per t water'},
     {text:'P_metals = oxygen * e(oxygen) / (H * dutyM) = '+_dnum(m.oxygen)+' * '+_dn(m.eO2perT,0)+' / ('+_dn(CONFIG.H.value,0)+' * '+_dnum(CONFIG.dutyM.value)+') = '+_dnum(LV('powerMetals',m.powerMetals,'model'))+' kWe drawn by the oxygen line'},
-    {text:'power_rem = power - P_metals = '+_dnum(m.power)+' - '+_dnum(m.powerMetals)+' = '+_dnum(LV('powerRem',m.powerRem,'model'))+' kWe left to water and construction'},
+    {text:'power_rem = power - P_metals - P_al - P_si = '+_dnum(m.power)+' - '+_dnum(m.powerMetals)+' - '+_dnum(m.powerAl)+' - '+_dnum(m.powerSi)+' = '+_dnum(LV('powerRem',m.powerRem,'model'))+' kWe left to water and construction'},
     {text:'W_power = power_rem * H * duty / e(ice) = '+_dnum(m.powerRem)+' * '+_dn(CONFIG.H.value,0)+' * '+_dnum(CONFIG.duty.value)+' / '+_dnum(m.eEE)+' = '+_dnum(LV('Wpower',m.Wpower,'model'))+' t/yr'},
     {text:'M_power = '+(f?(_mix===1?'f_fission':(_mix===0?'f_solar':'mix*f_fission+(1-mix)*f_solar')):'f_solar')+' * power + (transmission/1000) * transDistKm * power = '+_dnum(fPwr)+' * '+_dnum(m.power)+' + '+_dnum(CONFIG.transmission.value/1000)+' * '+_dnum(m.transDistKm)+' * '+_dnum(m.power)+' = '+_dnum(LV('mPwr',m.mPwr,'model'))+' t'},
     {text:'M_eff = mass * (1 - phi_c0) = '+_dnum(m.mass)+' * (1 - '+_dnum(m.phi_c0)+') = '+_dnum(LV('massEff',m.massEff,'model'))+' t'},
@@ -16639,6 +16841,13 @@ function runAbstractTests(){
     function squareRows(){
       return Array.prototype.slice.call(document.querySelectorAll('#outs .out')).map(function(el){
         function t(sel){ const x = el.querySelector(sel); return x ? (x.textContent||'').trim() : ''; }
+        const olines = Array.prototype.slice.call(el.querySelectorAll('.oline'));
+        if (olines.length){
+          return {el:el, name:'', value:'', unit:'', cap:'', lines: olines.map(function(le){
+            function lt(sel){ const x = le.querySelector(sel); return x ? (x.textContent||'').trim() : ''; }
+            return {name:lt('.oname'), value:lt('.ovalue'), unit:lt('.ounit')};
+          })};
+        }
         return {el:el, name:t('.oname'), value:t('.ovalue'), unit:t('.ounit'), cap:t('.ocap')};
       });
     }
@@ -16687,8 +16896,8 @@ function runAbstractTests(){
       const walked = walk9(function(where){
         const arr = squares(stateModel()), rows = squareRows();
         arrLen = arr.length; elLen = rows.length;
-        namedN = rows.filter(function(r){ return r.name.length > 0; }).length;
-        valued = rows.filter(function(r){ return r.value.length > 0; }).length;
+        namedN = rows.filter(function(r){ return r.lines ? r.lines.every(function(l){ return l.name.length > 0; }) : r.name.length > 0; }).length;
+        valued = rows.filter(function(r){ return r.lines ? r.lines.every(function(l){ return l.value.length > 0; }) : r.value.length > 0; }).length;
         if (!arr.length) why.push('EMPTY POPULATION at '+where+': the model layer returned no squares at all, so a matching element count would mean nothing');
         if (rows.length !== arr.length) why.push(where+': '+arr.length+' squares returned, '+rows.length+' elements built');
         if (namedN !== rows.length) why.push(where+': '+rows.length+' elements built, '+namedN+' of them carrying a name, so a blank tile is painted for every element the array does not reach');
@@ -16996,43 +17205,67 @@ function runAbstractTests(){
        matcher, so this row's silence about the names still forbidden is a measurement rather
        than a needle that matches nothing. */
     (function(){
-      const NAME = 'the production row is four cards, water, oxygen, construction and the melt’s own composition name in that order, each printing the model’s own tonnage for that product to the precision it prints and a rate unit, and none of them naming metals produced, the regolith feed or the standing mining plant, at all nine preset and era states (DECOY: the four retired names are run through this row’s own matcher on a constructed row and are required to be caught there)';
-      const WANT = [['Water produced','water'],['Oxygen produced','oxygenTotal'],['Construction','construction'],['Electrical silicon-iron','alloy']];
-      const RETIRED = /alloy|metals produced|regolith feed|mining plant/i;
+      const NAME = 'the production row is four cards, water, oxygen, construction and one reactor-products card carrying aluminium, iron-silicon alloy and silicon as three named lines, each printing the model’s own tonnage to the precision it prints and a rate unit, silicon printed as a strict-to-relaxed band rather than a picked point, and none of them naming metals produced, the regolith feed or the standing mining plant, at all nine preset and era states (DECOY: the four retired names are run through this row’s own matcher on a constructed row and are required to be caught there)';
+      const WANT = [['Water produced','water'],['Oxygen produced','oxygenTotal'],['Construction','construction']];
+      const CHAIN = [['Aluminium','aluminium'],['Iron-silicon alloy','alloy'],['Silicon',['siliconLow','siliconHigh']]];
+      const RETIRED = /^(metals produced|alloy produced|regolith feed|mining plant standing)$/i;
       const why = []; let walked = 0, checked = 0; const seen = [];
-      /* the matcher, and the decoy it is proved on before its silence counts */
+      /* the matcher, and the decoy it is proved on before its silence counts. Step 63 anchors
+         this to the four EXACT retired names rather than a loose "alloy" substring, because
+         "alloy" is now legitimately part of a live product name again (Iron-silicon alloy). */
       const decoyNames = ['Metals produced','Alloy produced','Regolith feed','Mining plant standing'];
       const caught = decoyNames.filter(function(n){ return RETIRED.test(n); }).length;
       if (caught !== decoyNames.length) why.push('DECOY DID NOT FIRE: the retired-name matcher caught ' + caught + ' of the ' + decoyNames.length + ' names it exists to catch, so its silence over the live row proves nothing');
+      function checkNumeric(where, label, valueText, want){
+        checked++;
+        const s = valueText.replace(/,/g, '');
+        if (!/^[0-9]*\.?[0-9]+$/.test(s)){ why.push(where + ': the ' + label + ' line prints "' + valueText + '", which is not a number'); return; }
+        const dec = (s.split('.')[1] || '').length;
+        const tol = 0.5 * Math.pow(10, -dec) + 1e-9;
+        if (!(Math.abs(parseFloat(s) - want) <= tol))
+          why.push(where + ': the ' + label + ' line prints ' + valueText + ' where the model’s value is ' + want.toFixed(4) + ', outside the ' + tol + ' its own precision allows');
+      }
       walked = walk9(function(where){
         const m = stateModel();
         const rows = squareRows();
-        if (rows.length !== WANT.length){
-          why.push(where + ': the production row carries ' + rows.length + ' cards, not the ' + WANT.length + ' products this programme makes');
+        if (rows.length !== WANT.length + 1){
+          why.push(where + ': the production row carries ' + rows.length + ' cards, not the ' + (WANT.length + 1) + ' this programme makes');
           return;
         }
-        rows.forEach(function(r, i){
+        rows.slice(0, WANT.length).forEach(function(r, i){
           checked++;
           if (r.name !== WANT[i][0]) why.push(where + ': card ' + i + ' is named "' + r.name + '" where the row is ' + WANT.map(function(x){ return x[0]; }).join(', '));
           if (RETIRED.test(r.name)) why.push(where + ': the production row carries a card named "' + r.name + '", one of the four Quinn’s two rulings of 2026-09-09 retired');
           if (r.unit.trim() !== 't/yr') why.push(where + ': the ' + r.name + ' card prints the unit "' + r.unit.trim() + '" where a production rate is t/yr');
-          const s = r.value.replace(/,/g, '');
-          const want = m[WANT[i][1]];
-          if (!/^[0-9]*\.?[0-9]+$/.test(s)){ why.push(where + ': the ' + r.name + ' card prints "' + r.value + '", which is not a number'); return; }
-          const dec = (s.split('.')[1] || '').length;
-          const tol = 0.5 * Math.pow(10, -dec) + 1e-9;
-          if (!(Math.abs(parseFloat(s) - want) <= tol))
-            why.push(where + ': the ' + r.name + ' card prints ' + r.value + ' where the model’s ' + WANT[i][1] + ' is ' + want.toFixed(4) + ', outside the ' + tol + ' its own precision allows');
+          checkNumeric(where, r.name, r.value, m[WANT[i][1]]);
         });
-        seen.push(where + ' ' + rows.map(function(r){ return r.value; }).join('/'));
+        const chainRow = rows[WANT.length];
+        if (!chainRow.lines || chainRow.lines.length !== CHAIN.length){
+          why.push(where + ': the reactor-products card carries ' + (chainRow.lines ? chainRow.lines.length : 0) + ' lines, not the ' + CHAIN.length + ' this programme taps');
+        } else {
+          chainRow.lines.forEach(function(ln, i){
+            if (ln.name !== CHAIN[i][0]) why.push(where + ': reactor-products line ' + i + ' is named "' + ln.name + '" where the card is ' + CHAIN.map(function(x){ return x[0]; }).join(', '));
+            if (RETIRED.test(ln.name)) why.push(where + ': the reactor-products card carries a line named "' + ln.name + '", one of the four Quinn’s two rulings of 2026-09-09 retired');
+            if (ln.unit.trim() !== 't/yr') why.push(where + ': the ' + ln.name + ' line prints the unit "' + ln.unit.trim() + '" where a production rate is t/yr');
+            const key = CHAIN[i][1];
+            if (Array.isArray(key)){
+              const parts = ln.value.split(/\s+to\s+/);
+              if (parts.length !== 2) why.push(where + ': the ' + ln.name + ' line prints "' + ln.value + '", not a "low to high" band');
+              else { checkNumeric(where, ln.name + ' low', parts[0], m[key[0]]); checkNumeric(where, ln.name + ' high', parts[1], m[key[1]]); }
+            } else {
+              checkNumeric(where, ln.name, ln.value, m[key]);
+            }
+          });
+        }
+        seen.push(where + ' ' + rows.map(function(r){ return r.lines ? r.lines.map(function(l){ return l.value; }).join('/') : r.value; }).join('/'));
       });
       if (walked !== 9) why.push('EMPTY POPULATION: ' + walked + ' states walked, not 9');
       if (!checked) why.push('EMPTY POPULATION: no card was checked at any state');
       rec('PROD-01','GATE',NAME, why.length===0,
         why.length ? why.slice(0,3).join('  ')
-          : walked + ' states and ' + checked + ' card readings, the four products named in order and every numeral inside the tolerance its own printed precision allows (' +
-            seen.slice(0,3).join(' | ') + '), none of them naming metals produced, the regolith feed or the standing mining plant, the fourth card printing the melt’s own tonnage under the name electrical silicon-iron rather than as a saleable metal, and the matcher confirmed against all ' +
-            caught + ' retired names on a constructed row [POPULATION: every #outs .out at each of the nine preset and era states; it excludes the mass bar and the comparison strip, which carry fleet stocks rather than production rates. The alloy tonnage is restored to this row at Step 62 under the name electrical silicon-iron; the Scenario tab’s own narrative, which OX-31 holds to the model, continues to carry the same figure alongside the composition and purity caveats a card cannot carry, including that no lunar experiment has weighed a metal mass]');
+          : walked + ' states and ' + checked + ' readings, four cards with aluminium, iron-silicon alloy and silicon named in order on the fourth and every numeral inside the tolerance its own printed precision allows (' +
+            seen.slice(0,3).join(' | ') + '), none of them naming metals produced, the regolith feed or the standing mining plant, and the matcher confirmed against all ' +
+            caught + ' retired names on a constructed row [POPULATION: every #outs .out at each of the nine preset and era states, the fourth card’s three .oline children read as three rows; it excludes the mass bar and the comparison strip, which carry fleet stocks rather than production rates. The alloy tonnage stood alone on this row at Step 62 under the name electrical silicon-iron and Quinn ruled it back to one line of three, iron-silicon alloy, beside aluminium and silicon; the Scenario tab’s own narrative, which OX-31 holds to the model, continues to carry the same alloy figure alongside the composition and purity caveats a card cannot carry, including that no lunar experiment has weighed a metal mass]');
     })();
     // ---- OX-16 (GATE): the regolith feed sentence ----
     // THE SUBJECT MOVED AND THE PROPERTY DID NOT. Until Step 57 the feed was a card in the
@@ -17177,13 +17410,21 @@ function runAbstractTests(){
       walked = walk9(function(where){
         const els = Array.prototype.slice.call(document.querySelectorAll('#outs .out'));
         if (!els.length){ why.push('EMPTY POPULATION at ' + where + ': the production row carries no card at all'); return; }
-        cards = els.length;
+        cards = els.reduce(function(acc, el){ const ol = el.querySelectorAll('.oline').length; return acc + (ol || 1); }, 0);
+        /* Step 63: a card carrying .oline children (the reactor-products card) is checked one
+           line at a time, because the whole-card text now legitimately holds three names,
+           three numbers and three units, and only the per-line text is what a reader reads
+           beside any one figure. */
         els.forEach(function(el, i){
-          const nm = el.querySelector('.oname'); const label = nm ? (nm.textContent || '').trim() : ('card ' + i);
-          const rest = surplus(el);
-          if (rest) why.push(where + ': the ' + label + ' card carries text beyond its name, its number and its unit: "' + rest + '"');
-          const hit = CITATION.exec((el.textContent || '').replace(/\s+/g, ' '));
-          if (hit) why.push(where + ': the ' + label + ' card carries a source-citation construction beside a number a reader reads, "' + hit[0] + '"');
+          const olines = Array.prototype.slice.call(el.querySelectorAll('.oline'));
+          const targets = olines.length ? olines : [el];
+          targets.forEach(function(t, j){
+            const nm = t.querySelector('.oname'); const label = nm ? (nm.textContent || '').trim() : ('card ' + i + (olines.length ? ' line ' + j : ''));
+            const rest = surplus(t);
+            if (rest) why.push(where + ': the ' + label + ' card carries text beyond its name, its number and its unit: "' + rest + '"');
+            const hit = CITATION.exec((t.textContent || '').replace(/\s+/g, ' '));
+            if (hit) why.push(where + ': the ' + label + ' card carries a source-citation construction beside a number a reader reads, "' + hit[0] + '"');
+          });
         });
       });
       if (walked !== 9) why.push('EMPTY POPULATION: ' + walked + ' states walked, not 9');
@@ -19318,8 +19559,12 @@ function squares(m){
      dp:m.oxygenTotal<10?2:0},
     {name:'Construction',    vid:'h_const',    v:m.construction, unit:'t/yr', accent:'construction',
      dp:m.construction<10?1:0},
-    {name:'Electrical silicon-iron', vid:'h_alloy', v:m.alloy,   unit:'t/yr', accent:'alloy',
-     dp:m.alloy<10?2:0}
+    {name:'Reactor products', accent:'alloy', lines:[
+      {name:'Aluminium',          vid:'h_al',    v:m.aluminium, unit:'t/yr', dp:m.aluminium<10?2:0},
+      {name:'Iron-silicon alloy', vid:'h_alloy', v:m.alloy,     unit:'t/yr', dp:m.alloy<10?2:0},
+      {name:'Silicon',            vid:'h_si',    band:true, vLow:m.siliconLow, vHigh:m.siliconHigh, unit:'t/yr',
+       dp:m.siliconLow<10?2:0}
+    ]}
   ];
 }
 /* The accent tokens this layer is allowed to name. Declared once, here, so OX-30 holds the
@@ -19336,13 +19581,25 @@ const outsEl=document.getElementById('outs');
    whole render down with it. Reconciling the element count against the array's own length on
    every paint converts either into no defect at all, and it is the same repair the hardcoded
    #out-2 in CONSTRO-01 needed. */
-function ensureSquares(n){
-  while (outsEl.children.length < n){
-    const o=document.createElement('div'); o.className='out'; o.id='out-'+outsEl.children.length;
-    o.innerHTML='<div class="swatch"></div><div class="oname"></div><div class="oval"><span class="ovalue"></span><span class="ounit"></span></div>';
-    outsEl.appendChild(o);
-  }
+function ensureSquares(sq){
+  const n = sq.length;
   while (outsEl.children.length > n) outsEl.removeChild(outsEl.lastChild);
+  for (let i=0; i<n; i++){
+    const want = sq[i].lines ? 'chain' : 'simple';
+    const wantLines = sq[i].lines ? sq[i].lines.length : 0;
+    let o = outsEl.children[i];
+    if (!o){ o=document.createElement('div'); o.className='out'; o.id='out-'+i; outsEl.appendChild(o); }
+    if (o.dataset.kind !== want || (want==='chain' && o.querySelectorAll('.oline').length !== wantLines)){
+      if (want === 'chain'){
+        o.innerHTML = '<div class="swatch"></div>' + sq[i].lines.map(function(){
+          return '<div class="oline"><span class="oname"></span><span class="ovalue"></span><span class="ounit"></span></div>';
+        }).join('');
+      } else {
+        o.innerHTML = '<div class="swatch"></div><div class="oname"></div><div class="oval"><span class="ovalue"></span><span class="ounit"></span></div>';
+      }
+      o.dataset.kind = want;
+    }
+  }
 }
 
 /* ============================================================
@@ -20044,19 +20301,32 @@ function render(){
   updateTrack(m);
 
   const SQ = squares(m);
-  ensureSquares(SQ.length);
+  ensureSquares(SQ);
   SQ.forEach((sq,i)=>{ const el=document.getElementById('out-'+i);
     /* The accent is a class the stylesheet resolves, never an inline colour. A token this
        layer names that the stylesheet does not define paints no accent at all, which is a
        missing stripe rather than a card painted rgb(NaN,NaN,NaN); OX-30 reds on it either way.
        The value element carries the id the figure is addressed by, stamped on the element the
-       card already owns rather than on a second element beside it. */
+       card already owns rather than on a second element beside it. Step 63: a card carrying
+       `lines` paints each .oline in order instead of the card's own single .oname/.ovalue. */
     el.className='out acc-'+sq.accent;
-    el.querySelector('.oname').textContent=sq.name;
-    const val=el.querySelector('.ovalue');
-    val.id=sq.vid;
-    val.textContent=fmtNum(sq.v,sq.dp);
-    el.querySelector('.ounit').textContent=' '+sq.unit;
+    if (sq.lines){
+      const lineEls = el.querySelectorAll('.oline');
+      sq.lines.forEach(function(ln, j){
+        const le = lineEls[j];
+        le.querySelector('.oname').textContent = ln.name;
+        const val = le.querySelector('.ovalue');
+        val.id = ln.vid;
+        val.textContent = ln.band ? (fmtNum(ln.vLow, ln.dp) + ' to ' + fmtNum(ln.vHigh, ln.dp)) : fmtNum(ln.v, ln.dp);
+        le.querySelector('.ounit').textContent = ' ' + ln.unit;
+      });
+    } else {
+      el.querySelector('.oname').textContent=sq.name;
+      const val=el.querySelector('.ovalue');
+      val.id=sq.vid;
+      val.textContent=fmtNum(sq.v,sq.dp);
+      el.querySelector('.ounit').textContent=' '+sq.unit;
+    }
   });
 
   /* STEP 52. The bar paints a third segment and always did: the standing mass less the power
@@ -21009,8 +21279,12 @@ function regimeSlopeTperKW(){
   const fPwr = state.fission ? (state.mix*fFisEff + (1-state.mix)*fSolEff) : fSolEff;
   const f = fPwr + (CONFIG.transmission.value/1000) * TRANS_DIST_FIXED_KM;
   const phiOApplied = knobVal('phi_o');
-  const excav = (1-phiOApplied)*100*CONFIG.H.value*CONFIG.duty.value/(CONFIG.E1.value*CONFIG.kExc.value*CONFIG.captureEff.value);
   const eO2perTref = CONFIG.eO2.value*1000 + CONFIG.eRefine.value*CONFIG.rMetal.value;
+  /* Step 63: aluminium and silicon draw power off this same phi_o-gated batch, no regolith
+     of their own; see model()'s own comment and FLEET-08's identical derivation. */
+  const kAlSi = 1000*CONFIG.rMetal.value*(CONFIG.ratioAlToAlloy.value*CONFIG.eAlPractical.value
+                + CONFIG.siFracOfAlloy.value*CONFIG.ySiStrict.value*CONFIG.eSiPurify.value)/eO2perTref;
+  const excav = (1-phiOApplied*(1+kAlSi))*100*CONFIG.H.value*CONFIG.duty.value/(CONFIG.E1.value*CONFIG.kExc.value*CONFIG.captureEff.value);
   const Bmet = phiOApplied * CONFIG.H.value * CONFIG.dutyM.value / (eO2perTref * CONFIG.yO2.value);
   return (f + excav + Bmet/CONFIG.kExc.value) / (1 - phiC0Applied);
 }
