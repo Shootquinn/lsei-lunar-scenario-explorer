@@ -474,10 +474,24 @@
         <div class="rangewrap"><input type="range" id="k_mass"><span class="envmark" id="mk_mass" title="This scenario envelope ceiling on the annual landing rate"></span></div>
       </div>
 
+      <div class="knob">
+        <div class="krow"><span class="klabel">Fab productivity</span><span class="kval" id="v_fabprod"></span></div>
+        <div class="rangewrap"><input type="range" id="k_fabprod" min="0.02" max="5" step="0.01" value="0.02"><span class="envmark" id="mk_fabcross" title="The mass break-even crossing: above this productivity, manufacturing the array in-situ costs less launched mass than landing it over the array's service life"></span></div>
+        <span class="kcap" id="capFabProd"></span>
+        <span class="kcap" id="capFabEnergy"></span>
+        <span class="chip" id="fabpay_chip">Mass payback <b id="fabpay_txt"></b></span>
+      </div>
+
       <div class="status">
         <button class="chip" id="fis_chip" type="button" aria-pressed="true" title="Toggle power source"><span class="sw" id="fis_sw"></span>Power source <b id="fis_txt">Fission</b></button>
         <span class="chip">Limiting case <b id="bind_txt"></b></span>
         <button class="chip" id="advToggle" type="button" aria-expanded="false" title="Shows the sensitivity sliders and the four reference tabs: Equations, Notes, Definitions and the Evidence Ledger">Advanced: sliders and reference tabs</button>
+      </div>
+
+      <div class="knob">
+        <div class="krow"><span class="klabel">In-situ solar share</span><span class="kval" id="v_insitu"></span></div>
+        <input type="range" id="k_insitu" min="0" max="1" step="0.01" value="0">
+        <span class="kcap" id="capInsitu"></span>
       </div>
 
       <div class="advanced" id="advPanel" hidden>
@@ -1726,6 +1740,213 @@
   "status": "CONTROL",
   "useLabel": "CONTROL (a display setting, not physics)",
   "note": "The allocation is a partition of ONE plant and ONE power budget across the product lines, not independent full-allocation figures, so the fractions charged to construction and to oxygen sum to at most one against the same Rcap and the same power·H·duty, and water is the residual of both. Default 0.05 ruled by Quinn on 2026-09-03, matching phi_c's own default rather than the inert zero this coefficient's card first proposed. The guard on the change is the identity at phi_o = 0, where the model is bit-identical to its pre-branch self at every input, and not the nine-cell benchmark, which absorbs the whole of the ruled default inside a tolerance that exists for a different purpose."
+ },
+  "iAM0": {
+  "value": 1361,
+  "unit": "W/m^2",
+  "band": {
+   "kind": "INTERVAL",
+   "lo": 1361,
+   "hi": 1367,
+   "loSource": "Modern satellite-measured total solar irradiance at 1 AU, the low end of the range different radiometer eras report.",
+   "hiSource": "Older radiometer-era AM0 compilations, commonly cited up to 1367 W/m^2.",
+   "rule": "NOT-CENTRABLE",
+   "disposition": "STANDS",
+   "reason": "No source held in this corpus prints a lunar-surface or AM0 irradiance figure at all. 1361 is applied with no atmosphere and no air-mass derate because the Moon carries neither. The band is background context for a physical constant nobody has measured for this application, not a claim this entry makes."
+  },
+  "source": "No source held in this corpus states an AM0 or lunar-surface irradiance figure. 1361 W/m^2 is the modern satellite-measured total solar irradiance at 1 AU, applied with no packing or pointing derate because no source held here states one for a lunar-sited array of any kind. NO ANCHOR.",
+  "status": "ASSUMPTION, NO ANCHOR",
+  "note": "Consumed as aPerKWe = 1000 / (iAM0 * etaPV), the panel's own area-per-kWe conversion the fab's substrate and silicon ceilings both read. No packing or pointing loss is applied; this is an upper bound on power per unit area, not a delivered-system number."
+ },
+  "etaPV": {
+  "value": 0.02,
+  "unit": "dimensionless (fraction)",
+  "band": {
+   "kind": "INTERVAL",
+   "lo": 0.009,
+   "hi": 0.05,
+   "loSource": "A published route's own array-element arithmetic, annualised and read against that hardware's own reconstructed area, rounds to about 0.9 percent.",
+   "hiSource": "A published judgement ceiling from a source that examined this manufacturing route directly: unlikely to exceed 5 percent.",
+   "rule": "NOT-CENTRABLE",
+   "disposition": "STANDS",
+   "reason": "Three anchors of three different kinds bound this band and none is a measured efficiency for this route's actual product: a reading off one paper's own internally inconsistent arithmetic, a published judgement ceiling, and a built-and-measured zero from a device this corpus documents separately. 2 percent sits inside the span they bound, above the weakest self-consistent reading and below the published ceiling, an engineering-judgement placement disclosed as such, deliberately pessimistic against the published ceiling."
+  },
+  "source": "No document held in this corpus prints an efficiency for this route's actual in-situ product. NO ANCHOR on the point value 2 percent; the three anchors bounding the band are each independently sourced or derived, and the point inside that band is a disclosed judgement call, not computed from any of them by a stated formula.",
+  "status": "ASSUMPTION, NO ANCHOR",
+  "note": "Feeds aPerKWe with iAM0 above. The ruled band's low and high ends each produce a separate output and margin reading; the conclusion this layer draws does not depend on which end is used."
+ },
+  "mArealSi": {
+  "value": 48,
+  "unit": "g/m^2",
+  "band": { "kind": "NO_BAND", "rule": "NOT-CENTRABLE", "reason": "A single printed design-table figure, not a range." },
+  "source": "Printed directly in a primary design table as the areal silicon mass of a 20 micrometre p-Si base plus a 0.5 micrometre n-Si emitter: 48 g/m^2.",
+  "status": "SOURCED",
+  "note": "The panel's own silicon demand per kWe of array is mArealSi * aPerKWe. This is a design specification, not a measurement of a working device's output; no source held in this corpus prints a measured conversion efficiency for an in-situ-fabricated silicon cell."
+ },
+  "mArealSub": {
+  "value": 2700,
+  "unit": "g/m^2",
+  "band": { "kind": "NO_BAND", "rule": "NOT-CENTRABLE", "reason": "A single printed design-table figure, not a range." },
+  "source": "Printed directly in the same primary design table as the fused-regolith substrate layer's own areal mass, at a stated 1 mm thickness: 2700 g/m^2.",
+  "status": "SOURCED",
+  "note": "This is local material, melted and formed in place, never launched. It is the fab's own throughput ceiling below, drawn against the full power and plant budget the oxygen and metals-production lines already draw against, not their remainder."
+ },
+  "mArealNonSub": {
+  "value": 59,
+  "unit": "g/m^2",
+  "band": { "kind": "NO_BAND", "rule": "NOT-CENTRABLE", "reason": "A single itemised table sum, not a range." },
+  "source": "Summed directly from the same primary table's four non-substrate layers: an iron bottom contact, the silicon layers above, a conducting top grid, and an antireflective coating, 7 + 48 + 1 + 3 = 59 g/m^2 (dopants below the table's own resolution).",
+  "status": "SOURCED",
+  "note": "Recorded for the panel's own material accounting; the silicon share of this sum is drawn from the alloy tap's own purified stream, not charged again here."
+ },
+  "mArealTotal": {
+  "value": 2759,
+  "unit": "g/m^2",
+  "band": { "kind": "NO_BAND", "rule": "NOT-CENTRABLE", "reason": "A single printed table sum, not a range." },
+  "source": "The same primary table's full layer sum: substrate 2700, iron contact 7, silicon 48, top grid 1, antireflective coating 3, dopants below the table's own resolution, total 2759 g/m^2.",
+  "status": "SOURCED",
+  "note": "The substrate is 2700 of 2759 g/m^2, about 97.9 percent of total areal mass, which is why the substrate carries this fab's own throughput ceiling and the silicon layer draws on an existing stream instead."
+ },
+  "tSub": {
+  "value": 1,
+  "unit": "mm",
+  "band": {
+   "kind": "INTERVAL",
+   "lo": 1,
+   "hi": 5,
+   "loSource": "The same primary table's own printed figure, cross-checked against that report's separately stated total glass volume and area, which divide to the identical 1 mm.",
+   "hiSource": "A companion slide deck from the same programme states 2 to 5 mm for the same layer, not cross-checked against any other printed figure in that deck.",
+   "rule": "NOT-CENTRABLE",
+   "disposition": "STANDS",
+   "reason": "Two figures from the same programme disagree by 2 to 5 times; the table figure is corroborated by an independent internal division inside the same report, the slide figure is not corroborated by anything else in this corpus. The choice moves local material and forming energy only, never launched mass, so it cannot move the fab's own mass break-even verdict."
+  },
+  "source": "Printed directly at 1 mm in the primary design table, cross-checked against that report's own separately printed total glass volume divided by total panel area, which agree to the stated precision.",
+  "status": "SOURCED",
+  "note": "Recorded for provenance; the substrate's own areal mass (mArealSub) is what the fab's own line actually consumes."
+ },
+  "eArealFloor": {
+  "value": 0.9315,
+  "unit": "kWh/m^2",
+  "band": { "kind": "NO_BAND", "rule": "NOT-CENTRABLE", "reason": "A single printed table total, not a range." },
+  "source": "The same primary table's own heat-required column, summed across every layer: 0.9 kWh/m^2 for melting the substrate plus 0.0315 kWh/m^2 for every evaporated layer combined.",
+  "status": "SOURCED",
+  "note": "A FLOOR, stated as one: this column prices sensible heat to each layer's own evaporation temperature only and excludes the latent heat of phase change and any source-to-substrate transfer loss. Recorded for provenance; the substrate's forming energy this fab's own line actually charges is the existing sinter specific-energy assumption carried at eFabPerT below."
+ },
+  "eArealTotal": {
+  "value": 2.7011,
+  "unit": "kWh/m^2",
+  "band": { "kind": "NO_BAND", "rule": "NOT-CENTRABLE", "reason": "A closed arithmetic chain on sourced and carried inputs, not a range." },
+  "source": "A closed chain: the substrate's own sourced areal mass (2.700 kg/m^2) times the sinter specific-energy figure already carried elsewhere in this file (0.833 kWh/kg) is 2.2491 kWh/m^2, plus the silicon layer's own sourced areal mass (0.048 kg/m^2) times an oxide-reduction-plus-deposition specific energy already carried elsewhere in this file (9.416 kWh/kg Si) is 0.4520 kWh/m^2, total 2.7011 kWh/m^2.",
+  "status": "DERIVED",
+  "note": "This prices manufacturing silicon fresh from oxide, a route this architecture does not run: the silicon this fab's own panel consumes is purified out of the alloy tap instead, at a cost already charged in full before this figure is reached. Recorded for provenance and for comparison against that existing route's own cost; it is not read by this model's own arithmetic a second time."
+ },
+  "aAreaYr": {
+  "value": 3500,
+  "unit": "m^2/yr",
+  "band": { "kind": "NO_BAND", "rule": "NOT-CENTRABLE", "reason": "A direct product of two sourced figures, not a range." },
+  "source": "A direct product of two figures each printed multiple times in the same primary: a 1 m^2/hr deposition rate and 3,500 hours of useful lunar daytime a year, 1 * 3,500 = 3,500 m^2/yr.",
+  "status": "DERIVED",
+  "note": "Recorded for provenance; feeds the derivation of dutyFab below (3,500 hours over a full calendar year) rather than being read directly by this model's own throughput arithmetic, which runs on the standing power and plant budgets instead."
+ },
+  "mLunarYr": {
+  "value": 206,
+  "unit": "kg/yr",
+  "band": { "kind": "NO_BAND", "rule": "NOT-CENTRABLE", "reason": "A direct product of two entries above, not a range." },
+  "source": "A direct product: the non-substrate areal mass above (0.059 kg/m^2) times the annual throughput above (3,500 m^2/yr) is 206.5 kg/yr, rounded to 206.",
+  "status": "DERIVED",
+  "note": "The non-substrate material draw at one deposition unit's own sourced throughput, excluding the substrate (melted regolith, consumed in place, reported at mArealSub instead). Recorded for provenance."
+ },
+  "nFeTarget": {
+  "value": 5.37e-9,
+  "unit": "dimensionless (mass fraction, i.e. ppb by weight)",
+  "band": {
+   "kind": "INTERVAL",
+   "lo": 5.37e-9,
+   "hi": 5.37e-7,
+   "loSource": "A closed carrier-transport derivation against the absorber's own sourced thickness, the strict floor target: no gettering step assumed.",
+   "hiSource": "A deliberately permissive 100x-looser target, carried alongside as a margin allowance, not source-stated.",
+   "rule": "NOT-CENTRABLE",
+   "disposition": "STANDS",
+   "reason": "No source held in this project states a numeric iron tolerance for this device. The strict end is derived from carrier-transport physics against this device's own sourced geometry; the loose end is an explicit margin allowance, not a second measurement."
+  },
+  "source": "A closed chain: interstitial iron in p-type silicon sets a minority-carrier lifetime through a Shockley-Read-Hall recombination relation; requiring the resulting diffusion length to just reach the absorber's own sourced thickness (20 micrometres) and converting through silicon's atomic density gives 5.37 ppb by weight. Two physical constants inside this chain are bracketed from an indexed secondary source rather than printed directly and are disclosed as such inline.",
+  "status": "DERIVED",
+  "note": "Recorded for provenance; sets the purity target the alloy tap's own purification band (already carried elsewhere in this file) is built against, not read again by this fab's own throughput arithmetic."
+ },
+  "mFab": {
+  "value": 400,
+  "unit": "kg",
+  "band": {
+   "kind": "INTERVAL",
+   "lo": 250,
+   "hi": 400,
+   "loSource": "A cost-model input in the same primary, scope undefined.",
+   "hiSource": "The same primary's own stated design ceiling for a complete deposition system: two packages, neither exceeding 200 kg, for the stated production level.",
+   "rule": "NOT-CENTRABLE",
+   "disposition": "STANDS",
+   "reason": "Two figures in the same primary, on two different pages, for what may or may not be the same object. The heavier figure carries a stated scope; the lighter one does not. Taking the heavier, scope-stated figure. This is a design goal, not a built or weighed mass."
+  },
+  "source": "Printed verbatim in the primary as a two-package design ceiling, neither package exceeding 200 kg, for a complete deposition system at the stated production level. A second, lighter, unscoped figure appears elsewhere in the same primary and is recorded rather than adopted.",
+  "status": "SOURCED",
+  "note": "The single figure this project's fab-mass break-even turns on. Recorded for provenance; this model's own fab-mass debit is computed from the productivity rail below (fabProd) and the applied share, not from this per-unit design figure directly."
+ },
+  "fabSaturateN": {
+  "value": 40,
+  "unit": "dimensionless (cohort unit count)",
+  "band": { "kind": "NO_BAND", "rule": "NOT-CENTRABLE", "reason": "No source bounds this figure; it is an order-of-magnitude engineering placement, not a range with two ends." },
+  "source": "No source in this project's holdings states the plant count at which in-situ solar could in principle supply a whole array. 40 is an engineering judgement pending a build-out study, chosen only to give the buildout-ceiling shape (zero at onset, small soon after, converging toward one by the end of the modelled era range) a concrete number to converge against.",
+  "status": "ASSUMPTION",
+  "note": "Consumed as fabCeiling = min(1, N_fab / fabSaturateN), the maturity-indexed cap on the share a reader may apply; it never balances the fab's own physical output against demand, which is a live-dispatch model this layer does not build."
+ },
+  "dutyFab": {
+  "value": 0.3995,
+  "unit": "fraction of calendar time",
+  "band": { "kind": "NO_BAND", "rule": "NOT-CENTRABLE", "reason": "A direct ratio of one sourced figure to the calendar, not a range." },
+  "source": "A direct ratio: 3,500 hours of useful lunar daytime a year (the same sourced figure aAreaYr above is built from) over 8,760 hours in a calendar year, 3500 / 8760 = 0.3995.",
+  "status": "DERIVED",
+  "note": "Carried as its own key rather than through CONFIG.duty or CONFIG.dutyM, the same reason those two already stay separate: this line's own duty describes when solar-thermal forming can run at all, not a water-plant fit residue or a reactor availability estimate, and moving one must not silently move the others."
+ },
+  "eFabPerT": {
+  "value": 833,
+  "unit": "kWh/t",
+  "band": { "kind": "NO_BAND", "rule": "NOT-CENTRABLE", "reason": "A single carried assumption, not a range." },
+  "source": "No source in this project's holdings states a forming energy for this fab's own substrate line. Carried by value, not by reference, from the sinter specific-energy assumption already standing elsewhere in this file (0.833 kWh/kg, 833 kWh/t), a wall-plug figure converting published per-area incident-energy figures at an assumed layer thickness, itself not a measurement.",
+  "status": "ASSUMPTION",
+  "note": "Kept as its own key rather than reading the sinter coefficient directly, the same reason CONFIG.dutyM stays separate from CONFIG.duty: a later re-fit of the construction line's own sinter assumption must not silently move this fab's own substrate throughput. The two agree today by carry, not by derivation."
+ },
+  "ySub": {
+  "value": 1,
+  "unit": "dimensionless (t substrate formed / t regolith processed)",
+  "band": { "kind": "NO_BAND", "rule": "NOT-CENTRABLE", "reason": "No source states a loss for this step; carried at unity rather than as a range." },
+  "source": "No source in this project's holdings states a mass loss for regolith melted and formed in place as a glass substrate, a phase change rather than a chemical separation. Carried at 1.0 (no loss) as an engineering judgement, disclosed as such.",
+  "status": "ASSUMPTION",
+  "note": "This is the fab's own throughput yield, the same role yO2 and yMetal play for the oxygen and metals-production lines, at a figure this step does not source because no separation is being claimed."
+ },
+  "fabProd": {
+  "value": 0.02,
+  "unit": "kWe/(yr*t)",
+  "band": {
+   "kind": "INTERVAL",
+   "lo": 0.02,
+   "hi": 5,
+   "loSource": "Illustrative placeholder, log-spaced the same way this app's other landing-rate rails already are. Not a measurement and not a plausible-range claim: set to sit in the range a rover-scale, mass-dominated, low-throughput fabricator would plausibly occupy before any production learning.",
+   "hiSource": "Same illustrative construction, high end: the range a mature, terrestrial-roll-to-roll-line-scale deposition process would plausibly reach once landed and running at design throughput.",
+   "rule": "NOT-CENTRABLE",
+   "disposition": "CONTROL",
+   "target": 0.02,
+   "reason": "No source in this project's holdings bounds this rail; the reader drags it. This is not a way to avoid sourcing something sourceable: the fab's actual specific mass depends on hardware nobody has built past a paper-design stage."
+  },
+  "source": "No source in this project's holdings bounds this rail; the reader drags it; the range above is this project's own, stated as such and not as a measurement.",
+  "status": "CONTROL",
+  "note": "Two-control design: this rail answers whether the fab technology is worth using at all, independent of era and funding; the in-situ share control below answers how much of the array has actually been built by a given year. Holding this rail fixed on the winning side of its own crossing and sweeping era moves the applied share without moving the mass-payback verdict; the reverse sweep moves the verdict without moving the ceiling. A sourced default landmark for a 400 kg, 3,500 m^2/yr, 2 percent efficient unit computes to 238.2 kWe/(yr*t) by this project's own arithmetic on the sourced and ruled figures above, well outside this illustrative rail; widening the rail to reach it is a follow-up sourcing pass, so the live default sits at the rail's own low end instead."
+ },
+  "insituShare": {
+  "value": 0,
+  "unit": "fraction (0 to 1)",
+  "band": { "kind": "NO_BAND", "rule": "NOT-CENTRABLE", "reason": "USER ALLOCATION CONTROL, of the same class as phi_c, phi_o and phi_m, not a claim about the Moon." },
+  "source": "None required, the same standing as phi_c, phi_o and phi_m. A reader-driven fraction of the solar branch's landed mass to build in-situ rather than land from Earth. The applied value is clamped by the caller, insitu = min(requested share, fabCeiling(era, funding)), where fabCeiling is a maturity-indexed cap on the share a reader may apply, itself a property of the fab's own buildout curve rather than a hard-coded date test.",
+  "status": "CONTROL",
+  "note": "Defaulted to 0 so every rendered figure moves by zero at this default, at every preset this build ships with: the keystone identity this layer is built on. Acts only on the solar branch's landed-mass component, never on the fission branch; at cells whose default mix leaves the solar-branch mass at exactly zero, this control multiplies zero regardless of where it is set. At the earliest phase the buildout ceiling is zero by construction, so the keystone identity holds at every position of this control at that phase too."
  }
 };
   var VALUE = {
@@ -2717,6 +2938,34 @@
 };
   var DERIVATION = {
  "equations": {
+  "mSolarBranch": {
+   "expr": "mSolarBranch = (1 - mix) * fSol * power",
+   "claims": []
+  },
+  "mSolarLanded": {
+   "expr": "mSolarLanded = mSolarBranch - fabOutputRate",
+   "claims": []
+  },
+  "mFab": {
+   "expr": "mFab = mSpecFab * fabOutputRate",
+   "claims": []
+  },
+  "threshFab": {
+   "expr": "threshFab = 1 / (fSol * L)",
+   "claims": []
+  },
+  "fabPayback": {
+   "expr": "fabPayback = fabProd - threshFab",
+   "claims": []
+  },
+  "insitu": {
+   "expr": "insitu = min(insituReq, fabCeiling)",
+   "claims": []
+  },
+  "regolithFabId": {
+   "expr": "Rcap = RcapRem + regolithMetals + regolithMetalProd + regolithFab",
+   "claims": []
+  },
   "eEE": {
    "expr": "e(ice) = E1 / ice",
    "claims": [
@@ -3140,6 +3389,101 @@
    "claim": null,
    "kind": "config",
    "claimNote": "A control of the same class as phi_c and phi_c0, so no ledger claim is owed; the split it belongs to is [[shared-capacity-split]]. It is the one coefficient of the oxygen and alloy line that carries no chip, and it is one of two coefficients on this branch (with phiMetalProd) that assert nothing about the Moon. Water is the residual of this fraction and phi_c together."
+  },
+  "fabProd": {
+   "label": "fab productivity, kWe of array output capacity a year per tonne of fab mass landed",
+   "claim": null,
+   "kind": "config"
+  },
+  "insituShare": {
+   "label": "requested in-situ share of the solar branch's landed mass",
+   "claim": null,
+   "kind": "config"
+  },
+  "dutyFab": {
+   "label": "fab availability, the fraction of the calendar the substrate-forming line can run",
+   "claim": null,
+   "kind": "config"
+  },
+  "eFabPerT": {
+   "label": "fab substrate forming specific energy",
+   "claim": null,
+   "kind": "config"
+  },
+  "ySub": {
+   "label": "fab substrate yield, tonnes of substrate formed per tonne of regolith processed",
+   "claim": null,
+   "kind": "config"
+  },
+  "mArealSub": {
+   "label": "panel substrate areal mass",
+   "claim": null,
+   "kind": "config"
+  },
+  "mArealSi": {
+   "label": "panel silicon layer areal mass",
+   "claim": null,
+   "kind": "config"
+  },
+  "iAM0": {
+   "label": "AM0 solar constant, no atmosphere and no air-mass derate",
+   "claim": null,
+   "kind": "config"
+  },
+  "etaPV": {
+   "label": "in-situ cell conversion efficiency",
+   "claim": null,
+   "kind": "config"
+  },
+  "fabSaturateN": {
+   "label": "cohort unit count at which the buildout ceiling reaches one",
+   "claim": null,
+   "kind": "config"
+  },
+  "mArealNonSub": {
+   "label": "panel non-substrate areal mass (iron contact, silicon, grid, antireflective coating)",
+   "claim": null,
+   "kind": "config"
+  },
+  "mArealTotal": {
+   "label": "full panel areal mass, substrate included",
+   "claim": null,
+   "kind": "config"
+  },
+  "tSub": {
+   "label": "panel substrate thickness",
+   "claim": null,
+   "kind": "config"
+  },
+  "eArealFloor": {
+   "label": "panel deposition energy, sourced sensible-heat floor",
+   "claim": null,
+   "kind": "config"
+  },
+  "eArealTotal": {
+   "label": "panel deposition energy if silicon were reduced from oxide, not read live",
+   "claim": null,
+   "kind": "config"
+  },
+  "aAreaYr": {
+   "label": "one deposition unit's own sourced annual throughput",
+   "claim": null,
+   "kind": "config"
+  },
+  "mLunarYr": {
+   "label": "non-substrate local material drawn per year at that throughput",
+   "claim": null,
+   "kind": "config"
+  },
+  "nFeTarget": {
+   "label": "iron purity target the alloy tap's purification band is built against",
+   "claim": null,
+   "kind": "config"
+  },
+  "mFab": {
+   "label": "sourced per-unit design mass this project's mass break-even turns on",
+   "claim": null,
+   "kind": "config"
   },
   "transmission": {
    "label": "transmission cabling specific mass",
@@ -7811,7 +8155,7 @@
        3/4/5 parse ("Oleson's point margined at 0.2511500003355, giving b =
        -0.15951304812569203" and "so the fit's shape matches what this sentence already
        claimed"), survives character for character. See both files for the reasoning. */
-    __pin: "e6847a4e"
+    __pin: "029528ed"
   };
 
   root.KNOB_DATA = KNOB_DATA;
@@ -8408,6 +8752,25 @@ function curveCumulative(rate, era){
   let s = 0; for (let y = CURVE_EPOCH; y <= Number(era); y++) s += rate(y);
   return s;
 }
+/* THE FAB'S OWN BUILDOUT CURVE, a sibling of curveCumulative rather than a branch inside it.
+   FAB_EPOCH is a plain constant beside CURVE_EPOCH, not a CONFIG coefficient, because it names
+   a design decision rather than a measured quantity, the same standing CURVE_EPOCH itself
+   already has. At an era before FAB_EPOCH, fabCumulative's own summation loop never executes
+   and returns exactly 0 for every funding tier, a property of a for loop whose start exceeds
+   its end rather than a branch asserting it. FAB_RATE is a flat annual cohort-landing rate per
+   funding tier; no source in this project's holdings bounds it, disclosed the same way
+   fabSaturateN is disclosed, and it is not read by model() directly, only through fabCeiling. */
+const FAB_EPOCH = 2040;
+const FAB_RATE = { low: 1, med: 2, high: 4 };
+function fabCumulative(rate, era){
+  let s = 0; for (let y = FAB_EPOCH; y <= Number(era); y++) s += rate(y);
+  return s;
+}
+function fabCeiling(era, funding){
+  const r = FAB_RATE[funding] || 0;
+  const N = fabCumulative(function(){ return r; }, era);
+  return Math.min(1, N / CONFIG.fabSaturateN.value);
+}
 function curveStanding(rate, era, L){
   const E = Number(era); let s = 0;
   for (let y = CURVE_EPOCH; y <= E; y++){ if ((E - y) < L) s += rate(y); }
@@ -8750,12 +9113,80 @@ function model(a){
   const siliconHigh = CONFIG.ySiRelax.value  * siProcessed;        // t/yr purified, relaxed target, uncosted potential
   const powerSi     = siliconLow * CONFIG.eSiPurify.value * 1000 / (H * dutyM); // kWe the costed (low) end draws
 
+  /* ---- IN-SITU MANUFACTURED SOLAR, the panel's own line ------------------------------------
+     Two reader controls feed this block: the applied in-situ share (insitu, already clamped by
+     the caller against the buildout ceiling before this call, the identical pattern phi_o and
+     phi_m already follow) and the fab-productivity rail (fabProd, kWe of array output capacity
+     a year per tonne of fab mass landed, a rung the reader drags because no source in this
+     project's holdings bounds it). insituReq and fabCeiling are also taken as already-resolved
+     arguments and echoed back, never recomputed here, so the published clamp equation and the
+     rendered figures read the same numbers.
+
+     THE SOLAR BRANCH, NAMED. mSolarBranch is today's landed solar-branch mass, the same
+     (1-mixEff)*fSolEff*power term mPwr already carries when fission is off or the mix is not 1.
+     At insitu = 0, kWeRequested is exactly zero and Math.min against two non-negative ceilings
+     is exactly zero, so every new field below is exactly zero without a separate zero-guard,
+     the same argument the mix arm already makes for itself.
+
+     THE SUBSTRATE IS THE FAB'S OWN LINE, run in the same tier as the oxygen and metals-production
+     lines, against the full power and Rcap, not their remainder. It is regolith melted and
+     formed in place, new local-material consumption nothing else in this model accounts for,
+     so it earns its own throughput ceiling exactly the way the oxygen line already earns one.
+
+     THE SILICON IS NOT A NEW DRAW. It is already purified out of the alloy tap above
+     (siliconLow), at a regolith and power cost this model already charged in full before this
+     block runs. This block only checks whether that existing supply covers what the
+     manufactured area needs; it never re-charges the purification energy and never opens a
+     second silicon product.
+
+     FAB BINDING IS THE LESSER OF THREE, reported by name: the request the applied share
+     implies, the substrate ceiling, and the silicon ceiling. On this project's own numbers
+     silicon runs orders of magnitude above demand and is not expected to bind; that is a
+     finding this block surfaces rather than a branch it optimises away, and a state where it
+     does bind is reported honestly rather than hidden. */
+  const mSolarBranch = (1 - mixEff) * fSolEff * power;
+  const insituReq = (a.insituReq != null) ? Math.max(0, Math.min(1, a.insituReq)) : 0;
+  const fabCeil = (a.fabCeiling != null) ? Math.max(0, Math.min(1, a.fabCeiling)) : 0;
+  const insitu = (a.insitu != null) ? Math.max(0, Math.min(1, a.insitu)) : 0;
+  const fabProdEff = (a.fabProd != null) ? a.fabProd : CONFIG.fabProd.value;
+  const mSpecFab = (fabProdEff > 0) ? 1 / fabProdEff : Infinity;
+
+  const dutyFab = CONFIG.dutyFab.value, eFabPerT = CONFIG.eFabPerT.value, ySub = CONFIG.ySub.value;
+  const aPerKWe = (CONFIG.iAM0.value * CONFIG.etaPV.value > 0) ? 1000 / (CONFIG.iAM0.value * CONFIG.etaPV.value) : 0; // m^2/kWe
+  const mArealSubTPerKWe = CONFIG.mArealSub.value * aPerKWe / 1e6; // t substrate / kWe
+  const mArealSiTPerKWe  = CONFIG.mArealSi.value  * aPerKWe / 1e6; // t Si / kWe
+
+  const FpowerFullSub = power * H * dutyFab / eFabPerT;   // t substrate/yr if all power -> substrate melt
+  const FthrFullSub   = ySub * Rcap;                       // t substrate/yr if all plant -> substrate
+  const substrateFull = Math.min(FpowerFullSub, FthrFullSub);
+  const kWeFromSubstrate = (mArealSubTPerKWe > 0) ? substrateFull / mArealSubTPerKWe : 0;
+  const kWeFromSilicon   = (mArealSiTPerKWe  > 0) ? siliconLow    / mArealSiTPerKWe  : 0;
+
+  const fabOutputRateReq = insitu * mSolarBranch / VALUE.L.value; // t/yr array-equivalent the applied share requests
+  const kWeRequested = (fSolEff > 0) ? fabOutputRateReq / fSolEff : 0;
+  const kWeAchieved = Math.min(kWeRequested, kWeFromSubstrate, kWeFromSilicon);
+  const FAB_BIND_EPS = 1e-9;
+  const fabBinding = (kWeAchieved + FAB_BIND_EPS < kWeRequested)
+    ? ((kWeFromSubstrate <= kWeFromSilicon) ? 'substrate' : 'silicon')
+    : 'request';
+
+  const fabOutputRate = kWeAchieved * fSolEff;             // t/yr array-equivalent actually avoided
+  const mSolarLanded = mSolarBranch - fabOutputRate;       // what remains landed
+  const mFab = mSpecFab * fabOutputRate;                   // the fab's own landed mass this call
+  const panelFeedstock = kWeAchieved * mArealSubTPerKWe;   // t/yr substrate actually processed
+  const regolithFab = (ySub > 0) ? panelFeedstock / ySub : 0;
+  const powerFab = panelFeedstock * eFabPerT / (H * dutyFab);
+
+  const threshFab = 1 / (fSolEff * VALUE.L.value);         // the live crossing, never typed
+  const fabPayback = fabProdEff - threshFab;               // sign is the mass-payback verdict
+  const fabNetPositive = ((1 / fSolEff) * H * duty * VALUE.L.value) > eFabPerT; // energy-payback sign
+
   // What the four lines leave. The dedicated line and the metals-production line are each
   // bounded by their own entitlement, proved above; aluminium and silicon draw no regolith of
   // their own and their power draw is clamped against zero because neither carries that same
   // formal bound.
-  const powerRem = Math.max(0, power - powerMetals - powerMetalProd - powerAl - powerSi); // kWe left to water and construction
-  const RcapRem  = Rcap  - regolithMetals - regolithMetalProd; // t regolith/yr left to them
+  const powerRem = Math.max(0, power - powerMetals - powerMetalProd - powerAl - powerSi - powerFab); // kWe left to water and construction
+  const RcapRem  = Rcap  - regolithMetals - regolithMetalProd - regolithFab; // t regolith/yr left to them
 
   // The pre-branch model, unaltered, on the remainder (E1', E7)
   const Wpower = powerRem * H * duty / eEE;            // power-limited water
@@ -8871,6 +9302,17 @@ function model(a){
        draw of their own; their power draw already left powerRem before water and construction
        ran on the remainder. */
     aluminium, siliconLow, siliconHigh, powerAl, powerSi,
+    /* In-situ manufactured solar: the panel's own line, computed above. mSolarBranch and
+       mSolarLanded are the un-manufactured and still-manufactured shares of today's solar
+       branch mass; mFab is the fab's own landed mass this call; insitu, insituReq and
+       fabCeiling are the applied share, the raw request and the buildout ceiling the caller
+       already resolved, echoed back rather than recomputed; fabProd and mSpecFab are the
+       productivity rail's live value and its reciprocal; threshFab is the live mass break-even
+       crossing and fabPayback its signed margin; fabNetPositive is the energy-payback sign;
+       fabBinding names which of the three ceilings actually bound this call's output. */
+    mSolarBranch, mSolarLanded, mFab, insitu, insituReq, fabCeiling: fabCeil, fabProd: fabProdEff,
+    mSpecFab, fabOutputRate, threshFab, fabPayback, fabNetPositive, fabBinding,
+    kWeRequested, kWeFromSubstrate, kWeFromSilicon, panelFeedstock, regolithFab, powerFab,
     /* Step 56 install 6. The fission/solar MIX is now returned, because the reactor-count
        sentence on the Scenario tab gated on `fission` alone and never read it: at mix 0 the
        power system is entirely solar and that sentence still claimed fission power. A
@@ -11061,7 +11503,11 @@ function runTests(fileText){
                     'binding','regime','feasible',
                     'powerRem','RcapRem','powerMetals',
                     /* Step 63: derived off `alloy` above, so phi_o moving alloy legitimately moves these too. */
-                    'aluminium','siliconLow','siliconHigh','powerAl','powerSi'];
+                    'aluminium','siliconLow','siliconHigh','powerAl','powerSi',
+                    /* In-situ manufactured solar: kWeFromSilicon reads siliconLow directly, so phi_o
+                       moving siliconLow legitimately moves this ceiling too, at insitu = 0 where the
+                       rest of the new block stays exactly zero regardless. */
+                    'kWeFromSilicon'];
     const why = []; let pts = 0, invMin = Infinity, swept = 0;
     for (const c of CELLS){
       for (const pc of [0, 0.3, 0.6]){
@@ -19325,7 +19771,7 @@ let state = { ice:snapIdx('ice',5), power:0, mass:0, phi_c:0, phi_o:snapIdx('phi
                  a free dial like landed_cost; no preset and no era touches it (applyPreset() does
                  not reset it, matching landed_cost's own "free dial" treatment). */
               chw:snapIdx('chw', KNOB_DATA.C_HW.default),
-              funding:'med', phase:'2055', fission:true, mix:1 };/* THE DRAWN CURVE JOINS `state` AS A READ-ONLY DERIVED KEY. It is NON-ENUMERABLE on purpose:
+              funding:'med', phase:'2055', fission:true, mix:1, insituReq:0, fabProd:0.02 };/* THE DRAWN CURVE JOINS `state` AS A READ-ONLY DERIVED KEY. It is NON-ENUMERABLE on purpose:
    runAbstractTests() snapshots the state with JSON.parse(JSON.stringify(state)) and restores it
    with Object.keys(save).forEach, and viewFingerprint() stringifies the same object, so an
    enumerable derived key would be copied into a snapshot that then tried to write it back through
@@ -19725,6 +20171,8 @@ const advBtn=document.getElementById('advToggle'), advPanel=document.getElementB
 advBtn.addEventListener('click', ()=>{ openAdvanced(advPanel.hidden); });
 
 document.getElementById('k_mix').addEventListener('input', e=>{ state.mix=parseFloat(e.target.value); render(); });
+document.getElementById('k_fabprod').addEventListener('input', e=>{ state.fabProd=parseFloat(e.target.value); render(); });
+document.getElementById('k_insitu').addEventListener('input', e=>{ state.insituReq=parseFloat(e.target.value); render(); });
 
 /* Solar/fission kg/kWe overrides. Ephemeral UI state, threaded end to end
    exactly like mix: into model() as fSolOvr/fFisOvr (t/kWe, CONFIG's own
@@ -20233,11 +20681,18 @@ function step60RenderValueTab(m, fs){
 }
 function render(){
   const fs=fleetNow();
+  /* THE CEILING AND THE CLAMP RUN HERE, NOT INSIDE model(), per this layer's own ruling: the
+     applied share is the lesser of the request and the buildout ceiling, and model() takes only
+     already-resolved explicit arguments, reading nothing external, the same standing rule
+     fleetNow()'s own resolution already follows for standing power and mass. */
+  const fabCeilNow = fabCeiling(state.phase, state.funding);
+  const insituAppliedNow = Math.min(state.insituReq, fabCeilNow);
   const m=model({ice:knobVal('ice'), power:fs.power, mass:fs.mass,
                  fission:state.fission, funding:state.funding, phase:state.phase,
                  phi_c:knobVal('phi_c'), phi_o:knobVal('phi_o'), mix:state.mix,
                  fSolOvr:state.solOvr/1000, fFisOvr:state.fisOvr/1000,
-                 phi_c0:(state.phiC0Ovr!=null?state.phiC0Ovr:CONFIG.phiC0.value)});
+                 phi_c0:(state.phiC0Ovr!=null?state.phiC0Ovr:CONFIG.phiC0.value),
+                 fabProd:state.fabProd, insituReq:state.insituReq, fabCeiling:fabCeilNow, insitu:insituAppliedNow});
 
   ['ice','power','mass'].forEach(k=>{ syncSliderRange(document.getElementById('k_'+k), k);
     document.getElementById('v_'+k).textContent = (k==='ice') ? knobText(k) : effectiveRateText(k); });
@@ -20264,6 +20719,28 @@ function render(){
 
   const phiC0Applied = (state.phiC0Ovr!=null?state.phiC0Ovr:CONFIG.phiC0.value);
   document.getElementById('v_phic0').textContent = phiC0Applied.toFixed(2)+(state.phiC0Ovr==null?' (live default, not dragged)':'');
+
+  /* IN-SITU MANUFACTURED SOLAR: the fab-productivity rail, its crossing marker, its verdict
+     chip, and the in-situ share control beside the fission chip. Every number here is read off
+     m and state at this render() call, never computed once and cached. */
+  document.getElementById('v_fabprod').textContent = state.fabProd.toFixed(2) + ' kWe/(yr·t)';
+  const fabCrossingLive = 1 / (m.fSol * VALUE.L.value);
+  const fabRail = document.getElementById('k_fabprod');
+  const fabMin = parseFloat(fabRail.min), fabMax = parseFloat(fabRail.max);
+  const fabMk = document.getElementById('mk_fabcross');
+  if (fabMk && fabMax > fabMin) fabMk.style.left = (Math.max(0, Math.min(1, (fabCrossingLive - fabMin) / (fabMax - fabMin))) * 100) + '%';
+  document.getElementById('capFabProd').textContent =
+    'Break-even at ' + fabCrossingLive.toFixed(4) + ' kWe/(yr·t); left of the mark costs more launched mass than landing the array over its service life, right of the mark costs less.';
+  document.getElementById('capFabEnergy').textContent = m.fabNetPositive
+    ? 'Manufacturing energy is recouped by the array’s own output within its service life.'
+    : 'Manufacturing energy is not recouped by the array’s own output within its service life.';
+  document.getElementById('fabpay_txt').textContent = (m.fabPayback > 0) ? 'positive' : 'negative';
+
+  document.getElementById('k_insitu').value = state.insituReq;
+  document.getElementById('v_insitu').textContent = (state.insituReq*100).toFixed(0) + '%';
+  document.getElementById('capInsitu').textContent =
+    'applied ' + (m.insitu*100).toFixed(1) + '% of requested ' + (state.insituReq*100).toFixed(0) +
+    '%, ceiling ' + (fabCeilNow*100).toFixed(1) + '% this era · binding: ' + m.fabBinding;
 
   document.querySelectorAll('#phase button[data-p]').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.p===state.phase)));
   document.getElementById('fis_chip').setAttribute('aria-pressed', String(state.fission));
