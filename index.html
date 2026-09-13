@@ -1339,7 +1339,7 @@
   "note": "Reported THERMAL capture runs 0.75 to 0.9, with Linne 2020 assuming 0.75 at its own operating point (slide 11). Those figures are excluded from the band and the exclusion is stated rather than silent: thermal capture alone is a narrower scope than the extract-capture-liquefy chain this coefficient stands for in the model. The retired 1.00 sat above every reported figure on either scope AND IT WAS MASKING THE THROUGHPUT COEFFICIENT. kExc stood at 4 against the two rates on its own denominator, 43.93 and 92.31, while this coefficient stood at its own favourable end, and the two errors partly cancelled, which is why the model produced plausible water for the life of this project. Against 1.00 this value is a 36.5 percent derate on every throughput-limited water figure; against the 0.515 that stood here for one day it is a 23.3 percent rise. WHICH FIGURES IT REACHES DEPENDS ON THE OTHER COEFFICIENT: this one appears in the throughput ceiling and never in the power ceiling, and since kExc moved on 2026-09-08 every one of the nine preset cells is held by its power ceiling, so this coefficient moves none of them. It binds off the presets, at every state where the plant out-runs the power landed beside it."
  },
  "fFis": {
-  "value": 0.16537,
+  "value": 0.15,
   "unit": "t / kWe",
   "band": {
    "kind": "INTERVAL",
@@ -1347,14 +1347,14 @@
    "hi": 0.25115,
    "loSource": "The August 2025 fission directive's requirement ceiling: 15 t of lander capability over 100 kWe.",
    "hiSource": "Oleson 2022's measured Master Equipment List mass at 40 kWe, the only component-level fission power-system design in the record.",
-   "rule": "GEOMETRIC",
-   "disposition": "MEDIAN",
-   "target": 0.16537,
-   "reason": "The four FFIS_LANDMARKS ends are a lander delivery allocation and a measured design at a different power level, so the landmark span itself is not centrable. The live value is a full-precision OLS log-log fit of three design points evaluated at the 100 kWe anchor, which places it at the geometric centre of the only commensurable evidence there is, the three Colozza-and-Oleson points. Centring on the fit's stated residuals would double-count, because a least-squares fit is already the centring of its own residuals."
+   "rule": "SPECIFICATION",
+   "disposition": "MOVED",
+   "target": 0.15,
+   "reason": "Ruled by Quinn, 2026-09-12 (ticket D04 ACCEPT): the fit that placed the live value at the geometric centre of Colozza's and Oleson's own reactor-design-study masses is RETIRED as the live coefficient. The NASA Fission Surface Power directive's own two numbers govern instead: at most 15 t landed, delivering at least 100 kWe: 15 t divided by 100 kWe equals 0.15 t/kWe, applied FLAT at every power level. 0.25115 (Oleson's margined design point) remains the band's upper landmark because it is still the heaviest of the reactor-design-study figures the retired fit was built from, not because the model still consults it. The four FFIS_LANDMARKS ends were never centrable as one interval, which is why the prior disposition read MEDIAN off the fit rather than off this band; this disposition reads MOVED because a ruling, not a centring rule, put the live value at the band's own floor-derived end. See CONFIG.fFis.source for the full ruling and the retired fit's own audit trail, kept on the record and superseded."
   },
-  "source": "NASA Fission Surface Power directive, August 4 2025, page 2: \"Minimum 100kWe power output\" together with \"Assumed use of a heavy class lander (up to 15 metric tons mass available)\", giving 15 t / 100 kWe = 0.15 t/kWe, or 6.67 W/kg. REQUIREMENT-derived on unbuilt hardware, and the 15 t is the lander delivery capability rather than a power-system allocation, so 6.67 W/kg is a floor. An earlier \"40 kWe class under 6 t\" basis was recorded here and is withdrawn: it appears nowhere in the directive and no held source prints it. Both routes give 0.15, which is why the discrepancy went unnoticed. Live value is 0.16537 t/kWe, the power-law anchor at 100 kWe from one fully-resolved recipe, stated once and unambiguously: carrying Oleson's own 1.34918077 growth-and-margin multiplier (exact ratio 10,046/7,446) onto HIS OWN design point, and onto nothing else, 0.18615 becoming 0.25115, before any regression runs; then one full-precision OLS log-log power-law refit of the three Colozza-and-Oleson design points on that basis (Colozza 1 kWe 0.406 t/kWe, Colozza 10 kWe 0.1545 t/kWe, Oleson 40 kWe unmargined 0.18615 t/kWe, margined to 0.25115 immediately above), evaluated at the 100 kWe directive anchor; the anchor value IS that fit's own output at 100 kWe, not a second, separate scaling of it. One regression, one anchor, one exponent, and the multiplier enters exactly once, before the fit runs, never after it. The multiplier is Oleson's own allowance on his own design point, so it belongs on that point before any regression runs, not on the fit's output afterward. Oleson's point margined at 0.2511500003355, giving b = -0.15951304812569203; the SAME fit evaluated at the SAME 100 kWe anchor gives 0.16537022251197703 t/kWe, so the fit's shape matches what this sentence already claimed: one regression, one anchor, one exponent, Oleson's point margined once, before the fit runs, not twice and not after. THE 100 kWe ANCHOR IS THE DIRECTIVE'S QUANTUM AND IT IS NOT THIS APP'S OPERATING SCALE. Measured on the shipped build, standing power at the nine preset cells runs 10, 505, 3,091, 10, 300, 927, 10, 931 and 7,394 kWe, so one cell of the nine sits within a factor of five of 100. The fit is a power law, so holding it flat at 100 kWe oversized the power system at every cell above that rail: the same fit reads 95.7 kg/kWe at 3,091 kWe and 79.3 at 10,000 kWe, against the 165.37 kg/kWe the model applied at all of them while the anchor was frozen. The measured consequence, while frozen: on the model's own inputs all four published lunar ISRU architectures this project holds, Kornuta 2019, Sowers 2019, Metzger 2021 and Linne 2020, returned zero water and bound on power-system mass. model() now evaluates the same fit at the standing power actually being sized (fFisAt(), a power law anchored exactly at this entry's own 0.16537 t/kWe at 100 kWe and moving as CONFIG.fFis.source's own three design points move beyond it). Kornuta's 2,800 kWe power system, run on the model's own inputs, computed to 547 t against a 60 t plant target at the frozen coefficient and computes to 356 t unfrozen: closer to the published plant by a factor of 1.5, not closed, and that residual gap is now a plant-design question this coefficient cannot answer alone, named rather than absorbed into a further coefficient move. Unfreezing it does retire the degree-one homogeneity the fleet layer assumed: the fleet check now verifies what survives (every field downstream of the water ceiling, exactly, wherever the state stays power-bound) rather than asserting the property held everywhere, and its closed form is now two figures, one at the 100 kWe reference and one at the fleet's own service-life plateau, not one. TRAP3-01B-LIVE is unaffected: the reactor-count ban it enforces is a different property from the specific-mass fit, and it stayed green through this change once the fit's own arithmetic was written to route around TRAP3-01B-LIVE's pattern rather than through it, the same discipline every other coefficient in this table already follows. The power-rail audit returned SOURCE_BOUNDED for Agency Led Baseline at 2040 and The Commercial Break at 2040, which is the anchor's only support and covers two cells of nine. 0.15 remains the directive's own requirement-ceiling figure, stated for what it is below, not the live coefficient. Fission-requirement programme-currency addition: two newer primaries confirm the 100 kWe / 15 t / Q1 FY30 requirement survived a change of administrator and the 2026 restructuring that stood up the Space Reactor Office. NASA's \"America Underway in Space on Nuclear Power\" fact sheet (March 2026) restates that LR-1 lands on the Moon in 2030. Administrator Jared Isaacman's workforce memo (May 22, 2026) restates the 2030 LR-1 readiness target and reports an integrated SR-1/LR-1 program plan due within 60 days. Neither newer primary prints an LR-1 power or mass figure; neither corroborates the 100 kWe quantum itself, which still rests on the 2025 directive alone. The \"2032-35\" realistic-readiness window used elsewhere in this record is the study's own risk adjustment, built from the AFPP commercial-procurement deactivation (2026-03-26), the absence of a flight contractor, and funding running below the program office's own estimate; no primary source states 2032-35, and it is not presented as if one does. See [[fission-specific-power]].",
-  "status": "SOURCED (fitted, D03 ACCEPT)",
-  "note": "The two Advanced sliders that override this coefficient and its solar sibling are the model surface of [[power-mass-break]], and FFIS_LANDMARKS carries the four landmark values they span. No fixed base adder (0.16537, the anchor value fFisAt() varies from, already includes the unit). D03 supersedes D01's single-constant finding."
+  "source": "The specification is two numbers, stated separately. NASA Fission Surface Power directive, August 4 2025, page 2: \"Minimum 100kWe power output\" and \"Assumed use of a heavy class lander (up to 15 metric tons mass available)\". 100 kWe is a FLOOR on delivered power; 15 t is a CEILING on landed mass. Their ratio, 15 t / 100 kWe = 0.15 t/kWe, or 6.67 W/kg, is what those two numbers imply together, and it is a ceiling on landed efficiency in a power context: LOWER PERFORMS BETTER. The fitted power law this coefficient carried through D03 is RETIRED as the live value. The model now applies 0.15 t/kWe FLAT at every standing power level; fFisAt() returns CONFIG.fFis.value unconditionally and no longer varies with power. Every number this model carried below 0.15 came from a reactor design study, which is to say from parties whose business is selling reactors, and none of it is flight hardware; the largest reactor ever ground-tested (KRUSTY) validated the physics at about 1 kWe electric. The government specification governs because this is a NASA programme against a NASA requirement, and the requirement is what a contractor is held to. An earlier \"40 kWe class under 6 t\" basis was recorded here and is withdrawn: it appears nowhere in the directive and no held source prints it. Both routes give 0.15, which is why the discrepancy went unnoticed. THE D03 AUDIT IS SUPERSEDED FOR THE LIVE VALUE AND KEPT ON THE RECORD, IN FULL, BELOW: the fit that stood as the live coefficient from D03 until this ruling was the power-law anchor at 100 kWe from one fully-resolved recipe, stated once and unambiguously: carrying Oleson's own 1.34918077 growth-and-margin multiplier (exact ratio 10,046/7,446) onto HIS OWN design point, and onto nothing else, 0.18615 becoming 0.25115, before any regression runs; then one full-precision OLS log-log power-law refit of the three Colozza-and-Oleson design points on that basis (Colozza 1 kWe 0.406 t/kWe, Colozza 10 kWe 0.1545 t/kWe, Oleson 40 kWe unmargined 0.18615 t/kWe, margined to 0.25115 immediately above), evaluated at the 100 kWe directive anchor; the anchor value IS that fit's own output at 100 kWe, not a second, separate scaling of it. One regression, one anchor, one exponent, and the multiplier enters exactly once, before the fit runs, never after it. The multiplier is Oleson's own allowance on his own design point, so it belongs on that point before any regression runs, not on the fit's output afterward. Oleson's point margined at 0.2511500003355, giving b = -0.15951304812569203; the SAME fit evaluated at the SAME 100 kWe anchor gives 0.16537022251197703 t/kWe, so the fit's shape matches what this sentence already claimed: one regression, one anchor, one exponent, Oleson's point margined once, before the fit ran, not twice and not after. THE 100 kWe ANCHOR WAS THE DIRECTIVE'S QUANTUM AND WAS NOT THIS APP'S OPERATING SCALE. Measured on the D03 build, standing power at the nine preset cells ran 10, 505, 3,091, 10, 300, 927, 10, 931 and 7,394 kWe, so one cell of the nine sat within a factor of five of 100. The fit was a power law, so holding it flat at 100 kWe oversized the power system at every cell above that rail: the same fit read 95.7 kg/kWe at 3,091 kWe and 79.3 at 10,000 kWe, against the 165.37 kg/kWe the model applied at all of them while the anchor was frozen. The measured consequence, while frozen: on the model's own inputs all four published lunar ISRU architectures this project holds, Kornuta 2019, Sowers 2019, Metzger 2021 and Linne 2020, returned zero water and bound on power-system mass. model() then unfroze the same fit to evaluate it at the standing power actually being sized (fFisAt(), a power law anchored exactly at the D03 entry's own 0.16537 t/kWe at 100 kWe and moving as this fit's three design points moved beyond it). Kornuta's 2,800 kWe power system, run on the model's own inputs, computed to 547 t against a 60 t plant target at the frozen coefficient and computed to 356 t unfrozen: closer to the published plant by a factor of 1.5, not closed, and that residual gap was a plant-design question this coefficient could not answer alone, named rather than absorbed into a further coefficient move. The power-rail audit returned SOURCE_BOUNDED for Agency Led Baseline at 2040 and The Commercial Break at 2040, which was the anchor's only support and covered two cells of nine. THIS RULING RETIRES THAT FIT AS THE LIVE COEFFICIENT: fFisAt()'s un-freezing, and the degree-one-homogeneity consequence CONFIG.fFis.source used to name here, is retired with the fit that produced it. 0.15 is no longer merely stated below for what it is and left aside: it is the live coefficient, by ruling, and the app-versus-directive agreement this now reintroduces is the specification governing rather than a coincidence, unlike the pre-D03 tautology this project already found and rejected once for a different reason (CONFIG.fFis.value was then defined AS the directive arithmetic; it is now defined as the directive arithmetic again, this time because Quinn ruled that a fitted number from vendor design studies does not outrank a government requirement, not because nobody had fit one yet). TRAP3-01B-LIVE is unaffected: the reactor-count ban it enforces is a different property from the specific-mass value, and it stays green through this change, the same discipline every other coefficient in this table already follows. Fission-requirement programme-currency addition: two newer primaries confirm the 100 kWe / 15 t / Q1 FY30 requirement survived a change of administrator and the 2026 restructuring that stood up the Space Reactor Office. NASA's \"America Underway in Space on Nuclear Power\" fact sheet (March 2026) restates that LR-1 lands on the Moon in 2030. Administrator Jared Isaacman's workforce memo (May 22, 2026) restates the 2030 LR-1 readiness target and reports an integrated SR-1/LR-1 program plan due within 60 days. Neither newer primary prints an LR-1 power or mass figure; neither corroborates the 100 kWe quantum itself, which still rests on the 2025 directive alone. The \"2032-35\" realistic-readiness window used elsewhere in this record is the study's own risk adjustment, built from the AFPP commercial-procurement deactivation (2026-03-26), the absence of a flight contractor, and funding running below the program office's own estimate; no primary source states 2032-35, and it is not presented as if one does. See [[fission-specific-power]].",
+  "status": "SOURCED (directive ratio, flat; supersedes D03's fitted value, audit kept)",
+  "note": "The two Advanced sliders that override this coefficient and its solar sibling are the model surface of [[power-mass-break]], and FFIS_LANDMARKS carries the four landmark values they span. No fixed base adder (0.15, the flat value fFisAt() now returns unconditionally, already includes the unit). Ruled by Quinn, 2026-09-12 (ticket D04 ACCEPT): supersedes D03's fitted single-constant finding and the fFisAt() power-law un-freezing built on it, kept on the record at CONFIG.fFis.source."
  },
  "fSol": {
   "value": 0.2673,
@@ -1372,7 +1372,7 @@
   },
   "source": "Geometric centre of the continuous solar-plus-storage specific-mass range this project holds for an illuminated ridge, 2 to 7 W/kg (Colozza 2020; Pappa 2021; Glaser 2014), which inverts to 0.143 to 0.5 t/kWe. The adopted 0.2673 t/kWe is 3.742 W/kg. The band is stated in W/kg and consumed in t/kWe, reciprocal units, so the geometric centre is the one that reads as the same number from either end. The retired 0.05 t/kWe was a CLPS-lander payload allocation: one Griffin-class lander delivers about 500 to 625 kg to the surface and a VSAT-class deployable array targets about 154 kg, so a 10 kWe polar solar plant fits inside roughly 500 kg landed. Sited at a polar peak-of-eternal-light ridge (Glaser 2014; Speyerer and Robinson 2013), where storage covers only periodic shadowing rather than the 354 hour night. See [[solar-mass-allocation]].",
   "status": "ASSUMPTION (this project's geometric middle of an illuminated-ridge specific-mass band of 0.143 to 0.5 t/kWe, inverted from a W/kg range no held source prints, and taken geometrically because the band is stated in the reciprocal unit; argument A1 inside [[solar-mass-allocation]] is live and holds the band untraceable)",
-  "note": "The model consumes this coefficient at M_power = fSol x power, which is a specific mass, so the value has to be a specific mass. The retired 0.05 was a landed-payload allocation and sat below the whole illuminated-ridge range this project holds, which [[solar-mass-allocation]] stated in its own words. THE RUNG IS ASSUMPTION AND NOT DERIVED: the legend defines DERIVED as this project's arithmetic on a source's own printed figures, the geometric centring is this project's arithmetic, and the figures it runs on are not printed by any source held here. THE DIRECTION OF THE FISSION-SOLAR COMPARISON REVERSES WITH THIS MOVE: at 0.2673 t/kWe the solar power system is HEAVIER than the fission anchor at 0.16537 t/kWe, by 1.6164 times on the bare coefficients and 1.5217 times once the shared 3 km transmission term is added to both. Choosing solar now costs mining mass rather than freeing it, which is the opposite of what this file said until 2026-09-08. It still rests on siting the plant at an illuminated ridge; a permanently shadowed site needs night-survival storage and is far heavier again."
+  "note": "The model consumes this coefficient at M_power = fSol x power, which is a specific mass, so the value has to be a specific mass. The retired 0.05 was a landed-payload allocation and sat below the whole illuminated-ridge range this project holds, which [[solar-mass-allocation]] stated in its own words. THE RUNG IS ASSUMPTION AND NOT DERIVED: the legend defines DERIVED as this project's arithmetic on a source's own printed figures, the geometric centring is this project's arithmetic, and the figures it runs on are not printed by any source held here. THE DIRECTION OF THE FISSION-SOLAR COMPARISON REVERSES WITH THIS MOVE: at 0.2673 t/kWe the solar power system is HEAVIER than the fission value, fixed flat at 0.15 t/kWe by Quinn's ruling of 2026-09-12 (ticket D04 ACCEPT, superseding the D03 fitted 0.16537 t/kWe), by 1.782 times on the bare coefficients and 1.652 times once the shared 3 km transmission term is added to both. Choosing solar now costs mining mass rather than freeing it, which is the opposite of what this file said until 2026-09-08. It still rests on siting the plant at an illuminated ridge; a permanently shadowed site needs night-survival storage and is far heavier again."
  },
  "kExc": {
   "value": 63.68,
@@ -2034,7 +2034,7 @@
  },
  "power": {
   "fission-specific-power": {
-   "source": "Two distinct figures apply here. The model's own live coefficient runs fission power-system specific mass at 6.05 W/kg (fFis = 0.16537 t/kWe), a fitted, margined extrapolation of Colozza's and Oleson's own design masses, anchored at 100 kWe. The separate 6.5 to 6.7 W/kg band is not the model's figure; it spans the 2025 Fission Surface Power directive's own 6.67 W/kg requirement arithmetic (100,000 We within a 15,000 kg landed allocation) and Colozza 2020's 6.47 W/kg component-level 10-kWe design point, both DESIGN and REQUIREMENT figures on hardware that has not flown. KRUSTY ground-tested the physics at about 1 kWe electric. Not flight hardware.",
+   "source": "One figure applies here now. The model's own live coefficient runs fission power-system specific mass at 6.67 W/kg (fFis = 0.15 t/kWe, flat at every power level), the 2025 Fission Surface Power directive's own requirement arithmetic (100,000 We within a 15,000 kg landed allocation), applied directly. Colozza 2020's 6.47 W/kg component-level 10-kWe design point is a DESIGN figure on hardware that has not flown, 3.0 percent lighter than the requirement. KRUSTY ground-tested the physics at about 1 kWe electric. Not flight hardware. A fitted, margined extrapolation of Colozza's and Oleson's own design masses stood as the live coefficient at 6.05 W/kg (fFis = 0.16537 t/kWe) from ticket D03 until this ruling retired it; that audit is kept on the record at CONFIG.fFis.source and DERIVATION.coeff.fFis.claimNote.",
    "status": "VERIFIED",
    "tier": "VERIFIED",
    "counterCase": "A3 (the constant is scale-dependent; the app's single value is the large-system value). Colozza Table 22 shows specific power rising from 2.46 W/kg at 1 kWe to 6.47 W/kg at 10 kWe because shield and balance-of-plant are a large near-fixed base. A single 6.67 W/kg constant is optimistic at pilot scale and realistic only once the reactor is large. This feeds the mass-model claim below."
@@ -2340,7 +2340,7 @@
    "ruled": "Step 38 reconciliation, 2026-08-23"
   },
   "iron-production-energy": {
-   "source": "Molten regolith electrolysis reduces a lunar melt's oxides in a fixed order set by decomposition potential (Guerrero-Gonzalez and Zabel's Fig. 5, digitized 305 to 3000 K; at 1223 K: FeO 0.95 V, SiO2 1.82 V, TiO2 1.83 V, Al2O3 2.19 V, MgO 2.20 V, CaO 2.37 V). A cell run hot enough to touch oxygen evolution has already reduced FeO and SiO2, and probably TiO2, before it ever reaches Al2O3, which is why every melt this corpus reports comes out as iron and silicon: Runyon's own costed plant taps 16 kg oxygen, 14 kg reduced silicon and 79 kg aluminium-calcium slag from 109 kg regolith, not iron. None of the six MRE primaries this project holds, Sibille 2011, Vai 2010, Sirk 2011, Grossman 2020, Patel 2023 and Runyon 2022, reports a current efficiency measured on an iron-bearing lunar-composition melt or a product composition of any kind: Sibille's 92 to 96 percent ran with the iron oxides stripped out, and Vai's own JSC-1A run returned about 2 percent against 35 to 90 percent on a clean synthetic electrolyte. Iron by itself is not a usable structural product: steel needs 0.02 to 2.1 wt% carbon and lunar rock carries carbon at 20 to 200 ppm, and Patel, the one paper naming a steel product, ships its alloying carbon and manganese from Earth by its own page-4 sentence and never runs the alloying step. Titanium is not unreducible; the decomposition order above puts it ahead of aluminium. It is excluded downstream, where the vacuum distillation that lifts aluminium and silicon off the melt runs at a temperature below titanium's vapour-pressure threshold (Guerrero-Gonzalez and Zabel's Fig. 9), the same mechanism that leaves calcium and magnesium behind at an earlier, cooler step. Aluminium is separable, on a different plant: molten-salt electrolysis plus vacuum distillation delivers an Al-Si alloy above 96.5 wt% aluminium at 114.5 kWh per kg of metal (Guerrero-Gonzalez and Zabel 2023), on a CaCl2 bath that is landed once and reused rather than resupplied (correcting this project's own prior \"consumable\" label on the same 65,047 kg figure). A first-principles sizing of a reagent-free route to the same alloy puts the thermodynamic floor at 5 to 6.6 kWh per kg and a plant-sizing case at 114.5 kWh per kg, 17 to 23 times theoretical, and finds the answer turns more on which power-system specific-mass coefficient prices the plant, a factor of 37 between the source's own 7.2 kg/kW and this model's own 166.9 to 267.3 kg/kWe, than on the chemistry. This section carries the energy this melt's unseparated co-product draws and books it against oxygen (eRefine*rMetal, at zero because no source allocates co-production energy between products); it does not carry a metals product line, because no source in this corpus assays one.",
+   "source": "Molten regolith electrolysis reduces a lunar melt's oxides in a fixed order set by decomposition potential (Guerrero-Gonzalez and Zabel's Fig. 5, digitized 305 to 3000 K; at 1223 K: FeO 0.95 V, SiO2 1.82 V, TiO2 1.83 V, Al2O3 2.19 V, MgO 2.20 V, CaO 2.37 V). A cell run hot enough to touch oxygen evolution has already reduced FeO and SiO2, and probably TiO2, before it ever reaches Al2O3, which is why every melt this corpus reports comes out as iron and silicon: Runyon's own costed plant taps 16 kg oxygen, 14 kg reduced silicon and 79 kg aluminium-calcium slag from 109 kg regolith, not iron. None of the six MRE primaries this project holds, Sibille 2011, Vai 2010, Sirk 2011, Grossman 2020, Patel 2023 and Runyon 2022, reports a current efficiency measured on an iron-bearing lunar-composition melt or a product composition of any kind: Sibille's 92 to 96 percent ran with the iron oxides stripped out, and Vai's own JSC-1A run returned about 2 percent against 35 to 90 percent on a clean synthetic electrolyte. Iron by itself is not a usable structural product: steel needs 0.02 to 2.1 wt% carbon and lunar rock carries carbon at 20 to 200 ppm, and Patel, the one paper naming a steel product, ships its alloying carbon and manganese from Earth by its own page-4 sentence and never runs the alloying step. Titanium is not unreducible; the decomposition order above puts it ahead of aluminium. It is excluded downstream, where the vacuum distillation that lifts aluminium and silicon off the melt runs at a temperature below titanium's vapour-pressure threshold (Guerrero-Gonzalez and Zabel's Fig. 9), the same mechanism that leaves calcium and magnesium behind at an earlier, cooler step. Aluminium is separable, on a different plant: molten-salt electrolysis plus vacuum distillation delivers an Al-Si alloy above 96.5 wt% aluminium at 114.5 kWh per kg of metal (Guerrero-Gonzalez and Zabel 2023), on a CaCl2 bath that is landed once and reused rather than resupplied (correcting this project's own prior \"consumable\" label on the same 65,047 kg figure). A first-principles sizing of a reagent-free route to the same alloy puts the thermodynamic floor at 5 to 6.6 kWh per kg and a plant-sizing case at 114.5 kWh per kg, 17 to 23 times theoretical, and finds the answer turns more on which power-system specific-mass coefficient prices the plant, a factor of 37 between the source's own 7.2 kg/kW and this model's own fSol at 267.3 kg/kWe (fFis, now fixed at 150 kg/kWe flat, sits below fSol and does not change that factor), than on the chemistry. This section carries the energy this melt's unseparated co-product draws and books it against oxygen (eRefine*rMetal, at zero because no source allocates co-production energy between products); it does not carry a metals product line, because no source in this corpus assays one.",
    "status": "VERIFIED (derived)",
    "tier": "VERIFIED (derived)",
    "state": "modeled",
@@ -2637,7 +2637,7 @@
  "fission": {
   "MOD-FISSION-ON": {
    "key": "MOD-FISSION-ON",
-   "text": "Fission on: power-system mass follows a power law (fFisAt), anchored on 0.16537 t/kWe at the 100 kWe directive anchor with exponent -0.159513, evaluated at the standing power actually being sized, against a 0.15 t/kWe directive requirement ceiling. This is a design requirement on unbuilt hardware from the 2025 Fission Surface Power directive minimum of at least 100 kWe within a 15 t landed mass allocation per reactor. The largest reactor ground-tested to date validated the physics at 1 kWe electric. Applied mass goes as P^0.8405, not linearly from zero, and it crosses the 0.15 t/kWe ceiling near 184.3 kWe: below that the model sits above the ceiling, above it the model sits below it, and every fission preset this app reaches (505 to 7,394 kWe) runs lighter than the ceiling, 0.083 to 0.128 t/kWe.",
+   "text": "Fission on: power-system mass is priced FLAT at fFis = 0.15 t/kWe (6.67 W/kg) at every standing power level, the NASA Fission Surface Power directive's own ratio, 15 t landed over 100 kWe delivered (Quinn ruling, 2026-09-12, ticket D04 ACCEPT). This is a design requirement on unbuilt hardware from the 2025 Fission Surface Power directive minimum of at least 100 kWe within a 15 t landed mass allocation per reactor. The largest reactor ground-tested to date validated the physics at 1 kWe electric. Applied mass is linear in power, M_power = fFis * power: the retired fitted power law that stood as the live coefficient under ticket D03 (0.16537 t/kWe at the 100 kWe anchor, exponent -0.159513) crossed this same 0.15 t/kWe ceiling near 184.3 kWe, running lighter above it and heavier below; that crossing described the retired fit against the ceiling, not the ceiling against itself, and it no longer applies now that the ceiling IS the coefficient.",
    "claims": [
     "fission-specific-power",
     "zero-intercept-mass-law"
@@ -2645,7 +2645,7 @@
   },
   "MOD-FISSION-OFF": {
    "key": "MOD-FISSION-OFF",
-   "text": "Fission off: on a polar peak-of-eternal-light ridge the solar power system runs 0.2673 t per kWe, the geometric middle of the 2 to 7 W/kg continuous illuminated-ridge specific-mass range this project holds, which is 3.741 W/kg. At this weight solar sits ABOVE fission, which the model anchors at 0.16537 t per kWe at the 100 kWe reference (fFisAt varies it with standing power elsewhere), so choosing solar costs mining mass rather than freeing it: 1.6164 times heavier on the bare coefficients and 1.5217 times once the 3 km transmission term both branches carry is counted. The power system still leaves mining mass behind at every rail the scenarios reach, so no scenario state is power-system-mass limited.  Storage covers only periodic shadowing here, not the 354 hour night; the deciding variable is still storage specific energy, battery about 200 Wh per kg versus regenerative fuel cell about 456 to 830 Wh per kg. A permanently shadowed site would need full night-survival storage and be far heavier, and continuous solar is in any case capped near 6 MW at the sites above 90 percent illumination. Which siting a solar number assumes is load bearing.",
+   "text": "Fission off: on a polar peak-of-eternal-light ridge the solar power system runs 0.2673 t per kWe, the geometric middle of the 2 to 7 W/kg continuous illuminated-ridge specific-mass range this project holds, which is 3.741 W/kg. At this weight solar sits ABOVE fission, which the model fixes at 0.15 t per kWe FLAT at every standing power level, so choosing solar costs mining mass rather than freeing it: 1.782 times heavier on the bare coefficients and 1.652 times once the 3 km transmission term both branches carry is counted. The power system still leaves mining mass behind at every rail the scenarios reach, so no scenario state is power-system-mass limited.  Storage covers only periodic shadowing here, not the 354 hour night; the deciding variable is still storage specific energy, battery about 200 Wh per kg versus regenerative fuel cell about 456 to 830 Wh per kg. A permanently shadowed site would need full night-survival storage and be far heavier, and continuous solar is in any case capped near 6 MW at the sites above 90 percent illumination. Which siting a solar number assumes is load bearing.",
    "claims": [
     "solar-mass-allocation",
     "storage-specific-energy",
@@ -2705,7 +2705,7 @@
   },
   "REGIME-POWERMASS": {
    "key": "REGIME-POWERMASS",
-   "text": "Power-system-mass limited: the power system consumes the entire landed mass and nothing is left for the plant, so water goes to zero. Solar runs about 0.2673 t per kWe as of the Step 56 centring, against fission anchored at 0.16537 at the 100 kWe reference, so solar is the heavier form and this regime is nearer than it was when solar was carried at the retired 0.05 payload allocation; it is still reached only by pushing landed mass below the power-system mass, and it is not live at any of the nine scenario states. Use only the qualitative point that the model books all non-power mass as plant, an overhead assumption this project has not independently confirmed.",
+   "text": "Power-system-mass limited: the power system consumes the entire landed mass and nothing is left for the plant, so water goes to zero. Solar runs about 0.2673 t per kWe as of the Step 56 centring, against fission fixed at 0.15 t/kWe flat (Quinn ruling, 2026-09-12, ticket D04 ACCEPT), so solar is the heavier form and this regime is nearer than it was when solar was carried at the retired 0.05 payload allocation; it is still reached only by pushing landed mass below the power-system mass, and it is not live at any of the nine scenario states. Use only the qualitative point that the model books all non-power mass as plant, an overhead assumption this project has not independently confirmed.",
    "claims": [
     "productive-plant-mass",
     "zero-intercept-mass-law",
@@ -3002,7 +3002,7 @@
    "label": "fission power-system mass",
    "claim": "fission-specific-power",
    "kind": "config",
-   "claimNote": "A fitted mass-versus-output relationship was evaluated on the three held design points, Colozza 1 kWe 0.406 t/kWe, Colozza 10 kWe 0.1545 t/kWe, Oleson 40 kWe 0.25115 t/kWe, which do not describe one clean curve: an ordinary least-squares power-law fit on these three points, Oleson's point margined, gives residuals +17.8/-35.3/+31.2 percent, and a fixed-base-plus-linear model built from Colozza's two points under-predicts Oleson's point by 88.1 percent. Most of the apparent gap is a margin-policy confound, not a physical trend: Colozza's table carries no margin at all, Oleson's final mass adds a 19.9 percent growth allowance plus a 15.0 percent system margin, both additive shares of basic mass. The scatter did not retire this fit: it is the model's live coefficient, carrying Oleson's point margined, and fFisAt() evaluates it at the standing power actually being sized, so the applied specific mass moves away from the flat 100 kWe anchor at every other scale. See [[fission-specific-power]]."
+   "claimNote": "A fitted mass-versus-output relationship was evaluated on the three held design points, Colozza 1 kWe 0.406 t/kWe, Colozza 10 kWe 0.1545 t/kWe, Oleson 40 kWe 0.25115 t/kWe, which do not describe one clean curve: an ordinary least-squares power-law fit on these three points, Oleson's point margined, gives residuals +17.8/-35.3/+31.2 percent, and a fixed-base-plus-linear model built from Colozza's two points under-predicts Oleson's point by 88.1 percent. Most of the apparent gap is a margin-policy confound, not a physical trend: Colozza's table carries no margin at all, Oleson's final mass adds a 19.9 percent growth allowance plus a 15.0 percent system margin, both additive shares of basic mass. The scatter is the audit that preceded this fit's retirement: it is RETIRED as the live coefficient. The model now applies the NASA Fission Surface Power directive's own ratio, 15 t / 100 kWe = 0.15 t/kWe, FLAT at every standing power level; fFisAt() returns that constant unconditionally and no longer evaluates this fit. See [[fission-specific-power]]."
   },
   "fSol": {
    "label": "solar power-system mass",
@@ -3247,14 +3247,14 @@
    ]
   },
   "FISSION-ON": {
-   "text": "Fission on: M_power follows a power law (fFisAt), anchored on 0.16537 t/kWe at 100 kWe with exponent -0.159513, evaluated at the standing power being sized, against a 0.15 t/kWe ceiling from the 2025 Fission Surface Power directive, a requirement for unbuilt hardware. The largest reactor ground-tested validated the physics at only about 1 kWe. Applied mass goes as P^0.8405, not a straight line through zero, and it runs lighter than the ceiling at every fission preset this app reaches (0.083 to 0.128 t/kWe against 0.15), crossing above the ceiling only below about 184.3 kWe.",
+   "text": "Fission on: M_power is priced FLAT at fFis = 0.15 t/kWe (6.67 W/kg) at every standing power, the 2025 Fission Surface Power directive's own ratio, a requirement for unbuilt hardware (Quinn ruling, 2026-09-12, ticket D04 ACCEPT). The largest reactor ground-tested validated the physics at only about 1 kWe. Applied mass is linear in power, M_power = fFis * power, with no crossing point to state: the retired fitted power law that stood as the live coefficient under ticket D03 (0.16537 t/kWe at 100 kWe, exponent -0.159513) ran lighter than this same 0.15 t/kWe ceiling at every fission preset this app reaches above about 184.3 kWe, and heavier below it; that comparison described the retired fit against the ceiling, and no longer applies now that the ceiling IS the coefficient.",
    "claims": [
     "fission-specific-power",
     "zero-intercept-mass-law"
    ]
   },
   "FISSION-OFF": {
-   "text": "Fission off: M_power runs at about 0.2673 t per kWe, the geometric middle of the 2 to 7 W/kg continuous illuminated-ridge range this project holds for a polar solar plant, a band no held source prints. At this weight solar sits ABOVE fission, which the model anchors at 0.16537 t per kWe at the 100 kWe reference (fFisAt varies it with standing power elsewhere), so choosing solar costs mining mass rather than freeing it: 1.6164 times heavier on the bare coefficients and 1.5217 times once the 3 km transmission term both branches carry is counted. The power system still leaves mining mass behind at every rail the scenarios reach, so no scenario state is power-system-mass limited. Storage covers periodic shadowing here, not the 354 hour night; a permanently shadowed site would need night-survival storage and be far heavier.",
+   "text": "Fission off: M_power runs at about 0.2673 t per kWe, the geometric middle of the 2 to 7 W/kg continuous illuminated-ridge range this project holds for a polar solar plant, a band no held source prints. At this weight solar sits ABOVE fission, which the model fixes at 0.15 t per kWe FLAT at every standing power level, so choosing solar costs mining mass rather than freeing it: 1.782 times heavier on the bare coefficients and 1.652 times once the 3 km transmission term both branches carry is counted. The power system still leaves mining mass behind at every rail the scenarios reach, so no scenario state is power-system-mass limited. Storage covers periodic shadowing here, not the 354 hour night; a permanently shadowed site would need night-survival storage and be far heavier.",
    "claims": [
     "solar-mass-allocation",
     "storage-specific-energy",
@@ -3320,8 +3320,8 @@
  },
  {
   "value": 0.16537,
-  "label": "accepted value (D03, 100 kWe anchor)",
-  "text": "0.16537 t/kWe is the accepted value, a fitted extrapolation of the three-point Colozza-and-Oleson power-law fit evaluated at the 100 kWe directive anchor, Oleson's point margined by his own 1.34918 growth-and-margin multiplier once, on itself, before the fit runs. It is a statistical curve value standing in for a 100 kWe design that does not exist, not a measurement of one, and its residuals run from minus 35.3 to plus 31.2 percent against the three points that fixed it."
+  "label": "superseded value (D03, retired)",
+  "text": "0.16537 t/kWe was the accepted value from ticket D03 until it was retired as the live coefficient: a fitted extrapolation of the three-point Colozza-and-Oleson power-law fit evaluated at the 100 kWe directive anchor, Oleson's point margined by his own 1.34918 growth-and-margin multiplier once, on itself, before the fit ran. It was a statistical curve value standing in for a 100 kWe design that does not exist, not a measurement of one, with residuals running from minus 35.3 to plus 31.2 percent against the three points that fixed it. The live coefficient is now 0.15 t/kWe, flat, the directive's own ratio."
  },
  {
   "value": 0.191396,
@@ -3583,7 +3583,7 @@
  "fission-specific-power": {
   "was": "Fission Specific Power (6.5-6.7 W/kg) Is a Design Requirement",
   "claim": "power",
-  "statement": "The model sizes fission power at fFis = 0.16537 t/kWe (6.05 W/kg), the value fit from Colozza's and Oleson's own design masses and margined at the 100 kWe directive anchor; it no longer equals the workbook's about 6.7 W/kg anchor or the directive's own 6.67 W/kg requirement floor the way the retired 0.15 t/kWe figure did by construction. The 2025 NASA Fission Surface Power directive requires at least 100 kWe within a 15 t landed mass allocation per reactor (a 6.67 W/kg floor); the only design point sized to component level (Colozza 2020) reaches 6.47 W/kg for a 10-kWe system. The largest reactor ground-tested to date (KRUSTY) validated the physics at about 1 kWe electric only. AT THE LEVEL OF THIS MODEL'S OWN UNCERTAINTY THE TWO POWER FORMS ARE INDISTINGUISHABLE IN THEIR EFFECT ON THE ANSWER. Re-derived at render from the shipped closed form on live CONFIG, switching the entire power form from solar to fission moves the regime boundary {boundary:movedir} by {boundary:movepct} percent on the solar base, from {boundary:solar} to {boundary:fission} t/kW. kExc enters this slope twice, in the excavation term and in the metals term, so its value of {kExcVal} t of regolith a year per tonne of plant sets the boundary directly. All three are resolved from CONFIG now. The fit is un-frozen beyond its own anchor: fFis is a power law, and holding it flat at the 100 kWe point it was evaluated at oversized every power system above that rail, so it now varies with the standing power actually being sized. FLEET-08 scores the same two forms by bisection at every ice grade, which still cancels completely; era now matters on the fission branch alone, because the regime boundary is {boundary:fission} t/kW at the 100 kWe reference point (unchanged) and {boundary:fissionbuilt} t/kW once the fleet has reached its own {valueL}-year service life landing a constant 100 kWe/yr ({boundary:builtpower} kWe standing) -- the solar figure is unmoved at every era, because fFis is the only term the un-freezing touched. THE DIRECTION OF THE SPECIFIC-MASS COMPARISON REVERSED IN THAT AUDIT AND THIS CLAIM'S CONCLUSION SURVIVED IT: fSol moved from a 0.05 t/kWe payload allocation to 0.2673 t/kWe, the geometric middle of the illuminated-ridge range this project holds, so solar is now the heavier form by 1.6164 times where fission was the heavier by 3.3386 before. THE SIZE OF THIS GAP HAS MOVED THREE TIMES AND ITS DIRECTION ONCE, and the reading that travelled with the small figures is withdrawn here. This claim used to call the measurement the strongest available demonstration that the power-system mass term is small beside the excavation-and-capture term it is added to. On live CONFIG the boundary's excavation-and-capture term is {boundary:excterm} t/kW and its power-system term is {boundary:solterm} on solar and {boundary:fisterm} on fission, so the power-system term runs {boundary:sharelo} to {boundary:sharehi} times the term it is added to and it is not small beside it. That reading was an artefact of an excavation coefficient sixteen times too small, which made the term it divides sixteen times too large. What survives is the conclusion, and it survives on different support: the difference between the two power forms is still far inside the uncertainty either coefficient carries on its own. The range inside [[solar-mass-allocation]] alone spans 1.98 to 3.68 times depending on siting policy, an interval that still contains the whole of the difference between the two power forms. That range is this project's own derivation from Colozza's mass model at Glaser's and Speyerer and Robinson's eclipse durations rather than a figure any source prints, and the claim it sits in says so, so the word sourced does not belong on it. ",
+  "statement": "The model sizes fission power at fFis = 0.15 t/kWe (6.67 W/kg), flat at every power level: the NASA Fission Surface Power directive's own ratio, 15 t / 100 kWe, applied directly, retiring the fitted, margined extrapolation of Colozza's and Oleson's own design masses that stood as the live value under ticket D03 (0.16537 t/kWe, 6.05 W/kg); that fit's audit stays on the record at CONFIG.fFis.source and DERIVATION.coeff.fFis.claimNote. The 2025 NASA Fission Surface Power directive requires at least 100 kWe within a 15 t landed mass allocation per reactor (a 6.67 W/kg floor); the only design point sized to component level (Colozza 2020) reaches 6.47 W/kg for a 10-kWe system. The largest reactor ground-tested to date (KRUSTY) validated the physics at about 1 kWe electric only. AT THE LEVEL OF THIS MODEL'S OWN UNCERTAINTY THE TWO POWER FORMS ARE INDISTINGUISHABLE IN THEIR EFFECT ON THE ANSWER. Re-derived at render from the shipped closed form on live CONFIG, switching the entire power form from solar to fission moves the regime boundary {boundary:movedir} by {boundary:movepct} percent on the solar base, from {boundary:solar} to {boundary:fission} t/kW. kExc enters this slope twice, in the excavation term and in the metals term, so its value of {kExcVal} t of regolith a year per tonne of plant sets the boundary directly. All three are resolved from CONFIG now. fFis is FLAT again, by ruling rather than by the pre-D03 default: it no longer varies with the standing power actually being sized, and the un-freezing this sentence used to describe is retired with the fit that needed it. FLEET-08 scored the same two forms by bisection at every ice grade before this ruling; the regime boundary is {boundary:fission} t/kW at the 100 kWe reference point and {boundary:fissionbuilt} t/kW once the fleet has reached its own {valueL}-year service life landing a constant 100 kWe/yr ({boundary:builtpower} kWe standing), the SAME number now on both branches at every era, because fFis no longer varies with standing power at all. THE DIRECTION OF THE SPECIFIC-MASS COMPARISON REVERSED IN THAT AUDIT AND THIS CLAIM'S CONCLUSION SURVIVED IT: fSol sits at 0.2673 t/kWe, the geometric middle of the illuminated-ridge range this project holds, against fFis now fixed at 0.15 t/kWe, so solar is the heavier form by 1.782 times where fission was the heavier by 3.3386 times before D03 and by 1.6164 times under D03's retired fit. THE SIZE OF THIS GAP HAS MOVED FOUR TIMES AND ITS DIRECTION ONCE, and the reading that travelled with the small figures is withdrawn here. This claim used to call the measurement the strongest available demonstration that the power-system mass term is small beside the excavation-and-capture term it is added to. On live CONFIG the boundary's excavation-and-capture term is {boundary:excterm} t/kW and its power-system term is {boundary:solterm} on solar and {boundary:fisterm} on fission, so the power-system term runs {boundary:sharelo} to {boundary:sharehi} times the term it is added to and it is not small beside it. That reading was an artefact of an excavation coefficient sixteen times too small, which made the term it divides sixteen times too large. What survives is the conclusion, and it survives on different support: the difference between the two power forms is still far inside the uncertainty either coefficient carries on its own. The range inside [[solar-mass-allocation]] alone spans 1.98 to 3.68 times depending on siting policy, an interval that still contains the whole of the difference between the two power forms. That range is this project's own derivation from Colozza's mass model at Glaser's and Speyerer and Robinson's eclipse durations rather than a figure any source prints, and the claim it sits in says so, so the word sourced does not belong on it. ",
   "evidence": [
    {
     "n": "1",
@@ -3607,7 +3607,7 @@
     "id": "A1",
     "head": "the old convergence was largely definitional, and the honest comparison changed with the coefficient",
     "role": "support",
-    "text": "At 0.15 t/kWe, three of the four cited figures, the app, the workbook anchor, and the directive requirement, were the same quantity by construction: the app's old coefficient was set directly equal to the directive's own 100,000 We / 15,000 kg arithmetic, so an app-versus-directive agreement of zero percent was a tautology, not evidence, and the workbook's figure tracked the same premise. The one genuinely independent comparison in the old A1 was the app against Colozza's real 10-kWe design, 6.67 against 6.47 W/kg, a coincidental 3 percent that said the geometric requirement happened to sit close to one real hardware point. Now that fFis is a fitted, margined extrapolation from Colozza's and Oleson's own design masses , not a copy of the directive's geometry, the comparison to the directive is no longer circular, and it is no longer close. At 0.16537 t/kWe (6.05 W/kg), the live coefficient sits 9.3 percent below the directive's own 6.67 W/kg floor, 9.7 percent below the workbook's 6.70 W/kg anchor, and 6.5 percent below Colozza's own 6.47 W/kg design point; every comparator now reads lighter than the fitted coefficient, uniformly. This is the expected direction, not a surprise: the fitted value carries Oleson's own growth-and-margin allowance, a 34.9 percent addition over basic mass, that neither the directive's bare geometry nor Colozza's own unmargined Table 22 prices in at all. The honest reading of this argument is no longer that four sources converge; it is that a coefficient built from real component masses and a stated margin policy comes in heavier per kWe than either the procurement target or the one real design point that predates it, which is the direction a margin policy should push a number, and it is worth stating precisely rather than folding it back into a convergence claim the coefficient's own move retired. A second, distinct reason points the same way: the Oleson design this fit draws from overran its own stated 6-tonne mass target by 67.4 percent, so even the margined fit may still understate real hardware mass rather than flatter it."
+    "text": "At 0.15 t/kWe, three of the four cited figures, the app, the workbook anchor, and the directive requirement, were the same quantity by construction: the app's old coefficient was set directly equal to the directive's own 100,000 We / 15,000 kg arithmetic, so an app-versus-directive agreement of zero percent was a tautology, not evidence, and the workbook's figure tracked the same premise. The one genuinely independent comparison in the old A1 was the app against Colozza's real 10-kWe design, 6.67 against 6.47 W/kg, a coincidental 3 percent that said the geometric requirement happened to sit close to one real hardware point. The live ruling returns fFis to being exactly the directive's own arithmetic, this time deliberately: the fitted, margined extrapolation from Colozza's and Oleson's own design masses that stood as the live value from ticket D03 is retired, and the comparison to the directive is circular again, by ruling rather than by omission. At 0.15 t/kWe (6.67 W/kg), the live coefficient equals the directive's own 6.67 W/kg floor (0.05 percent apart, a rounding artefact), sits 0.5 percent below the workbook's 6.70 W/kg anchor, and sits 3.0 percent above Colozza's own 6.47 W/kg design point, the only design point sized to component level. The honest reading of this argument is no longer about which comparator the fitted coefficient sits closest to: none of that arithmetic describes the live model any more. It is that the specification governs a NASA programme against a NASA requirement regardless of what any vendor's own reactor-design study would fit, and the D03 audit above, including Oleson's design overrunning its own stated 6-tonne mass target by 67.4 percent, stays on the record as the case for why a fitted value could have been argued for, not as the value the model runs."
    },
    {
     "id": "A2",
@@ -4978,7 +4978,7 @@
    },
    {
     "n": "8",
-    "text": "A reagent-free route to the same alloy is priced lower on readiness, not proven: the thermodynamic floor is 6.6 kWh per kg Al at Hall-Heroult temperature (1223 K) and 4.9 to 5.4 kWh per kg at MRE temperatures (2000 to 2300 K), from standard formation data cross-checked against Guerrero-Gonzalez and Zabel's own digitized decomposition potential within reading error. The central plant-sizing case is 114.5 kWh per kg on a 60 to 200 kWh per kg band, 17 to 23 times theoretical rather than the terrestrial inert-anode industry's 2 to 2.5 times, because this corpus's own current-efficiency evidence on a multi-oxide melt (Sibille, Vai, Schreiner) is worse than any terrestrial multiplier assumes. Plant mass lands at 444 kg per t/yr on the source's own 7.2 kg/kW solar-array figure, against 3,227 to 4,975 kg per t/yr on this model's own fSol (267.3 kg/kWe) and fFis (166.93 kg/kWe) coefficients, a factor of 37 on the identical 435.3 kW electrical load, larger than the spread the energy-multiplier uncertainty produces and this project's own unresolved R3 finding. Cost runs $1.9B to $21B depending on which of those coefficients prices the plant. This is a sizing at assumed efficiency, not a demonstrated process: no source in this corpus has run this electrolysis on an anorthite-dominant feed and reported a separated aluminium product."
+    "text": "A reagent-free route to the same alloy is priced lower on readiness, not proven: the thermodynamic floor is 6.6 kWh per kg Al at Hall-Heroult temperature (1223 K) and 4.9 to 5.4 kWh per kg at MRE temperatures (2000 to 2300 K), from standard formation data cross-checked against Guerrero-Gonzalez and Zabel's own digitized decomposition potential within reading error. The central plant-sizing case is 114.5 kWh per kg on a 60 to 200 kWh per kg band, 17 to 23 times theoretical rather than the terrestrial inert-anode industry's 2 to 2.5 times, because this corpus's own current-efficiency evidence on a multi-oxide melt (Sibille, Vai, Schreiner) is worse than any terrestrial multiplier assumes. Plant mass lands at 444 kg per t/yr on the source's own 7.2 kg/kW solar-array figure, against 2,899 to 4,975 kg per t/yr on this model's own fFis (150 kg/kWe, fixed flat) and fSol (267.3 kg/kWe) coefficients, a factor of 37 on the identical 435.3 kW electrical load, larger than the spread the energy-multiplier uncertainty produces and this project's own unresolved R3 finding. Cost runs $1.9B to $21B depending on which of those coefficients prices the plant. This is a sizing at assumed efficiency, not a demonstrated process: no source in this corpus has run this electrolysis on an anorthite-dominant feed and reported a separated aluminium product."
    },
    {
     "n": "9",
@@ -7811,7 +7811,7 @@
        3/4/5 parse ("Oleson's point margined at 0.2511500003355, giving b =
        -0.15951304812569203" and "so the fit's shape matches what this sentence already
        claimed"), survives character for character. See both files for the reasoning. */
-    __pin: "3ccc52a7"
+    __pin: "e6847a4e"
   };
 
   root.KNOB_DATA = KNOB_DATA;
@@ -8003,33 +8003,32 @@ function scopeCheck(producedIds, where){
    the resulting object to this block. One file, one load, no external data file. */
 const CONFIG = KNOB_DATA.CONFIG;
 
-/* Step 59, item 1; corrected Step 64, ruling B2, then corrected again the same step when a
+/* RETIRED at Step 65, ruling D04 (Quinn, 2026-09-12): fFisAt() no longer evaluates a power
+   law. The comment below is kept in full as the audit trail for the D03 fit it describes;
+   none of it is the model's live behaviour any more. CONFIG.fFis.source carries the ruling.
+   Step 59, item 1; corrected Step 64, ruling B2, then corrected again the same step when a
    second-level derivation instrument caught the first correction still splitting the anchor and
    the exponent across two procedures. CONFIG.fFis.value (0.16537 t/kWe, ticket D03) and
-   FFIS_FIT_B now come from ONE OLS log-log regression on the three Colozza/Oleson design points
-   with Oleson's point margined ONCE, on itself, BEFORE the fit runs -- not fit unmargined and
+   FFIS_FIT_B came from ONE OLS log-log regression on the three Colozza/Oleson design points
+   with Oleson's point margined ONCE, on itself, BEFORE the fit ran -- not fit unmargined and
    then scaled by the margin multiplier afterward, which is what the anchor alone used to do and
    what produced the 0.943 percent gap the instrument found (0.16693 old-recipe vs 0.165370
    this-recipe at the anchor). Points: Colozza 1 kWe 0.406 t/kWe, Colozza 10 kWe 0.1545 t/kWe,
    Oleson 40 kWe margined 0.18615*1.34918077 = 0.2511500003355 t/kWe. Full precision:
    b = -0.15951304812569203 (replacing the UNMARGINED-fit slope -0.23247942988665113 that shipped
-   through Step 63), and the same fit evaluated at the 100 kWe anchor gives 0.16537022251197703,
-   rounded to the shipped 0.16537 (replacing the unmargined-fit-then-scaled 0.16693). See
-   CONFIG.fFis.source for the full derivation and its own named consequence: held flat, the model
-   returns zero water and binds on power-system mass for every published lunar ISRU architecture
-   run on its own inputs, because the fit is a power law and holding it flat oversizes the power
-   system at every scale above the anchor. fFisAt() unfreezes the fit beyond the single point it
-   was evaluated at, anchored EXACTLY on CONFIG.fFis.value at 100 kWe (Math.pow(1,b)===1, so the
-   accepted D03 bit is unmoved at the one power level every pre-existing row exercises it at) and
-   moving as a power law everywhere else, matching CONFIG.fFis.source's own worked figures of
-   95.7 kg/kWe at 3,091 kWe and 79.3 kg/kWe at 10,000 kWe. Guarded at power<=0 because the fit's
-   negative exponent sends it to Infinity there and every call site that reaches power<=0
-   multiplies fFisEff by that same zero power, so the guard changes no answer, only avoids an
-   Infinity*0 = NaN on a domain edge no existing row exercised before this fit could vary. */
-const FFIS_FIT_B = -0.15951304812569203;
+   through Step 63), and the same fit evaluated at the 100 kWe anchor gave 0.16537022251197703,
+   rounded to the shipped 0.16537 (replacing the unmargined-fit-then-scaled 0.16693). Held flat,
+   that fit returned zero water and bound on power-system mass for every published lunar ISRU
+   architecture run on its own inputs, because it was a power law and holding it flat oversized
+   the power system at every scale above the anchor; fFisAt() then unfroze it to move as a power
+   law everywhere else. THAT FIT IS NOW RETIRED. fFisAt() returns CONFIG.fFis.value UNCHANGED at
+   every power level, including the guarded power<=0 domain edge (previously a special case
+   because the retired fit's negative exponent sent it to Infinity there; a flat return has no
+   such edge, and the guard is kept only so every existing call site keeps calling the same
+   function). See CONFIG.fFis.source for the ruling and the full audit trail above it. */
+const FFIS_FIT_B = -0.15951304812569203; // RETIRED at Step 65: unread by fFisAt() below; kept for the audit trail CONFIG.fFis.source and step64_se_derivationcheck.js still reference.
 function fFisAt(power_kWe){
-  if (!(power_kWe > 0)) return CONFIG.fFis.value;
-  return CONFIG.fFis.value * Math.pow(power_kWe/100, FFIS_FIT_B);
+  return CONFIG.fFis.value;
 }
 
 /* Funding posture × phase → (power, landed-mass) envelope ceiling + fission default.
@@ -9352,8 +9351,9 @@ function runTests(fileText){
   // THE DIRECTION REVERSED AT STEP 56 and it is stated in capitals because this comment said the
   // opposite for four steps. f_solar was the CLPS-lander payload allocation of 0.05 t/kWe and
   // solar was the lighter form; the median audit centred it on the illuminated-ridge
-  // specific-mass range at 0.2673 t/kWe, and SOLAR IS NOW THE HEAVIER FORM, by 1.6013 times on
-  // the bare coefficients and 1.5097 times once the 3 km transmission term is added to both. So
+  // specific-mass range at 0.2673 t/kWe, and SOLAR IS NOW THE HEAVIER FORM, by 1.7820 times on
+  // the bare coefficients and 1.6517 times once the 3 km transmission term is added to both (Step
+  // 65 ruling D04 fixed fFis flat at 0.15, superseding the D03 fit's 1.6013/1.5097 ratios). So
   // at a knife-edge landed mass the heavier SOLAR system is throughput-starved (mass-limited)
   // while the lighter FISSION system stays power-limited. This witnesses that M_power is live,
   // not dead code, and pins the direction the f_solar centring produces.
@@ -9380,7 +9380,7 @@ function runTests(fileText){
        13.919 percent, against 0.596 and 0.936 percent at the retired 755 t. THE ROW IS NOW AN
        ORDER MORE ROBUST THAN IT WAS, which is the opposite of what the note above records for
        the previous two moves, and it is recorded here for the same reason that one was. */
-    const on =model({ice:5,power:100,mass:65,fission:true});   // LIGHTER source (0.16537 t/kWe)
+    const on =model({ice:5,power:100,mass:65,fission:true});   // LIGHTER source (0.15 t/kWe, flat, ticket D04 ACCEPT)
     const off=model({ice:5,power:100,mass:65,fission:false});  // HEAVIER source (solar, 0.2673 t/kWe)
     const flip = on.feasible===true && on.binding==='power'
               && off.feasible===false && off.binding==='landed mass';
@@ -9586,7 +9586,7 @@ function runTests(fileText){
     const fFisRef=CONFIG.fFis.value, fSolRef=CONFIG.fSol.value;
     let ok=true;
     [0,1,3,5].forEach(td=>{ model({...base,transDistKm:td}); if(CONFIG.fFis.value!==fFisRef||CONFIG.fSol.value!==fSolRef) ok=false; });
-    rec('TRANS-04','GATE','fFis/fSol unmoved across a transDistKm sweep (never folded)', ok && CONFIG.fFis.value===0.16537 && CONFIG.fSol.value===0.2673);
+    rec('TRANS-04','GATE','fFis/fSol unmoved across a transDistKm sweep (never folded)', ok && CONFIG.fFis.value===0.15 && CONFIG.fSol.value===0.2673);
   }
   // TRANS-05: monotonic increase in transDistKm on both branches.
   {
@@ -9860,12 +9860,13 @@ function runTests(fileText){
   }
 
   // ---- Step 35: the four coefficient flips, FFIS safeguards, PIN, SRC ----
-  // FLIP-FFIS-RO: CONFIG.fFis.value reads the accepted D03 value. DECOY: a
-  // mutant that left the value at the requirement ceiling is confirmed to fail.
+  // FLIP-FFIS-RO: RE-POINTED Step 65, ruling D04 (Quinn, 2026-09-12). CONFIG.fFis.value
+  // reads the directive spec value, flat, superseding D03's fitted value. DECOY: a mutant
+  // left at the retired D03 fitted value is confirmed to fail.
   {
-    const ok = CONFIG.fFis.value === 0.16537;
-    const decoyFires = !(0.15 === 0.16537);
-    rec('FLIP-FFIS-RO','GATE','CONFIG.fFis.value reads 0.16537, the accepted D03 value, not 0.15 (DECOY: the requirement-ceiling value is confirmed to fail this check)',
+    const ok = CONFIG.fFis.value === 0.15;
+    const decoyFires = !(0.16537 === 0.15);
+    rec('FLIP-FFIS-RO','GATE','CONFIG.fFis.value reads 0.15, the directive spec value (flat, ticket D04 ACCEPT), not the retired 0.16537 D03 fitted value (DECOY: the retired fitted value is confirmed to fail this check)',
         ok && decoyFires, 'value='+CONFIG.fFis.value);
   }
   // FLIP-FFIS-WIRE: model() with no fFisOvr computes mPwr from the live
@@ -9873,10 +9874,10 @@ function runTests(fileText){
   // supplied value, unaffected by the CONFIG default's move.
   {
     const m = model({ice:5,power:100,mass:100000,fission:true,transDistKm:0});
-    const wireOK = m.mPwr === 100*CONFIG.fFis.value && Math.abs(m.mPwr-16.537)<1e-9;
+    const wireOK = m.mPwr === 100*CONFIG.fFis.value && Math.abs(m.mPwr-15)<1e-9;
     const mOvr = model({ice:5,power:100,mass:100000,fission:true,transDistKm:0,fFisOvr:0.20});
     const guardOK = mOvr.mPwr === 20;
-    rec('FLIP-FFIS-WIRE','GATE','model({fission:true}) with no fFisOvr computes mPwr===power*0.16537 (GUARD: an explicit fFisOvr still resolves to the supplied value)',
+    rec('FLIP-FFIS-WIRE','GATE','model({fission:true}) with no fFisOvr computes mPwr===power*0.15 (GUARD: an explicit fFisOvr still resolves to the supplied value)',
         wireOK && guardOK, 'mPwr='+m.mPwr+' overridden='+mOvr.mPwr);
   }
   // FLIP-TRANS-RO/WIRE: the transDistKm functional default is live at 3 km,
@@ -9928,37 +9929,35 @@ function runTests(fileText){
     rec('FFIS-LANDMARK-01','GATE','Definitions tab data carries all four fFis landmarks, each number adjacent to its own identity (GUARD: k_fisovr\'s 300 kg/kWe endpoint is not miscounted as a fifth landmark)',
         hasAll && fourOnly && noFifth, 'landmarks='+L.map(l=>l.value).join(','));
   }
-  // C04Q-01 (Step 36, sub-step 11 residual): CLAIMS['Power Generation'
-  // block]["fission-specific-power"].source (and, since SECTIONS is derived from CLAIMS at
-  // load time, SECTIONS["fission-specific-power"].source resolving identically) names both the
-  // directive's 6.5 to 6.7 W/kg requirement band and the model's own live
-  // 6.05 W/kg figure, each inside language naming its own source, so a
-  // reader meeting only this condensed string cannot mistake one for the
-  // other.
+  // C04Q-01 (Step 36, sub-step 11 residual; RE-POINTED Step 65, ruling D04, Quinn 2026-09-12):
+  // CLAIMS['power']["fission-specific-power"].source (and, since SECTIONS is derived from
+  // CLAIMS at load time, SECTIONS["fission-specific-power"].source resolving identically)
+  // names the directive's 6.67 W/kg requirement floor as the SAME figure the model's live
+  // flat coefficient now runs, and keeps the superseded D03 fitted figure (0.16537 t/kWe,
+  // 6.05 W/kg) on the record rather than deleting it.
   {
     const powerBlock = KNOB_DATA.CLAIMS['power'];
     const src = powerBlock && powerBlock["fission-specific-power"] ? powerBlock["fission-specific-power"].source : '';
     const claimsSrc = SECTIONS["fission-specific-power"] ? SECTIONS["fission-specific-power"].source : '';
-    const hasBand = /6\.5[\s\S]{0,20}6\.7[\s\S]{0,160}(directive|requirement)/i.test(src);
-    const hasModelFig = /6\.05[\s\S]{0,40}(model|fFis)/i.test(src);
+    const hasFloor = /6\.67[\s\S]{0,300}(directive|requirement)/i.test(src);
+    const hasLiveFlat = /(fFis\s*=\s*0\.15|0\.15\s*t\/kWe)[\s\S]{0,150}flat/i.test(src);
+    const hasSupersededD03 = /0\.16537[\s\S]{0,150}(D03|superseded|retired)/i.test(src);
     const sameResolved = src === claimsSrc && src.length>0;
-    rec('C04Q-01','GATE','fission-specific-power.source (and SECTIONS["fission-specific-power"].source, resolved from the same object) names both the directive\'s 6.5 to 6.7 W/kg band and the model\'s live 6.05 W/kg figure, each attributed to its own source rather than left ambiguous',
-        hasBand && hasModelFig && sameResolved,
-        'hasBand='+hasBand+' hasModelFig='+hasModelFig+' sameResolved='+sameResolved+' src='+JSON.stringify(src.slice(0,120))+'...');
+    rec('C04Q-01','GATE','fission-specific-power.source (and SECTIONS["fission-specific-power"].source, resolved from the same object) names the directive\'s 6.67 W/kg floor as the same figure the model\'s live flat coefficient now runs, and keeps the superseded D03 fitted figure (0.16537 t/kWe) on the record rather than deleting it',
+        hasFloor && hasLiveFlat && hasSupersededD03 && sameResolved,
+        'hasFloor='+hasFloor+' hasLiveFlat='+hasLiveFlat+' hasSupersededD03='+hasSupersededD03+' sameResolved='+sameResolved+' src='+JSON.stringify(src.slice(0,120))+'...');
   }
-  // FFIS-LANDMARK-02: the 100 kWe (0.16537) and 40 kWe (0.191396) fitted
-  // landmarks are checked as a pair, recomputed from a live OLS log-log
-  // refit over the three Colozza-and-Oleson points with Oleson's point
-  // margined ONCE, on itself, BEFORE the fit (0.18615*1.34918077 =
-  // 0.2511500003355 exactly), the one-shared-regression derivation Step
-  // 64 installed after its own second-level check found the anchor and
-  // the exponent splitting across two different procedures. Both the
-  // SLOPE and the SCALE are this fit's own now (previously fFisAt()
-  // anchored its scale on a separately-computed CONFIG.fFis.value; now
-  // CONFIG.fFis.value IS this fit evaluated at 100 kWe, so proving the
-  // pair proves the anchor is not a second, disagreeing procedure).
-  // DECOY: the retired UNMARGINED slope (-0.23247942988665113, fit on
-  // Oleson at 0.18615) is confirmed not to match.
+  // FFIS-LANDMARK-02: RE-POINTED Step 65, ruling D04 (Quinn, 2026-09-12). The 100 kWe (0.16537)
+  // and 40 kWe (0.191396) landmarks are historical: the fit that produced them is retired as
+  // the live coefficient, and CONFIG.fFis.value is no longer that fit's own output at any power
+  // -- it is 15/100 by ruling, checked against its own stated derivation by
+  // step64_se_derivationcheck.js's Check 5 (RE-POINTED the same day), not here. What this row
+  // still owns, and nothing else in this project checks: whether the two FITTED landmark
+  // figures printed on the Definitions tab are still the live OLS refit's own output at 100 and
+  // 40 kWe, decoupled from whatever the live coefficient now is. Oleson's point margined ONCE,
+  // on itself, BEFORE the fit (0.18615*1.34918077 = 0.2511500003355 exactly), same recipe Step
+  // 64 installed. DECOY: the retired UNMARGINED slope (-0.23247942988665113, fit on Oleson at
+  // 0.18615) is confirmed not to match.
   {
     const pts = [[1,0.406],[10,0.1545],[40,0.18615*1.34918077]];
     const xs = pts.map(p=>Math.log(p[0])), ys = pts.map(p=>Math.log(p[1]));
@@ -9969,15 +9968,13 @@ function runTests(fileText){
     const aFit = my - bFit*mx;
     const slopeOK = Math.abs(bFit - FFIS_FIT_B) < 1e-9;
     const fitAt100 = Math.exp(aFit + bFit*Math.log(100));
-    const scaleOK = Math.abs(fitAt100 - CONFIG.fFis.value) < 1e-3;
-    const at100 = CONFIG.fFis.value*Math.pow(100/100, FFIS_FIT_B);
-    const at40 = CONFIG.fFis.value*Math.pow(40/100, FFIS_FIT_B);
-    const pairOK = Math.abs(at100-0.16537)<1e-5 && Math.abs(at40-0.191396)<1e-4;
+    const fitAt40 = Math.exp(aFit + bFit*Math.log(40));
+    const pairOK = Math.abs(fitAt100-0.16537)<1e-5 && Math.abs(fitAt40-0.191396)<1e-4;
     const shipped = KNOB_DATA.FFIS_LANDMARKS.find(l=>Math.abs(l.value-0.16537)<1e-9) && KNOB_DATA.FFIS_LANDMARKS.find(l=>Math.abs(l.value-0.191396)<1e-9);
     const bRetired = -0.23247942988665113;
     const decoyFails = Math.abs(bRetired - bFit) > 1e-6;
-    rec('FFIS-LANDMARK-02','GATE','100 kWe and 40 kWe fitted landmarks recompute from a live OLS refit over the three design points with Oleson margined before the fit (0.2511500003355), matching FFIS_FIT_B and CONFIG.fFis.value both to one shared regression (DECOY: the retired UNMARGINED slope is confirmed not to match)',
-        slopeOK && scaleOK && pairOK && !!shipped && decoyFails, 'bFit='+bFit+' FFIS_FIT_B='+FFIS_FIT_B+' fitAt100='+fitAt100+' CONFIG.fFis.value='+CONFIG.fFis.value+' at100='+at100.toFixed(5)+' at40='+at40.toFixed(5));
+    rec('FFIS-LANDMARK-02','GATE','RE-POINTED, ruling D04: the 100 kWe and 40 kWe FITTED landmarks recompute from a live OLS refit over the three design points with Oleson margined before the fit (0.2511500003355), decoupled from CONFIG.fFis.value (now 15/100 by ruling, checked against its own stated derivation by step64 Check 5, not here) (DECOY: the retired UNMARGINED slope is confirmed not to match)',
+        slopeOK && pairOK && !!shipped && decoyFails, 'bFit='+bFit+' FFIS_FIT_B='+FFIS_FIT_B+' fitAt100='+fitAt100.toFixed(5)+' fitAt40='+fitAt40.toFixed(5)+' CONFIG.fFis.value(live, unrelated)='+CONFIG.fFis.value);
   }
   // FFIS-KFISOVR-RANGE: the k_fisovr slider keeps its full 0 to 300 kg/kWe
   // range, spanning all four landmarks scaled by 1000 (150 to 251.15).
@@ -10666,21 +10663,21 @@ function runTests(fileText){
   }
 
   // ================= FLEET-07 =================
-  /* Step 59, item 1. CONFIG.fFis.source named this row as one of three things resting on
-     model()'s degree-one homogeneity in (mass,power), and named unfreezing fFis beyond its
-     100 kWe anchor as the one-line repair that retires it. That repair is landed (fFisAt(),
-     above); what survives is measured here rather than assumed. Solar branch: unaffected,
-     checked exactly. Fission branch: every field downstream of the water ceiling (Wpower, cap,
-     Cfull, water, construction, constructionPotential, regolith, massEff) stays exactly
-     homogeneous as long as the state stays power-bound, checked at all 54 scalings and never
-     found otherwise; mPwr itself follows fFisAt()'s own exact power-law closed form under joint
-     scaling (mPwr(k) = k^(1+FFIS_FIT_B) * [the fission term at the base scale] + k * [the
-     transmission term, still linear]); mining and Rcap carry the exact identity that follows
-     from massEff being pure-mass and unaffected; Wthr carries no exact closed form (the oxygen
-     line's own draw folds a second-order term in) and is checked only for the DIRECTION
-     economies of scale predicts, never below k times its base value for k>1. */
+  /* RE-POINTED Step 65, ruling D04 (Quinn, 2026-09-12). This row used to measure what SURVIVED
+     of degree-one homogeneity once fFisAt() stopped being flat (Step 59 item 1): solar exact
+     everywhere, fission exact only on the fields upstream of the water ceiling, with mPwr
+     itself following fFisAt()'s own power-law closed form under joint scaling and Wthr checked
+     only for direction. Ruling D04 retires that fit: fFisAt() now returns CONFIG.fFis.value
+     unconditionally (see fFisAt(), above, and step64_se_derivationcheck.js Check 9). Under a
+     flat coefficient, M_power = fFis*power is exactly linear in power, so mPwr, and everything
+     downstream of it, is exactly homogeneous of degree one under joint (mass,power) scaling on
+     BOTH branches, with no special-casing left to carry. Measured, not assumed: all twelve
+     fields below (the eight water-ceiling fields plus mPwr, mining, Rcap and Wthr) checked at
+     the same 54 scalings (9 cells x k in [1,2,7,11,15,26]) return exact matches on every one,
+     fission and solar alike -- zero mismatches, confirmed by a live run against this build
+     before this row was written. */
   {
-    const EXT_HOMOG = ['Wpower','cap','Cfull','water','construction','constructionPotential','regolith','massEff'];
+    const ALL_HOMOG = ['Wpower','cap','Cfull','water','construction','constructionPotential','regolith','massEff','mPwr','mining','Rcap','Wthr'];
     const INV = ['binding','regime','feasible','eEE','rho'];
     let ok = true, why = [], n = 0, fisChecked = 0, solChecked = 0;
     function relDiff(want, got){ return Math.abs(want) > 1e-12 ? Math.abs(got-want)/Math.abs(want) : Math.abs(got-want); }
@@ -10690,56 +10687,49 @@ function runTests(fileText){
       for (const k of [1,2,7,11,15,26]){
         const scaled = model({ice:c.ice, power:e.P*k, mass:e.M*k, fission:e.fission, phi_c:0.25});
         n++;
-        for (const f of EXT_HOMOG){
+        if (e.fission) fisChecked++; else solChecked++;
+        for (const f of ALL_HOMOG){
           const d = relDiff(base[f]*k, scaled[f]);
           if (!(d < 1e-9)){ ok=false; why.push(c.id+' k='+k+' '+f+' '+scaled[f]+' != '+(base[f]*k)); }
         }
         for (const f of INV) if (scaled[f] !== base[f]){ ok=false; why.push(c.id+' k='+k+' '+f+' moved '+base[f]+' -> '+scaled[f]); }
-        if (!e.fission){
-          solChecked++;
-          // Solar branch: fFis never enters, so the four fields the fission branch now departs
-          // on (mPwr, mining, Rcap, Wthr) must still be exactly homogeneous. Checked, not assumed.
-          for (const f of ['mPwr','mining','Rcap','Wthr']){
-            const d = relDiff(base[f]*k, scaled[f]);
-            if (!(d < 1e-9)){ ok=false; why.push('SOLAR '+c.id+' k='+k+' '+f+' '+scaled[f]+' != '+(base[f]*k)); }
-          }
-        } else {
-          fisChecked++;
-          const transPerKwe = CONFIG.transmission.value/1000*3;
-          const fisTermBase = fFisAt(e.P)*e.P;
-          const predictedMPwr = Math.pow(k, 1+FFIS_FIT_B)*fisTermBase + k*transPerKwe*e.P;
-          if (!(relDiff(predictedMPwr, scaled.mPwr) < 1e-9)){ ok=false; why.push('CLOSED-FORM '+c.id+' k='+k+' mPwr '+scaled.mPwr+' != '+predictedMPwr); }
-          const massEffTol = 1e-6*Math.max(1, Math.abs(base.massEff));
-          const clampInactive = Math.abs((base.mining+base.mPwr)-base.massEff) < massEffTol
-                              && Math.abs((scaled.mining+scaled.mPwr)-scaled.massEff) < 1e-6*Math.max(1, Math.abs(scaled.massEff));
-          if (!clampInactive){ why.push('CLAMP ACTIVE, mining/Rcap identity not asserted at '+c.id+' k='+k); }
-          else {
-            const wantMining = k*base.mining - (scaled.mPwr - k*base.mPwr);
-            if (!(relDiff(wantMining, scaled.mining) < 1e-9)){ ok=false; why.push('IDENTITY '+c.id+' k='+k+' mining '+scaled.mining+' != '+wantMining); }
-            const wantRcap = k*base.Rcap - CONFIG.kExc.value*(scaled.mPwr - k*base.mPwr);
-            if (!(relDiff(wantRcap, scaled.Rcap) < 1e-9)){ ok=false; why.push('IDENTITY '+c.id+' k='+k+' Rcap '+scaled.Rcap+' != '+wantRcap); }
-          }
-          if (k > 1 && scaled.Wthr < k*base.Wthr*(1-1e-9)){ ok=false; why.push('DIRECTION '+c.id+' k='+k+' Wthr '+scaled.Wthr+' < '+(k*base.Wthr)); }
-        }
       }
     }
     // DECOY 1, unchanged: eEE is a degree-ZERO output of the same model() calls above.
     const dBase = model({ice:5, power:100, mass:1000, fission:true, phi_c:0.25});
     const dScaled = model({ice:5, power:200, mass:2000, fission:true, phi_c:0.25});
     const decoyFires = Math.abs(dScaled.eEE - dBase.eEE*2) > 1e-9 && Math.abs(dScaled.water - dBase.water*2) < 1e-9;
-    // DECOY 2: the RETIRED predicate (exact degree-one match on mPwr itself, no power-law
-    // correction) is confirmed to fail on the fission branch, which is why this row could not
-    // have stayed green over the defect CONFIG.fFis.source names.
-    const oldPredicateFires = Math.abs(dScaled.mPwr - dBase.mPwr*2) > 1e-6;
+    // DECOY 2, RE-POINTED: proves the retired fit does not come back. Constructs, on a
+    // DISPOSABLE copy of the mPwr formula only (never wired into model()), the power-law shape
+    // fFisAt() carried before this ruling, and confirms THAT shape is NOT exactly homogeneous --
+    // the defect this row would need to catch if the retired fit were ever reintroduced.
+    const transPerKwe = CONFIG.transmission.value/1000*3;
+    const shadowFisAt = (p) => CONFIG.fFis.value*Math.pow(p/100, FFIS_FIT_B);
+    const shadowMPwr = (P) => shadowFisAt(P)*P + transPerKwe*P;
+    const retiredShapeBreaksHomogeneity = Math.abs(shadowMPwr(200) - 2*shadowMPwr(100)) > 1e-6;
     rec('FLEET-07','GATE',
-        'model() is homogeneous of degree one in (mass, power) jointly on the solar branch at every scaling, checked exactly; on the fission branch this retired the day fFis stopped being applied flat, and what survives is measured rather than assumed: every field downstream of the water ceiling stays exactly homogeneous as long as the state stays power-bound (checked at all 54 scalings, never found otherwise), mPwr follows fFisAt()\'s own exact power-law closed form under joint scaling, mining and Rcap carry the exact identity that follows from it, and Wthr is checked to move only in the direction economies of scale predicts (DECOY 1: a degree-zero output of the same calls is confirmed to fail the homogeneity predicate; DECOY 2: the row\'s own RETIRED predicate, exact degree-one match on mPwr with no power-law correction, is confirmed to fail on the fission branch)',
-        ok && n === 54 && fisChecked === 30 && solChecked === 24 && decoyFires && oldPredicateFires,
-        n===54 ? (ok ? '54 scalings ('+solChecked+' solar exact on every field including mPwr/mining/Rcap/Wthr, '+fisChecked+' fission exact on the water-ceiling fields and on mPwr/mining/Rcap by closed form, Wthr direction-checked); both decoys correctly fail'
+        'model() is homogeneous of degree one in (mass, power) jointly on BOTH branches at every scaling, checked exactly on all twelve downstream fields (RE-POINTED, ruling D04: fFis is flat, so the fission branch\'s own former special-casing -- a power-law closed form for mPwr, a mining/Rcap identity guarded by a clamp check, a direction-only check on Wthr -- has nothing left to carry and is retired with the fit that needed it) (DECOY 1: a degree-zero output of the same calls is confirmed to fail the homogeneity predicate; DECOY 2: the retired fit does not come back -- a disposable copy of the pre-ruling mPwr formula, built from CONFIG.fFis.value and FFIS_FIT_B exactly as fFisAt() used to combine them, is confirmed to break exact homogeneity, proving this row would catch that shape returning)',
+        ok && n === 54 && fisChecked === 30 && solChecked === 24 && decoyFires && retiredShapeBreaksHomogeneity,
+        n===54 ? (ok ? '54 scalings ('+solChecked+' solar, '+fisChecked+' fission), all twelve fields exact on every one; both decoys correctly fail'
                      : why.slice(0,4).join('  '))
                : 'EMPTY POPULATION: '+n+' scalings evaluated, not 54');
   }
 
   // ================= FLEET-08 =================
+  /* RE-POINTED Step 65, ruling D04 (Quinn, 2026-09-12). Before this ruling fFisAt() varied with
+     the standing power actually being sized, so the regime boundary in landing-rate space was
+     TWO numbers on the fission branch: 0.584999 t/kW at 2030 (100 kWe standing, one year of
+     landing) and 0.526597 t/kW at 2040 and 2055 alike (the fleet-life plateau, 1100 kWe
+     standing). Ruling D04 makes fFis flat, so the standing power the boundary is evaluated at
+     no longer matters: fFisAt(100) and fFisAt(1100) are the same number now, CONFIG.fFis.value
+     unconditionally, and the boundary collapses to ONE number at every era, matching the
+     pattern the solar branch already had. Re-derived by bisection at every era and at 1, 2, 5,
+     10 and 20 wt% ice: fission = 0.567921 t/kW at all fifteen combinations (was two numbers,
+     matching the solar branch's own uniformity now rather than departing from it), a live
+     figure this instrument recomputed against the ruling rather than assumed, and matched by a
+     single closed form built from live CONFIG that no longer carries fFisAt()'s power-law term
+     at all -- the fRefBuilt/ANCHOR_BUILT machinery below is retired with the fit that needed
+     it. Solar (0.698254) and the ice-cancellation are unmoved. */
   {
     const L = fleetLife();
     const pRate = 100;
@@ -10753,28 +10743,13 @@ function runTests(fileText){
       for (let i=0;i<200;i++){ const mid=(lo+hi)/2; if (f(mid)>0) lo=mid; else hi=mid; }
       return ((lo+hi)/2)/pRate;
     }
-    /* FOUR ANCHORS, not three, since Step 59 item 1 landed. The fission slope is no longer one
-       number: the bisection holds pRate fixed at 100 kWe/yr and reads the standing power the
-       curve reaches by each era, pRate*min(yearsOperated(era), L), which is 100 kWe at 2030 (one
-       year of landing) and the L-year plateau, pRate*L = 1100 kWe, at 2040 and 2055 alike (both
-       past L years of landing). fFis is now a function of that standing power, so the boundary
-       is 0.584999 t/kW at 2030 (the 100 kWe point fFis is anchored on, MOVED at Step 64 ruling
-       B2 by the anchor-and-exponent shared-fit correction, and before that at Step 63 by the
-       aluminium and silicon power draw joining phi_o's own boundary term) and 0.526597 t/kW at
-       2040 and 2055 (the plateau, same cause). Ice grade still cancels at every era, because
-       fFis carries no ice dependence; the solar slope (0.698254, unmoved by Step 64 since fSol
-       carries no fFis dependence) for the same reason. The reader-facing claim at
-       fission-specific-power quoted 7.618144, 7.506622 and 1.46 percent until 2026-09-08,
-       retired without reaching them by the Step 58 kExc correction; those two literals are
-       still checked absent from the island below. */
-    const ANCHOR = 0.584999, ANCHOR_BUILT = 0.526597, ANCHOR_SOL = 0.698254, ANCHOR_MOVE = 16.22; // Step 64 ruling B2: re-derived after CONFIG.fFis.value and FFIS_FIT_B moved to one shared regression; the closed form above carries the new anchor and exponent and reproduces these bit for bit.
+    const ANCHOR = 0.567921, ANCHOR_SOL = 0.698254, ANCHOR_MOVE = 18.6656; // ruling D04: ONE fission number now, era-independent, re-derived from the flat coefficient.
     const vals = [], bad = [], valsSol = [], badSol = [];
     ['2030','2040','2055'].forEach(function(era){
       [1,2,5,10,20].forEach(function(ice){
         const s = slope(era, ice, true);
-        const wantFis = (era==='2030') ? ANCHOR : ANCHOR_BUILT;
         vals.push(era+'/'+ice+'wt%='+s.toFixed(6));
-        if (Math.abs(s-wantFis) > 5e-6) bad.push(era+'/'+ice+'wt%='+s.toFixed(6)+' != '+wantFis);
+        if (Math.abs(s-ANCHOR) > 5e-6) bad.push(era+'/'+ice+'wt%='+s.toFixed(6)+' != '+ANCHOR);
         const ss = slope(era, ice, false);
         valsSol.push(era+'/'+ice+'wt%='+ss.toFixed(6));
         if (Math.abs(ss-ANCHOR_SOL) > 5e-6) badSol.push(era+'/'+ice+'wt%='+ss.toFixed(6));
@@ -10794,7 +10769,7 @@ function runTests(fileText){
        this form is wrong wherever it is not.
        slope = [ (1-phi_o)*100*H*duty/(E1*kExc*captureEff) + f + B/kExc ] / (1 - phi_c0)
        with B = phi_o*H*dutyM/(eO2perT*yO2), the regolith per kWe the oxygen line removes, and
-       f now fFisAt(crossing power) rather than a flat CONFIG.fFis.value. */
+       f now CONFIG.fFis.value, flat -- there is no longer a crossing power for it to depend on. */
     const fRef = CONFIG.fFis.value + (CONFIG.transmission.value/1000)*3;
     const phiO = CONFIG.phiM.value;
     const eO2perTref = CONFIG.eO2.value*1000 + CONFIG.eRefine.value*CONFIG.rMetal.value;
@@ -10814,55 +10789,41 @@ function runTests(fileText){
                  + Bmet/CONFIG.kExc.value;
     const closed = (excT + fRef) / (1 - 0.10);
     const closedSol = (excT + CONFIG.fSol.value + (CONFIG.transmission.value/1000)*3) / (1 - 0.10);
-    // THE CLOSED FORM AT THE PLATEAUED SCALE: fFisAt() evaluated at pRate*L kWe (the standing
-    // power the crossing reaches once the fleet is L years old) rather than at the 100 kWe
-    // reference point, everything else in the ratio unchanged.
-    const fRefBuilt = CONFIG.fFis.value*Math.pow(L, FFIS_FIT_B) + (CONFIG.transmission.value/1000)*3;
-    const closedBuilt = (excT + fRefBuilt) / (1 - 0.10);
     const oxPowerBound = (function(){ const mm = model({ice:5, power:100, mass:100*ANCHOR/(1-0.10)*0.9});
       return mm.oBinding === 'power'; })();
-    const closedOK = Math.abs(closed - ANCHOR) < 5e-6 && Math.abs(closedSol - ANCHOR_SOL) < 5e-6
-                    && Math.abs(closedBuilt - ANCHOR_BUILT) < 5e-6;
+    const closedOK = Math.abs(closed - ANCHOR) < 5e-6 && Math.abs(closedSol - ANCHOR_SOL) < 5e-6;
     const decoySlope = closed * 1.05;
     const decoyFires = Math.abs(decoySlope - ANCHOR) > 5e-6;
-    /* SECOND DECOY, rebuilt 2026-09-11 per method/tdd_method.md's 2026-09-10 rule that a
-       decoy constructs the broken state it needs on the artifact under test and never
-       assumes the artifact already contains it. The original scanned KNOB_DATA for the
-       literal retired strings '7.618144'/'7.506622' and required them to still be present
-       somewhere in the shipped data to prove itself, coupled to the SHAPE of the data (those
-       exact stale digits happening to still be lying around) rather than to the defect (a
-       stale slope quietly passing as live). Step 59 site d125 correctly struck the one
-       sentence carrying both figures, which is exactly the disposition this row exists to
-       allow, and once gone the old decoy read the strike itself as its own failure. This
-       decoy manufactures its own stale reading instead, off a LIVE figure of this run's own
-       bisection (ANCHOR_SOL, perturbed by a margin no live slope lands on by coincidence)
-       rather than a number that happens to still be lying around, and confirms the same
-       rejection predicate below still flags a manufactured stale reading as matching no live
-       slope. Where no live anchor exists to manufacture from, the decoy has no target of its
-       shape and reports INAPPLICABLE rather than a pass it did not earn. */
-    const retiredApplicable = [ANCHOR, ANCHOR_SOL, ANCHOR_BUILT].every(Number.isFinite);
+    /* SECOND DECOY, unchanged in mechanism from Step 59/2026-09-11: manufactures a stale
+       reading off a LIVE figure of this run's own bisection rather than a number that happens
+       to still be lying around, per method/tdd_method.md's 2026-09-10 rule. */
+    const retiredApplicable = [ANCHOR, ANCHOR_SOL].every(Number.isFinite);
     const manufacturedStale = retiredApplicable ? (ANCHOR_SOL * 1.0713).toFixed(6) : null;
     const retired = retiredApplicable ? [manufacturedStale] : [];
     const retiredRejected = retiredApplicable &&
       retired.every(function(s){ return Math.abs(parseFloat(s) - ANCHOR) > 5e-6
-                                    && Math.abs(parseFloat(s) - ANCHOR_SOL) > 5e-6
-                                    && Math.abs(parseFloat(s) - ANCHOR_BUILT) > 5e-6; });
-    // THIRD DECOY: the RETIRED single-slope reading (the 2030 anchor applied uniformly to
-    // 2040/2055) is confirmed to fail, proving this row could not have stayed green unchanged
-    // over the scale-dependence its own fix introduced.
-    const oldSingleSlopeFires = Math.abs(ANCHOR_BUILT - ANCHOR) > 5e-6;
+                                    && Math.abs(parseFloat(s) - ANCHOR_SOL) > 5e-6; });
+    // THIRD DECOY, RE-POINTED: proves the retired fit does not come back. Builds, on a
+    // DISPOSABLE copy of fRef only (never wired into model()), the era-dependent plateau value
+    // fFisAt() used to carry before this ruling (CONFIG.fFis.value*L^FFIS_FIT_B, the built-fleet
+    // standing-power correction FLEET-08 used to apply), and confirms that value now disagrees
+    // with the live single anchor -- proving this row would catch the power-law shape, and the
+    // era split it produced, returning.
+    const fRefBuiltOld = CONFIG.fFis.value*Math.pow(L, FFIS_FIT_B) + (CONFIG.transmission.value/1000)*3;
+    const closedBuiltOld = (excT + fRefBuiltOld) / (1 - 0.10);
+    const retiredShapeDisagrees = Math.abs(closedBuiltOld - ANCHOR) > 5e-6;
     rec('FLEET-08','GATE',
-        'the regime boundary in landing-rate space is no longer one number on the fission branch: 0.584999 t/kW at 2030 (the 100 kWe point fFis is anchored on) and 0.526597 t/kW at 2040 and 2055 alike (the fleet-life plateau, 1100 kWe standing at a constant 100 kWe/yr landing rate), both re-derived by bisection at every era and at 1, 2, 5, 10 and 20 wt% ice and both matched by closed forms built from live CONFIG that carry fFisAt()\'s own power law at the era\'s own crossing power and, since Step 63, aluminium and silicon\'s own power draw off the same phi_o boundary; the solar slope (0.698254) and the ice-cancellation move together with the fission branch at every era, because the new draw is not a fission-specific term (DECOY 1: dropping the closed form\'s own power-law term is confirmed to disagree; DECOY 2: a stale reading manufactured from a live figure is confirmed to disagree with every live slope; DECOY 3: the retired single-slope reading, the 2030 anchor applied uniformly to 2040/2055, is confirmed to fail)',
+        'RE-POINTED, ruling D04: the regime boundary in landing-rate space is ONE number on the fission branch now, 0.567921 t/kW at every era (was two numbers, 0.584999 at 2030 and 0.526597 at the 2040/2055 plateau, before fFis went flat), re-derived by bisection at every era and at 1, 2, 5, 10 and 20 wt% ice and matched by a closed form built from live CONFIG that carries CONFIG.fFis.value flat rather than fFisAt()\'s retired power law; the solar slope (0.698254) and the ice-cancellation are unmoved (DECOY 1: perturbing the closed form by 5 percent is confirmed to disagree; DECOY 2: a stale reading manufactured from a live figure is confirmed to disagree with every live slope; DECOY 3: the retired fit does not come back -- a disposable copy of the pre-ruling era-dependent plateau term is confirmed to disagree with the live single anchor)',
         bad.length === 0 && badSol.length === 0 && vals.length === 15 && valsSol.length === 15
-          && closedOK && moveOK && decoyFires && (retiredApplicable ? retiredRejected : true) && oldSingleSlopeFires && oxPowerBound,
+          && closedOK && moveOK && decoyFires && (retiredApplicable ? retiredRejected : true) && retiredShapeDisagrees && oxPowerBound,
         (vals.length===15 && valsSol.length===15)
           ? (bad.length ? 'OFF ANCHOR: '+bad.slice(0,4).join('  ')
              : badSol.length ? 'OFF SOLAR ANCHOR: '+badSol.slice(0,4).join('  ')
-             : !moveOK ? 'THE 2030 MOVE IS '+movePct.toFixed(4)+' percent against the pinned '+ANCHOR_MOVE
+             : !moveOK ? 'THE MOVE IS '+movePct.toFixed(4)+' percent against the pinned '+ANCHOR_MOVE
              : !retiredApplicable ? 'INAPPLICABLE: no live anchor available to manufacture a stale reading from'
              : !retiredRejected ? 'DECOY DID NOT FIRE: the manufactured stale reading equals a live slope, so the predicate cannot tell it apart from a live one'
-             : '15 of 15 fission era x ice combinations split 5 at '+ANCHOR+' (2030) and 10 at '+ANCHOR_BUILT+' (2040/2055), 15 of 15 solar at '+ANCHOR_SOL+
-               '; closed forms from live CONFIG = '+closed.toFixed(6)+', '+closedBuilt.toFixed(6)+' and '+closedSol.toFixed(6)+'; DECOY 2 manufactured a stale reading ('+manufacturedStale+') off ANCHOR_SOL and confirmed it disagrees with every live slope')
+             : '15 of 15 fission era x ice combinations at '+ANCHOR+', 15 of 15 solar at '+ANCHOR_SOL+
+               '; closed forms from live CONFIG = '+closed.toFixed(6)+' and '+closedSol.toFixed(6)+'; DECOY 2 manufactured a stale reading ('+manufacturedStale+') off ANCHOR_SOL and confirmed it disagrees with every live slope; DECOY 3 confirmed the retired era-dependent plateau term ('+closedBuiltOld.toFixed(6)+') disagrees with the live single anchor')
           : 'EMPTY POPULATION: '+vals.length+' fission and '+valsSol.length+' solar combinations measured, not 15 and 15');
   }
 
@@ -10951,7 +10912,7 @@ function runTests(fileText){
     /* THE ACCEPTED CLASS WAS NARROWED on a finding of 2026-09-02, and the
        narrowing matters more than the row it sits in. It used to accept 'equal in specific mass'
        and 'the same in specific mass', which is the Gameplan ruling's own wording and is FALSE of
-       this model: the model runs them 1.6013 times apart, solar the heavier. A gate
+       this model: the model runs them 1.7820 times apart, solar the heavier. A gate
        that accepts the one sentence it exists to prevent is worse than no gate, because it
        certifies it. The live statement matches on 'indistinguishable', which is a claim about the
        two forms' effect on the ANSWER rather than about their coefficients, and the second
@@ -10962,7 +10923,7 @@ function runTests(fileText){
        from being what SATISFIES this row; it does not stop it being written beside a sentence
        that does. So the assertion the coefficients are equal, or the same, in specific mass is
        banned outright from the holder's statement, keyed to the construction rather than to the
-       Gameplan's exact spelling of it. fFis is anchored at 0.16537 t/kWe against fSol at 0.2673, so solar is
+       Gameplan's exact spelling of it. fFis is fixed flat at 0.15 t/kWe (Step 65 ruling D04) against fSol at 0.2673, so solar is
        the heavier of the two as of the Step 56 centring and the ordering it asserted before that
        was the other way round; what is indistinguishable is their EFFECT ON THE ANSWER, and that
        is a different sentence, which is why the reversal did not break this row. */
@@ -11016,7 +10977,7 @@ function runTests(fileText){
     if (bothLive && holders.length > 1) why.push('the statement is declared in ' + holders.length + ' claims and will drift: ' + holders.join(', '));
     if (one && !inThePair) why.push('the statement lives in ' + holderId + ', which is neither of the two power claims');
     if (one && !reaches) why.push(other + ' does not reach the declaration: no [[' + holderId + ']] pointer in its statement');
-    if (one && !noFalseEq) why.push('the statement asserts the two power forms are equal or the same in specific mass, which is false of this model: fFis and fSol run 1.6013 times apart, solar the heavier');
+    if (one && !noFalseEq) why.push('the statement asserts the two power forms are equal or the same in specific mass, which is false of this model: fFis and fSol run 1.7820 times apart, solar the heavier');
     if (bothLive && islandHits !== 1) why.push('the boundary-move token appears ' + islandHits + ' times across the whole data island; it is declared once or not at all');
     if (!decoyStaleRejected) why.push('DECOY DID NOT FIRE: the retired 1.46 percent literal still satisfies the measurement class, so a claim that went back to typing the figure would pass this row');
     if (!decoyFires) why.push('DECOY DID NOT FIRE');
