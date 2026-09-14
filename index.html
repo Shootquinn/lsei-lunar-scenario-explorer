@@ -518,6 +518,17 @@
           <span class="kcap" id="capPhiO"></span>
         </div>
 
+        <!-- The metals-production line's share of the SAME power and plant budget phi_c and
+             phi_o already draw on; phi_o + phi_c + phi_m are clamped against summing past one
+             inside model(), the identical pattern phi_o already follows against phi_c. This
+             slider is a reader OVERRIDE of the era table: dragging it changes this session only,
+             and the next preset or era click overwrites it back to the table's own value. -->
+        <div class="knob oxy">
+          <div class="krow"><span class="klabel">Metals-production split</span><span class="kval" id="v_phim"></span></div>
+          <input type="range" class="oxy" id="k_phim">
+          <span class="kcap" id="capPhiM"></span>
+        </div>
+
         <div class="knob ovr">
           <div class="krow"><span class="klabel">Solar kg/kWe</span><span class="kval" id="v_solovr"></span></div>
           <input type="range" class="ovr" id="k_solovr" min="0" max="300" step="1">
@@ -649,7 +660,7 @@
             <div class="metric"><div class="ml2">Earth delivery cost</div><div class="mv"><span id="m_deliv"></span><span class="munit">/kg</span></div></div>
             <div class="metric"><div class="ml2">Propellant value</div><div class="mv"><span id="m_prop"></span><span class="munit">/yr</span></div></div>
             <div class="metric"><div class="ml2">Construction value</div><div class="mv"><span id="m_const"></span><span class="munit">/yr</span></div></div>
-            <div class="metric" title="Utilisation rides beside N because ceil() leaves the last plant partly idle unless Ofull divides the per-plant ceiling exactly."><div class="ml2">Plants standing</div><div class="mv"><span id="m_plants" data-step60-plantcount></span><span class="munit" id="m_plants_sub"></span></div></div>
+            <div class="metric" title="Utilisation rides beside N because ceil() leaves the last plant partly idle unless the applied output divides the per-plant ceiling exactly. Two unit types, each ceilinged on its own capacity: dedicated O2 reactors and metal-primary plants, summed."><div class="ml2">Plants standing</div><div class="mv"><span id="m_plants" data-step60-plantcount></span><span class="munit" id="m_plants_sub"><span id="m_plants_ox"></span> O2 &middot; <span id="m_plants_metal"></span> metal &middot; cumulative <span id="m_plants_cum"></span></span></div></div>
             <div class="metric" title="Wright's law at the dialed progress ratio. target 50 kg/t/yr · Jones 2019 109 kg/t/yr for comparison."><div class="ml2">Specific mass</div><div class="mv"><span id="m_specmass" data-step60-specificmass></span><span class="munit">kg/t/yr</span></div></div>
             <div class="metric" title="The progress ratio that closes this cell's gap to the Step 58 target; undefined where N_cum=1 has no doubling yet."><div class="ml2">Rate required for target</div><div class="mv"><span id="m_reqrate" data-step60-requiredrate></span><span class="munit" id="m_reqrate_sub">PR</span></div></div>
           </div>
@@ -690,7 +701,7 @@
         <div class="panel" data-t="regime" role="tabpanel" hidden>
           <div class="regime-wrap">
             <div class="ylab">power landed per year &#8593;</div>
-            <canvas id="regime_cv" width="560" height="300" aria-label="Water-limiting regime over landed mass and power"></canvas>
+            <canvas id="regime_cv" width="560" height="300" aria-label="Water-limiting regime over standing mass and power"></canvas>
           </div>
           <div class="xlab">landed mass per year &#8594;</div>
           <div class="legend" id="regimeLegend"></div>
@@ -2188,7 +2199,7 @@
   "leo-to-surface-multiplier"
  ],
  "status": "2030 contracted-but-unarchived forward price, UNVERIFIED-pending on the ispace-SpaceX and CLPS primaries; 2040 PROJECTED; 2055 PROJECTED/ASSUMPTION",
- "note": "Dollars per kg of delivery cost avoided. The era default is a hint the phase selector seeds; the dial stays freely explorable (LC2)."
+ "note": "Dollars per kg of delivery cost avoided. The era default seeds the dial once, at load; era and preset clicks never write it afterward, and the dial stays freely explorable (LC2)."
 };
   /* C_HW, Step 58 install 2, Quinn's ruling of 2026-09-08. Hardware cost enters as a reader-
      dialled CONTROL rather than a fixed coefficient, because the corridor between two
@@ -2838,7 +2849,7 @@
   },
   "MOD-ICE-NOMINAL": {
    "key": "MOD-ICE-NOMINAL",
-   "text": "Calibrated central band, 2 to 8 wt%. At 5 wt%, the LCROSS point value, the model delivers 7.4 kWh per kg water at a {rho} to 1 regolith-to-water ratio, matching the excavate-and-heat design point. Water scales with power only up to a peak on the power rail and falls away past it, because the power system takes its own mass out of the same landed budget the mining plant draws on, and landed mass is the ceiling that binds wherever the power rail runs ahead of it, which on the live coefficients is at {massBoundCells} of the nine preset cells. The energy constant is a mature-plant design target, roughly two to six times better than the integrated demonstration.",
+   "text": "Calibrated central band, 2 to 8 wt%. At 5 wt%, the LCROSS point value, the model delivers 7.4 kWh per kg water, matching the excavate-and-heat design point: a {rho} to 1 regolith-to-water ratio in the deposit, and a {feedRatio} to 1 ratio through the plant once capture efficiency is accounted for. Water scales with power only up to a peak on the power rail and falls away past it, because the power system takes its own mass out of the same landed budget the mining plant draws on, and landed mass is the ceiling that binds wherever the power rail runs ahead of it, which on the live coefficients is at {massBoundCells} of the nine preset cells. The energy constant is a mature-plant design target, roughly two to six times better than the integrated demonstration.",
    "claims": [
     "energy-per-kilogram",
     "ice-grade-evidence",
@@ -2999,13 +3010,13 @@
    ]
   },
   "powerRem": {
-   "expr": "power_rem = power - P_metals - P_al - P_si",
+   "expr": "power_rem = max(0, power - P_metals - powerMetalProd - P_al - P_si - powerFab)",
    "claims": [
     "shared-capacity-split"
    ]
   },
   "RcapRem": {
-   "expr": "R_cap_rem = R_cap - R_metals",
+   "expr": "R_cap_rem = max(0, R_cap - R_metals - regolithMetalProd - regolithFab)",
    "claims": [
     "shared-capacity-split"
    ]
@@ -3017,7 +3028,7 @@
    ]
   },
   "mPwr": {
-   "expr": "M_power = f_pwr * power + (transmission/1000) * transDistKm * power",
+   "expr": "M_power = mix * fFis * power + mSolarLanded + (transmission/1000) * transDistKm * power",
    "claims": [
     "fission-specific-power",
     "solar-mass-allocation",
@@ -3038,7 +3049,7 @@
    ]
   },
   "mining": {
-   "expr": "M_mining = max(0, M_eff - M_power)",
+   "expr": "M_mining = max(0, M_eff - M_power - mFab)",
    "claims": [
     "zero-intercept-mass-law"
    ]
@@ -3128,6 +3139,32 @@
     "oxygen-extraction-energy"
    ]
   },
+  "Mfull": {
+   "expr": "M_full = min(power * H * dutyM / (eMetalWholePlant * 1000), yO2 * rMetal * R_cap)",
+   "claims": [
+    "min-of-two-limits",
+    "binding-regime-labels",
+    "iron-production-energy"
+   ]
+  },
+  "metalProduced": {
+   "expr": "metalProduced = phi_m * M_full",
+   "claims": [
+    "shared-capacity-split"
+   ]
+  },
+  "coproductO2": {
+   "expr": "coproductO2 = metalProduced * ratioO2PerKgMetal",
+   "claims": [
+    "oxygen-extraction-energy"
+   ]
+  },
+  "oxygenTotal": {
+   "expr": "oxygenTotal = oxygen + coproductO2",
+   "claims": [
+    "shared-capacity-split"
+   ]
+  },
   "r_prop": {
    "expr": "r_prop = mass * (1 - (1 - decayRate)^decayLife) / (decayLife * cap)",
    "claims": [
@@ -3214,6 +3251,11 @@
   },
   "phi_o": {
    "label": "oxygen split, the reader's own dial (Advanced); the model default absent an explicit value is CONFIG.phiM.value",
+   "claim": "shared-capacity-split",
+   "kind": "input"
+  },
+  "phi_m": {
+   "label": "metals-production split, set per scenario and era (PHI_M_BY_ERA) and reader-overridable on the same rail phi_o uses (Advanced); the model default absent an explicit value is CONFIG.phiMetalProd.value",
    "claim": "shared-capacity-split",
    "kind": "input"
   },
@@ -7827,6 +7869,15 @@
    "commercial": {"label": "The Commercial Break", "funding": "high", "ice": 5, "phi_c": 0.05}
   };
 
+  /* The metals-production allocation, set per scenario AND era, approved values. Nine values;
+     every reader of this table (applyPreset, the phase handler, the self-checks) indexes it the
+     same way: PHI_M_BY_ERA[era][presetId]. */
+  var PHI_M_BY_ERA = {
+   "2030": { "artemis": 0.05, "contested": 0.05, "commercial": 0.05 },
+   "2040": { "artemis": 0.15, "contested": 0.10, "commercial": 0.20 },
+   "2055": { "artemis": 0.30, "contested": 0.15, "commercial": 0.45 }
+  };
+
   var KNOB_DATA = {
     CONFIG: CONFIG,
     VALUE: VALUE,
@@ -7850,6 +7901,7 @@
     HANDLES_UNRESOLVED: HANDLES_UNRESOLVED,
     EXCLUSIONS: EXCLUSIONS,
     PRESETS: PRESETS,
+    PHI_M_BY_ERA: PHI_M_BY_ERA,
     /* The pin is FNV-1a over CONFIG, CLAIMS, VALUE and LANDED_COST, so it moves whenever any
        text inside those objects moves, whether or not a number did. It moves here for exactly
        one cause, stated separately from the value question so that a moved pin is never read as
@@ -8155,7 +8207,7 @@
        3/4/5 parse ("Oleson's point margined at 0.2511500003355, giving b =
        -0.15951304812569203" and "so the fit's shape matches what this sentence already
        claimed"), survives character for character. See both files for the reasoning. */
-    __pin: "029528ed"
+    __pin: "9cd8ae17"
   };
 
   root.KNOB_DATA = KNOB_DATA;
@@ -8404,6 +8456,9 @@ const DETENTS = {
      clamps the sum instead, so the slider reaches every notch and the model tells the truth
      about what it did with the value. */
   phi_o: [0,0.05,0.10,0.15,0.20,0.25,0.30,0.35,0.40,0.45,0.50,0.55,0.60,0.65,0.70,0.75,0.80,0.85,0.90,0.95,1.0],
+  // phi_m rides phi_o's own rail object, not a duplicate literal, so a future edit to one notch
+  // set cannot silently leave the other stale.
+  get phi_m(){ return DETENTS.phi_o; },
   landed_cost: KNOB_DATA.LANDED_COST.rail,
   /* Step 58 install 2: the hardware-cost CONTROL's rail, KNOB_DATA.C_HW.rail, spanning the
      $20-$100,000/kg corridor and hitting every named anchor exactly. Free dial, like
@@ -8411,6 +8466,12 @@ const DETENTS = {
   chw: KNOB_DATA.C_HW.rail
 };
 function nearestIdx(arr,v){ let bi=0,bd=Infinity; for(let i=0;i<arr.length;i++){const d=Math.abs(arr[i]-v); if(d<bd){bd=d;bi=i;}} return bi; }
+/* Nearest detent AT OR BELOW v, never above it: the highest index whose rail value does not
+   exceed v, floored to 0 when v sits below every notch. Used where a slider's own THUMB stands
+   in for a continuous value it cannot exactly reach (a placed buildout-curve point), so a reader
+   who then nudges the thumb one step moves to the notch adjacent to where the thumb visibly sits,
+   never past a notch nearestIdx would have rounded up over. */
+function floorIdx(arr,v){ let bi=0; for(let i=0;i<arr.length;i++){ if(arr[i] <= v+1e-9) bi=i; } return bi; }
 function snapVal(key,v){ return DETENTS[key][nearestIdx(DETENTS[key],v)]; }
 const clamp01 = x => Math.max(0, Math.min(1, x));
 
@@ -8473,6 +8534,20 @@ const CURVE_MAX = { mass: DETENTS.mass[DETENTS.mass.length-1],
 const CURVE = { pts: { mass:  {2030:null, 2040:null, 2055:null},
                        power: {2030:null, 2040:null, 2055:null} } };
 function curveReset(){ CURVE_ERAS.forEach(function(y){ CURVE.pts.mass[y]=null; CURVE.pts.power[y]=null; }); }
+/* Ruled: switching to a different preset clears reader-placed curve points and the footer says
+   so, once, on the render that follows; re-clicking the preset already active does neither. Set
+   only where applyPreset() itself decides a switch happened, never inside curveReset() (which
+   other callers, decoys and fixtures also use without meaning "tell the reader"), and consumed
+   (read once, then cleared) by curveDraw()'s own footer line. */
+let curveResetByPresetSwitch = false;
+/* THE LAST PRESET APPLIED, tracked for its own sake rather than reread off matchesPreset(), which
+   already means something else (Step 56 remediation 3): it returns false the moment a curve point
+   is placed, by design, so the abstract fade can treat a drag as leaving the preset. Re-using it
+   here would clear a reader's own point on the very re-click meant to keep it, the opposite of the
+   ruling. "Already on this preset" for the curve's own purposes is simply "the last preset button
+   applied was this same one," independent of anything dragged since. */
+let lastAppliedPresetId = null;
+function presetIdOf(p){ for (const id in PRESETS) if (PRESETS[id] === p) return id; return null; }
 /* THE DRAWN CONTROL POINTS AS ONE COMPARABLE VALUE, empty when the reader has placed none.
    B3's subject is a control the deviation machinery is blind to, and Step 56 sub-step 1 added a
    sixth such control with the largest effect of the six: at Agency Led Baseline 2055, one drag of
@@ -8970,7 +9045,6 @@ function model(a){
      the defect install 6 repaired for mix, in the same function, and this is its other half. */
   const mixEff = fission ? ((a.mix != null) ? a.mix : 1) : 0;
   const fPwr   = mixEff*fFisEff + (1-mixEff)*fSolEff;
-  let mPwr = fPwr * power;
   // Transmission cabling mass (Step 33, item 5): its own additive term,
   // applied identically on both the fission and the solar branch above,
   // never folded into fFis or fSol. CONFIG.transmission is stored in
@@ -8984,7 +9058,6 @@ function model(a){
   // here and in CONFIG.transmission.note. Across the 0-5 km range the slider
   // shipped with, this term moved the regime boundary by 1.34 percent.
   const transAdd = (CONFIG.transmission.value/1000) * transDistKm * power;
-  mPwr = mPwr + transAdd;
 
   // Non-productive downmass (Step 33, item 6). phi_c0 removes a fraction of
   // the RAW landed mass (consumables, spares, crew support, science
@@ -8995,187 +9068,148 @@ function model(a){
   // system-mass effect. phi_c0 defaults to 0, so massEff equals mass at
   // every default call.
   const massEff = mass * (1 - phi_c0);
-  const mining = Math.max(0, massEff - mPwr);
 
-  // Plant throughput capacity (E6)
-  const Rcap = CONFIG.kExc.value * mining;             // t regolith / yr
-
-  /* ---- THE OXYGEN AND ALLOY LINE (Step 49, sub-steps 2 and 3; RELOCATED at Step 56) -------
-     Molten regolith electrolysis, the one route in this corpus that connects a metal mass to a
-     regolith mass. It is built in the shape the construction branch already uses: a power
-     ceiling, a throughput ceiling, their minimum as the full-allocation figure, and the live
-     fraction applied to that. Four things about it are not copied from the water branch and
-     each is deliberate.
-
-     IT CARRIES ITS OWN AVAILABILITY. dutyM, not CONFIG.duty. CONFIG.duty is one half of a
-     two-coefficient fit jointly pinned with E1 to reproduce a water table, and its own note
-     tells the next person to move it together with E1. Wiring this line to that object would
-     mean a re-fit of a water calibration silently moved every oxygen, alloy and regolith
-     tonnage on screen, and would make that note false by adding a consumer it does not warn
-     about. The two agree at 0.6 today by carry rather than by derivation.
-
-     IT COMPUTES ITS OWN BINDING CONSTRAINT, in the water branch's own vocabulary so the two
-     labels are comparable rather than merely different. Wpower against Wthr is a water
-     comparison; Opower against Othr is not, and the two disagree over a large part of the
-     space a reader can dial. The oxygen square names its own regime rather than inheriting
-     the chip at the top of the cockpit.
-
-     IT READS eRefine RATHER THAN DECLARING IT. The post-reactor separation energy is stated
-     at zero on a qualitative sentence, so it is numerically invisible today; a coefficient
-     the model does not read is a number in a table, and no row that does not perturb it
-     could tell the difference. It enters here as eRefine*rMetal kWh per tonne of oxygen,
-     which is exactly 0 at the stated value and moves every tonnage the moment it is set.
-
-     PRODUCTION IS JOINT ON THE DEDICATED LINE. rMetal multiplies the oxygen output, so both
-     tonnages leave one reactor together; the whole of this line's process energy sits
-     against oxygen, and nothing here allocates it between the two any more (Step 52).
-
-     IT RUNS FIRST AND PAYS FOR WHAT IT USES (Step 56, sub-step 4-B2). It used to be handed a
-     fixed phi_o share of BOTH shared budgets and to keep whichever share its own minimum did
-     not bind on. A line that binds on power and is entitled to throughput STRANDS that
-     throughput inside its own entitlement, and water was charged for it: 1,029.53 t/yr of idle
-     plant at Agency Led Baseline / Sustained, under a Notes sentence saying those books close.
-     So the line now takes its ACTUAL draw off each budget and the pre-branch model runs
-     UNALTERED on the remainder. The ordering is unobservable and needs no clamp, because the
-     draw is bounded by the entitlement on both budgets simultaneously:
-       regolithMetals = phi_o*Ofull/yO2 <= phi_o*Othr/yO2 = phi_o*Rcap, and
-       powerMetals    = phi_o*Ofull*eO2perT/(H*dutyM) <= phi_o*Opower*eO2perT/(H*dutyM) = phi_o*power.
-     AT phi_o = 0 THE MODEL IS BIT-IDENTICAL TO ITS PRE-BRANCH SELF: oxygen is exactly 0, so
-     both draws are exactly 0, so powerRem === power and RcapRem === Rcap as IEEE-754 values,
-     and every expression below is the identical sequence of operations on identical operands.
-     That is a structural argument rather than a tolerance one, and OX-ID1 measures it.
-     -------------------------------------------------------------------------------------- */
+  // The oxygen/alloy, metals-production and fab-substrate lines each earn a throughput ceiling
+  // off the plant's own regolith capacity (Rcap), resolved below from the mining-plant mass; the
+  // pieces that do not depend on that capacity are resolved once, here.
   const dutyM   = CONFIG.dutyM.value;
   const rMetal  = CONFIG.rMetal.value;
   const yO2     = CONFIG.yO2.value;
-  // kWh per TONNE of oxygen: the reactor's own specific energy plus whatever the alloy that
-  // comes out with it costs to separate, which is rMetal tonnes of alloy per tonne of oxygen.
-  const eO2perT = CONFIG.eO2.value * 1000 + CONFIG.eRefine.value * rMetal;
+  const eO2perT = CONFIG.eO2.value * 1000 + CONFIG.eRefine.value * rMetal; // kWh per t oxygen, reactor plus separation
   const Opower  = power * H * dutyM / eO2perT;         // t O2/yr if all power went to oxygen
-  const Othr    = yO2 * Rcap;                          // t O2/yr if all plant went to oxygen
-  const Ofull   = Math.min(Opower, Othr);              // oxygen at full allocation
-  const oxygen  = phi_o * Ofull;                       // oxygen at the live phi_o
-  const alloy   = rMetal * oxygen;                     // the co-product, at the fixed chemistry ratio
-  const regolithMetals = (yO2 > 0) ? oxygen / yO2 : 0; // the regolith this line ACTUALLY moves
-  const powerMetals    = oxygen * eO2perT / (H * dutyM); // the power this line ACTUALLY draws
 
-  // ---- THE METALS-PRODUCTION LINE (Step 52 sub-step 3). Independent of phi_o: its own
-  // allocation phiMetalProd, its own denominator (kWh per kilogram of METAL, whole plant,
-  // Guerrero-Gonzalez and Zabel, never derived from eO2), and its own regolith yield off the
-  // same reduction chemistry the dedicated line already trusts (yO2*rMetal is t metal per t
-  // regolith, not a new yield claim). It liberates oxygen as ITS OWN co-product at
-  // ratioO2PerKgMetal kg O2 per kg metal (Guerrero-Gonzalez and Zabel Table 2, plant-delivery
-  // basis). It runs first and pays for what it uses, exactly like the dedicated line above, so
-  // at phiMetalProd = 0 it produces nothing, draws nothing, and moves nothing downstream --
-  // the keystone identity this sub-step is built on.
   const eMetalPerT = CONFIG.eMetalWholePlant.value * 1000;  // kWh/kg -> kWh/t metal
   const yMetal = yO2 * rMetal;                               // t metal / t regolith
   const MpowerFull = power * H * dutyM / eMetalPerT;         // t metal/yr if all power -> metal
-  const MthrFull   = yMetal * Rcap;                          // t metal/yr if all plant -> metal
-  const Mfull      = Math.min(MpowerFull, MthrFull);         // metal at full allocation
-  const metalProduced = phi_m * Mfull;                       // metal at the live allocation
-  const coproductO2   = metalProduced * CONFIG.ratioO2PerKgMetal.value; // t O2 liberated with it
-  const regolithMetalProd = (yMetal > 0) ? metalProduced / yMetal : 0;  // regolith this line ACTUALLY moves
-  const powerMetalProd    = metalProduced * eMetalPerT / (H * dutyM);   // power this line ACTUALLY draws
 
-  /* ---- ALUMINIUM, THE SECOND TAP OF THE SAME REACTOR (Step 63) ------------------------------
-     Schneiderman 2025 Table 2 p.7: Extraction Event 1 at lambda-O2 = 0.30 taps 27.8 wt% of feed
-     as the ferrosilicon alloy this file already models as `alloy` above; Extraction Event 2 at
-     lambda-O2 = 0.37, inside the same 1675 C envelope and before the 0.375 liquidus crossing,
-     taps a further 7.4 wt% of the SAME feed batch as 99.27 wt% Al, iron and manganese absent.
-     Both taps come off one batch, so aluminium is sized off the alloy tonnage already computed,
-     by the ratio of the two tap fractions, and draws no regolith or reactor power of its own:
-     the batch's regolith and reactor power are already paid by regolithMetals and powerMetals
-     above. Aluminium's own co-product O2, 0.889 kg per kg Al, is not added anywhere as a
-     further oxygen term: it is already inside `oxygen`, the same reactor's cumulative evolved
-     O2 through whatever lambda the power and throughput ceilings reach, of which the Event-2
-     tap is one further increment on the same curve. Adding it again to oxygenTotal would
-     double-count the same O2. The only new charge is the incremental practical energy to take
-     the tapped metal to usable Al, 9.5 kWh/kg (Jehn 2024 LAMPP, mass-allocated, 1.70x the 5.60
-     kWh/kg reversible floor), deducted from the same shared power pool water and construction
-     draw from, the role eRefine plays for the alloy tap but at a real, sourced, nonzero figure. */
-  const aluminium = CONFIG.ratioAlToAlloy.value * alloy;           // t/yr, the second tap, sized off the first
-  const powerAl   = aluminium * CONFIG.eAlPractical.value * 1000 / (H * dutyM); // kWe this tap draws
-
-  /* ---- SILICON, PURIFIED OUT OF THE FIRST TAP'S OWN ALLOY (Step 63) -------------------------
-     The Rayleigh vacuum distillation (Step 53) purifies elemental silicon OUT OF the tapped
-     alloy rather than off any new feed, so it draws no regolith or reactor power of its own
-     either; it reads the alloy's own silicon content, 84.75 wt% by the same Table 2 assay.
-     Purification yield, the fraction of processed silicon kept in the residue, is a band, the
-     strict iron target to the relaxed one, and it stays a band here rather than a picked point:
-     the low (strict) end is what draws power, the conservative choice, and the high (relaxed)
-     end is an uncosted potential reading, the shape constructionPotential already carries
-     beside construction. 25 kWh/kg is PINNED (Quinn 2026-09-11) as the practical purification
-     energy per kilogram of silicon retained, the same practical-versus-floor pairing
-     eAlPractical carries. */
-  const siProcessed = CONFIG.siFracOfAlloy.value * alloy;          // t/yr of Si CONTAINED in the tapped alloy
-  const siliconLow  = CONFIG.ySiStrict.value * siProcessed;        // t/yr purified, strict target, power-charged
-  const siliconHigh = CONFIG.ySiRelax.value  * siProcessed;        // t/yr purified, relaxed target, uncosted potential
-  const powerSi     = siliconLow * CONFIG.eSiPurify.value * 1000 / (H * dutyM); // kWe the costed (low) end draws
-
-  /* ---- IN-SITU MANUFACTURED SOLAR, the panel's own line ------------------------------------
-     Two reader controls feed this block: the applied in-situ share (insitu, already clamped by
-     the caller against the buildout ceiling before this call, the identical pattern phi_o and
-     phi_m already follow) and the fab-productivity rail (fabProd, kWe of array output capacity
-     a year per tonne of fab mass landed, a rung the reader drags because no source in this
-     project's holdings bounds it). insituReq and fabCeiling are also taken as already-resolved
-     arguments and echoed back, never recomputed here, so the published clamp equation and the
-     rendered figures read the same numbers.
-
-     THE SOLAR BRANCH, NAMED. mSolarBranch is today's landed solar-branch mass, the same
-     (1-mixEff)*fSolEff*power term mPwr already carries when fission is off or the mix is not 1.
-     At insitu = 0, kWeRequested is exactly zero and Math.min against two non-negative ceilings
-     is exactly zero, so every new field below is exactly zero without a separate zero-guard,
-     the same argument the mix arm already makes for itself.
-
-     THE SUBSTRATE IS THE FAB'S OWN LINE, run in the same tier as the oxygen and metals-production
-     lines, against the full power and Rcap, not their remainder. It is regolith melted and
-     formed in place, new local-material consumption nothing else in this model accounts for,
-     so it earns its own throughput ceiling exactly the way the oxygen line already earns one.
-
-     THE SILICON IS NOT A NEW DRAW. It is already purified out of the alloy tap above
-     (siliconLow), at a regolith and power cost this model already charged in full before this
-     block runs. This block only checks whether that existing supply covers what the
-     manufactured area needs; it never re-charges the purification energy and never opens a
-     second silicon product.
-
-     FAB BINDING IS THE LESSER OF THREE, reported by name: the request the applied share
-     implies, the substrate ceiling, and the silicon ceiling. On this project's own numbers
-     silicon runs orders of magnitude above demand and is not expected to bind; that is a
-     finding this block surfaces rather than a branch it optimises away, and a state where it
-     does bind is reported honestly rather than hidden. */
-  const mSolarBranch = (1 - mixEff) * fSolEff * power;
+  // In-situ manufactured solar: the caller-resolved inputs. insituReq and fabCeiling are already
+  // resolved and clamped by the caller and are echoed back rather than recomputed; insitu is the
+  // applied share model() actually uses. fabProd is the productivity rail's live value.
+  const mSolarBranch = (1 - mixEff) * fSolEff * power; // today's landed solar-branch mass, named
   const insituReq = (a.insituReq != null) ? Math.max(0, Math.min(1, a.insituReq)) : 0;
   const fabCeil = (a.fabCeiling != null) ? Math.max(0, Math.min(1, a.fabCeiling)) : 0;
   const insitu = (a.insitu != null) ? Math.max(0, Math.min(1, a.insitu)) : 0;
   const fabProdEff = (a.fabProd != null) ? a.fabProd : CONFIG.fabProd.value;
   const mSpecFab = (fabProdEff > 0) ? 1 / fabProdEff : Infinity;
-
   const dutyFab = CONFIG.dutyFab.value, eFabPerT = CONFIG.eFabPerT.value, ySub = CONFIG.ySub.value;
   const aPerKWe = (CONFIG.iAM0.value * CONFIG.etaPV.value > 0) ? 1000 / (CONFIG.iAM0.value * CONFIG.etaPV.value) : 0; // m^2/kWe
   const mArealSubTPerKWe = CONFIG.mArealSub.value * aPerKWe / 1e6; // t substrate / kWe
   const mArealSiTPerKWe  = CONFIG.mArealSi.value  * aPerKWe / 1e6; // t Si / kWe
-
   const FpowerFullSub = power * H * dutyFab / eFabPerT;   // t substrate/yr if all power -> substrate melt
-  const FthrFullSub   = ySub * Rcap;                       // t substrate/yr if all plant -> substrate
-  const substrateFull = Math.min(FpowerFullSub, FthrFullSub);
-  const kWeFromSubstrate = (mArealSubTPerKWe > 0) ? substrateFull / mArealSubTPerKWe : 0;
-  const kWeFromSilicon   = (mArealSiTPerKWe  > 0) ? siliconLow    / mArealSiTPerKWe  : 0;
+  const FAB_BIND_EPS = 1e-9;
 
+  /* THE MASS LEDGER AND THE IN-SITU FAB SHARE A FIXED POINT, solved by BISECTION rather than
+     by fixed-point iteration. mPwr's landed-solar term is mSolarLanded (today's solar-branch
+     mass less whatever the fab actually builds) and mining subtracts the fab's own landed mass,
+     mFab; both come out of the fab block below, which itself needs the plant's regolith
+     throughput, Rcap = kExc * mining, to know its own substrate ceiling. A full-replacement
+     fixed-point iteration on this loop can enter a STABLE LIMIT CYCLE at a heavy fab (fabProd
+     small, mSpecFab large): a trial charge heavy enough saturates massEff and Math.max(0, ...)
+     collapses mining to exactly 0, which starves the substrate ceiling to 0, which frees the
+     next trial to assume no charge at all, which restores mining and repeats forever -- measured
+     directly, and no fixed damping factor escapes it (0.05 damping over 200 passes still does
+     not converge on an adversarial low-fabProd state).
+
+     THE MAP IS PROVABLY MONOTONIC, which a full-replacement iteration never used. Define
+     xResult(xAssumed) as the array-equivalent output the fab achieves when its own trial charge
+     against the landed-mass budget is xAssumed. A heavier xAssumed can only reduce mining (via
+     the same Math.max(0, ...) clamp) and so Rcap, which can only reduce or hold the oxygen,
+     metals-production, substrate and silicon lines that all read Rcap, so xResult is NON-
+     INCREASING in xAssumed while xAssumed itself strictly increases; kWeRequested is a constant
+     ceiling on both. Their difference is therefore strictly decreasing, crosses zero exactly
+     once, and bisection finds that crossing to machine tolerance in a bounded number of passes
+     regardless of where a Math.max(0, ...) discontinuity sits along the way. At insitu = 0 the
+     upper bisection bound (kWeRequested * fSolEff) is exactly 0 on the very first pass, so the
+     interval is already a single point and every figure below is bit-identical to the model this
+     layer sits on top of, the same keystone argument the fixed-point form made, proved the same
+     way: by construction rather than by observation. */
   const fabOutputRateReq = insitu * mSolarBranch / VALUE.L.value; // t/yr array-equivalent the applied share requests
   const kWeRequested = (fSolEff > 0) ? fabOutputRateReq / fSolEff : 0;
-  const kWeAchieved = Math.min(kWeRequested, kWeFromSubstrate, kWeFromSilicon);
-  const FAB_BIND_EPS = 1e-9;
-  const fabBinding = (kWeAchieved + FAB_BIND_EPS < kWeRequested)
-    ? ((kWeFromSubstrate <= kWeFromSilicon) ? 'substrate' : 'silicon')
-    : 'request';
 
-  const fabOutputRate = kWeAchieved * fSolEff;             // t/yr array-equivalent actually avoided
-  const mSolarLanded = mSolarBranch - fabOutputRate;       // what remains landed
-  const mFab = mSpecFab * fabOutputRate;                   // the fab's own landed mass this call
-  const panelFeedstock = kWeAchieved * mArealSubTPerKWe;   // t/yr substrate actually processed
-  const regolithFab = (ySub > 0) ? panelFeedstock / ySub : 0;
-  const powerFab = panelFeedstock * eFabPerT / (H * dutyFab);
+  // One trial pass: given an ASSUMED fab output (xAssumed), the mass ledger and every downstream
+  // line it feeds, ending in the output that assumption actually earns (xResult). Pure function
+  // of xAssumed and the already-resolved inputs above; nothing here is stateful across trials.
+  function fabTrial(xAssumed){
+    const mSolarLandedT = mSolarBranch - xAssumed;
+    const mFabT = mSpecFab * xAssumed;
+    const mPwrT = mixEff*fFisEff*power + mSolarLandedT + transAdd;
+    const miningT = Math.max(0, massEff - mPwrT - mFabT);
+    const RcapT = CONFIG.kExc.value * miningT;
+
+    const OthrT = yO2 * RcapT;
+    const OfullT = Math.min(Opower, OthrT);
+    const oxygenT = phi_o * OfullT;
+    const alloyT = rMetal * oxygenT;
+    const regolithMetalsT = (yO2 > 0) ? oxygenT / yO2 : 0;
+    const powerMetalsT = oxygenT * eO2perT / (H * dutyM);
+
+    const MthrFullT = yMetal * RcapT;
+    const MfullT = Math.min(MpowerFull, MthrFullT);
+    const metalProducedT = phi_m * MfullT;
+    const coproductO2T = metalProducedT * CONFIG.ratioO2PerKgMetal.value;
+    const regolithMetalProdT = (yMetal > 0) ? metalProducedT / yMetal : 0;
+    const powerMetalProdT = metalProducedT * eMetalPerT / (H * dutyM);
+
+    const aluminiumT = CONFIG.ratioAlToAlloy.value * alloyT;
+    const powerAlT = aluminiumT * CONFIG.eAlPractical.value * 1000 / (H * dutyM);
+
+    const siProcessedT = CONFIG.siFracOfAlloy.value * alloyT;
+    const siliconLowT = CONFIG.ySiStrict.value * siProcessedT;
+    const siliconHighT = CONFIG.ySiRelax.value * siProcessedT;
+    const powerSiT = siliconLowT * CONFIG.eSiPurify.value * 1000 / (H * dutyM);
+
+    const FthrFullSubT = ySub * RcapT;
+    const substrateFullT = Math.min(FpowerFullSub, FthrFullSubT);
+    const kWeFromSubstrateT = (mArealSubTPerKWe > 0) ? substrateFullT / mArealSubTPerKWe : 0;
+    const kWeFromSiliconT = (mArealSiTPerKWe > 0) ? siliconLowT / mArealSiTPerKWe : 0;
+
+    const kWeAchievedT = Math.min(kWeRequested, kWeFromSubstrateT, kWeFromSiliconT);
+    const fabBindingT = (kWeAchievedT + FAB_BIND_EPS < kWeRequested)
+      ? ((kWeFromSubstrateT <= kWeFromSiliconT) ? 'substrate' : 'silicon')
+      : 'request';
+    const xResult = kWeAchievedT * fSolEff;
+
+    const panelFeedstockT = kWeAchievedT * mArealSubTPerKWe;
+    const regolithFabT = (ySub > 0) ? panelFeedstockT / ySub : 0;
+    const powerFabT = panelFeedstockT * eFabPerT / (H * dutyFab);
+
+    return {
+      xResult, mPwr: mPwrT, mining: miningT, Rcap: RcapT,
+      Othr: OthrT, Ofull: OfullT, oxygen: oxygenT, alloy: alloyT,
+      regolithMetals: regolithMetalsT, powerMetals: powerMetalsT,
+      MthrFull: MthrFullT, Mfull: MfullT, metalProduced: metalProducedT, coproductO2: coproductO2T,
+      regolithMetalProd: regolithMetalProdT, powerMetalProd: powerMetalProdT,
+      aluminium: aluminiumT, powerAl: powerAlT,
+      siProcessed: siProcessedT, siliconLow: siliconLowT, siliconHigh: siliconHighT, powerSi: powerSiT,
+      FthrFullSub: FthrFullSubT, substrateFull: substrateFullT,
+      kWeFromSubstrate: kWeFromSubstrateT, kWeFromSilicon: kWeFromSiliconT, kWeAchieved: kWeAchievedT,
+      panelFeedstock: panelFeedstockT, regolithFab: regolithFabT, powerFab: powerFabT,
+      fabBinding: fabBindingT, mSolarLanded: mSolarLandedT, mFab: mFabT
+    };
+  }
+
+  let xLo = 0, xHi = Math.max(0, kWeRequested * fSolEff); // xResult can never exceed the raw request
+  let fabPasses = 0, fabConverged = false, xStar = 0, settled = fabTrial(0);
+  for (let _pass = 0; _pass < 60; _pass++) {
+    fabPasses = _pass + 1;
+    xStar = (xLo + xHi) / 2;
+    settled = fabTrial(xStar);
+    const h = settled.xResult - xStar; // strictly decreasing in xStar; root is the fixed point
+    if (Math.abs(xHi - xLo) < 1e-9 || Math.abs(h) < 1e-9) { fabConverged = true; break; }
+    if (h > 0) xLo = xStar; else xHi = xStar;
+  }
+  const fabOutputRate = xStar;
+  let mPwr = settled.mPwr, mining = settled.mining, Rcap = settled.Rcap;
+  let Othr = settled.Othr, Ofull = settled.Ofull, oxygen = settled.oxygen, alloy = settled.alloy;
+  let regolithMetals = settled.regolithMetals, powerMetals = settled.powerMetals;
+  let MthrFull = settled.MthrFull, Mfull = settled.Mfull, metalProduced = settled.metalProduced;
+  let coproductO2 = settled.coproductO2, regolithMetalProd = settled.regolithMetalProd, powerMetalProd = settled.powerMetalProd;
+  let aluminium = settled.aluminium, powerAl = settled.powerAl;
+  let siProcessed = settled.siProcessed, siliconLow = settled.siliconLow, siliconHigh = settled.siliconHigh, powerSi = settled.powerSi;
+  let FthrFullSub = settled.FthrFullSub, substrateFull = settled.substrateFull;
+  let kWeFromSubstrate = settled.kWeFromSubstrate, kWeFromSilicon = settled.kWeFromSilicon, kWeAchieved = settled.kWeAchieved;
+  let panelFeedstock = settled.panelFeedstock, regolithFab = settled.regolithFab, powerFab = settled.powerFab;
+  let fabBinding = settled.fabBinding, mSolarLanded = settled.mSolarLanded, mFab = settled.mFab;
 
   const threshFab = 1 / (fSolEff * VALUE.L.value);         // the live crossing, never typed
   const fabPayback = fabProdEff - threshFab;               // sign is the mass-payback verdict
@@ -9183,10 +9217,11 @@ function model(a){
 
   // What the four lines leave. The dedicated line and the metals-production line are each
   // bounded by their own entitlement, proved above; aluminium and silicon draw no regolith of
-  // their own and their power draw is clamped against zero because neither carries that same
-  // formal bound.
+  // their own; the fab's substrate draw carries no formal bound against Rcap the way the
+  // dedicated and metals-production lines do, so both remainders are clamped against zero
+  // rather than left to run negative on it.
   const powerRem = Math.max(0, power - powerMetals - powerMetalProd - powerAl - powerSi - powerFab); // kWe left to water and construction
-  const RcapRem  = Rcap  - regolithMetals - regolithMetalProd - regolithFab; // t regolith/yr left to them
+  const RcapRem  = Math.max(0, Rcap - regolithMetals - regolithMetalProd - regolithFab); // t regolith/yr left to them
 
   // The pre-branch model, unaltered, on the remainder (E1', E7)
   const Wpower = powerRem * H * duty / eEE;            // power-limited water
@@ -9309,10 +9344,15 @@ function model(a){
        already resolved, echoed back rather than recomputed; fabProd and mSpecFab are the
        productivity rail's live value and its reciprocal; threshFab is the live mass break-even
        crossing and fabPayback its signed margin; fabNetPositive is the energy-payback sign;
-       fabBinding names which of the three ceilings actually bound this call's output. */
+       fabBinding names which of the three ceilings actually bound this call's output. fabConverged
+       is true when the mass-ledger/fab fixed point above settled within its own 1e-9 tolerance
+       before the pass bound; fabPasses is how many passes it took (1 at insitu = 0, always). A
+       state reported unconverged is a state whose mFab/mSolarLanded, and everything computed from
+       them, are the last pass's estimate rather than a solved fixed point. */
     mSolarBranch, mSolarLanded, mFab, insitu, insituReq, fabCeiling: fabCeil, fabProd: fabProdEff,
     mSpecFab, fabOutputRate, threshFab, fabPayback, fabNetPositive, fabBinding,
     kWeRequested, kWeFromSubstrate, kWeFromSilicon, panelFeedstock, regolithFab, powerFab,
+    fabConverged, fabPasses,
     /* Step 56 install 6. The fission/solar MIX is now returned, because the reactor-count
        sentence on the Scenario tab gated on `fission` alone and never read it: at mix 0 the
        power system is entirely solar and that sentence still claimed fission power. A
@@ -11586,6 +11626,53 @@ function runTests(fileText){
           : pts+' (cell x sweep) points across '+CELLS.length+' states, keystone identity exact at all '+keystoneChecked+', total oxygen strictly rising at '+risingSteps+' of '+risingTotal+' consecutive steps, dedicated contribution invariant throughout [red-first, seeded: SEED_OXK1 lets the metals line\u2019s draw reduce the dedicated line\u2019s own Rcap before oxygen is computed, and the dedicated contribution drifts down as phi_m rises]');
   }
 
+  // ---- FABCONV-01 (GATE): the mass-ledger/fab fixed point always converges ----
+  // Sweeps the in-situ share, the fab-productivity rail and both power sources across all nine
+  // preset-era states and requires model()'s own fabConverged to be true everywhere, at the pass
+  // count model() itself reports (fabPasses), never asserted by a second, independent recompute.
+  {
+    const why = []; let pts = 0;
+    const INSITU_SWEEP = [0, 0.1, 0.25, 0.5, 0.75, 1.0];
+    const FABPROD_SWEEP = [0.02, 0.3401, 1, 5];
+    for (const c of CELLS){
+      for (const fis of [true, false]){
+        for (const ins of INSITU_SWEEP){
+          for (const fp of FABPROD_SWEEP){
+            pts++;
+            const m = model(opPoint(c, {fission:fis, mix:fis?1:0, insitu:ins, fabProd:fp}));
+            if (!m.fabConverged) why.push(c.id+' fission='+fis+' insitu='+ins+' fabProd='+fp+': fabConverged=false after '+m.fabPasses+' passes');
+            else if (!(m.fabPasses >= 1 && m.fabPasses <= 60)) why.push(c.id+' fission='+fis+' insitu='+ins+' fabProd='+fp+': fabPasses='+m.fabPasses+' outside [1,60]');
+          }
+        }
+      }
+    }
+    if (pts < 9*2*INSITU_SWEEP.length*FABPROD_SWEEP.length) why.push('EMPTY POPULATION: '+pts+' points swept, fewer than the full cross-product');
+    rec('FABCONV-01','GATE',
+        'the mass-ledger/in-situ-fab fixed point converges (fabConverged) within its own pass bound at every one of the nine preset-era states, both power sources, six in-situ shares and four fab-productivity settings',
+        why.length===0,
+        why.length ? why.slice(0,3).join('  ')
+          : pts+' (cell x fission x insitu x fabProd) points across '+CELLS.length+' states, fabConverged true at every one [red-first, seeded: a disposable copy bounding the bisection at 1 pass instead of 60 (`for (let _pass = 0; _pass < 1; _pass++)`) reports fabConverged=false and mFab 4.556 (against a converged 6.147) at ice:5,power:10,mass:10,fission:false,insitu:0.75,fabProd:0.02, a state whose own fixed point needs 29 passes because a heavier trial charge there collapses mining to exactly zero on alternating trials; the unmutated build converges true at the same state]');
+  }
+
+  // ---- MASSLEDGER-01 (GATE): the in-situ mass ledger reaches mPwr and mining ----
+  // Raising the in-situ share, solar selected, with the fab-productivity rail above the mass
+  // break-even crossing (0.3401), must move mPwr away from the pre-credit fPwr*power+transAdd
+  // figure and must reduce mining by exactly the fab hardware mass charged against it.
+  {
+    const why = [];
+    const m = model({ice:5, power:500, mass:5000, fission:false, phi_c:0, insitu:0.8, fabProd:0.45});
+    const naiveMPwr = m.fPwr * m.power + (CONFIG.transmission.value/1000) * m.transDistKm * m.power;
+    if (!(m.mFab > 0)) why.push('EMPTY POPULATION: mFab is '+m.mFab+' at insitu=0.8, fabProd=0.45 (above the 0.3401 crossing), so this state does not exercise the ledger');
+    if (m.mPwr === naiveMPwr) why.push('mPwr equals the pre-credit fPwr*power+transAdd figure ('+naiveMPwr+'), so the avoided array mass never reached the power-system mass ledger');
+    const miningWithoutFab = Math.max(0, m.massEff - m.mPwr);
+    if (Math.abs((miningWithoutFab - m.mFab) - m.mining) > 1e-6) why.push('mining ('+m.mining+') does not equal massEff-mPwr ('+miningWithoutFab+') minus mFab ('+m.mFab+')');
+    if (!(m.mining < miningWithoutFab)) why.push('mining did not fall when mFab was charged against it: '+miningWithoutFab+' -> '+m.mining);
+    rec('MASSLEDGER-01','GATE',
+        'raising the in-situ share (solar selected, fab productivity above the 0.3401 mass break-even crossing) moves mPwr by the credited mSolarLanded and reduces mining by exactly mFab',
+        why.length===0,
+        why.length ? why.slice(0,3).join('  ')
+          : 'mPwr '+naiveMPwr.toFixed(4)+' (pre-credit) -> '+m.mPwr.toFixed(4)+' (credited); mining without the fab charge '+miningWithoutFab.toFixed(4)+' -> '+m.mining.toFixed(4)+' against mFab '+m.mFab.toFixed(4)+' [red-first, seeded: a build computing mPwr from mSolarBranch and mining without subtracting mFab reports mPwr===naiveMPwr and mining===miningWithoutFab at this same state]');
+  }
   // ---- OX-03 (GATE): the branch carries its own availability ----
   // The cell is chosen BY MEASUREMENT rather than by index. The first draft of this row picked
   // Agency Led Baseline at 2055 Sustained by hand, that cell is landed-mass limited on the
@@ -11834,10 +11921,15 @@ function lifeAnnualFraction(inp, L){
 }
 
 function valueModel(inp){
+  // The in-situ share and the fab-productivity rail are forwarded here so the Value tab's own
+  // payback ratios are computed on the same mass ledger the Scenario tab and hero already are;
+  // a caller that supplies none of the four (every self-check written before this line existed)
+  // gets model()'s own insitu=0 default, bit-identical to before.
   const m = model({ice:inp.ice, power:inp.power, mass:inp.mass, fission:!!inp.fission,
-                    phi_c:inp.phi_c, phi_o:inp.phi_o, funding:inp.funding, phase:inp.phase, mix:inp.mix,
+                    phi_c:inp.phi_c, phi_o:inp.phi_o, phi_m:inp.phi_m, funding:inp.funding, phase:inp.phase, mix:inp.mix,
                     fSolOvr:inp.fSolOvr, fFisOvr:inp.fFisOvr,
-                    transDistKm:inp.transDistKm, phi_c0:inp.phi_c0});
+                    transDistKm:inp.transDistKm, phi_c0:inp.phi_c0,
+                    fabProd:inp.fabProd, insituReq:inp.insituReq, fabCeiling:inp.fabCeiling, insitu:inp.insitu});
   const L        = (inp.L        != null) ? inp.L        : VALUE.L.value;
   const op_const = (inp.op_const != null) ? inp.op_const : VALUE.op_const.value;
   const D        = inp.landed_cost;
@@ -12651,7 +12743,7 @@ function runValueTests(fileText){
        EXT2 fails on an undeclared key by design, and it did, which is the gate working: the
        migration could not land quietly. */
     const required = ['CONFIG','VALUE','VALUE_TRACE','LANDED_COST','C_HW','SLUGS','CLAIMS','SECTIONS','BLURB_PENDING','BLURB','DERIVATION','FFIS_LANDMARKS',
-                      'LEDGER','LEDGER_JOIN','COUNTER_JOIN','REFERENCES','SECTION_REFS','HANDLES','HANDLES_ADJUDICATED','HANDLES_UNRESOLVED','EXCLUSIONS','PRESETS','BINDING_SCOPE','__pin'];
+                      'LEDGER','LEDGER_JOIN','COUNTER_JOIN','REFERENCES','SECTION_REFS','HANDLES','HANDLES_ADJUDICATED','HANDLES_UNRESOLVED','EXCLUSIONS','PRESETS','PHI_M_BY_ERA','BINDING_SCOPE','__pin'];
     for(const k of required){ if(KD[k]==null){ pass=false; why.push('missing top-level key '+k); } }
     for(const k of topKeys){ if(required.indexOf(k)<0){ pass=false; why.push('undeclared top-level key '+k+', which nothing checks'); } }
     const nested = [['BLURB.ice fragments',KD.BLURB&&KD.BLURB.ice],['VALUE.op_prop',KD.VALUE&&KD.VALUE.op_prop],
@@ -13158,6 +13250,13 @@ const BLURB_TOKENS = {
   mass:         (m,c)=>({str:_b0(m.mass),         live:{field:'mass',  value:m.mass,  claim:c.envClaim,   flagged:false}}),
   water:        (m,c)=>({str:_bw(m.water),        live:{field:'water', value:m.water, claim:c.waterClaim, flagged:false}}),
   rho:          (m)  =>({str:_b0(m.rho),          live:{field:'rho',   value:m.rho,   claim:'polar-cold-trap-water',         flagged:false}}),
+  /* THE DEPOSIT RATIO AND THE PLANT'S OWN FEED RATIO ARE NOT THE SAME NUMBER. rho (100/ice) is
+     the regolith-to-water ratio of the deposit; the plant moves rho/captureEff tonnes of
+     regolith per tonne of water it actually delivers, because captureEff of what the plant
+     processes leaves as product. A sentence naming the plant's own throughput needs this one,
+     not rho. Carries no live entry, the same standing the comparative ratios above carry none:
+     it is a ratio of two model() fields rather than one of them. */
+  feedRatio:    (m)  =>({str:_b1(m.rho / CONFIG.captureEff.value)}),
   ice:          (m)  =>({str:_b1(m.ice),          live:{field:'ice',   value:m.ice,   claim:'ice-grade-evidence',         flagged:false}}),
   construction: (m)  =>({str:_bc(m.construction), live:{field:'construction', value:m.construction, claim:'sintering-specific-energy', flagged:true}}),
   /* Comparative ratios between the three named scenarios, computed from model() at the
@@ -13325,6 +13424,7 @@ const BLURB = KNOB_DATA.BLURB;
    Node sidecar evaluates this block with no render layer at all. A figure the sidecar
    cannot compute is a figure only one of the two harnesses can ever check. */
 const PRESETS = KNOB_DATA.PRESETS;
+const PHI_M_BY_ERA = KNOB_DATA.PHI_M_BY_ERA;
 
 /* selection: numeric bands read from modelOut (raw values); base key
    from state.funding/phase; regime from modelOut.binding. Total, gap-free. */
@@ -14277,6 +14377,8 @@ function composeDerivation(state, m, v){
      grade:'model output, construction’s own operand'},
     {sym:'phi_o', label:'Oxygen split applied', value:m.phi_o, unit:'',
      grade:'reader control (Advanced), oxygen’s own operand'},
+    {sym:'phi_m', label:'Metals-production split applied', value:m.phi_m, unit:'',
+     grade:'reader control (Advanced), metalProduced’s own operand'},
     {sym:'O_full', label:'Oxygen full-allocation potential', value:m.Ofull, unit:'t/yr',
      grade:'model output, oxygen’s own operand'},
     {sym:'rMetal', label:'Alloy yield per tonne of oxygen', value:CONFIG.rMetal.value, unit:CONFIG.rMetal.unit,
@@ -14289,13 +14391,13 @@ function composeDerivation(state, m, v){
     {text:'e(ice) = E1 / ice = '+_dn(CONFIG.E1.value,0)+' / '+_dnum(m.ice)+' = '+_dnum(LV('eEE',m.eEE,'model'))+' kWh/t water'},
     {text:'rho = 100 / ice = '+_dnum(LV('rho',m.rho,'model'))+' t regolith per t water'},
     {text:'P_metals = oxygen * e(oxygen) / (H * dutyM) = '+_dnum(m.oxygen)+' * '+_dn(m.eO2perT,0)+' / ('+_dn(CONFIG.H.value,0)+' * '+_dnum(CONFIG.dutyM.value)+') = '+_dnum(LV('powerMetals',m.powerMetals,'model'))+' kWe drawn by the oxygen line'},
-    {text:'power_rem = power - P_metals - P_al - P_si = '+_dnum(m.power)+' - '+_dnum(m.powerMetals)+' - '+_dnum(m.powerAl)+' - '+_dnum(m.powerSi)+' = '+_dnum(LV('powerRem',m.powerRem,'model'))+' kWe left to water and construction'},
+    {text:'power_rem = max(0, power - P_metals - P_metalprod - P_al - P_si - P_fab) = max(0, '+_dnum(m.power)+' - '+_dnum(m.powerMetals)+' - '+_dnum(m.powerMetalProd)+' - '+_dnum(m.powerAl)+' - '+_dnum(m.powerSi)+' - '+_dnum(m.powerFab)+') = '+_dnum(LV('powerRem',m.powerRem,'model'))+' kWe left to water and construction'},
     {text:'W_power = power_rem * H * duty / e(ice) = '+_dnum(m.powerRem)+' * '+_dn(CONFIG.H.value,0)+' * '+_dnum(CONFIG.duty.value)+' / '+_dnum(m.eEE)+' = '+_dnum(LV('Wpower',m.Wpower,'model'))+' t/yr'},
-    {text:'M_power = '+(f?(_mix===1?'f_fission':(_mix===0?'f_solar':'mix*f_fission+(1-mix)*f_solar')):'f_solar')+' * power + (transmission/1000) * transDistKm * power = '+_dnum(fPwr)+' * '+_dnum(m.power)+' + '+_dnum(CONFIG.transmission.value/1000)+' * '+_dnum(m.transDistKm)+' * '+_dnum(m.power)+' = '+_dnum(LV('mPwr',m.mPwr,'model'))+' t'},
+    {text:'M_power = mix * fFis * power + mSolarLanded + (transmission/1000) * transDistKm * power = '+_dnum(m.mix)+' * '+_dnum(m.fFis)+' * '+_dnum(m.power)+' + '+_dnum(m.mSolarLanded)+' + '+_dnum(CONFIG.transmission.value/1000)+' * '+_dnum(m.transDistKm)+' * '+_dnum(m.power)+' = '+_dnum(LV('mPwr',m.mPwr,'model'))+' t'},
     {text:'M_eff = mass * (1 - phi_c0) = '+_dnum(m.mass)+' * (1 - '+_dnum(m.phi_c0)+') = '+_dnum(LV('massEff',m.massEff,'model'))+' t'},
-    {text:'M_mining = max(0, M_eff - M_power) = max(0, '+_dnum(m.massEff)+' - '+_dnum(m.mPwr)+') = '+_dnum(LV('mining',m.mining,'model'))+' t'},
+    {text:'M_mining = max(0, M_eff - M_power - mFab) = max(0, '+_dnum(m.massEff)+' - '+_dnum(m.mPwr)+' - '+_dnum(m.mFab)+') = '+_dnum(LV('mining',m.mining,'model'))+' t'},
     {text:'R_cap = kExc * M_mining = '+_dnum(CONFIG.kExc.value)+' * '+_dnum(m.mining)+' = '+_dnum(LV('Rcap',m.Rcap,'model'))+' t regolith/yr'},
-    {text:'R_cap_rem = R_cap - R_metals = '+_dnum(m.Rcap)+' - '+_dnum(m.regolithMetals)+' = '+_dnum(LV('RcapRem',m.RcapRem,'model'))+' t regolith/yr left to them'},
+    {text:'R_cap_rem = max(0, R_cap - R_metals - R_metalprod - R_fab) = max(0, '+_dnum(m.Rcap)+' - '+_dnum(m.regolithMetals)+' - '+_dnum(m.regolithMetalProd)+' - '+_dnum(m.regolithFab)+') = '+_dnum(LV('RcapRem',m.RcapRem,'model'))+' t regolith/yr left to them'},
     {text:'W_thr = (R_cap_rem / rho) * captureEff = ('+_dnum(m.RcapRem)+' / '+_dnum(m.rho)+') * '+_dnum(CONFIG.captureEff.value)+' = '+_dnum(LV('Wthr',m.Wthr,'model'))+' t/yr'},
     {text:'cap = min(W_power, W_thr) = '+_dnum(LV('cap',m.cap,'model'))+' t/yr; binding constraint is '+m.binding+'.'},
     {text:'water = (1 - phi_c) * cap = (1 - '+_dnum(m.phi_c)+') * '+_dnum(m.cap)+' = '+_dnum(LV('water',m.water,'model'))+' t/yr'}
@@ -14838,9 +14940,9 @@ const ABSTRACTS = {
    matchesPreset and this list is what changes, because a second definition of
    being at preset would be a copy and a copy drifts from the thing it copied. */
 const ABSTRACT_DEPS = {
-  artemis:    ['ice','power','mass','phi_c','funding','fission','phi_o','mix','phiC0Ovr','solOvr','fisOvr','curvePts'],
-  contested:  ['ice','power','mass','phi_c','funding','fission','phi_o','mix','phiC0Ovr','solOvr','fisOvr','curvePts'],
-  commercial: ['ice','power','mass','phi_c','funding','fission','phi_o','mix','phiC0Ovr','solOvr','fisOvr','curvePts']
+  artemis:    ['ice','power','mass','phi_c','funding','fission','phi_o','phi_m','mix','phiC0Ovr','solOvr','fisOvr','curvePts'],
+  contested:  ['ice','power','mass','phi_c','funding','fission','phi_o','phi_m','mix','phiC0Ovr','solOvr','fisOvr','curvePts'],
+  commercial: ['ice','power','mass','phi_c','funding','fission','phi_o','phi_m','mix','phiC0Ovr','solOvr','fisOvr','curvePts']
 };
 /* curvePts is categorical because a placed control point is not a position on a rail: there is no
    fifteen percent of a knot existing. Its preset reference is the empty string, which is the state
@@ -14866,6 +14968,9 @@ function abstractPresetRef(p){
        because none of the three presets sets any of them: their reference IS the coefficient's
        own live value, which is what makes a drag off it a deviation. */
     phi_o:       DETENTS.phi_o[nearestIdx(DETENTS.phi_o, CONFIG.phiM.value)],
+    // phi_m carries an era dimension phi_o does not (PHI_M_BY_ERA), so its reference is the
+    // table's own entry for this preset at the CURRENT era, not a flat coefficient.
+    phi_m:       DETENTS.phi_m[nearestIdx(DETENTS.phi_m, PHI_M_BY_ERA[state.phase][presetIdOf(p)])],
     mix:         1,
     phiC0Ovr:    CONFIG.phiC0.value,
     solOvr:      1000*CONFIG.fSol.value,
@@ -14882,7 +14987,7 @@ function abstractCurrent(){
            /* The five Step 56 sub-step 4-B3 additions. Each is read the way the model reads it,
               so a control whose live value the model uses and this function does not report is
               a control the fade is blind to, which is the defect B3 names. */
-           phi_o:knobVal('phi_o'), mix:state.mix,
+           phi_o:knobVal('phi_o'), phi_m:knobVal('phi_m'), mix:state.mix,
            phiC0Ovr:(state.phiC0Ovr==null?CONFIG.phiC0.value:state.phiC0Ovr),
            solOvr:state.solOvr, fisOvr:state.fisOvr,
            /* The Step 56 remediation-3 addition, read the way the model reads it: through the
@@ -15230,9 +15335,12 @@ function runAbstractTests(){
       state.phase='2055'; abstractScenario=null; applyPreset(PRESETS[id]);
       ['2030','2040','2055'].forEach(function(ph){
         state.phase = ph;
-        state.landed_cost = nearestIdx(DETENTS.landed_cost, LANDED_COST.eraDefault[ph]);
         snapToEnvelope(true);
         state.phi_c = nearestIdx(DETENTS.phi_c, PRESETS[id].phi_c);
+        // phi_m carries an era dimension phi_c does not have to (PHI_M_BY_ERA), so an era move
+        // re-derives it too, the same as the real era handler; the fade still holds at 0 because
+        // state and the reference are both re-derived from the same table at the same era.
+        state.phi_m = nearestIdx(DETENTS.phi_m, PHI_M_BY_ERA[ph][id]);
         const r = abstractUpdate();
         seen.push(id+' at '+ph+' fade '+r.fade.toFixed(3));
         if (r.fade !== 0) bad.push(id+' at '+ph+' faded to '+r.fade);
@@ -15240,7 +15348,7 @@ function runAbstractTests(){
     });
     rec('ABST-07','GATE','moving the era with a preset active holds the abstract, which is the ruled behaviour',
         bad.length===0, bad.length ? bad.join('; ') :
-        'ruled: era is outside the dependency set and every sentence is true at all three eras. '+seen.join(', '));
+        'ruled: era re-derives phi_c and phi_m from their own tables, and every sentence is still true at all three eras because state and the reference move together. '+seen.join(', '));
   })();
 
   // ABST-08: the installed prose is fixed, with its own measured properties intact.
@@ -16463,22 +16571,50 @@ function runAbstractTests(){
           if (!(fadeAfter > 0))
             bad.push(PRESETS[pid].label + ' at ' + ph + ': a control point placed at ' + y +
                      ' leaves the abstract unfaded at ' + fadeAfter);
-          /* AND THE PRESET CLICK PUTS IT BACK, which is the affordance the reader has. */
-          applyPreset(PRESETS[pid]); render();
-          if (activePreset() !== pid)
-            bad.push(PRESETS[pid].label + ' at ' + ph + ': a preset click after the drag does not relight the pill');
+          /* AND A DIFFERENT PRESET CLICK PUTS IT BACK. Ruled: re-clicking the SAME preset the
+             drag happened under no longer clears the point (Finding 11), so that is no longer the
+             affordance this row can assert; switching to a different preset still is, and still
+             does, because that really is a new programme. */
+          const other = ids.filter(function(x){ return x !== pid; })[0];
+          applyPreset(PRESETS[other]); render();
+          if (activePreset() !== other)
+            bad.push(PRESETS[pid].label + ' at ' + ph + ': clicking a different preset after the drag does not light that preset’s own pill');
+          if (CURVE.pts.mass[y] !== null)
+            bad.push(PRESETS[pid].label + ' at ' + ph + ': clicking a different preset after the drag leaves the point at ' + y + ' standing');
         });
       });
     });
     state.phase = saveP; curveReset(); applyPreset(PRESETS.artemis); render();
     const want = 18;
     rec('B3CURVE-01','GATE',
-        'THE BUILDOUT CURVE IS INSIDE THE APP’S DEFINITION OF BEING AT A PRESET. At every scenario and era, placing a control point at any era in scope takes the preset pill dark and fades the abstract, and a preset click puts both back; the pill and the fade are read from the app’s own activePreset() and abstractUpdate(), which are the two surfaces a reader meets, and each drag is preceded by an assertion that the pill was LIT, so the row cannot go green over a lamp that is always dark',
+        'THE BUILDOUT CURVE IS INSIDE THE APP’S DEFINITION OF BEING AT A PRESET. At every scenario and era, placing a control point at any era in scope takes the preset pill dark and fades the abstract, and clicking a DIFFERENT preset puts both back and clears the point; the pill and the fade are read from the app’s own activePreset() and abstractUpdate(), which are the two surfaces a reader meets, and each drag is preceded by an assertion that the pill was LIT, so the row cannot go green over a lamp that is always dark',
         seen.length === want && bad.length === 0,
         seen.length !== want ? ('EMPTY OR SHORT POPULATION: ' + seen.length + ' drags walked, not ' + want + (bad.length ? '; ' + bad[0] : ''))
           : (bad.length ? bad.slice(0,3).join('  ')
              : want + ' drags, computed as 3 scenarios x the eras in scope at each of the 3 era buttons, 1 + 2 + 3: ' +
-               seen.slice(0,4).join(' | ') + ' ... and ' + (want - 4) + ' more, every one taking the pill dark and the fade positive'));
+               seen.slice(0,4).join(' | ') + ' ... and ' + (want - 4) + ' more, every one taking the pill dark and the fade positive, and clicking a different preset relighting it and clearing the point'));
+  }
+
+  // ================= CURVE-RECLICK-01 (GATE) =================
+  // Ruled: re-clicking the preset already active is not a new programme and keeps whatever the
+  // reader placed; switching to a different one still clears it. Both halves checked live via the
+  // real preset buttons, never via applyPreset() called directly, so the row exercises what a
+  // reader's own click actually runs.
+  {
+    const why = [];
+    document.querySelector('.preset[data-s="artemis"]').click();
+    document.querySelector('#phase button[data-p="2055"]').click();
+    setEraRate('mass', 2055, 9000); render();
+    document.querySelector('.preset[data-s="artemis"]').click();
+    if (CURVE.pts.mass[2055] !== 9000) why.push('re-clicking the active preset cleared the placed point, ' + CURVE.pts.mass[2055] + ' where 9000 was placed');
+    setEraRate('mass', 2055, 9000); render();
+    document.querySelector('.preset[data-s="commercial"]').click();
+    if (CURVE.pts.mass[2055] !== null) why.push('switching to a different preset left the point standing at ' + CURVE.pts.mass[2055]);
+    curveReset(); applyPreset(PRESETS.artemis); render();
+    rec('CURVE-RECLICK-01','GATE',
+        're-clicking the active preset keeps a reader-placed curve point; switching to a different preset clears it',
+        why.length===0,
+        why.length ? why.join('  ') : 'point placed at 2055=9000: survives a re-click of the active preset, cleared by a click on a different one [red-first, seeded: a build calling curveReset() unconditionally on every preset click reports the point cleared by the re-click too]');
   }
 
 
@@ -16890,7 +17026,7 @@ function runAbstractTests(){
     const refFst = fleetState(knobVal('mass'), knobVal('power'), '2055', null, state.funding);
     const refWater = model({ice:knobVal('ice'), power:refFst.power, mass:refFst.mass,
                    fission:state.fission, funding:state.funding, phase:'2055',
-                   phi_c:knobVal('phi_c'), phi_o:knobVal('phi_o'), mix:state.mix,
+                   phi_c:knobVal('phi_c'), phi_o:knobVal('phi_o'), phi_m:knobVal('phi_m'), mix:state.mix,
                    fSolOvr:state.solOvr/1000, fFisOvr:state.fisOvr/1000,
                    phi_c0:(state.phiC0Ovr!=null?state.phiC0Ovr:CONFIG.phiC0.value)}).water;
     // Every knob is now held exactly where 2055 left it. Only state.phase moves below.
@@ -16927,7 +17063,7 @@ function runAbstractTests(){
          expectation moves at every one, which is what the decoy below proves. */
       const wantWater = model({ice:knobVal('ice'), power:fst.power, mass:fst.mass,
                      fission:state.fission, funding:state.funding, phase:ph,
-                     phi_c:knobVal('phi_c'), phi_o:knobVal('phi_o'), mix:state.mix,
+                     phi_c:knobVal('phi_c'), phi_o:knobVal('phi_o'), phi_m:knobVal('phi_m'), mix:state.mix,
                      fSolOvr:state.solOvr/1000, fFisOvr:state.fisOvr/1000,
                      phi_c0:(state.phiC0Ovr!=null?state.phiC0Ovr:CONFIG.phiC0.value)}).water;
       const wantRatio = wantWater / refWater, gotRatio = (refPainted > 0) ? (painted / refPainted) : null;
@@ -16955,7 +17091,7 @@ function runAbstractTests(){
       const f = fleetState(knobVal('mass'), knobVal('power'), p, null, state.funding);
       return model({ice:knobVal('ice'), power:f.power, mass:f.mass,
              fission:state.fission, funding:state.funding, phase:p,
-             phi_c:knobVal('phi_c'), phi_o:knobVal('phi_o'), mix:state.mix,
+             phi_c:knobVal('phi_c'), phi_o:knobVal('phi_o'), phi_m:knobVal('phi_m'), mix:state.mix,
              fSolOvr:state.solOvr/1000, fFisOvr:state.fisOvr/1000,
              phi_c0:(state.phiC0Ovr!=null?state.phiC0Ovr:CONFIG.phiC0.value)}).water / refWater; });
     const decoyFires = decoyRatios.some(function(v,i){ return Math.abs(v - wantRatios[i]) > 0.01*wantRatios[i]; });
@@ -17298,7 +17434,7 @@ function runAbstractTests(){
       const fs = fleetNow();
       return model({ice:knobVal('ice'), power:fs.power, mass:fs.mass,
                     fission:state.fission, funding:state.funding, phase:state.phase,
-                    phi_c:knobVal('phi_c'), phi_o:knobVal('phi_o'), mix:state.mix,
+                    phi_c:knobVal('phi_c'), phi_o:knobVal('phi_o'), phi_m:knobVal('phi_m'), mix:state.mix,
                     fSolOvr:state.solOvr/1000, fFisOvr:state.fisOvr/1000,
                     phi_c0:(state.phiC0Ovr!=null?state.phiC0Ovr:CONFIG.phiC0.value)});
     }
@@ -17321,8 +17457,9 @@ function runAbstractTests(){
     /* Step 59, item 4's own instrumentation found this. applyPreset() calls snapToEnvelope()
        against whatever state.phase held BEFORE this walk moved it, because the real UI's era
        button handler sets state.phase and THEN re-snaps (document.getElementById('phase')'s own
-       click listener: state.phase=b.dataset.p; state.landed_cost=snapIdx(...); snapToEnvelope
-       (true);), while this walk set state.phase AFTER applyPreset's own snap and never re-snapped.
+       click listener: state.phase=b.dataset.p; snapToEnvelope(true); -- landed_cost is never
+       touched by that handler), while this walk set state.phase AFTER applyPreset's own snap
+       and never re-snapped.
        Measured, not assumed: at every era transition within one preset, mass and power stayed
        pinned to the PREVIOUS era's envelope ceiling one iteration late (Agency Led Baseline
        walked 2030 -> 2040 -> 2055 painted the hero at mass-rail 10, then 10, then 100, never
@@ -17337,7 +17474,6 @@ function runAbstractTests(){
       ids.forEach(function(id){ phases.forEach(function(ph){
         applyPreset(PRESETS[id]);
         state.phase = ph;
-        state.landed_cost = snapIdx('landed_cost', LANDED_COST.eraDefault[state.phase]);
         snapToEnvelope(true);
         render(); n++;
         fn(id+'/'+ph);
@@ -17669,9 +17805,17 @@ function runAbstractTests(){
        matcher, so this row's silence about the names still forbidden is a measurement rather
        than a needle that matches nothing. */
     (function(){
-      const NAME = 'the production row is four cards, water, oxygen, construction and one reactor-products card carrying aluminium, iron-silicon alloy and silicon as three named lines, each printing the model’s own tonnage to the precision it prints and a rate unit, silicon printed as a strict-to-relaxed band rather than a picked point, and none of them naming metals produced, the regolith feed or the standing mining plant, at all nine preset and era states (DECOY: the four retired names are run through this row’s own matcher on a constructed row and are required to be caught there)';
-      const WANT = [['Water produced','water'],['Oxygen produced','oxygenTotal'],['Construction','construction']];
-      const CHAIN = [['Aluminium','aluminium'],['Iron-silicon alloy','alloy'],['Silicon',['siliconLow','siliconHigh']]];
+      const NAME = 'the production row is four cards -- water, an oxygen card carrying total/dedicated/co-product as three named lines, construction, and one reactor-products card carrying aluminium, iron-silicon alloy and silicon as three named lines -- each printing the model’s own tonnage to the precision it prints and a rate unit, silicon printed as a strict-to-relaxed band rather than a picked point, and none of them naming metals produced, the regolith feed or the standing mining plant, at all nine preset and era states (DECOY: the four retired names are run through this row’s own matcher on a constructed row and are required to be caught there)';
+      // Card 1 (Water) and card 3 (Construction) are simple; card 2 (Oxygen) and card 4
+      // (Reactor products) are chain cards carrying named lines. Finding 1's own fix (the honest
+      // dedicated/co-product oxygen split) makes the oxygen card the second chain card rather
+      // than a simple one.
+      const SIMPLE = [{ pos: 0, name: 'Water produced', key: 'water' }, { pos: 2, name: 'Construction', key: 'construction' }];
+      const CHAINS = [
+        { pos: 1, cardName: 'Oxygen produced', lines: [['Total', 'oxygenTotal'], ['Dedicated (life support)', 'oxygen'], ['Co-product (metals)', 'coproductO2']] },
+        { pos: 3, cardName: 'Reactor products', lines: [['Aluminium', 'aluminium'], ['Iron-silicon alloy', 'alloy'], ['Of which, silicon', ['siliconLow', 'siliconHigh']]] }
+      ];
+      const WANT_COUNT = 4;
       const RETIRED = /^(metals produced|alloy produced|regolith feed|mining plant standing)$/i;
       const why = []; let walked = 0, checked = 0; const seen = [];
       /* the matcher, and the decoy it is proved on before its silence counts. Step 63 anchors
@@ -17692,26 +17836,32 @@ function runAbstractTests(){
       walked = walk9(function(where){
         const m = stateModel();
         const rows = squareRows();
-        if (rows.length !== WANT.length + 1){
-          why.push(where + ': the production row carries ' + rows.length + ' cards, not the ' + (WANT.length + 1) + ' this programme makes');
+        if (rows.length !== WANT_COUNT){
+          why.push(where + ': the production row carries ' + rows.length + ' cards, not the ' + WANT_COUNT + ' this programme makes');
           return;
         }
-        rows.slice(0, WANT.length).forEach(function(r, i){
+        SIMPLE.forEach(function(w){
+          const r = rows[w.pos];
           checked++;
-          if (r.name !== WANT[i][0]) why.push(where + ': card ' + i + ' is named "' + r.name + '" where the row is ' + WANT.map(function(x){ return x[0]; }).join(', '));
+          if (r.name !== w.name) why.push(where + ': card ' + w.pos + ' is named "' + r.name + '" where it should be ' + w.name);
           if (RETIRED.test(r.name)) why.push(where + ': the production row carries a card named "' + r.name + '", one of the four Quinn’s two rulings of 2026-09-09 retired');
           if (r.unit.trim() !== 't/yr') why.push(where + ': the ' + r.name + ' card prints the unit "' + r.unit.trim() + '" where a production rate is t/yr');
-          checkNumeric(where, r.name, r.value, m[WANT[i][1]]);
+          checkNumeric(where, r.name, r.value, m[w.key]);
         });
-        const chainRow = rows[WANT.length];
-        if (!chainRow.lines || chainRow.lines.length !== CHAIN.length){
-          why.push(where + ': the reactor-products card carries ' + (chainRow.lines ? chainRow.lines.length : 0) + ' lines, not the ' + CHAIN.length + ' this programme taps');
-        } else {
+        CHAINS.forEach(function(c){
+          // squareRows() never populates .name for a chain card (its own oname sits one level
+          // down, on each .oline), so identity is checked structurally instead: the card at this
+          // position must actually be a chain card, of the right length.
+          const chainRow = rows[c.pos];
+          if (!chainRow.lines || chainRow.lines.length !== c.lines.length){
+            why.push(where + ': the ' + c.cardName + ' card carries ' + (chainRow.lines ? chainRow.lines.length : 0) + ' lines, not the ' + c.lines.length + ' expected');
+            return;
+          }
           chainRow.lines.forEach(function(ln, i){
-            if (ln.name !== CHAIN[i][0]) why.push(where + ': reactor-products line ' + i + ' is named "' + ln.name + '" where the card is ' + CHAIN.map(function(x){ return x[0]; }).join(', '));
-            if (RETIRED.test(ln.name)) why.push(where + ': the reactor-products card carries a line named "' + ln.name + '", one of the four Quinn’s two rulings of 2026-09-09 retired');
+            if (ln.name !== c.lines[i][0]) why.push(where + ': ' + c.cardName + ' line ' + i + ' is named "' + ln.name + '" where the card is ' + c.lines.map(function(x){ return x[0]; }).join(', '));
+            if (RETIRED.test(ln.name)) why.push(where + ': the ' + c.cardName + ' card carries a line named "' + ln.name + '", one of the four Quinn’s two rulings of 2026-09-09 retired');
             if (ln.unit.trim() !== 't/yr') why.push(where + ': the ' + ln.name + ' line prints the unit "' + ln.unit.trim() + '" where a production rate is t/yr');
-            const key = CHAIN[i][1];
+            const key = c.lines[i][1];
             if (Array.isArray(key)){
               const parts = ln.value.split(/\s+to\s+/);
               if (parts.length !== 2) why.push(where + ': the ' + ln.name + ' line prints "' + ln.value + '", not a "low to high" band');
@@ -17720,16 +17870,16 @@ function runAbstractTests(){
               checkNumeric(where, ln.name, ln.value, m[key]);
             }
           });
-        }
+        });
         seen.push(where + ' ' + rows.map(function(r){ return r.lines ? r.lines.map(function(l){ return l.value; }).join('/') : r.value; }).join('/'));
       });
       if (walked !== 9) why.push('EMPTY POPULATION: ' + walked + ' states walked, not 9');
       if (!checked) why.push('EMPTY POPULATION: no card was checked at any state');
       rec('PROD-01','GATE',NAME, why.length===0,
         why.length ? why.slice(0,3).join('  ')
-          : walked + ' states and ' + checked + ' readings, four cards with aluminium, iron-silicon alloy and silicon named in order on the fourth and every numeral inside the tolerance its own printed precision allows (' +
+          : walked + ' states and ' + checked + ' readings, four cards -- water, oxygen (total/dedicated/co-product), construction, reactor products (aluminium/alloy/silicon) -- every numeral inside the tolerance its own printed precision allows (' +
             seen.slice(0,3).join(' | ') + '), none of them naming metals produced, the regolith feed or the standing mining plant, and the matcher confirmed against all ' +
-            caught + ' retired names on a constructed row [POPULATION: every #outs .out at each of the nine preset and era states, the fourth card’s three .oline children read as three rows; it excludes the mass bar and the comparison strip, which carry fleet stocks rather than production rates. The alloy tonnage stood alone on this row at Step 62 under the name electrical silicon-iron and Quinn ruled it back to one line of three, iron-silicon alloy, beside aluminium and silicon; the Scenario tab’s own narrative, which OX-31 holds to the model, continues to carry the same alloy figure alongside the composition and purity caveats a card cannot carry, including that no lunar experiment has weighed a metal mass]');
+            caught + ' retired names on a constructed row [POPULATION: every #outs .out at each of the nine preset and era states, each chain card’s children read as its own rows; it excludes the mass bar and the comparison strip, which carry fleet stocks rather than production rates. The alloy tonnage stood alone on this row at Step 62 under the name electrical silicon-iron and Quinn ruled it back to one line of three, iron-silicon alloy, beside aluminium and silicon; the Scenario tab’s own narrative, which OX-31 holds to the model, continues to carry the same alloy figure alongside the composition and purity caveats a card cannot carry, including that no lunar experiment has weighed a metal mass]');
     })();
     // ---- OX-16 (GATE): the regolith feed sentence ----
     // THE SUBJECT MOVED AND THE PROPERTY DID NOT. Until Step 57 the feed was a card in the
@@ -17936,16 +18086,25 @@ function runAbstractTests(){
         const raw = sent[0].replace(/,/g, '').match(/[0-9]*\.?[0-9]+/g) || [];
         if (raw.length < 4){ why.push(cell + ': the feed sentence carries ' + raw.length + ' numbers, not the feed, the capacity, the oxygen line’s share and the yield: ' + sent[0]); return; }
         const shareStr = raw[2], yieldStr = raw[3];
-        const card = named(squareRows(), /oxygen/i);
+        // The oxygen card is a chain card now (Finding 1's dedicated/co-product split), and
+        // squareRows() never populates .name for a chain card, so it is found by its own
+        // Dedicated line rather than by name(), which can only match a simple card's .oname.
+        const card = squareRows().filter(function(r){ return r.lines && r.lines.some(function(l){ return /dedicated/i.test(l.name); }); })[0];
         if (!card){ why.push(cell + ': no card in the production row prints an oxygen tonnage for the sentence to close on'); return; }
-        const oxyStr = card.value.replace(/,/g, '');
+        // The feed sentence's own arithmetic (this line's regolith times this line's yield)
+        // closes on the DEDICATED oxygen figure, not the card's Total (which now also carries
+        // the metals-production line's co-product, Finding 1's own fix); the oxygen card is a
+        // chain card, so the dedicated line is read out of its own named .oline.
+        const dedLine = card.lines && card.lines.filter(function(l){ return /dedicated/i.test(l.name); })[0];
+        if (!dedLine){ why.push(cell + ': the oxygen card carries no "Dedicated" line for the sentence to close on'); return; }
+        const oxyStr = dedLine.value.replace(/,/g, '');
         const dec = function(s){ const p = s.split('.')[1]; return p ? p.length : 0; };
         const readerProduct = parseFloat(shareStr) * parseFloat(yieldStr);
         const printedOxy = parseFloat(oxyStr);
         const tol = 0.5 * Math.pow(10, -dec(shareStr)) * parseFloat(yieldStr) + 0.5 * Math.pow(10, -dec(oxyStr)) + 1e-9;
-        seen.push(cell + ' ' + shareStr + ' x ' + yieldStr + ' = ' + readerProduct.toFixed(3) + ' against a printed ' + card.value);
+        seen.push(cell + ' ' + shareStr + ' x ' + yieldStr + ' = ' + readerProduct.toFixed(3) + ' against a printed ' + dedLine.value);
         if (!(Math.abs(readerProduct - printedOxy) <= tol))
-          why.push(cell + ': the sentence multiplies out to ' + readerProduct.toFixed(3) + ' t/yr against the ' + card.value + ' t/yr the oxygen card prints, outside the ' + tol.toFixed(4) + ' the two printed precisions allow');
+          why.push(cell + ': the sentence multiplies out to ' + readerProduct.toFixed(3) + ' t/yr against the ' + dedLine.value + ' t/yr the oxygen card’s Dedicated line prints, outside the ' + tol.toFixed(4) + ' the two printed precisions allow');
         const product = m.regolithMetals * CONFIG.yO2.value;
         if (Math.abs(product - m.oxygen) > Math.max(1e-9, Math.abs(m.oxygen) * 1e-9))
           why.push(cell + ': the model’s own share times its own yield is ' + product.toFixed(6) + ' t/yr against an oxygen figure of ' + m.oxygen.toFixed(6) + ', so the identity the sentence rests on does not hold');
@@ -18199,9 +18358,18 @@ function runAbstractTests(){
         capBinds++;
         if (!(Math.abs(pG - ins) > usdTol(ins)*3)) why.push(where+': the cap binds here and the DECOY, dropping it, still agrees with the painted government figure');
       } else capSlack++;
+      // Ruled: the note names the rate the government figure was ACTUALLY computed on, not
+      // always the agency envelope. Only when the envelope caps it (govCap < ins) does that
+      // note carry the agency's own rate, and it says "envelope" when it does; otherwise it
+      // carries this scenario's own landing rate, the one `ins` (and so `gov`) was computed on.
       const note = (elN.textContent||'').trim();
-      const wantRate = fmtNum(agencyRate, 0);
-      if (note.indexOf(wantRate) < 0) why.push(where+': the note beside government investment reads "'+note+'" and does not carry the agency’s own landing rate, '+wantRate+' t/yr');
+      if (govCap < ins - 1e-6){
+        const wantRate = fmtNum(agencyRate, 0);
+        if (note.indexOf(wantRate) < 0 || !/envelope/i.test(note)) why.push(where+': the cap binds here and the note reads "'+note+'" rather than naming the agency envelope rate, '+wantRate+' t/yr');
+      } else {
+        const wantRate = fmtNum(knobVal('mass'), 0);
+        if (note.indexOf(wantRate) < 0) why.push(where+': the cap is slack here and the note reads "'+note+'" rather than naming the scenario’s own landing rate, '+wantRate+' t/yr, the rate the government figure was actually computed on');
+      }
     });
     if (walked !== 9) why.push('EMPTY POPULATION: '+walked+' states walked, not 9');
     if (!(capBinds > 0)) why.push('EMPTY POPULATION: the cap never binds at any of the nine states, so the DECOY population is empty');
@@ -18211,6 +18379,30 @@ function runAbstractTests(){
     rec('ECON-02','GATE',NAME, why.length===0,
       why.length ? why.slice(0,3).join('  ')
         : walked+' states, investment and government investment both agree with an independent computation off ENVELOPE.med at every one, the cap binds at '+capBinds+' of 9 and is slack at '+capSlack+' of 9, and dropping the cap (the DECOY) disagrees with the painted government figure at all '+capBinds+' where it binds: '+seen.slice(0,3).join(' | ')+' ...');
+  })();
+
+  // ---- LC3 (GATE): era and preset clicks never write the delivery-cost dial ----
+  (function(){
+    const why = [];
+    const phaseBtns = Array.prototype.slice.call(document.querySelectorAll('#phase button'));
+    const presetBtns = Array.prototype.slice.call(document.querySelectorAll('.preset'));
+    if (!phaseBtns.length || !presetBtns.length) why.push('EMPTY POPULATION: phase buttons '+phaseBtns.length+', preset buttons '+presetBtns.length);
+    applyPreset(PRESETS.artemis); state.phase='2055'; render();
+    state.landed_cost = nearestIdx(DETENTS.landed_cost, 20000); render();
+    const off = state.landed_cost;
+    let checked = 0;
+    phaseBtns.forEach(function(b){
+      b.click(); checked++;
+      if (state.landed_cost !== off) why.push('clicking era '+b.dataset.p+' moved landed_cost index '+off+' -> '+state.landed_cost);
+    });
+    presetBtns.forEach(function(b){
+      b.click(); checked++;
+      if (state.landed_cost !== off) why.push('clicking a preset moved landed_cost index '+off+' -> '+state.landed_cost);
+    });
+    applyPreset(PRESETS.artemis); render();
+    rec('LC3','GATE','era and preset clicks never write state.landed_cost; the dial holds whatever the reader set',
+        why.length===0 && checked>0,
+        why.length ? why.slice(0,3).join('  ') : checked+' clicks (all eras, all presets) checked via the real DOM handlers, landed_cost index held at '+off+' throughout [red-first, seeded: a build whose era handler restores LANDED_COST.eraDefault[state.phase] reports the index snapping back to the era default at every era click]');
   })();
 
   // ---- INVEST-01 (GATE): the C1 investment panel, Wintta's own axes ----
@@ -18391,23 +18583,23 @@ function runAbstractTests(){
     // stay exactly where this row already holds them, on the Scenario tab. Nothing here claims
     // the card and the tab disagree; PROD-01 holds the card's own figure to the model separately.
     (function(){
-      const NAME = 'the Scenario tab states the alloy tonnage the retired metals card printed, the figure read back off the painted sentence agrees with the model at all nine preset and era states, the sentence names the material an unseparated alloy rather than a metal and states that the model does not separate or price it, and no painted panel in the app claims the app produces separated metal (DECOY: a constructed sentence claiming separated metal production is run through this row’s own needle and required to be caught)';
+      const NAME = 'the Scenario tab states the alloy tonnage the retired metals card printed, the figure read back off the painted sentence agrees with the model at all nine preset and era states, the sentence names the aluminium and silicon taps the model actually charges rather than claiming the melt is unseparated, and no painted panel in the app claims the reactor ships pure separated iron or titanium out of the bulk alloy (DECOY: a constructed sentence claiming that is run through this row’s own needle and required to be caught)';
       const why = []; const seen = [];
-      const SEP_CLAIM = /produces separated metal|ships separated metal|separated metals? (?:is|are) (?:produced|available|shipped)/i;
-      const decoySentence = 'This reactor produces separated metal ready for sale.';
+      const SEP_CLAIM = /ships separated (?:iron|titanium)|pure (?:iron|titanium) (?:is|are) (?:produced|available|shipped)|separates? this melt into distinct metals/i;
+      const decoySentence = 'This reactor ships separated iron ready for sale, refined out of the bulk alloy.';
       if (!SEP_CLAIM.test(decoySentence)) why.push('DECOY DID NOT FIRE: the separated-metal needle does not match a constructed sentence built to trip it, so its silence over the panels proves nothing');
       const PANELS = ['scenario','value','regime','eqns','notes','defs','ledger'];
       let claimHits = 0, panelReadings = 0;
       const walked = walk9(function(where){
         const m = stateModel();
         const txt = panelText('scenario');
-        const sent = /Alongside the oxygen[\s\S]*?separation step for it\./.exec(txt);
+        const sent = /Alongside the oxygen[\s\S]*?run on what remains\./.exec(txt);
         if (!sent){ why.push(where + ': the Scenario tab states no alloy tonnage at all; the model’s alloy is ' + m.alloy.toFixed(4) + ' t/yr'); return; }
         const nums = (sent[0].replace(/,/g, '').match(/[0-9]*\.?[0-9]+/g) || []).map(Number);
         if (!nums.length){ why.push(where + ': the alloy sentence carries no number: ' + sent[0]); return; }
         if (Math.abs(nums[0] - m.alloy) > 0.5) why.push(where + ': the sentence states an alloy tonnage of ' + nums[0] + ' t/yr where the model’s is ' + m.alloy.toFixed(4));
-        if (!/unseparated alloy/i.test(sent[0])) why.push(where + ': the alloy sentence does not name the material an unseparated alloy: ' + sent[0]);
-        if (/\bmetals? produced\b/i.test(sent[0])) why.push(where + ': the alloy sentence calls the material metal(s) produced, which is the name the ruling retired: ' + sent[0]);
+        if (!/aluminium/i.test(sent[0]) || !/silicon/i.test(sent[0])) why.push(where + ': the alloy sentence does not name both the aluminium and silicon taps the model charges: ' + sent[0]);
+        if (/does not separate|prices no separation/i.test(sent[0])) why.push(where + ': the alloy sentence still claims the model does not separate or price the melt, which is false of the shipped aluminium and silicon taps: ' + sent[0]);
         seen.push(where + ' ' + nums[0]);
         PANELS.forEach(function(t){
           panelReadings++;
@@ -18421,8 +18613,8 @@ function runAbstractTests(){
       rec('OX-31','GATE',NAME, why.length===0,
         why.length ? why.slice(0,3).join('  ')
           : walked + ' states, the sentence’s own alloy figure read back and matched against the model at each (' + seen.slice(0,3).join(' | ') +
-            '), every one naming the material an unseparated alloy, and zero of ' + panelReadings +
-            ' panel readings across ' + PANELS.length + ' panels claiming the app produces separated metal ' +
+            '), every one naming both the aluminium and silicon taps the model charges, and zero of ' + panelReadings +
+            ' panel readings across ' + PANELS.length + ' panels claiming the reactor ships pure separated iron or titanium out of the bulk alloy ' +
             '[POPULATION: the painted text of .panel[data-t="scenario"] for the tonnage clause at each of the nine states, and all seven panels the app draws at the same nine states for the separated-metal sweep, which excludes the cockpit rail and the card row, neither of which carries prose formatted as panel text; red-first, seeded: SEED_ALLOYSEP restores a sentence claiming the app produces separated metal to a panel and this row names the panel and quotes it]');
     })();
 
@@ -19024,7 +19216,7 @@ function runAbstractTests(){
       function secIds(){
         const f = fleetNow();
         const inp = {ice:knobVal('ice'), power:f.power, mass:f.mass, fission:state.fission,
-                     phi_c:knobVal('phi_c'), phi_o:knobVal('phi_o'), funding:state.funding, phase:state.phase, mix:state.mix,
+                     phi_c:knobVal('phi_c'), phi_o:knobVal('phi_o'), phi_m:knobVal('phi_m'), funding:state.funding, phase:state.phase, mix:state.mix,
                      fSolOvr:state.solOvr/1000, fFisOvr:state.fisOvr/1000,
                      phi_c0:(state.phiC0Ovr!=null?state.phiC0Ovr:CONFIG.phiC0.value)};
         return composeDerivation(Object.assign({}, inp), model(inp),
@@ -19735,6 +19927,7 @@ const KNOBS = {
   mass:  {label:'Mass landing rate', unit:'t/yr', fmt:v=>Math.round(v)},
   phi_c: {label:'Constr. share', unit:'φc', fmt:v=>v.toFixed(2)},
   phi_o: {label:'Oxygen share', unit:'φo', fmt:v=>v.toFixed(2)},
+  phi_m: {label:'Metals split', unit:'φm', fmt:v=>v.toFixed(2)},
   landed_cost:{label:'Earth delivery cost', unit:'/kg',
                fmt:v=> v>=1e6 ? '$'+(v/1e6)+'M' : (v>=1000 ? '$'+(v/1000)+'k' : '$'+v)},
   /* Step 58 install 2: hardware cost, the reader-dialled CONTROL, same fmt convention as
@@ -19766,6 +19959,7 @@ function fmtT(v){ const dp = v<1?2:(v<10?1:0); return fmtNum(v,dp); }
    written to CONFIG, read by model() only while fission is true.
    ============================================================ */
 let state = { ice:snapIdx('ice',5), power:0, mass:0, phi_c:0, phi_o:snapIdx('phi_o', CONFIG.phiM.value),
+              phi_m:snapIdx('phi_m', PHI_M_BY_ERA['2055'].artemis),
               landed_cost:snapIdx('landed_cost', LANDED_COST.eraDefault['2055']),
               /* Step 58 install 2: opens on the SOURCED $80,000/kg corridor default (C_HW.default),
                  a free dial like landed_cost; no preset and no era touches it (applyPreset() does
@@ -19803,10 +19997,17 @@ function snapToEnvelope(fullUtil){
   state.power=pc; state.mass=mc;
 }
 function applyPreset(p){
-  /* A PRESET CLICK IS A NEW PROGRAMME, so the drawn control points go with it. Without this a
-     point dragged under one scenario keeps shaping the curve under the next one, and the plot
-     then draws a buildout nobody chose for the scenario whose name is lit. */
-  if (typeof curveReset === 'function') curveReset();
+  /* A PRESET CLICK TO A DIFFERENT PROGRAMME takes the drawn control points with it. Without this
+     a point dragged under one scenario keeps shaping the curve under the next one, and the plot
+     then draws a buildout nobody chose for the scenario whose name is lit. Ruled: re-clicking the
+     preset already active is not a new programme and does not clear a reader's placed points. */
+  const thisPresetId = presetIdOf(p);
+  const alreadyOnThisPreset = (thisPresetId != null) && (thisPresetId === lastAppliedPresetId);
+  if (!alreadyOnThisPreset){
+    if (typeof curveReset === 'function') curveReset();
+    curveResetByPresetSwitch = true;
+  }
+  lastAppliedPresetId = thisPresetId;
   // Phase is global: a preset changes the active scenario, never the phase.
   state.funding=p.funding;
   state.ice=snapIdx('ice',p.ice); state.phi_c=snapIdx('phi_c',p.phi_c);
@@ -19815,6 +20016,11 @@ function applyPreset(p){
      already on left you somewhere the preset never puts you while the chip said otherwise. */
   state.mix=1;
   state.phi_o=snapIdx('phi_o', CONFIG.phiM.value);
+  // The metals-production allocation is era-indexed as well as scenario-indexed (PHI_M_BY_ERA),
+  // so it follows phi_c's own precedent rather than phi_o's: a preset click re-derives it from
+  // the table at the CURRENT era (state.phase is already correct here; a preset click never
+  // changes the era), discarding whatever the reader last dragged the Advanced slider to.
+  state.phi_m = snapIdx('phi_m', PHI_M_BY_ERA[state.phase][thisPresetId]);
   state.phiC0Ovr=null;
   state.solOvr=1000*CONFIG.fSol.value;
   state.fisOvr=1000*CONFIG.fFis.value;
@@ -19833,6 +20039,7 @@ function matchesPreset(p){
       && state.power===snapIdx('power',env.P) && state.mass===snapIdx('mass',env.M)
       && state.fission===env.fission
       && state.phi_o===snapIdx('phi_o', CONFIG.phiM.value)
+      && state.phi_m===snapIdx('phi_m', PHI_M_BY_ERA[state.phase][presetIdOf(p)])
       && state.mix===1
       && state.phiC0Ovr===null
       && state.solOvr===1000*CONFIG.fSol.value
@@ -20019,14 +20226,17 @@ function squares(m){
   return [
     {name:'Water produced',  vid:'h_water',    v:m.water,        unit:'t/yr', accent:'water',
      dp:m.water<1?2:(m.water<10?1:0)},
-    {name:'Oxygen produced', vid:'h_oxy',      v:m.oxygenTotal,  unit:'t/yr', accent:'oxygen',
-     dp:m.oxygenTotal<10?2:0},
+    {name:'Oxygen produced', accent:'oxygen', lines:[
+      {name:'Total',                    vid:'h_oxy',     v:m.oxygenTotal, unit:'t/yr', dp:m.oxygenTotal<10?2:0},
+      {name:'Dedicated (life support)', vid:'h_oxy_ded', v:m.oxygen,      unit:'t/yr', dp:m.oxygen<10?2:0},
+      {name:'Co-product (metals)',      vid:'h_oxy_co',  v:m.coproductO2, unit:'t/yr', dp:m.coproductO2<10?2:0}
+    ]},
     {name:'Construction',    vid:'h_const',    v:m.construction, unit:'t/yr', accent:'construction',
      dp:m.construction<10?1:0},
     {name:'Reactor products', accent:'alloy', lines:[
       {name:'Aluminium',          vid:'h_al',    v:m.aluminium, unit:'t/yr', dp:m.aluminium<10?2:0},
       {name:'Iron-silicon alloy', vid:'h_alloy', v:m.alloy,     unit:'t/yr', dp:m.alloy<10?2:0},
-      {name:'Silicon',            vid:'h_si',    band:true, vLow:m.siliconLow, vHigh:m.siliconHigh, unit:'t/yr',
+      {name:'Of which, silicon',  vid:'h_si',    band:true, vLow:m.siliconLow, vHigh:m.siliconHigh, unit:'t/yr',
        dp:m.siliconLow<10?2:0}
     ]}
   ];
@@ -20093,7 +20303,7 @@ function syncSliderRange(inputEl, key){
      listener reads and writes. */
   const curvePoint = (key==='power' || key==='mass') && typeof CURVE !== 'undefined' && CURVE.pts[key]
     ? CURVE.pts[key][state.phase] : null;
-  inputEl.value = (curvePoint != null) ? snapIdx(key, curvePoint) : state[key];
+  inputEl.value = (curvePoint != null) ? floorIdx(DETENTS[key], curvePoint) : state[key];
   if (key==='power' || key==='mass'){
     const mk = inputEl.parentElement.querySelector('.envmark');
     if (mk){
@@ -20123,10 +20333,10 @@ function bindDetentSlider(inputEl, key){
    the funding control deleted, funding entering this array would restore a
    setter that no preset governs, and nothing else in the file would fail. The
    guard is here rather than in a comment because a comment does not fire. */
-const DETENT_KEYS=['ice','power','mass','phi_c','phi_o','landed_cost','chw'];
+const DETENT_KEYS=['ice','power','mass','phi_c','phi_o','phi_m','landed_cost','chw'];
 if(DETENT_KEYS.indexOf('funding')>=0) throw new Error('funding is a preset-governed field and must not take a detent slider; see the Step 38 reachability verification');
 DETENT_KEYS.forEach(key=>{
-  bindDetentSlider(document.getElementById(key==='landed_cost'?'k_landedcost':key==='phi_c'?'k_phic':key==='phi_o'?'k_phio':'k_'+key), key);
+  bindDetentSlider(document.getElementById(key==='landed_cost'?'k_landedcost':key==='phi_c'?'k_phic':key==='phi_o'?'k_phio':key==='phi_m'?'k_phim':'k_'+key), key);
 });
 
 const presetsEl=document.getElementById('presets');
@@ -20148,11 +20358,16 @@ Object.entries(PRESETS).forEach(([id,p])=>{
 document.getElementById('phase').addEventListener('click', e=>{
   const b=e.target.closest('button'); if(!b) return;
   state.phase=b.dataset.p;
-  state.landed_cost = snapIdx('landed_cost', LANDED_COST.eraDefault[state.phase]);
+  // Ruled: era clicks never touch the Earth delivery cost dial. It takes one default at
+  // load (LANDED_COST.eraDefault[state.phase] seeded into `state` below) and holds whatever
+  // the reader sets afterward, the same standing the hardware-cost dial already carries.
   snapToEnvelope(true);
   // the phi_c tick recomputes on a phase change too, not only a preset change
   const named = activePreset() || PRESET_OF_FUNDING[state.funding];
   state.phi_c = snapIdx('phi_c', PRESETS[named].phi_c);
+  // phi_m carries the same era-indexed intent phi_c does (PHI_M_BY_ERA), so an era click
+  // re-derives it too, discarding whatever the reader last dragged the Advanced slider to.
+  state.phi_m = snapIdx('phi_m', PHI_M_BY_ERA[state.phase][named]);
   state.mix = 1;
   Array.prototype.forEach.call(e.currentTarget.children, c=>c.setAttribute('aria-pressed', c===b?'true':'false'));
   render();
@@ -20310,7 +20525,9 @@ function curveDraw(){
   if (vc) vc.textContent = fmtNum(rate(E), rate(E) < 10 ? 1 : 0) + ' t/yr at ' + E;
   const foot = document.getElementById('curveFoot');
   if (foot) foot.textContent = 'landed in all ' + fmtNum(curveCumulative(rate, era), 0) +
-    ' t, standing ' + fmtNum(fs.mass, 0) + ' t, aged out ' + fmtNum(fs.retired, 0) + ' t';
+    ' t, standing ' + fmtNum(fs.mass, 0) + ' t, aged out ' + fmtNum(fs.retired, 0) + ' t' +
+    (curveResetByPresetSwitch ? ' -- curve reset to the preset' : '');
+  curveResetByPresetSwitch = false;
 
   /* THE HANDLES. One per era in scope, positioned from the same numbers the record carries.
      A handle at an era the reader is not on would sit on no curve, so the out-of-scope eras get
@@ -20643,6 +20860,22 @@ function step60Plants(ofull_kg, capacity){
   return {N:N, utilisation:ofull_kg/(N*capacity)};
 }
 
+const STEP66_METAL_UNIT_T_YR = 25; // Guerrero-Gonzalez and Zabel 2023, one metal-primary plant, 25 t metal/yr
+
+/* ONE Wright's-law curve over ALL MRE units: a dedicated oxygen reactor (Schreiner, 5,000 kg
+   O2/yr) and a metal-primary plant (Guerrero-Gonzalez and Zabel, 25 t metal/yr, 6,776 kg, the
+   basis of STEP60_M1_KG_PER_T_YR's 271 kg/(t/yr)) are two DIFFERENT unit types built off two
+   different capacities, so each is ceilinged on its own capacity and the two counts are summed --
+   never one count on a blended or averaged capacity. Reads oxygen_t and metal_t, the programme's
+   ACTUAL output (phi_o*Ofull and phi_m*Mfull), never Ofull or Mfull at full allocation. */
+function step66Plants(oxygen_t, metal_t){
+  const ox = step60Plants(oxygen_t * 1000, STEP60_UNIT_CAPACITY_KG_O2_YR);
+  const met = step60Plants(metal_t, STEP66_METAL_UNIT_T_YR);
+  const nOx = isNaN(ox.N) ? 0 : ox.N;
+  const nMetal = isNaN(met.N) ? 0 : met.N;
+  return { nOx: nOx, nMetal: nMetal, total: nOx + nMetal, oxygen: ox, metal: met };
+}
+
 /* Writes the three Value-tab tiles (m_plants/m_specmass/m_reqrate and their _sub lines) and the
    rate-dial mirror/aria-pressed state. m is the standing model() result render() already
    computed this cycle; Ofull does not read phi_c (Opower and Othr are both phi-free in
@@ -20652,25 +20885,31 @@ function step60Plants(ofull_kg, capacity){
    never reads L, so N_cum is independent of fleet life by construction. Only m_specmass moves
    with the dial; N/utilisation and the required rate do not. */
 function step60RenderValueTab(m, fs){
+  // The cumulative ceiling applies the CURRENT era's phi_m uniformly across the whole cumulative
+  // landed fleet, exactly mirroring how this call already treats phi_o (Section 10 of the spec):
+  // the simplest defensible rule, requiring no new fleet-layer machinery, at the cost of not
+  // vintage-weighting each landing year's own allocation.
   const cumModel = model({ice:knobVal('ice'), power:fs.landedPower, mass:fs.landed,
-                          fission:state.fission, phi_c:0});
-  const ofullStanding_kg = m.Ofull * 1000;
-  const ofullCumulative_kg = cumModel.Ofull * 1000;
-  const standing = step60Plants(ofullStanding_kg, STEP60_UNIT_CAPACITY_KG_O2_YR);
-  const cumulative = step60Plants(ofullCumulative_kg, STEP60_UNIT_CAPACITY_KG_O2_YR);
+                          fission:state.fission, phi_c:0, phi_m:knobVal('phi_m')});
+  // Finding 1's fix: the applied, live output (m.oxygen, m.metalProduced), never the
+  // full-allocation ceiling (m.Ofull) and never oxygen alone (the metals-production line's own
+  // plants were never counted at all before this).
+  const standing = step66Plants(m.oxygen, m.metalProduced);
+  const cumulative = step66Plants(cumModel.oxygen, cumModel.metalProduced);
   const b = Math.log(step60Rate)/Math.log(2);
-  const specificMass = STEP60_M1_KG_PER_T_YR * Math.pow(cumulative.N, b);
+  const specificMass = STEP60_M1_KG_PER_T_YR * Math.pow(cumulative.total, b);
   let reqText, reqSub;
-  if(cumulative.N === 1){
+  if(cumulative.total === 1){
     reqText = 'undefined'; reqSub = 'no doubling yet';
   } else {
-    const bReq = Math.log(STEP60_TARGET_KG_PER_T_YR/STEP60_M1_KG_PER_T_YR)/Math.log(cumulative.N);
+    const bReq = Math.log(STEP60_TARGET_KG_PER_T_YR/STEP60_M1_KG_PER_T_YR)/Math.log(cumulative.total);
     reqText = (100*Math.pow(2,bReq)).toFixed(1)+'%';
-    reqSub = '56% default \u00b7 85% / 90% / 95% anchors';
+    reqSub = '56% default \u00b7 78.8% / 85% / 90% / 95% anchors \u00b7 2.0 negative-learning stress case';
   }
-  document.getElementById('m_plants').textContent = String(standing.N);
-  document.getElementById('m_plants_sub').textContent =
-    (standing.utilisation==null?'n/a':(standing.utilisation*100).toFixed(1))+'% util';
+  document.getElementById('m_plants').textContent = String(standing.total);
+  document.getElementById('m_plants_ox').textContent = String(standing.nOx);
+  document.getElementById('m_plants_metal').textContent = String(standing.nMetal);
+  document.getElementById('m_plants_cum').textContent = String(cumulative.total);
   document.getElementById('m_specmass').textContent = fmtNum(specificMass,1);
   document.getElementById('m_reqrate').textContent = reqText;
   document.getElementById('m_reqrate_sub').textContent = reqSub;
@@ -20689,7 +20928,7 @@ function render(){
   const insituAppliedNow = Math.min(state.insituReq, fabCeilNow);
   const m=model({ice:knobVal('ice'), power:fs.power, mass:fs.mass,
                  fission:state.fission, funding:state.funding, phase:state.phase,
-                 phi_c:knobVal('phi_c'), phi_o:knobVal('phi_o'), mix:state.mix,
+                 phi_c:knobVal('phi_c'), phi_o:knobVal('phi_o'), phi_m:knobVal('phi_m'), mix:state.mix,
                  fSolOvr:state.solOvr/1000, fFisOvr:state.fisOvr/1000,
                  phi_c0:(state.phiC0Ovr!=null?state.phiC0Ovr:CONFIG.phiC0.value),
                  fabProd:state.fabProd, insituReq:state.insituReq, fabCeiling:fabCeilNow, insitu:insituAppliedNow});
@@ -20707,6 +20946,10 @@ function render(){
      prints as a word and a number, and prints nothing at all when the two agree. */
   document.getElementById('capPhiO').textContent =
     (m.phi_o < knobVal('phi_o') - 1e-12) ? 'applied '+m.phi_o.toFixed(2) : '';
+  syncSliderRange(document.getElementById('k_phim'), 'phi_m');
+  document.getElementById('v_phim').textContent = knobText('phi_m');
+  document.getElementById('capPhiM').textContent =
+    (m.phi_m < knobVal('phi_m') - 1e-12) ? 'applied '+m.phi_m.toFixed(2) : '';
   document.getElementById('mixKnobWrap').hidden = !state.fission;
   document.getElementById('k_mix').value = state.mix;
   document.getElementById('v_mix').textContent = state.mix.toFixed(2);
@@ -20791,11 +21034,17 @@ function render(){
   const totalUSD = outsUSD + insUSD;
   const agencyRate = ENVELOPE.med[state.phase].M;
   const govCapUSD = agencyRate * 1000 * (Chw_econ + D_econ);
+  const govBoundByEnvelope = govCapUSD < insUSD;
   const govUSD = Math.min(govCapUSD, insUSD);
   document.getElementById('h_econ').textContent = _usd(totalUSD);
   document.getElementById('h_invest').textContent = _usd(insUSD);
   document.getElementById('h_govinvest').textContent = _usd(govUSD);
-  document.getElementById('h_govnote').textContent = 'agency landing ' + fmtNum(agencyRate, 0) + ' t/yr this era';
+  // The rate named here is always the one the government figure was actually computed on: the
+  // agency envelope's own rate only when that envelope is what caps it, labelled as the envelope
+  // rather than as this scenario's landing rate; this scenario's own rate otherwise.
+  document.getElementById('h_govnote').textContent = govBoundByEnvelope
+    ? 'agency envelope ' + fmtNum(agencyRate, 0) + ' t/yr this era'
+    : 'at ' + fmtNum(massRateNow, 0) + ' t/yr';
   /* STEP 52. The 65-word fleet paragraph is deleted. Every figure in it was audited against the
      rest of the screen first. The rail RATE in t/yr and in kWe/yr and the 2030 epoch already
      print on the knob rail and on the era buttons and died with the paragraph. The standing mass
@@ -20874,11 +21123,15 @@ function render(){
   document.getElementById('v_landedcost').textContent = knobText('landed_cost');
   syncSliderRange(document.getElementById('k_chw'), 'chw');
   document.getElementById('v_chw').textContent = knobText('chw');
+  // Same in-situ arguments the hero/Scenario-tab call above resolved (fabCeilNow,
+  // insituAppliedNow), so the Value tab's payback ratios stop silently assuming insitu=0
+  // regardless of what the reader has set on the in-situ share.
   const v=valueModel({ice:knobVal('ice'), power:fs.power, mass:fs.mass,
-                      fission:state.fission, phi_c:knobVal('phi_c'), phi_o:knobVal('phi_o'), funding:state.funding,
+                      fission:state.fission, phi_c:knobVal('phi_c'), phi_o:knobVal('phi_o'), phi_m:knobVal('phi_m'), funding:state.funding,
                       phase:state.phase, landed_cost:knobVal('landed_cost'), C_hw:knobVal('chw'), mix:state.mix,
                       fSolOvr:state.solOvr/1000, fFisOvr:state.fisOvr/1000,
-                      phi_c0:(state.phiC0Ovr!=null?state.phiC0Ovr:CONFIG.phiC0.value)});
+                      phi_c0:(state.phiC0Ovr!=null?state.phiC0Ovr:CONFIG.phiC0.value),
+                      fabProd:state.fabProd, insituReq:state.insituReq, fabCeiling:fabCeilNow, insitu:insituAppliedNow});
   renderValueTab(v);renderValueTab(v);
   step60RenderValueTab(m, fs);
   paintBreakevenMark(v);
@@ -20886,12 +21139,10 @@ function render(){
   renderBlurbPanel(m);
   renderNotesPanel(m);
   renderEqnsTab();
-  /* The regime plot is drawn in LANDING-RATE space and the point is placed at the rates, not at
-     the standing fleet. Both are the same statement: the fleet layer multiplies mass and power
-     by one k, and a ray through the origin is invariant under that, so the field is unchanged
-     and the point sits where it sat. Placing the point at the standing fleet would push it off
-     the right-hand end of the rail at every era past 2030 and say nothing new. */
-  drawField(m, knobVal('mass'), knobVal('power'));
+  /* Ruled: the regime plot lives in standing-fleet space. The point is placed at the standing
+     fleet fleetNow() already resolved (fs.mass, fs.power), the same pair m itself was evaluated
+     on above, not at the landing rates the mass and power rails read. */
+  drawField(m, fs.mass, fs.power);
   curveDraw();
   investDraw();
   paintRegimeCaption(m);
@@ -21251,7 +21502,7 @@ function oxygenScenarioBlocks(m){
     ' of calendar time, adopted from the water plant basis. The plant-scale study by Guerrero-Gonzalez and Zabel uses 0.751, representing continuous sunlit availability at a peak of eternal light, which bounds solar operations but does not constrain nuclear baseload. ' +
     'Recovered alloy collects molten at the reactor base; separation energy is set to ' +
     C.eRefine.value + ' ' + C.eRefine.unit + ' based on Schreiner’s assessment that phase separation requires negligible additional power. ' +
-    'Alongside the oxygen, the reactor taps ' + fmtT(m.alloy) + ' t/yr of an unseparated alloy of iron, silicon, aluminium and titanium; the model does not separate this melt into distinct metals and prices no separation step for it. ' +
+    'Alongside the oxygen, the reactor taps ' + fmtT(m.alloy) + ' t/yr of an iron, silicon, aluminium and titanium alloy. Two further taps take metal out of it: aluminium at ' + fmtT(m.aluminium) + ' t/yr, charged ' + C.eAlPractical.value + ' kWh/kg (' + _dnum(m.powerAl) + ' kWe), and silicon, purified out of the same alloy, at ' + fmtT(m.siliconLow) + ' to ' + fmtT(m.siliconHigh) + ' t/yr, charged ' + C.eSiPurify.value + ' kWh/kg on the costed low end (' + _dnum(m.powerSi) + ' kWe); both draws leave the same shared power pool before water and construction run on what remains. ' +
     'Output is measured as oxygen evolved at the anode rather than stored cryogenic liquid; the corpus contains no demonstrated capture fraction for regolith electrolysis off-gas, and liquefaction energy is accounted separately.');
   const oWord = ({'power':'the power ceiling','landed mass':'the plant throughput ceiling','power-system mass':'the plant throughput ceiling'})[m.oBinding] || m.oBinding;
   const wWord = ({'power':'the power ceiling','landed mass':'the plant throughput ceiling','power-system mass':'the plant throughput ceiling'})[m.binding] || m.binding;
@@ -21688,7 +21939,7 @@ function renderEqnsTab(){
      standing fleet the hero was computed from, never the raw landing rates. */
   const fs=fleetNow();
   const inp={ice:knobVal('ice'), power:fs.power, mass:fs.mass,
-             fission:state.fission, phi_c:knobVal('phi_c'), phi_o:knobVal('phi_o'), funding:state.funding, phase:state.phase,
+             fission:state.fission, phi_c:knobVal('phi_c'), phi_o:knobVal('phi_o'), phi_m:knobVal('phi_m'), funding:state.funding, phase:state.phase,
              mix:state.mix, fSolOvr:state.solOvr/1000, fFisOvr:state.fisOvr/1000,
              phi_c0:(state.phiC0Ovr!=null?state.phiC0Ovr:CONFIG.phiC0.value)};
   const m=model(inp);
@@ -21726,7 +21977,13 @@ document.getElementById('derivSections').addEventListener('click', e=>{
    here reads either.
    ============================================================ */
 const regCv=document.getElementById('regime_cv'), regCtx=regCv.getContext('2d');
-function drawField(m, massRate, powerRate){
+/* Ruled: the plot lives in standing-fleet space. The axes name standing mass and standing power,
+   and the white point sits at the standing fleet (fleetNow()'s own mass and power), not at the
+   landing rates a reader dials. The field itself is unchanged: it still walks the mass and power
+   detent rails and evaluates model({power,mass}) at each grid point exactly as it did before this
+   relabelling, so a state's colour under its own point is the same colour it was; what changes is
+   what the axes and the point are honestly called. */
+function drawField(m, standingMass, standingPower){
   const W=regCv.width, H=regCv.height, padL=52, padB=30, padT=12, padR=12;
   regCtx.clearRect(0,0,W,H);
   const mV=DETENTS.mass, pV=DETENTS.power;
@@ -21752,18 +22009,28 @@ function drawField(m, massRate, powerRate){
     regCtx.fillStyle=col; regCtx.fillRect(padL+fx*plotW, padT+fy*plotH, cw+1, ch+1);
   }
   regCtx.font='12px ui-monospace,monospace'; regCtx.fillStyle='#A2B2C8';
-  regCtx.textAlign='center'; regCtx.fillText('LANDED MASS t/yr', padL+plotW/2, H-6);
+  regCtx.textAlign='center'; regCtx.fillText('STANDING MASS t', padL+plotW/2, H-6);
   [mMin, mV[Math.floor(mV.length/2)], mMax].forEach(v=>{ const fx=Math.log(v/mMin)/Math.log(mMax/mMin);
-    regCtx.fillText(fmtNum(v,0)+' t/yr', padL+fx*plotW, H-padB+16); });
-  regCtx.save(); regCtx.translate(14,padT+plotH/2); regCtx.rotate(-Math.PI/2); regCtx.textAlign='center'; regCtx.fillText('POWER kWe/yr',0,0); regCtx.restore();
+    regCtx.fillText(fmtNum(v,0)+' t', padL+fx*plotW, H-padB+16); });
+  regCtx.save(); regCtx.translate(14,padT+plotH/2); regCtx.rotate(-Math.PI/2); regCtx.textAlign='center'; regCtx.fillText('STANDING POWER kWe',0,0); regCtx.restore();
   regCtx.textAlign='right';
   [pMin, pV[Math.floor(pV.length/2)], pMax].forEach(v=>{ const fy=1-Math.log(v/pMin)/Math.log(pMax/pMin);
     regCtx.fillText(Math.round(v), padL-6, padT+fy*plotH+3); });
-  const _pm=(massRate!=null)?massRate:m.mass, _pp=(powerRate!=null)?powerRate:m.power;
+  const _pm=(standingMass!=null)?standingMass:m.mass, _pp=(standingPower!=null)?standingPower:m.power;
   const cx=padL+Math.log(_pm/mMin)/Math.log(mMax/mMin)*plotW;
   const cy=padT+(1-Math.log(_pp/pMin)/Math.log(pMax/pMin))*plotH;
   regCtx.beginPath(); regCtx.arc(cx,cy,7,0,Math.PI*2); regCtx.fillStyle='#fff'; regCtx.fill();
   regCtx.lineWidth=2; regCtx.strokeStyle='#0B1220'; regCtx.stroke();
+  /* THE RECORD, written before the caption reads any of it, the same standing #curvePlot's own
+     dataset already carries: point coordinates in the axes' own units, the axis maxima the point
+     was placed against, and the boundary slope this state's regime line runs at. */
+  regCv.dataset.pointMass = String(_pm);
+  regCv.dataset.pointPower = String(_pp);
+  regCv.dataset.massMin = String(mMin);
+  regCv.dataset.massMax = String(mMax);
+  regCv.dataset.powerMin = String(pMin);
+  regCv.dataset.powerMax = String(pMax);
+  regCv.dataset.boundarySlopeTPerKW = String(regimeSlopeTperKW());
 }
 document.getElementById('regimeLegend').innerHTML =
   '<span><i class="sw good"></i>power-limited (water ∝ power)</span>'+
@@ -22812,20 +23079,45 @@ function overrideTrackCheck(){
     riskKeys.forEach(function(k){
       const kv = state[k];
       if (kv == null) return;
-      let argName = null;
+      // VALUE MATCH ALONE IS NOT ENOUGH: a completely unrelated captured argument can happen to
+      // carry the same number at a given cell (phi_m read 0.15 at a cell where fisOvr/1000 also
+      // read 0.15, so a first-match-wins scan silently paired fisOvr with phi_m and deleted the
+      // wrong argument). Collect every candidate that matches by value first, at every scale,
+      // never stopping at the first hit.
+      const candidates = [];
       Object.keys(captured).forEach(function(p){
-        if (argName) return;
         const v = captured[p];
         if (typeof v !== 'number') return;
         [1, 0.001, 1000].forEach(function(s){
-          if (argName) return;
           const want = kv * s;
           const tol = 1e-9 * Math.max(1, Math.abs(want));
-          if (Math.abs(v - want) < tol) argName = p;
+          if (Math.abs(v - want) < tol && candidates.indexOf(p) === -1) candidates.push(p);
         });
       });
-      if (!argName){
+      if (!candidates.length){
         unmapped.push(k + ' at ' + pair.join('/') + ': no model() argument the render pipeline actually passed matches state.' + k + ' at scale 1, 0.001 or 1000');
+        return;
+      }
+      // DISAMBIGUATE BY THE OVERRIDE'S OWN NAME STEM, generically (this row stays keyed to the
+      // class, never to a typed fFis-only table): the root is k with its trailing 'Ovr' cut off
+      // (fisOvr -> fis, solOvr -> sol), and this codebase's own canonical handoff names that
+      // argument f<Root>Ovr (fFisOvr, fSolOvr -- the same convention PART B's own
+      // isCanonicalHandoff regex already assumes). A single candidate is used as-is; more than
+      // one is resolved only if exactly one candidate is that stem name; anything else is
+      // AMBIGUOUS and this row reports it as a failure rather than guessing.
+      let argName = null;
+      if (candidates.length === 1){
+        argName = candidates[0];
+      } else {
+        const root = k.slice(0, -('Ovr'.length));
+        const stemName = 'f' + root.charAt(0).toUpperCase() + root.slice(1) + 'Ovr';
+        const stemHits = candidates.filter(function(p){ return p === stemName; });
+        if (stemHits.length === 1) argName = stemHits[0];
+      }
+      if (!argName){
+        unmapped.push('AMBIGUOUS: ' + k + ' at ' + pair.join('/') + ': ' + candidates.length +
+          ' model() arguments match state.' + k + ' by value (' + candidates.join(', ') +
+          ') and none is uniquely the canonical f<Root>Ovr name -- refusing to guess which one');
         return;
       }
       mapped[k]++;
