@@ -274,7 +274,14 @@
   /* Step 52. The third segment was always painted and never named, so the two labelled ones
      did not sum to the standing total. It is the non-productive downmass fraction, it has a
      colour and a legend entry now, and the standing total prints above the bar so a reader
-     doing the arithmetic finds it closing. */
+     doing the arithmetic finds it closing.
+     STEP 68 FABSEG. The non-productive segment was a residual that folded in m.mFab, the
+     in-situ fab mass, alongside the true phi_c0 downmass (mass - massEff). Measured at The
+     Commercial Break 2055 at learning 0.56: non-productive painted 58,873 t, of which 52,154 t
+     was mFab and only 6,719 t was the downmass. mFab gets its own segment and legend entry
+     between the mining plant and non-productive; non-productive is now mass - mPwr - mining -
+     mFab, which reduces to mass - massEff, the downmass alone. */
+  .massbar .seg-f{background:var(--pin)}
   .massbar .seg-n{background:var(--faint); opacity:.55}
   .massbar .bartop{display:flex; align-items:baseline; gap:14px; margin-bottom:7px; font-family:var(--mono);
     font-variant-numeric:tabular-nums; flex-wrap:wrap}
@@ -478,7 +485,7 @@
 
       <div class="knob" id="learnKnobWrap">
         <div class="krow"><span class="klabel">Learning rate</span><span class="kval" id="v_learn"></span></div>
-        <input type="range" id="k_learn" min="0" max="5" step="1" value="0">
+        <input type="range" id="k_learn" min="0" max="5" step="1" value="2">
       </div>
 
       <div class="status">
@@ -610,10 +617,11 @@
             <span class="bv" id="keyPwr">&mdash;</span>
             <span class="bk" id="keyFisShare">&mdash;</span>
           </div>
-          <div class="track2" id="massTrack"><div class="seg-p" id="segP"></div><div class="seg-m" id="segM"></div><div class="seg-n" id="segN"></div></div>
+          <div class="track2" id="massTrack"><div class="seg-p" id="segP"></div><div class="seg-m" id="segM"></div><div class="seg-f" id="segF"></div><div class="seg-n" id="segN"></div></div>
           <div class="key">
             <span><i style="background:var(--warn)"></i><span id="keyP">power system &mdash;</span></span>
             <span><i style="background:var(--ice)"></i><span id="keyM">mining plant &mdash;</span></span>
+            <span><i style="background:var(--pin)"></i><span id="keyF">in-situ fabs &mdash;</span></span>
             <span><i style="background:var(--faint)"></i><span id="keyN">non-productive &mdash;</span></span>
             <span><span id="keyL">&mdash;</span></span>
             <span><span id="keyR">&mdash;</span></span>
@@ -2266,7 +2274,7 @@
    "status": "MODELED (no numbered claim in the ledger)",
    "state": "modeled",
    "reason": "CONFIG.transmission is live and the ledger block intro records it settled with no numbered claim",
-   "ruled": "Step 38 reconciliation, 2026-08-23"
+   "ruled": "reconciliation, 2026-08-23"
   }
  },
  "throughput": {
@@ -2368,7 +2376,7 @@
    "counterCase": "A4 (no independent sourcing, by design). Sourcing a derived cell separately would launder [[energy-per-tonne]]'s single anchor into nine false corroborations. They are one derivation, not nine findings."
   },
   "water-agency-pilot": {
-   "source": "Agency Led Baseline 2040 water capacity {water:water-agency-pilot} t/yr, {bind:water-agency-pilot}, at {standing:water-agency-pilot}, with the yearly fleet standing {standingPower:water-agency-pilot} kWe bought from that landed mass, {fissionPower:water-agency-pilot} kWe of it fission against the directive's 100 kWe floor. The figure is read from the model at render; it was typed here as about 17 t/yr, which is this cell on a single year's landing rather than on the standing fleet the app has run since Step 47. The pre-directive 45 kW reading persists as a dated annotation of the anchor [[envelope-agency-pilot]] retired on 2025-08-04; neither pair is settled.",
+   "source": "Agency Led Baseline 2040 water capacity {water:water-agency-pilot} t/yr, {bind:water-agency-pilot}, at {standing:water-agency-pilot}, with the yearly fleet standing {standingPower:water-agency-pilot} kWe bought from that landed mass, {fissionPower:water-agency-pilot} kWe of it fission against the directive's 100 kWe floor. The figure is read from the model at render; it was typed here as about 17 t/yr, which is this cell on a single year's landing rather than on the standing fleet the app has run since it was rebuilt on the fleet layer. The pre-directive 45 kW reading persists as a dated annotation of the anchor [[envelope-agency-pilot]] retired on 2025-08-04; neither pair is settled.",
    "status": "VERIFIED (derived; anchor retired 2025-08-04)",
    "tier": "VERIFIED (derived; anchor retired 2025-08-04)",
    "counterCase": "A4 (no independent sourcing, by design). Sourcing a derived cell separately would launder [[energy-per-tonne]]'s single anchor into nine false corroborations. They are one derivation, not nine findings."
@@ -2462,35 +2470,35 @@
    "status": "MODELED (no numbered claim in the ledger)",
    "state": "modeled",
    "reason": "valueModel() computes the identity, and the Propellant value and Construction value cards in the Value part of the executive abstract paint its net result",
-   "ruled": "Step 38 reconciliation, 2026-08-23"
+   "ruled": "reconciliation, 2026-08-23"
   },
   "propellant-mass-leverage": {
    "source": "no displacement term exists in the model",
    "status": "FORMALLY EXCLUDED",
    "state": "excluded",
    "reason": "no displacement term exists in the model",
-   "ruled": "Step 38 reconciliation, 2026-08-23"
+   "ruled": "reconciliation, 2026-08-23"
   },
   "productive-mass-fraction": {
    "source": "CONFIG.phiC0 is live at 0.10 and is exactly this quantity",
    "status": "MODELED (no numbered claim in the ledger)",
    "state": "modeled",
    "reason": "CONFIG.phiC0 is live at 0.10 and is exactly this quantity",
-   "ruled": "Step 38 reconciliation, 2026-08-23"
+   "ruled": "reconciliation, 2026-08-23"
   },
   "falling-launch-price": {
    "source": "LANDED_COST is a live dial from $1,000 to $1,000,000 per kg",
    "status": "MODELED (no numbered claim in the ledger)",
    "state": "modeled",
    "reason": "LANDED_COST is a live dial from $1,000 to $1,000,000 per kg",
-   "ruled": "Step 38 reconciliation, 2026-08-23"
+   "ruled": "reconciliation, 2026-08-23"
   },
   "mars-campaign-conditional": {
    "source": "no Mars campaign term anywhere",
    "status": "FORMALLY EXCLUDED",
    "state": "excluded",
    "reason": "no Mars campaign term anywhere",
-   "ruled": "Step 38 reconciliation, 2026-08-23"
+   "ruled": "reconciliation, 2026-08-23"
   }
  },
  "resource-geography": {
@@ -2506,7 +2514,7 @@
    "tier": "VERIFIED (derived)",
    "state": "modeled",
    "reason": "Reinstated on its oxygen half only, 2026-09-04, and the half that stands is named rather than dropped. The Step 38 exclusion read \"no oxygen or geology coefficient, knob, state field or rendered output\". The oxygen half is falsified by the same evidence that reinstated [[oxygen-extraction-energy]]. The geology half stands and is still the reason the mare-versus-polar content here is not modelled: the app carries no regolith composition coefficient of any kind, checked end to end through CONFIG. What this section supplies the model is a bound and not a term.",
-   "ruled": "Step 38 reconciliation, 2026-08-23",
+   "ruled": "reconciliation, 2026-08-23",
    "counterCase": "A5 (the endowment is a ceiling and the ceiling is tight). Endowment and recovery are different quantities and this section owns the first, which is why the app's recovery yield is not homed here. That yield, 0.375 t of oxygen per t of regolith, is a recovery of 83.3 to 93.8 percent of every atom of chemically bound oxygen against a 40 to 45 wt% endowment, and 82.6 percent against Schreiner's own printed Highlands theoretical maximum of 0.454. The one plant-scale design point in the corpus sits far below it: Guerrero-Gonzalez and Zabel (2023) at their 1850 K design temperature read 0.120, which is 26.7 to 30.0 percent on the same endowment. That 0.120 is this project's pixel reading off their Fig. 4 rather than a number they print, and that figure's own caption says it is adapted from Schreiner, so it is a longer route to the primary above and not a second witness. The recovery coefficient's home is [[oxygen-extraction-energy]]."
   },
   "habitat-water-terrain": {
@@ -2514,7 +2522,7 @@
    "status": "FORMALLY EXCLUDED",
    "state": "excluded",
    "reason": "the app carries no crew habitat term and states so in rendered prose",
-   "ruled": "Step 38 reconciliation, 2026-08-23"
+   "ruled": "reconciliation, 2026-08-23"
   }
  },
  "grade-evidence": {
@@ -2546,7 +2554,7 @@
    "tier": "VERIFIED (derived)",
    "state": "modeled",
    "reason": "Reinstated 2026-09-04. The Step 38 exclusion read \"no oxygen coefficient, knob, state field, envelope entry or rendered output\", and four of its five clauses are falsified by the Step 49 build: seven oxygen coefficients, a phi_o detent rail, a phi_o state field and three product tiles all exist. Only the envelope clause survives, because ENVELOPE still carries power, mass and fission alone.",
-   "ruled": "Step 38 reconciliation, 2026-08-23",
+   "ruled": "reconciliation, 2026-08-23",
    "counterCase": "A5 (the scope floor now has a plant-scale figure above it). Guerrero-Gonzalez and Zabel (2023) size a molten regolith electrolysis plant at 311.34 kW for 23.90 t/a of oxygen inside their own stated 274-day window, which is 85.7 kWh per kg of oxygen on this claim's own convention and 3.50 times the 24.5. Their paper prints no kWh anywhere, so 85.7 is this project's arithmetic on their printed cells and not their claim. Scope accounts for most of the gap. Balance of plant is genuinely small, since their whole plant draws 1.023 times their own reactor row. The scope evidence item 2 actually warns about is inside the reactor, the power that keeps the regolith molten, and Schreiner's 1.4 kW is a current times a voltage at one operating point rather than a reactor power: his p1591 defines current times the over-voltage as the reactor's heating power, and the smallest heat loss plotted anywhere in his Fig. 8 is 2.14 times the whole 1.4 kW. His Fig. 10 reads 46 to 67 at 5 t/a. Extrapolating its 1850 K trace down to his own 500 kg/a, which is this project's extrapolation below the plotted domain rather than a reading, puts the electrode-to-reactor step at 7.72; the move to their 48 times larger production at their fixed 1850 K then runs the other way at 0.442; and those two with balance of plant reproduce the 3.50. Their reactor is not independent of his: they cite his equations for total system mass and power and refit them at 1850 K, and at p198 they name the disagreement with him themselves and attribute it to that refit and say in their Conclusions that this is what costs them the economy of scale. What that figure implies for the recovery ceiling is at [[bound-oxygen-mare]]."
   },
   "helium-procurement-energy": {
@@ -2554,7 +2562,7 @@
    "status": "FORMALLY EXCLUDED",
    "state": "excluded",
    "reason": "zero occurrences outside the ledger's own record of it: no coefficient, knob, state field, envelope entry or rendered output, and nothing anywhere in the file outside the data island. Re-measured 2026-09-04 against the Step 49 build: 32 case-insensitive occurrences of helium, He-3 or He3 exist and every one of them sits inside the data island as this ledger's own bookkeeping. The earlier wording said \"in any live data string\", which is literally false inside the island, where this record is itself one.",
-   "ruled": "Step 38 reconciliation, 2026-08-23"
+   "ruled": "reconciliation, 2026-08-23"
   },
   "iron-production-energy": {
    "source": "Molten regolith electrolysis reduces a lunar melt's oxides in a fixed order set by decomposition potential (Guerrero-Gonzalez and Zabel's Fig. 5, digitized 305 to 3000 K; at 1223 K: FeO 0.95 V, SiO2 1.82 V, TiO2 1.83 V, Al2O3 2.19 V, MgO 2.20 V, CaO 2.37 V). A cell run hot enough to touch oxygen evolution has already reduced FeO and SiO2, and probably TiO2, before it ever reaches Al2O3, which is why every melt this corpus reports comes out as iron and silicon: Runyon's own costed plant taps 16 kg oxygen, 14 kg reduced silicon and 79 kg aluminium-calcium slag from 109 kg regolith, not iron. None of the six MRE primaries this project holds, Sibille 2011, Vai 2010, Sirk 2011, Grossman 2020, Patel 2023 and Runyon 2022, reports a current efficiency measured on an iron-bearing lunar-composition melt or a product composition of any kind: Sibille's 92 to 96 percent ran with the iron oxides stripped out, and Vai's own JSC-1A run returned about 2 percent against 35 to 90 percent on a clean synthetic electrolyte. Iron by itself is not a usable structural product: steel needs 0.02 to 2.1 wt% carbon and lunar rock carries carbon at 20 to 200 ppm, and Patel, the one paper naming a steel product, ships its alloying carbon and manganese from Earth by its own page-4 sentence and never runs the alloying step. Titanium is not unreducible; the decomposition order above puts it ahead of aluminium. It is excluded downstream, where the vacuum distillation that lifts aluminium and silicon off the melt runs at a temperature below titanium's vapour-pressure threshold (Guerrero-Gonzalez and Zabel's Fig. 9), the same mechanism that leaves calcium and magnesium behind at an earlier, cooler step. Aluminium is separable, on a different plant: molten-salt electrolysis plus vacuum distillation delivers an Al-Si alloy above 96.5 wt% aluminium at 114.5 kWh per kg of metal (Guerrero-Gonzalez and Zabel 2023), on a CaCl2 bath that is landed once and reused rather than resupplied (correcting this project's own prior \"consumable\" label on the same 65,047 kg figure). A first-principles sizing of a reagent-free route to the same alloy puts the thermodynamic floor at 5 to 6.6 kWh per kg and a plant-sizing case at 114.5 kWh per kg, 17 to 23 times theoretical, and finds the answer turns more on which power-system specific-mass coefficient prices the plant, a factor of 37 between the source's own 7.2 kg/kW and this model's own fSol at 267.3 kg/kWe (fFis, now fixed at 150 kg/kWe flat, sits below fSol and does not change that factor), than on the chemistry. The app carries a metals-production line of its own (phi_m, metalProducedT), and books this section's alloy tap and its post-reactor separation energy (eRefine) there, not against the dedicated oxygen line, since the dedicated oxygen line is life support only; the separation energy is priced at zero because no source allocates co-production energy between products. No source in this corpus assays a separated metal product beyond that alloy tap.",
@@ -2562,7 +2570,7 @@
    "tier": "VERIFIED (derived)",
    "state": "modeled",
    "reason": "Reinstated 2026-09-04. The Step 38 exclusion read \"the construction leg is sintered regolith rather than metal\". That sentence is still true and it is no longer a sufficient reason, because it was sufficient only on the premise that metal can reach this app through the construction leg alone, and Step 49 falsified that premise: the model has carried an alloy tonnage since Step 49, priced by charging eRefine for its post-reactor separation and printing a specific energy per kilogram of alloy; that alloy tonnage was later moved onto its own metals-production line (metalProducedT, phi_m-allocated), off the dedicated oxygen line's rMetal*oxygenT figure Step 49 first used. The distinction between a true sentence and a sufficient reason is kept rather than collapsed, because collapsing it would put a false sentence in this record in order to reach a true ruling. Corrected 2026-09-09: this section's own text previously read as a claim that iron is a producible line. It is not, on this corpus's own evidence, and the section is retitled and rewritten to state the energy an unassayed co-product draws rather than a product a builder could use.",
-   "ruled": "Step 38 reconciliation, 2026-08-23",
+   "ruled": "reconciliation, 2026-08-23",
    "counterCase": "A4 (a second group reaches the same architecture and the same silence). Guerrero-Gonzalez, F. J., and Zabel, P., 2023, System analysis of an ISRU production plant: Extraction of metals and oxygen from lunar regolith, Acta Astronautica 203:187-201, DOI 10.1016/j.actaastro.2022.11.050, build the molten regolith electrolysis plant this section describes and ship a ferrosilicon alloy as its product, not iron. Their Table 2 at p197 prices the whole metal processing subsystem of that plant as a 60 kg metal depot drawing no power, and the Fe-Si power column sums to the printed plant total exactly, so the blank is arithmetically a zero rather than an omission. They report that the purity of the recovered cathode alloys is unknown and that oxide impurity levels there could be high enough to require an additional metal-refining step they do not model or size. NO COPY OF THIS PAPER IS ON THIS MACHINE AND NO PAGE OF IT CAN BE CHECKED HERE: this statement is restated in this app's own words, on the strength of this project's own summary of the paper cited to p196, which paraphrases the same content in different words. Every page citation attached to this paper in this record is unverifiable here for the same reason. Two groups now reach the same architecture and the same silence, which strengthens this section's posture and prices nothing. Their zero is a zero for an operation they do not perform, so it must not be read as pricing the separation step at zero."
   }
  },
@@ -2578,14 +2586,14 @@
    "status": "FORMALLY EXCLUDED",
    "state": "excluded",
    "reason": "no cadence coefficient, no landings knob, no build-out term",
-   "ruled": "Step 38 reconciliation, 2026-08-23"
+   "ruled": "reconciliation, 2026-08-23"
   },
   "delivered-cargo-record": {
    "source": "no delivered-record term and no lander capacity class",
    "status": "FORMALLY EXCLUDED",
    "state": "excluded",
    "reason": "no delivered-record term and no lander capacity class",
-   "ruled": "Step 38 reconciliation, 2026-08-23"
+   "ruled": "reconciliation, 2026-08-23"
   }
  },
  "break-conditions": {
@@ -2600,21 +2608,21 @@
    "status": "MODELED (no numbered claim in the ledger)",
    "state": "modeled",
    "reason": "k_solovr and k_fisovr are live sliders over the exact quantity",
-   "ruled": "Step 38 reconciliation, 2026-08-23"
+   "ruled": "reconciliation, 2026-08-23"
   },
   "signed-offtake-break": {
    "source": "DERIVATION.honesty.lead renders the empirical trigger beside the value result",
    "status": "MODELED (no numbered claim in the ledger)",
    "state": "modeled",
    "reason": "DERIVATION.honesty.lead renders the empirical trigger beside the value result",
-   "ruled": "Step 38 reconciliation, 2026-08-23"
+   "ruled": "reconciliation, 2026-08-23"
   },
   "cadence-cryogenic-break": {
    "source": "zero occurrences of cryogen and no coefficient encodes a milestone",
    "status": "FORMALLY EXCLUDED",
    "state": "excluded",
    "reason": "zero occurrences of cryogen and no coefficient encodes a milestone",
-   "ruled": "Step 38 reconciliation, 2026-08-23"
+   "ruled": "reconciliation, 2026-08-23"
   }
  },
  "plant-economics": {
@@ -2673,7 +2681,7 @@
    "counterCase": "A4 (the ranking does not use Shishko). The ranking is computed live from tonnages, so the [[break-even-sales-price]] Shishko correction does not touch the headline conclusion."
   },
   "propellant-operating-floor": {
-   "source": "op_prop, the propellant in-situ operating floor, is, as of Step 58 install 1, op_prop = max(F / water_kg_per_yr, v): a fixed annual operations cost F (band $20M-$130M/yr, central $50M/yr) divided by the plant own live water rate, floored at v = $70/kg. It replaces a flat $5,000/kg constant frozen at whatever output rate produced it, though it is charged the same landed-hardware capital term C_hw as construction is, as of install 2 (P_prop = r_prop * (C_hw + D) + op_prop). Below a minimum-production threshold op_prop carries no finite figure rather than an astronomical one; the near-$35,300 figure is not part of this coefficient, it is the financing-inflated propellant break-even sales-price ceiling and is explicitly not an operating cost. No held primary states lunar propellant operations as a per-kg number. op_const does not take this reform, examined and confirmed rather than left open: it is an energy intensity (eSinter, 3 MJ/kg) times a commodity price, a genuinely per-kilogram figure with no fixed annual budget behind it for output to divide, unlike op_prop's retired form. It stays about $0.83/kg at $1/kWh wall-plug; a delivered-basis figure is HALF the wall-plug figure at a magnetron efficiency of 0.5, so about $0.42/kg, riding on [[sintering-specific-energy]] and [[sintering-yield]].",
+   "source": "op_prop, the propellant in-situ operating floor, is op_prop = max(F / water_kg_per_yr, v): a fixed annual operations cost F (band $20M-$130M/yr, central $50M/yr) divided by the plant own live water rate, floored at v = $70/kg. It replaces a flat $5,000/kg constant frozen at whatever output rate produced it, though it is charged the same landed-hardware capital term C_hw as construction is, as of install 2 (P_prop = r_prop * (C_hw + D) + op_prop). Below a minimum-production threshold op_prop carries no finite figure rather than an astronomical one; the near-$35,300 figure is not part of this coefficient, it is the financing-inflated propellant break-even sales-price ceiling and is explicitly not an operating cost. No held primary states lunar propellant operations as a per-kg number. op_const does not take this reform, examined and confirmed rather than left open: it is an energy intensity (eSinter, 3 MJ/kg) times a commodity price, a genuinely per-kilogram figure with no fixed annual budget behind it for output to divide, unlike op_prop's retired form. It stays about $0.83/kg at $1/kWh wall-plug; a delivered-basis figure is HALF the wall-plug figure at a magnetron efficiency of 0.5, so about $0.42/kg, riding on [[sintering-specific-energy]] and [[sintering-yield]].",
    "status": "PROJECTED, UNVERIFIED-pending",
    "tier": "PROJECTED, UNVERIFIED-pending",
    "counterCase": "A3 (op_prop and C_hw together drive the soft crossover). op_prop still scales inversely with production rate and is large only at pilot scale, and the soft crossover band D* is (op_prop + r_prop * C_hw) / (1 - r_prop): a genuine hardware-cost term now shares the driving with op_prop, and a crossover exists even where op_prop alone would not produce one. Neither must ever be promoted out of \"soft band.\""
@@ -3033,13 +3041,13 @@
    ]
   },
   "sInd": {
-   "expr": "s_ind = min(1, max(0, power - P_metals) / pIndReq, max(0, R_cap - R_metals) / rIndReq)",
+   "expr": "s_ind = min(1, max(0, power - inSituUnbuilt - P_metals) / pIndReq, max(0, R_cap - R_metals) / rIndReq)",
    "claims": [
     "shared-capacity-split"
    ]
   },
   "powerRem": {
-   "expr": "power_rem = max(0, power - P_metals - powerMetalProd - P_al - P_si - powerFab)",
+   "expr": "power_rem = max(0, power - inSituUnbuilt - P_metals - powerMetalProd - P_al - P_si - powerFab)",
    "claims": [
     "shared-capacity-split"
    ]
@@ -3130,7 +3138,7 @@
    ]
   },
   "Opower": {
-   "expr": "O_power = power * H * dutyM / e(oxygen)",
+   "expr": "O_power = (power - inSituUnbuilt) * H * dutyM / e(oxygen)",
    "claims": [
     "oxygen-extraction-energy"
    ]
@@ -8296,7 +8304,7 @@
        the metals entry; DERIVATION.coeff.phiM's label/claimNote corrected off the retired "oxygen and
        alloy" framing; renderDefinitionsTab() lead paragraph, same correction. 508757b8 to the value
        below, recomputed by pinOfKnobData(KNOB_DATA) on the patched file. */
-    __pin: "5d72b3b4"
+    __pin: "a9bb4370"
   };
 
   root.KNOB_DATA = KNOB_DATA;
@@ -9296,7 +9304,7 @@ function modelCore(a){
     const RcapT = CONFIG.kExc.value * miningT * __G;   // R_cap [t/yr] = kExc [t/yr per t] * M_mining [t] * G_learn [1]
 
     const OthrT = yO2 * RcapT;
-    const OfullT = Math.min(Opower, OthrT);
+    const OfullT = Math.min((uFleet > 0 && power > 0) ? Opower * Math.max(0, power - uFleet) / power : Opower, OthrT);   // CLOSE-OUT W1: the unbuilt in-situ array carries no power for the dedicated line either (R7.3.2 kept it on standing kWe to break the silicon loop; wave 1b moved silicon to the metals line, so the loop it guarded is gone)
     const oxygenT = phi_o * OfullT;
     const regolithMetalsT = (yO2 > 0) ? oxygenT / yO2 : 0;
     const powerMetalsT = oxygenT * eO2perT / (H * dutyM);
@@ -9347,7 +9355,14 @@ function modelCore(a){
     const indRegReqT = regolithMetalProdT + regolithFabT;
     const poolT = Math.max(0, power - uFleet - powerMetalsT);   // R7 M4
     const RpoolT = Math.max(0, RcapT - regolithMetalsT);
-    const overT = (powerMetalsT + indPowerReqT > power + 1e-9) || (regolithMetalsT + indRegReqT > RcapT + 1e-9);
+    /* STEP 68 PWR-08 P1: the overdraw test spends the same budget the factor below divides. poolT is
+       power - uFleet - powerMetalsT (R7 M4: the in-situ array the fab leaves unbuilt stands no power), so a
+       predicate spending the full `power` turned false while the industrial request still exceeded that pool
+       by uFleet, and sT snapped from poolT/indPowerReqT to exactly 1 -- measured 0.780653258685 -> 1, a step
+       of 0.219346741315, at all five of PWR-08's phi_o sites, with power, mining and Rcap unchanged across a
+       pair 1.1e-16 wide. uFleet is 0 at every input-power state, every non-fleet state and all eighteen
+       preset-era cells, where this line is bit for bit the one it replaces. */
+    const overT = (powerMetalsT + uFleet + indPowerReqT > power + 1e-9) || (regolithMetalsT + indRegReqT > RcapT + 1e-9);
     let sT = 1, sBindT = 'none';
     if (overT) {
       const sP = (indPowerReqT > 0) ? poolT / indPowerReqT : 1;
@@ -9585,9 +9600,11 @@ function modelCore(a){
      -------------------------------------------------------------- */
   // The line's own ceilings, its output and its two draws are all computed above, before the
   // water and construction branches run on what it leaves. Only its readouts are here.
+  /* CLOSE-OUT W1: O_power is published on built power (power - inSituUnbuilt), the ceiling the line actually runs on. */
+  const OpowerBuilt = (uFleet > 0 && power > 0) ? Opower * Math.max(0, power - uFleet) / power : Opower;
   let oBinding;
   if (mining <= 0)         oBinding = 'power-system mass';
-  else if (Opower <= Othr) oBinding = 'power';
+  else if (OpowerBuilt <= Othr) oBinding = 'power';
   else                     oBinding = 'landed mass';
   const oRegime = (oBinding === 'power') ? 'power-limited' : 'mass-limited';
   // Step 52: each contributor pays its own bill on its own denominator now, so there is no
@@ -9615,7 +9632,7 @@ function modelCore(a){
     powerRem, RcapRem, powerMetals,
     binding, regime, feasible,
     water, construction, constructionPotential, Cfull, regolith,
-    phi_o, Opower, Othr, Ofull, oxygen, alloy, regolithMetals, regolithFeed,
+    phi_o, Opower: OpowerBuilt, Othr, Ofull, oxygen, alloy, regolithMetals, regolithFeed,   // CLOSE-OUT W1
     oBinding, oRegime, eO2perT,
     /* Step 52 sub-step 3: the metals-production line's own readouts and the summed oxygen
        readout. phi_m defaults to 0 (CONFIG.phiMetalProd) only when a caller omits it entirely;
@@ -9678,8 +9695,9 @@ const STEP60_UNIT_CAPACITY_KG_O2_YR = 5000; // Schreiner 2016 pp.1601-1602, per-
 const STEP60_M1_KG_PER_T_YR = 271;          // Guerrero-Gonzalez plant specific mass at unit N=1
 const STEP60_TARGET_KG_PER_T_YR = 50;       // Step 58's measured margins measured target
 const LEARN_DETENTS = [0.56, 0.788, 0.85, 0.90, 0.95, 2.0];
-/* The preset's Learning rate detent, index 0 (0.56), a placeholder until Step 70 sets scenario defaults. */
-const LEARN_PRESET_INDEX = 0;
+/* The preset's Learning rate detent, index 2 (0.85), Quinn's ruling of 2026-09-15, a placeholder until Step 70 sets
+   scenario defaults. Was index 0 (0.56) before this ruling. */
+const LEARN_PRESET_INDEX = 2;
 
 /* N = ceil(Ofull/unit_capacity): the last plant built is partly idle whenever Ofull is not an
    exact multiple of the per-plant ceiling. Utilisation is returned beside N because N alone
@@ -9731,7 +9749,12 @@ var __learnMemo = new Map();
 function learningMultipliers(a0, f, era, PR){ __cumDepth++; try { return learningMultipliersCounts(a0, f, era, PR); } finally { __cumDepth--; } }
 /* STEP 68 PASS 2E E1: the counts, evaluated with model() at each cohort's balance power (R5.4: the fleet is not known when the counts are taken). */
 function learningMultipliersCounts(a0, f, era, PR){
-  const a = {}; Object.keys(a0).forEach(function(k){ if (LEARN_ARG_KEYS.indexOf(k) < 0 && k !== 'fabProdStand' && k !== 'fabLedgerRequest') a[k] = a0[k]; });   // R7 T2: the counts stand each cohort at its balance power on the single-state ledger
+  const a = {}; Object.keys(a0).forEach(function(k){ if (LEARN_ARG_KEYS.indexOf(k) < 0 && k !== 'fabProdStand' && k !== 'fabLedgerRequest') a[k] = a0[k]; });   // R7 T2: the counts stand each cohort at its balance power
+  /* CLOSE-OUT L1: on the fab's own ledger. A cohort whose fab runs short of silicon leaves the array unbuilt, as the painted
+     fleet does; the single-state ledger landed the unmade array as solar at fSol instead, starved the plant and collapsed the
+     count (G 122 to 1 across 0.002 of the Oxygen split once wave 1b put silicon on the metals line). R7 T2 stripped these keys
+     because the fleet ledger jumped at Oxygen split 0.29 under the old dedicated-line ceiling; W1 removes that jump. */
+  a.fabLedgerRequest = true; a.fabProdStand = (a.fabProd != null) ? a.fabProd : CONFIG.fabProd.value;
   { const pc = Math.max(0, Math.min(1, a.phi_c || 0)), po = Math.max(0, Math.min(1 - pc, (a.phi_o != null) ? a.phi_o : CONFIG.phiM.value));   // R7 T3: the counts read the Oxygen and Metals-production splits as the state clamps them, then zero construction
     a.phi_o = po; a.phi_m = Math.max(0, Math.min(1 - pc - po, (a.phi_m != null) ? a.phi_m : CONFIG.phiMetalProd.value)); }
   const E = Number(era), L = fleetLife();
@@ -10050,6 +10073,9 @@ function kinkLambda(gOf, hi){
   }
   return { lam: lo, g: glo, n: n, edge: 'kink' };
 }
+/* CLOSE-OUT RC3: an instrument holds a landing year's reactor count through this hook to prove that a completion is the only
+   discontinuity at a site. It is null in the page and no reader path writes it (the __fabProbeHook precedent). */
+var __reactorHoldHook = null;
 function powerFleetSolve(a, fs, era, k, funding){
   const L = fleetLife(), E = Number(era), Lv = VALUE.L.value;
   const trans = (CONFIG.transmission.value / 1000) * ((a.transDistKm != null) ? a.transDistKm : 3);      // [t/kWe]
@@ -10057,14 +10083,14 @@ function powerFleetSolve(a, fs, era, k, funding){
   const fSol = (a.fSolOvr != null) ? a.fSolOvr : CONFIG.fSol.value;                                        // [t/kWe]
   const cF = fFis + trans, cS = fSol + trans, co = (k && k.cohorts) ? k.cohorts : [], rec = [];
   let last = null, stateAt = null; const HI = 1 - 1e-9;
-  // Step 68 wave 2a, orchestrator call B: no fractional reactor stands. A scheduled reactor this
-  // year's landed mass cannot carry whole finishes landing in a later year -- the undelivered
-  // reactor count (not tonnage: tonnage is continuous and already spent on solar/plant instead,
-  // R7's own draw-first mass ledger, untouched) carries forward as backlogReactors and is added to
-  // the next year's own schedule demand before landing runs again.
-  let backlogReactors = 0;
+  /* CLOSE-OUT R1 (Quinn 2026-09-15): whole reactors stand, and the tonnes short of the next whole scheduled reactor buy
+     solar that year. The year asks T_R = min(wanted * 100 cF, r') tonnes of reactors; floor(T_R / (100 cF)) land; the
+     remainder T_frac buys solar at the year's blended price before the plant/solar split runs on what is left. Nothing
+     carries forward: call B's backlogReactors is retired. "if you add 40 kWe you get that in solar. if they add 140 they
+     get 1 reactor plus solar." */
+  const phiC0 = (a.phi_c0 != null) ? Math.max(0, Math.min(1, a.phi_c0)) : 0.10;   // [1] CLOSE-OUT S3: non-productive downmass comes off each landing first (modelCore's own default)
   for (let y = CURVE_EPOCH; y <= E; y++){
-    const r = Math.max(0, fs.rateM(y)), bucket = (y < 2040) ? '2030' : (y < 2055 ? '2040' : '2055');
+    const r = Math.max(0, fs.rateM(y)), rEff = r * (1 - phiC0), bucket = (y < 2040) ? '2030' : (y < 2055 ? '2040' : '2055');
     const fp = (bucket === String(E)) ? a.fabProd : FAB_RATE_ERA_DEFAULT[bucket];                           // [kWe/(yr t)]
     const cI = (fp > 0) ? 1 / (fp * Lv) + trans : Infinity;                                                  // [t/kWe]
     // Orchestrator call A: the fleet's own yearly gate reads FISSION_START_YEAR directly (year-grained),
@@ -10085,35 +10111,48 @@ function powerFleetSolve(a, fs, era, k, funding){
     // demand (max, not sum), since a year that already schedules enough to clear the floor needs no
     // separate top-up.
     const floorNeed = (fisAvail && Fs < R5.FLOOR_FIS) ? Math.max(0, Math.ceil((R5.FLOOR_FIS - Fs) / REACTOR_KWE - 1e-9)) : 0;
-    // Orchestrator call B: land only whole reactors. wanted [reactors] is this year's schedule demand
-    // plus any reactor still owed from a prior year's mass shortfall, or the floor top-up if that is
-    // larger; capped at REACTOR_CAP ("at most 10 land a year"). wholeLandable is how many whole
-    // reactors this year's own landed mass r can carry; landedReactors is the smaller of the two, and
-    // whatever remains wanted but not landed carries forward as next year's backlog.
-    const wanted = Math.min(REACTOR_CAP, Math.max(nSched + backlogReactors, floorNeed));
+    // CLOSE-OUT R1: wanted [reactors] is this year's schedule demand or the floor top-up, whichever is larger, capped at
+    // REACTOR_CAP ("at most 10 land a year"). reactorTonnes is what that demand asks of this landing, bounded by the
+    // landing itself; whole reactors land out of it and the remainder (under one reactor) buys solar the same year.
+    const wanted = Math.min(REACTOR_CAP, Math.max(nSched, floorNeed));
     const reactorMassEach = REACTOR_KWE * cF;                                                                 // [t/reactor]
-    const wholeLandable = (reactorMassEach > 1e-12) ? Math.floor(r / reactorMassEach + 1e-9) : wanted;
-    const landedReactors = Math.max(0, Math.min(wanted, wholeLandable));
-    backlogReactors = Math.max(0, wanted - landedReactors);
+    const reactorTonnes = Math.min(wanted * reactorMassEach, rEff);                                            // [t] what the demand asks of this landing
+    const wholeLandable = (reactorMassEach > 1e-12) ? Math.floor(reactorTonnes / reactorMassEach * (1 + 1e-12)) : 0;
+    let landedReactors = Math.max(0, Math.min(wanted, wholeLandable));
+    if (__reactorHoldHook) landedReactors = __reactorHoldHook(y, landedReactors);   // [1] instrument hook, null in the page: holds a year's count for the declared-step test (RC3)
+    backlogReactors = 0;
     const fNew = landedReactors * REACTOR_KWE;                                                                // [kWe], whole reactors only
-    const mFnew = fNew * cF, Rp = Math.max(0, r - mFnew);                                                    // [t]
+    const mFnew = fNew * cF, Tfrac = Math.max(0, reactorTonnes - mFnew), Rp = Math.max(0, rEff - mFnew - Tfrac);   // [t] Tfrac buys solar this year (R1)
     const cSol = (share > 0) ? (isFinite(cI) ? (1 - share) * cS + share * cI : Infinity) : cS;              // [t/kWe] blended new solar
-    stateAt = (function(fp, share, cSol, fNew, Fs, Ss, Is, Ms, IfabS, Gy, r, Rp){ return function(lam){
-      const T = lam * Rp, kS = isFinite(cSol) ? T / cSol : 0, sN = (1 - share) * kS, iN = share * kS;
-      const Fv = Fs + fNew, Sv = Ss + sN, Iv = Is + iN, P = Fv + Sv + Iv, M = Ms + r, sol = Sv + Iv;
+    stateAt = (function(fp, share, cSol, fNew, Fs, Ss, Is, Ms, IfabS, Gy, r, Rp, Tfrac, rEff, phiC0){ return function(lam){
+      const T = Tfrac + lam * Rp, kS = isFinite(cSol) ? T / cSol : 0, sN = (1 - share) * kS, iN = share * kS;
+      const Fv = Fs + fNew, Sv = Ss + sN, Iv = Is + iN, P = Fv + Sv + Iv, M = (phiC0 < 1 - 1e-12) ? (Ms + rEff) / (1 - phiC0) : Ms + r, sol = Sv + Iv;   // CLOSE-OUT S3: Ms and rEff are effective tonnes, so massEff = M (1 - phi_c0) is hardware + plant
       const sh = (sol > 1e-9 * (Fv + sol)) ? Iv / sol : 0;
       const ifab = (fp > 0) ? iN / fp : 0, fabT = IfabS + ifab;                                              // [kWe yr/(kWe/(yr t))] = fab tonnes x L
       const fpStand = (Iv > 0 && fabT > 0) ? Iv / fabT : fp;                                                 // [kWe/(yr t)] survivors' harmonic rate
       return { sN: sN, iN: iN, ifab: ifab, F: Fv, S: Sv, I: Iv, P: P, M: M, fp: fp, fpStand: fpStand, T: T,
         args: Object.assign({}, a, { power: P, mass: M, fission: (Fv > 0), mix: (P > 0 ? Fv / P : 0), insituReq: sh, insitu: sh,
           fabCeiling: Math.max(sh, share), fabProd: fp, fabProdStand: fpStand, fabLedgerRequest: true, learnG: Gy }) };
-    }; })(fp, share, cSol, fNew, Fs, Ss, Is, Ms, IfabS, Gy, r, Rp);
+    }; })(fp, share, cSol, fNew, Fs, Ss, Is, Ms, IfabS, Gy, r, Rp, Tfrac, rEff, phiC0);
     const gOf = (function(st){ return function(lam){ const m = modelCore(st(lam).args); return { g: m.Wthr - m.Wpower, s: Math.abs(m.Wthr) + Math.abs(m.Wpower) }; }; })(stateAt);
-    const kk = (Rp > 0) ? kinkLambda(gOf, HI) : { lam: 0, g: gOf(0).g, n: 1, edge: 'no remaining mass' };
+    /* CLOSE-OUT W2 (Quinn 2026-09-15, "aim at the most water"): the kink is the water maximum only while W_power is
+       non-decreasing in lambda, which R7.3.3 assumed. Where the fab runs short of silicon the array it cannot build carries no
+       power, the unbuilt array grows with lambda and W_power falls, so the maximum moves inside the split and sup{g >= 0}
+       lands past it. The year takes the water argmax over [0, hi], with the kink as its first candidate: wherever the kink is
+       the maximum the two agree exactly, the kink's own lambda is kept and the record still reads 'kink'. */
+    let kk = (Rp > 0) ? kinkLambda(gOf, HI) : { lam: 0, g: gOf(0).g, n: 1, edge: 'no remaining mass' };
+    if (Rp > 0 && (modelCore(stateAt(HI).args).inSituUnbuilt > 0 || modelCore(stateAt(0).args).inSituUnbuilt > 0)) {
+      /* The argmax runs only where the fab leaves array unbuilt at an end of the split. With no unbuilt array W_power is
+         non-decreasing in lambda and the kink IS the maximum (R7.3.3), so the two rules agree on that side of the switch and
+         the switch itself is continuous; this also keeps the fleet solve at its old cost everywhere the fab meets its request. */
+      const wOf = function(lam){ return modelCore(stateAt(lam).args).water; };
+      const lamA = scanGolden(wOf, 0, HI, 24, 40), wA = wOf(lamA), wK = wOf(kk.lam);
+      if (wA > wK + 1e-12 * Math.max(1, Math.abs(wK))) kk = { lam: lamA, g: gOf(lamA).g, n: kk.n + 69, edge: 'water argmax' };
+    }
     const st = stateAt(kk.lam);
-    rec.push({ y: y, r: r, lam: kk.lam, edge: kk.edge, gAt: kk.g, nEval: kk.n, reactors: fNew / REACTOR_KWE, reactorsScheduled: nSched,
+    rec.push({ y: y, r: r, rEff: rEff, Tfrac: Tfrac, lam: kk.lam, edge: kk.edge, gAt: kk.g, nEval: kk.n, reactors: fNew / REACTOR_KWE, reactorsScheduled: nSched,
       reactorsWanted: wanted, reactorsBacklog: backlogReactors, floorNeed: floorNeed, share: share,
-      F: fNew, S: st.sN, I: st.iN, Ifab: st.ifab, mF: mFnew, mS: st.sN * cS, mI: (isFinite(cI) ? st.iN * cI : 0), Mp: Rp - st.T, Rp: Rp, cI: cI, fp: fp });
+      F: fNew, S: st.sN, I: st.iN, Ifab: st.ifab, mF: mFnew, mS: st.sN * cS, mI: (isFinite(cI) ? st.iN * cI : 0), Mp: Rp - (st.T - Tfrac), Rp: Rp, cI: cI, fp: fp });
     last = st;
   }
   const le = rec[rec.length - 1];
@@ -15385,7 +15424,11 @@ function composeDerivation(state, m, v){
     {text:'e(ice) = E1 / ice = '+_dn(CONFIG.E1.value,0)+' / '+_dnum(m.ice)+' = '+_dnum(LV('eEE',m.eEE,'model'))+' kWh/t water'},
     {text:'rho = 100 / ice = '+_dnum(LV('rho',m.rho,'model'))+' t regolith per t water'},
     {text:'P_metals = oxygen * e(oxygen) / (H * dutyM) = '+_dnum(m.oxygen)+' * '+_dn(m.eO2perT,0)+' / ('+_dn(CONFIG.H.value,0)+' * '+_dnum(CONFIG.dutyM.value)+') = '+_dnum(LV('powerMetals',m.powerMetals,'model'))+' kWe drawn by the oxygen line'},
-    {text:'power_rem = max(0, power - P_metals - P_metalprod - P_al - P_si - P_fab) = max(0, '+_dnum(m.power)+' - '+_dnum(m.powerMetals)+' - '+_dnum(m.powerMetalProd)+' - '+_dnum(m.powerAl)+' - '+_dnum(m.powerSi)+' - '+_dnum(m.powerFab)+') = '+_dnum(LV('powerRem',m.powerRem,'model'))+' kWe left to water and construction'},
+    /* STEP 68 ITEM 1 B1: inSituUnbuilt is in the model's own powerRem and was missing from this painted
+       step, so at the top Oxygen-split detents the operands shown produced 201,823.0 beside a printed
+       590.0 kWe. The trailing clause after the semicolon names the term and its unit; OX-24 reads only
+       the part before the semicolon, which is this block's own convention for trailing prose. */
+    {text:'power_rem = max(0, power - inSituUnbuilt - P_metals - P_metalprod - P_al - P_si - P_fab) = max(0, '+_dnum(m.power)+' - '+_dnum(m.inSituUnbuilt||0)+' - '+_dnum(m.powerMetals)+' - '+_dnum(m.powerMetalProd)+' - '+_dnum(m.powerAl)+' - '+_dnum(m.powerSi)+' - '+_dnum(m.powerFab)+') = '+_dnum(LV('powerRem',m.powerRem,'model'))+' kWe left to water and construction; inSituUnbuilt [kWe] is the in-situ array the fab leaves unbuilt, which stands no power'},
     {text:'W_power = power_rem * H * duty / e(ice) = '+_dnum(m.powerRem)+' * '+_dn(CONFIG.H.value,0)+' * '+_dnum(CONFIG.duty.value)+' / '+_dnum(m.eEE)+' = '+_dnum(LV('Wpower',m.Wpower,'model'))+' t/yr'},
     {text:'M_power = mix * fFis * power + mSolarLanded + (transmission/1000) * transDistKm * power = '+_dnum(m.mix)+' * '+_dnum(m.fFis)+' * '+_dnum(m.power)+' + '+_dnum(m.mSolarLanded)+' + '+_dnum(CONFIG.transmission.value/1000)+' * '+_dnum(m.transDistKm)+' * '+_dnum(m.power)+' = '+_dnum(LV('mPwr',m.mPwr,'model'))+' t'},
     {text:'M_eff = mass * (1 - phi_c0) = '+_dnum(m.mass)+' * (1 - '+_dnum(m.phi_c0)+') = '+_dnum(LV('massEff',m.massEff,'model'))+' t'},
@@ -15394,7 +15437,10 @@ function composeDerivation(state, m, v){
     {text:'R_cap_rem = max(0, R_cap - R_metals - R_metalprod - R_fab) = max(0, '+_dnum(m.Rcap)+' - '+_dnum(m.regolithMetals)+' - '+_dnum(m.regolithMetalProd)+' - '+_dnum(m.regolithFab)+') = '+_dnum(LV('RcapRem',m.RcapRem,'model'))+' t regolith/yr left to them'},
     {text:'W_thr = (R_cap_rem / rho) * captureEff = ('+_dnum(m.RcapRem)+' / '+_dnum(m.rho)+') * '+_dnum(CONFIG.captureEff.value)+' = '+_dnum(LV('Wthr',m.Wthr,'model'))+' t/yr'},
     {text:'cap = min(W_power, W_thr) = '+_dnum(LV('cap',m.cap,'model'))+' t/yr; binding constraint is '+m.binding+'.'},
-    {text:'s_ind = min(1, max(0, power - P_metals) / industrial power request, max(0, R_cap - R_metals) / industrial regolith request) = min(1, '+_dnum(Math.max(0,m.power-m.powerMetals))+' / '+_dnum(m.pIndReq)+', '+_dnum(Math.max(0,m.Rcap-m.regolithMetals))+' / '+_dnum(m.rIndReq)+') = '+_dnum(LV('sInd',m.sInd,'model'))+'; the metals-production line, aluminium and silicon refining, construction and the fab run at this fraction of their request'},
+    /* STEP 68 ITEM 1 B1: fabTrial divides poolT = max(0, power - uFleet - powerMetalsT), so the painted
+       numerator carries inSituUnbuilt too. It read 201,823.0 against a pool of 590.0 at The Commercial
+       Break 2055 at the top Oxygen-split detent. */
+    {text:'s_ind = min(1, max(0, power - inSituUnbuilt - P_metals) / industrial power request, max(0, R_cap - R_metals) / industrial regolith request) = min(1, '+_dnum(Math.max(0,m.power-(m.inSituUnbuilt||0)-m.powerMetals))+' / '+_dnum(m.pIndReq)+', '+_dnum(Math.max(0,m.Rcap-m.regolithMetals))+' / '+_dnum(m.rIndReq)+') = '+_dnum(LV('sInd',m.sInd,'model'))+'; the metals-production line, aluminium and silicon refining, construction and the fab run at this fraction of their request'},
     {text:'water = (1 - s_ind * phi_c) * cap = (1 - '+_dnum(m.sInd)+' * '+_dnum(m.phi_c)+') * '+_dnum(m.cap)+' = '+_dnum(LV('water',m.water,'model'))+' t/yr'}
   ];
   const constructionSteps = [
@@ -15413,7 +15459,7 @@ function composeDerivation(state, m, v){
      below, matching the model's own two-line wiring. */
   const oxygenSteps = [
     {text:'e(oxygen) = eO2 * 1000 = '+_dn(CONFIG.eO2.value*1000,0)+' = '+_dn(LV('eO2perT',m.eO2perT,'model'),0)+' kWh/t O₂ (life support only; the post-reactor alloy separation energy is priced on the metals-production line, below)'},
-    {text:'O_power = power * H * dutyM / e(oxygen) = '+_dnum(m.power)+' * '+_dn(CONFIG.H.value,0)+' * '+_dnum(CONFIG.dutyM.value)+' / '+_dn(m.eO2perT,0)+' = '+_dnum(LV('Opower',m.Opower,'model'))+' t/yr'},
+    {text:'O_power = (power - inSituUnbuilt) * H * dutyM / e(oxygen) = ('+_dnum(m.power)+' - '+_dnum(m.inSituUnbuilt||0)+') * '+_dn(CONFIG.H.value,0)+' * '+_dnum(CONFIG.dutyM.value)+' / '+_dn(m.eO2perT,0)+' = '+_dnum(LV('Opower',m.Opower,'model'))+' t/yr'},
     {text:'O_thr = yO2 * R_cap = '+_dnum(CONFIG.yO2.value)+' * '+_dnum(m.Rcap)+' = '+_dnum(LV('Othr',m.Othr,'model'))+' t/yr'},
     {text:'O_full = min(O_power, O_thr) = '+_dnum(LV('Ofull',m.Ofull,'model'))+' t/yr; the ceiling that binds the oxygen line is '+m.oBinding+'.'},
     {text:'oxygen = phi_o * O_full = '+_dnum(m.phi_o)+' * '+_dnum(m.Ofull)+' = '+_dnum(LV('oxygen',m.oxygen,'model'))+' t/yr, dedicated oxygen for life support'},
@@ -15934,8 +15980,8 @@ const ABSTRACTS = {
     label: 'Agency Led Baseline',
     sentences: [
       'This line mines Cabeus-grade ice at five weight percent, and that grade rests on a single in-situ point measurement.',
-      'Each landing year splits its landed mass between power hardware and mining plant where it makes the most water, so at every era the power ceiling and the plant-throughput ceiling meet and the state reads balanced, with fission carrying the power once the envelope opens it.',
-      'The programme is moon-first with Mars later, and its envelope opens only once fission arrives.'
+      'Each landing year splits its landed mass between power hardware and mining plant where it makes the most water, so at every era the power ceiling and the plant-throughput ceiling meet and the state reads balanced, with fission carrying the power once the schedule lands it.',
+      'The programme is moon-first with Mars later, and its reactor schedule ramps to the ten-a-year cap by Sustained.'
     ]
   },
   contested: {
@@ -16791,14 +16837,19 @@ function runAbstractTests(){
      rasterization a headless canvas mock is not obliged to support -- at a mass between the two
      crossings, under both splits. */
   (function(){
-    const NAME = 'the Regime canvas\'s own per-cell evaluation, regimeCellModel(), responds to the reader\'s Oxygen split: a mass between the low-split and high-split boundary (each found by an independent bisection of model()) is classified feasible under one Oxygen split and infeasible under the other';
+    const NAME = 'the Regime canvas\'s own per-cell evaluation, regimeCellModel(), responds to the reader\'s Oxygen split: the feasibility boundary bisected through regimeCellModel() itself sits at a different mass under Oxygen split 0.05 and 0.95, and a mass between the two is classified feasible under one and infeasible under the other (CLOSE-OUT G1: bisected on the cell rather than on a bare model() argument set that carries neither the learning nor the applied shares)';
     const savePhase = state.phase, savePhiO = state.phi_o, savePhiM = state.phi_m, savePhiC = state.phi_c;
     const why = [];
     try {
       applyPreset(PRESETS.artemis); state.phase = '2055';
       state.phi_c = 0; state.phi_m = 0; render();
       const power = fleetNow().power, ice = knobVal('ice'), fission = state.fission;
-      function feasibleAt(phiO, mass){ return model({ice, power, mass, fission, phi_c:0, phi_o:phiO, phi_m:0}).feasible; }
+      /* CLOSE-OUT G1: the boundary is bisected on regimeCellModel(), the function this row is about, at the reader's own
+         Oxygen split detent. It used to be bisected on a bare model() argument set carrying no learning and none of the
+         applied shares, and the row then asked a cell built from render()'s applied arguments to flip at that other path's
+         boundary. The two paths agreed until the learning counts moved (close-out L1), which is luck rather than a test. */
+      function feasibleAt(phiO, mass){ const i = nearestIdx(DETENTS.phi_o, phiO), s = state.phi_o;
+        state.phi_o = i; try { return regimeCellModel(ice, power, mass, fission).feasible; } finally { state.phi_o = s; } }
       function crossing(phiO){
         let lo = 1, hi = 200000;
         const loFeas = feasibleAt(phiO, lo);
@@ -17021,8 +17072,11 @@ function runAbstractTests(){
       if (Math.abs(fs.landed - cohort) > 1e-9) bad.push(ph + ' the layer\'s landed mass is not the cohort sum of the drawn curve');
       if (Math.abs((fs.landed - fs.mass) - fs.retired) > 1e-9) bad.push(ph + ' landed minus standing does not equal retired');
       if (Math.abs(num(kL) - fs.landed) > 1) bad.push(ph + ' the mass bar paints ' + num(kL) + ' t landed against the layer\'s ' + fs.landed);
-      if (Math.abs(num(kTot) - fs.mass) > 1) bad.push(ph + ' the mass bar paints ' + num(kTot) + ' t standing against the layer\'s ' + fs.mass);
-      if (Math.abs(num(kR) - fs.retired) > 1) bad.push(ph + ' the mass bar paints ' + num(kR) + ' t aged out against the layer\'s ' + fs.retired);
+      /* CLOSE-OUT T1: the bar paints the FLEET's standing mass (the sum of its own four segments); the curve layer's own
+         11-year standing window is checked above and is a different quantity once fission stands 20 years. */
+      const mFleet = model(scenarioModelArgs(PRESET_OF_FUNDING[state.funding]).args).mass;
+      if (Math.abs(num(kTot) - mFleet) > 1) bad.push(ph + ' the mass bar paints ' + num(kTot) + ' t standing against the fleet\'s ' + mFleet);
+      if (Math.abs(num(kR) - Math.max(0, fs.landed - mFleet)) > 1) bad.push(ph + ' the mass bar paints ' + num(kR) + ' t aged out against landed less standing ' + Math.max(0, fs.landed - mFleet));
       /* THE DECOY, lifted from the build this replaces: the second formula for the same quantity. */
       const bypass = knobVal('mass') * yearsOperated(ph);
       if (ph !== '2030' && Math.abs(bypass - fs.landed) <= 1) bad.push(ph + ' DECOY DID NOT FIRE: the retired second formula agrees with the layer here, so this row discriminates nothing at that era');
@@ -18437,11 +18491,13 @@ function runAbstractTests(){
          2030 anchor, and without it this row would score the render's ramped answer against a
          flat expectation. */
       const fst = fleetState(knobVal('mass'), knobVal('power'), ph, null, state.funding);
+      /* CLOSE-OUT T1: the bar's total and its retired figure are the fleet's, not the buildout layer's 11-year window. */
+      const mFleetUI = model(scenarioModelArgs(PRESET_OF_FUNDING[state.funding]).args).mass;
       const wantLanded = fst.landed;
-      const wantAged = fst.retired;
+      const wantAged = Math.max(0, fst.landed - mFleetUI);
       const gotStanding = num(kTot), gotLanded = num(kL), gotAged = num(kR);
-      if (gotStanding === null || Math.abs(gotStanding - fst.mass) > 1)
-        bad.push(ph+' the mass bar does not paint the standing fleet mass, or paints '+gotStanding+' against a layer that computes '+fst.mass);
+      if (gotStanding === null || Math.abs(gotStanding - mFleetUI) > 1)
+        bad.push(ph+' the mass bar does not paint the standing fleet mass, or paints '+gotStanding+' against a fleet that computes '+mFleetUI);
       if (gotLanded === null || Math.abs(gotLanded - wantLanded) > 1)
         bad.push(ph+' the mass bar does not paint what has been landed in all, or paints '+gotLanded+' against '+wantLanded);
       if (gotAged === null || Math.abs(gotAged - wantAged) > 1)
@@ -18493,6 +18549,67 @@ function runAbstractTests(){
       rows.length!==3 ? 'EMPTY POPULATION: '+rows.length+' eras walked, not 3'
         : (why.length ? why.slice(0,3).join('  ')
            : 'three eras walked with every knob held at the 2055 preset state, painted hero moving by exactly the standing-fleet ratio at each and the mass bar painting the standing, landed and retired masses the layer computes: '+rows.join(', ')+'; L='+L+', reference k='+refK+' [Step 52: re-keyed from the deleted #h_fleet paragraph to #keyTot, #keyL and #keyR, each read as the number inside its own element rather than by the words beside it; the years-standing clause has no painted surface after that ruling and is scored nowhere; red-first, seeded on this build: SEED_FLEET_BYPASS renders the hero off the knobs instead of the fleet layer and the ratio clause names 1.0000 against 0.0667, SEED_FLEET_KEYTOT paints the landing rate where the standing mass belongs, SEED_FLEET_KEYL inflates what has been landed, SEED_FLEET_KEYR zeroes what has aged out; PROVED NOT TO FIRE on BENIGN_FLEET, both legend labels rewritten with every content word swapped, which this row does not read]'));
+  })();
+
+  // ---------------- FABSEG-01 ----------------
+  /* STEP 68 FABSEG, ITEM 1 (Quinn's ruling). Until this pass the mass bar's non-productive
+     segment was a residual, mass - mPwr - mining, that folded the in-situ fab mass m.mFab in
+     with the true phi_c0 downmass. Measured at The Commercial Break 2055 at learning 0.56: the
+     legend painted 58,873 t non-productive, of which 52,154 t was mFab and only 6,719 t was
+     mass - massEff. mFab now paints its own fourth segment (#segF / #keyF), between mining and
+     non-productive, and non-productive is mass - mPwr - mining - mFab. This row proves the
+     identity RED-FIRST: it recomputes the pre-fix residual (mass - mPwr - mining, mFab still
+     folded in) as a DECOY alongside the fixed one, at every one of the nine preset-era states,
+     and requires the decoy to miss the downmass identity where the fix hits it. */
+  (function(){
+    const NAME = 'the mass bar #keyN legend, non-productive = mass - mPwr - mining - mFab, equals mass - massEff (the phi_c0 downmass alone) within print precision at every one of the nine preset-era states where nothing overdraws the standing fleet (mPwr < mass) (DECOY: the pre-fix residual mass - mPwr - mining, still folding mFab in, is confirmed to miss the same identity at the same states)';
+    const kN = document.getElementById('keyN'), kF = document.getElementById('keyF');
+    if (!kN || !kF){ rec('FABSEG-01','GATE',NAME,false,
+      'EMPTY POPULATION: '+(!kN?'no #keyN element':'no #keyF element')+' exists in the rendered document'); return; }
+    const num = function(el){ const t=(el.textContent||'').replace(/,/g,''); const m=t.match(/-?[0-9]+(\.[0-9]+)?/); return m?parseFloat(m[0]):null; };
+    const eras = ['2030','2040','2055'];
+    const rows = [], bad = [], decoyMissed = [];
+    let scored = 0, overdrawnSeen = 0, fabPositive = 0;
+    Object.keys(PRESETS).forEach(function(id){ eras.forEach(function(era){
+      /* Phase set BEFORE applyPreset, the same order at68() uses for every RAIL68/LRN-family row:
+         applyPreset() reads state.phase to snap phi_m, landed_cost, fabProd and the rate detents
+         to THAT era's envelope, so calling it before the phase write snaps to the era just left. */
+      state.phase = era; applyPreset(PRESETS[id]); render();
+      /* Mirrors render()'s own call site deliberately (the same discipline FLEETUI-01 uses):
+         a drift between this row's argument list and render()'s reds this row rather than
+         hiding behind a shared helper both would call. */
+      const mm = model(scenarioModelArgs(PRESET_OF_FUNDING[state.funding]).args);
+      if (mm.mPwr >= mm.mass){ overdrawnSeen++; return; }
+      scored++;
+      const mFab = Math.max(0, mm.mFab || 0);
+      if (mFab > 0) fabPositive++;
+      const nonProdNew = Math.max(0, mm.mass - mm.mPwr - Math.max(0,mm.mining) - mFab);
+      const nonProdOld = Math.max(0, mm.mass - mm.mPwr - Math.max(0,mm.mining));   // DECOY: pre-fix residual, mFab still folded in
+      const wantDown = mm.mass - mm.massEff;
+      const qp = wantDown<10 ? 0.05 : (wantDown<100 ? 0.5 : Math.max(0.5, wantDown*0.001));   // print-precision quantum
+      const gotN = num(kN), gotF = num(kF);
+      rows.push(id+'/'+era+' mFab='+mFab.toFixed(1)+' nonProd='+nonProdNew.toFixed(1)+' want='+wantDown.toFixed(1));
+      if (Math.abs(nonProdNew - wantDown) > qp)
+        bad.push(id+'/'+era+' computed non-productive '+nonProdNew.toFixed(3)+' against mass-massEff '+wantDown.toFixed(3));
+      if (gotN === null || Math.abs(gotN - nonProdNew) > (nonProdNew<10?0.1:0.6))
+        bad.push(id+'/'+era+' #keyN paints '+gotN+' against the computed '+nonProdNew.toFixed(3));
+      if (gotF === null || Math.abs(gotF - mFab) > (mFab<10?0.1:0.6))
+        bad.push(id+'/'+era+' #keyF paints '+gotF+' against mFab '+mFab.toFixed(3));
+      /* The decoy can only diverge from the fix where mFab actually has mass to fold in; at a
+         cell where mFab is 0 (no in-situ fab landed, e.g. the 2030 epoch at several presets) the
+         pre-fix residual and the fix are the SAME expression and agreeing there is correct, not a
+         miss. The population this clause scores is the mFab>0 cells only. */
+      if (mFab > 0 && Math.abs(nonProdOld - wantDown) <= qp) decoyMissed.push(id+'/'+era);
+    });});
+    const why = [];
+    if (scored === 0) why.push('EMPTY POPULATION: every one of the nine preset-era states is overdrawn on mPwr, nothing scored');
+    if (fabPositive === 0) why.push('EMPTY POPULATION for the decoy: mFab is 0 at every scored state, so the pre-fix and post-fix residuals are identical and this row cannot discriminate them');
+    if (bad.length) why.push(bad.slice(0,4).join('  '));
+    if (decoyMissed.length) why.push('DECOY DID NOT DIVERGE at '+decoyMissed.join(', ')+' (mFab > 0 there): the pre-fix residual still matched the downmass, so this row would not have caught the mFab-folded-in defect there');
+    rec('FABSEG-01','GATE',NAME, why.length===0,
+      why.length ? why.join('  ')
+        : scored+' of 9 preset-era states scored ('+overdrawnSeen+' overdrawn, excluded per Quinn\'s ruling), non-productive equals mass-massEff at every one within print precision, #segF/#keyF paint mFab, and the pre-fix residual (DECOY) misses the identity at all '+fabPositive+' scored states with mFab > 0 [red-first: the pre-Step-68 build, mass - mPwr - mining with no mFab term, is the DECOY computed inline above rather than seeded through a window flag, and it is confirmed to miss the downmass identity at every mFab > 0 state]: '+rows.join(', '));
+    state.phase = '2055'; applyPreset(PRESETS.artemis); render();
   })();
 
   // ---------------- STRIP-01 ----------------
@@ -18749,18 +18866,29 @@ function runAbstractTests(){
         why.push('EMPTY POPULATION: the live figures at this state carry ' + live.length +
                  ' entries and do not include one of each unit class, so a cross-unit collision cannot be constructed and this row has no subject');
       } else {
+        /* CLOSE-OUT I1: each case is judged against the ONE live figure whose class it is testing. Judged against the whole
+           live list, the cross-unit cases stopped discriminating the moment two live figures of different classes happened to
+           be within the classifier's own 0.5 percent (The Commercial Break 2055 at the 0.85 default: standing power 7,394 kWe
+           beside a mining plant of 7,403 t), because the sentence was then certified by a genuine mass figure -- which is the
+           classifier behaving correctly. The row's subject is the unit-class test, so the fixture isolates it. */
         const CASES = [
-          {s:'The reactor package weighs ' + fmtNum(powr.value,0) + ' t landed.',  want:false, why:'a mass certified by colliding with a power figure'},
-          {s:'The reactor package draws '  + fmtNum(mass.value,0) + ' kW landed.', want:false, why:'a power certified by colliding with a mass figure'},
-          {s:'The reactor package weighs ' + fmtNum(mass.value,0) + ' t landed.',  want:true,  why:'a genuine mass collision'},
-          {s:'The reactor package draws '  + fmtNum(powr.value,0) + ' kW landed.', want:true,  why:'a genuine power collision'}
+          {s:'The reactor package weighs ' + fmtNum(powr.value,0) + ' t landed.',  live:[powr], want:false, why:'a mass certified by a power figure alone'},
+          {s:'The reactor package draws '  + fmtNum(mass.value,0) + ' kW landed.', live:[mass], want:false, why:'a power certified by a mass figure alone'},
+          {s:'The reactor package weighs ' + fmtNum(mass.value,0) + ' t landed.',  live:[mass], want:true,  why:'a genuine mass collision'},
+          {s:'The reactor package draws '  + fmtNum(powr.value,0) + ' kW landed.', live:[powr], want:true,  why:'a genuine power collision'}
         ];
+        /* The decoy, run first: a class-blind classifier must certify case 1, so a green row proves the class test and not the
+           arithmetic of the tolerance. */
+        const blindCls = function(o, lv){ return lv.some(function(v){ return Math.abs(v.value - o.value) < 0.5 || (v.value > 0 && Math.abs(v.value - o.value) / v.value < 0.005); }); };
+        const dOffCls = landingOffences(CASES[0].s);
+        if (!(dOffCls.length && dOffCls.some(function(o){ return blindCls(o, CASES[0].live); })))
+          why.push('DECOY DID NOT FIRE: a class-blind classifier does not certify "' + CASES[0].s + '" against the power figure alone, so this row proves nothing about the unit-class test');
         let seen = 0;
         CASES.forEach(function(c){
           const off = landingOffences(c.s);
           if (!off.length){ why.push('DECOY DID NOT FIRE: the shipped landingOffences() returns nothing for "' + c.s + '", so this case never reaches the classifier at all'); return; }
           seen++;
-          const got = off.some(function(o){ return isComputed(o, live); });
+          const got = off.some(function(o){ return isComputed(o, c.live); });   // CLOSE-OUT I1
           if (got !== c.want) why.push('the shipped isComputed() returns ' + got + ' where ' + c.want +
             ' is right for ' + c.why + ': "' + c.s + '"');
         });
@@ -20167,7 +20295,12 @@ function runAbstractTests(){
       {id:'Early Shift to Mars 2040 Oxygen split 1.0 Construction split 0 Metals-production split 0', set:function(){ setTo('contested','2040',1.0,0,false,0); }},
       {id:'The Commercial Break 2055 Oxygen split 1.0 Construction split 0 Metals-production split 0', set:function(){ setTo('commercial','2055',1.0,0,false,0); }},
       {id:'Early Shift to Mars 2055 Oxygen split 1.0 Construction split 0 Metals-production split 0', set:function(){ setTo('contested','2055',1.0,0,false,0); }},
-      {id:'Agency Led Baseline 2055 lowest Mass landing rate, non-productive downmass 0.75, Oxygen split 0.50', set:function(){ setTo('artemis','2055',0.50,null,false); state.mass = 0; state.phiC0Ovr = 0.75; }}
+      /* CLOSE-OUT I2: this state dried water because the fleet bought its hardware out of mass the downmass fraction had
+         already removed (close-out S3). With the downmass taken off each landing first it runs a plant and paints 2.0 t/yr, so
+         the row lost both its zero-water case and its only positive-residual one. The In-situ solar rate at its floor makes the
+         2040s in-situ kilowatt weigh 4.575 t and the fab's own mass starves the plant instead: measured water 0.00 with a
+         residual share of 0.05 on the shipped build and on this one. */
+      {id:'Agency Led Baseline 2055 lowest Mass landing rate, non-productive downmass 0.75, In-situ solar rate 0.02, Solar and Fission kg/kWe at maximum, Oxygen split 0.50, Metals-production split 0.40', set:function(){ setTo('artemis','2055',0.50,null,false,0.40); state.mass = 0; state.phiC0Ovr = 0.75; state.fabProd = 0.02; state.solOvr = 300; state.fisOvr = 300; }}
     ];
     /* STEP 68 PASS 2E E5a: the regolith-bound state (Solar, power rail 200 kWe) is not reachable on the fleet page: the Power source chip and
        the power rail are removed, and the fleet reaches no regolith-scaled state over the rails (probe_reach.js, 1,440 painted
@@ -20334,7 +20467,7 @@ function runAbstractTests(){
         for (let i = 0; i < SHARE.length; i++){ const g = SHARE[i].exec(s); if (g && parseFloat(g[1]) > 0 && !ZERO.test(s)) return g[1]; }
         return null;
       };
-      const need = ['Agency Led Baseline 2055 Oxygen split 1.0 Construction split 0 Metals-production split 0', 'Early Shift to Mars 2040 Oxygen split 1.0 Construction split 0 Metals-production split 0', 'The Commercial Break 2055 Oxygen split 1.0 Construction split 0 Metals-production split 0', 'Early Shift to Mars 2055 Oxygen split 1.0 Construction split 0 Metals-production split 0', 'Agency Led Baseline 2055 lowest Mass landing rate, non-productive downmass 0.75, Oxygen split 0.50'];   // STEP 68 PASS 2G N2 IND: the fleet page's zero-water states once the optimiser finds the water window; STEP 68 WAVE 2a: ids match PROSE_STATES' own phi_m-pinned rewrite
+      const need = ['Agency Led Baseline 2055 Oxygen split 1.0 Construction split 0 Metals-production split 0', 'Early Shift to Mars 2040 Oxygen split 1.0 Construction split 0 Metals-production split 0', 'The Commercial Break 2055 Oxygen split 1.0 Construction split 0 Metals-production split 0', 'Early Shift to Mars 2055 Oxygen split 1.0 Construction split 0 Metals-production split 0', 'Agency Led Baseline 2055 lowest Mass landing rate, non-productive downmass 0.75, In-situ solar rate 0.02, Solar and Fission kg/kWe at maximum, Oxygen split 0.50, Metals-production split 0.40'];   // CLOSE-OUT I2c: the id follows the state above   // STEP 68 PASS 2G N2 IND: the fleet page's zero-water states once the optimiser finds the water window; STEP 68 WAVE 2a: ids match PROSE_STATES' own phi_m-pinned rewrite
       const hw = document.getElementById('h_water');
       ST.forEach(function(ps){
         ps.set(); render(); n++;
@@ -20356,7 +20489,7 @@ function runAbstractTests(){
       if (need.length) why.push('EMPTY POPULATION: these states did not paint water 0.00: '+need.join('; '));
       if (!dryPos) why.push('EMPTY POPULATION: no zero-water state carries a positive residual share');
       if (!decoyRed) why.push('DECOY DID NOT FIRE: the pass-3 share sentence offends at no zero-water state');
-      rec('IND-09','GATE','at every state where the water card paints 0.00 (nine presets and seven off-preset states, including the five states that dry water on the fleet page once the optimiser finds the water window: Oxygen split 1.0 with Construction split 0 at the three 2055 presets, Early Shift to Mars 2040 at 0.95 with Construction split 0, and Agency Led Baseline 2055 at the lowest Mass landing rate with non-productive downmass 0.75, where the plant is starved and water keeps a positive residual share), no sentence on the hero, abstract, rail, Scenario, Value, Regime, Equations, Notes or Definitions surface gives water a positive share unless the same sentence says the water line produces 0.00 t/yr (DECOY: the pass-3 Notes share sentence "so water is the residual at X" offends at a zero-water state with a positive residual)',
+      rec('IND-09','GATE','at every state where the water card paints 0.00 (nine presets and seven off-preset states, including the five states that dry water on the fleet page once the optimiser finds the water window: Oxygen split 1.0 with Construction split 0 at the three 2055 presets, Early Shift to Mars 2040 at 0.95 with Construction split 0, and Agency Led Baseline 2055 at the lowest Mass landing rate with non-productive downmass 0.75, the In-situ solar rate at 0.02, the Solar and Fission kg/kWe overrides at maximum and the Metals-production split at 0.40, where the power hardware\'s own mass starves the plant and water keeps a positive residual share -- CLOSE-OUT I2), no sentence on the hero, abstract, rail, Scenario, Value, Regime, Equations, Notes or Definitions surface gives water a positive share unless the same sentence says the water line produces 0.00 t/yr (DECOY: the pass-3 Notes share sentence "so water is the residual at X" offends at a zero-water state with a positive residual)',
         why.length===0,
         why.length ? why.slice(0,3).join('  ') : n+' states, '+dry+' paint water 0.00 ('+dryPos+' with a positive residual share, '+regolithDry+' regolith-bound), '+sentences+' sentences read, 0 give water a positive share; the pass-3 sentence offends at '+decoyRed+'; '+seen.join(' | '));
     }
@@ -21675,7 +21808,7 @@ function runAbstractTests(){
     });
 
     // ---- RAIL68-04L: the Learning rate is a six-detent slider driving step60Rate ----
-    const N04L = 'the Learning rate is #k_learn, a range input in the rail above #advToggle with six detents 0.56, 0.788, 0.85, 0.90, 0.95 and 2.0 in order and default 0.56; each detent sets step60Rate and #v_learn paints the number only; no #rateDial and no data-r button remains';
+    const N04L = 'the Learning rate is #k_learn, a range input in the rail above #advToggle with six detents 0.56, 0.788, 0.85, 0.90, 0.95 and 2.0 in order and default 0.85 (Quinn\'s ruling of 2026-09-15, was 0.56); each detent sets step60Rate and #v_learn paints the number only; no #rateDial and no data-r button remains';
     guard('RAIL68-04L', N04L, function(){
       const why = [];
       const WANT = [0.56, 0.788, 0.85, 0.90, 0.95, 2.0];
@@ -21686,7 +21819,7 @@ function runAbstractTests(){
       else {
         if (!rail || !rail.contains(k)) why.push('#k_learn is not inside aside.rail');
         if (!before(k, adv)) why.push('#k_learn is not above #advToggle');
-        if (k.getAttribute('value') !== '0') why.push('#k_learn defaults to index ' + k.getAttribute('value') + ', not 0 (0.56)');
+        if (k.getAttribute('value') !== String(LEARN_PRESET_INDEX)) why.push('#k_learn defaults to index ' + k.getAttribute('value') + ', not ' + LEARN_PRESET_INDEX + ' (' + WANT[LEARN_PRESET_INDEX] + ')');
         const n = Math.round((parseFloat(k.max) - parseFloat(k.min)) / (parseFloat(k.step) || 1)) + 1;
         if (n !== 6) why.push('#k_learn carries ' + n + ' detents, not 6');
         WANT.forEach(function(r, i){
@@ -21802,7 +21935,8 @@ function runAbstractTests(){
           ['Non-productive downmass', function(){ fire68(byId('k_phic0'), 0.5); }],
           /* STEP 68 PASS 2A: Restore covers the two Value controls and the In-situ solar rate. */
           ['Earth delivery cost', function(){ fire68(byId('k_landedcost'), state.landed_cost === 0 ? 1 : 0); }],
-          ['Learning rate', function(){ fire68(byId('k_learn'), 2); }],
+          /* STEP 68 FABSEG, ITEM 2: fires an index off LEARN_PRESET_INDEX (now 2, 0.85) so the move actually leaves the preset. */
+          ['Learning rate', function(){ fire68(byId('k_learn'), LEARN_PRESET_INDEX === 0 ? 1 : 0); }],
           ['In-situ solar rate', function(){ fire68(byId('k_fabprod'), 1.0); }],
           ['Buildout curve', function(){ curveSetFromGesture(Number(state.phase), 700); render(); }]
         ];
@@ -22030,7 +22164,7 @@ const LEDGER_TOKENS = {
   standingPower: function(slug){ return fmtNum(ledgerCell(slug).m.power, 0); },
   fissionPower:  function(slug){ return fmtNum(ledgerCell(slug).m.fleetF || 0, 0); },
   standing:  function(slug){ const c = ledgerCell(slug);
-                             return fmtNum(c.fs.mass, 0) + ' t standing on ' + fmtNum(c.env.M, 0) + ' t a year'; },
+                             return fmtNum(c.m.mass, 0) + ' t standing on ' + fmtNum(c.env.M, 0) + ' t a year'; },   // CLOSE-OUT T1: the fleet's standing mass, the one the bar paints
   /* ---- THE BINDING CENSUS, PAINTED AS WHOLE CLAUSES -------------------------------------
      Three frames in this ledger glued a bare count token into a fixed sentence. When the Step
      58 correction of kExc took the landed-mass count to zero, one of the three survived it and
@@ -22376,8 +22510,9 @@ let state = { ice:snapIdx('ice',5), power:0, mass:0, phi_c:0, phi_o:snapIdx('phi
               phi_m:snapIdx('phi_m', PHI_M_BY_ERA['2055'].artemis),
               landed_cost:snapIdx('landed_cost', LANDED_COST.eraDefault['2055']),
               /* Step 68 pass 2A: fabProd opens on the 2055 In-situ solar rate default; learnRate is the Learning rate
-                 rail index, detent 0 (LEARN_PRESET_INDEX, declared with LEARN_DETENTS below). */
-              funding:'med', phase:'2055', fission:true, fissionPref:true, fissionPrefSet:false, mix:MIX_ERA_DEFAULT['2055'], fabProd:FAB_RATE_ERA_DEFAULT['2055'], learnRate:0 };/* THE DRAWN CURVE JOINS `state` AS A READ-ONLY DERIVED KEY. It is NON-ENUMERABLE on purpose:
+                 rail index, LEARN_PRESET_INDEX (declared with LEARN_DETENTS below), read directly rather than
+                 duplicated as a literal so the boot state cannot drift from applyPreset()'s own default. */
+              funding:'med', phase:'2055', fission:true, fissionPref:true, fissionPrefSet:false, mix:MIX_ERA_DEFAULT['2055'], fabProd:FAB_RATE_ERA_DEFAULT['2055'], learnRate:LEARN_PRESET_INDEX };/* THE DRAWN CURVE JOINS `state` AS A READ-ONLY DERIVED KEY. It is NON-ENUMERABLE on purpose:
    runAbstractTests() snapshots the state with JSON.parse(JSON.stringify(state)) and restores it
    with Object.keys(save).forEach, and viewFingerprint() stringifies the same object, so an
    enumerable derived key would be copied into a snapshot that then tried to write it back through
@@ -23180,7 +23315,8 @@ function curveDraw(){
   if (vc) vc.textContent = fmtNum(rate(E), rate(E) < 10 ? 1 : 0) + ' t/yr at ' + E;
   const foot = document.getElementById('curveFoot');
   if (foot) foot.textContent = 'landed in all ' + fmtNum(curveCumulative(rate, era), 0) +
-    ' t, standing ' + fmtNum(fs.mass, 0) + ' t, aged out ' + fmtNum(fs.retired, 0) + ' t' +
+    ' t, standing ' + fmtNum((__standingMassPainted != null) ? __standingMassPainted : fs.mass, 0) + ' t, aged out ' +
+    fmtNum(Math.max(0, curveCumulative(rate, era) - ((__standingMassPainted != null) ? __standingMassPainted : fs.mass)), 0) + ' t' +   // CLOSE-OUT T1
     (curveResetByPresetSwitch ? ' -- curve reset to the preset' : '');
   curveResetByPresetSwitch = false;
 
@@ -23658,7 +23794,7 @@ function render(){
      standing fleet they are differenced against, so landed minus standing equals aged-out by
      construction rather than by two formulas agreeing. */
   const _landedAll = fs.landed;
-  const _agedOut = fs.retired;
+  const _agedOut = Math.max(0, fs.landed - m.mass);   // CLOSE-OUT T1: what has aged out is what was landed less what stands
   updateTrack(m);
 
   const SQ = squares(m);
@@ -23694,25 +23830,36 @@ function render(){
      system less the mining plant is the non-productive downmass fraction, and it was the 750 t
      a reader doing the arithmetic could not account for. It has a segment, a colour and a legend
      entry now, and the three labelled parts sum to the total printed above the bar. The bar also
-     carries the four fleet figures the deleted paragraph held. */
-  const total=Math.max(m.mass,1e-9), pFrac=clamp01(m.mPwr/total), mFrac=clamp01(m.mining/total);
-  const nonProd=Math.max(0, m.mass - m.mPwr - Math.max(0,m.mining)), nFrac=clamp01(nonProd/total);
-  const segP=document.getElementById('segP'), segM=document.getElementById('segM'), segN=document.getElementById('segN');
-  if(m.mPwr>=total){ segP.style.width='100%'; segP.className='seg-over'; segM.style.width='0%'; segN.style.width='0%'; }
-  else { segP.className='seg-p'; segP.style.width=(pFrac*100)+'%'; segM.style.width=(mFrac*100)+'%'; segN.style.width=(nFrac*100)+'%'; }
+     carries the four fleet figures the deleted paragraph held.
+     STEP 68 FABSEG, QUINN'S RULING. Non-productive was a residual that also folded in m.mFab,
+     the in-situ fab mass, so it overstated the true phi_c0 downmass. mFab gets its own fourth
+     segment, between mining and non-productive; non-productive is now mass - mPwr - mining -
+     mFab, which is exactly mass - massEff, the downmass alone. The four labelled parts still
+     sum to the total printed above the bar. */
+  const total=Math.max(m.mass,1e-9), pFrac=clamp01(m.mPwr/total), mFrac=clamp01(m.mining/total), fFrac=clamp01(Math.max(0,m.mFab||0)/total);
+  const nonProd=Math.max(0, m.mass - m.mPwr - Math.max(0,m.mining) - Math.max(0,m.mFab||0)), nFrac=clamp01(nonProd/total);
+  const segP=document.getElementById('segP'), segM=document.getElementById('segM'), segF=document.getElementById('segF'), segN=document.getElementById('segN');
+  if(m.mPwr>=total){ segP.style.width='100%'; segP.className='seg-over'; segM.style.width='0%'; segF.style.width='0%'; segN.style.width='0%'; }
+  else { segP.className='seg-p'; segP.style.width=(pFrac*100)+'%'; segM.style.width=(mFrac*100)+'%'; segF.style.width=(fFrac*100)+'%'; segN.style.width=(nFrac*100)+'%'; }
   /* Step 59, item 5 (cold-read F7). The three legend numbers summed to more than the standing
      total whenever the power system alone outweighed it (measured: 5,904 + 0 + 0 against a
      printed 3,685 t total), because mining and non-productive both correctly clamp to zero in
      that regime while the power-system legend went on printing its own unclamped demand. The
      render's own comment already promised the three parts sum to the total; now the power-system
      legend says so itself, in words, whenever they do not, rather than leaving a reader to find
-     the gap by addition. */
+     the gap by addition. [STEP 68 FABSEG: the parenthetical still names mining and non-productive
+     because mFab is independent of mPwr and does not need the same clamp-to-zero call-out.] */
   const overdrawn = m.mPwr > total;
   document.getElementById('keyP').textContent='power system '+fmtNum(m.mPwr,m.mPwr<10?1:0)+' t'+
     (overdrawn ? ' (exceeds the '+fmtNum(total,0)+' t standing fleet; mining and non-productive are zero because none of it is payable)' : '');
   document.getElementById('keyM').textContent='mining plant '+fmtNum(Math.max(0,m.mining),m.mining<10?1:0)+' t';
+  document.getElementById('keyF').textContent='in-situ fabs '+fmtNum(Math.max(0,m.mFab||0),(m.mFab||0)<10?1:0)+' t';
   document.getElementById('keyN').textContent='non-productive '+fmtNum(nonProd,nonProd<10?1:0)+' t';
-  document.getElementById('keyTot').innerHTML=fmtNum(fs.mass,0)+'<span class="u2">t</span>';
+  /* CLOSE-OUT T1: the total over the bar is the mass its four segments divide, m.mass, the fleet's own standing mass. The
+     buildout layer's fs.mass counts an 11-year window and leaves out fission cohorts 12 to 20 years old (342 t at Agency Led
+     Baseline 2055, 19 reactors), so the bar's parts never summed to the number printed above them. */
+  __standingMassPainted = m.mass;
+  document.getElementById('keyTot').innerHTML=fmtNum(m.mass,0)+'<span class="u2">t</span>';
   document.getElementById('keyPwr').innerHTML=fmtNum(m.power - (m.inSituUnbuilt || 0),0)+'<span class="u2">kWe</span>';   // R7 P1: less the in-situ array the fab did not make
   /* STEP 68 PASS 2E E2 (spec R5.5): the fission share of standing power [1], surviving fission kWe over standing kWe, which is m.mix. */
   document.getElementById('keyFisShare').textContent = (100 * ((m.power > 0 && m.mix > 0) ? m.mix : 0)).toFixed(1) + '% of standing power is fission';   // Step 68 pass 2B: landed plus bought
@@ -24233,7 +24380,7 @@ function buildRefBody(){
     '<p>Al2O3 = 2Al + 3/2 O2 reversible minimum = 5.60 kWh/kg Al: dG at 1873 K, derived here from standard formation data. dH = 8.63 kWh/kg Al. Co-product oxygen = 0.889 kg per kg Al; charged across both products, 2.97 kWh/kg. Han 2026 Table 2\u2019s own MRE-route delta-G, on the mixed-alloy real product rather than this pure-Al2O3 reaction, is 14.66 kWh/kg Al: the two are different reactions on different products and do not cross-check each other, and no source in this corpus supplies a pure-Al2O3-reduction delta-G to check this derivation against directly.</p>'+
     '<p>Aluminium practical energy = 9.5 kWh/kg Al: Jehn 2024 LAMPP, 56,355 kWh/yr over 195 batches, mass-allocated across its own metal split of Si 65.6, Al 22.4, Mg 11.0, Ti 1.1 percent, 1.70x the first-principles floor. Aluminium output on Jehn\u2019s plant is 1,328 kg/yr.</p>'+
     '<p>Aluminium yield = 7.4 wt% of feed at 99.27 wt% purity: Schneiderman 2025 Table 2, page 7, tapped aluminium product drawn at Extraction Event 2, lambda-O2 = 0.37.</p>'+
-    '<p>Aluminium plant mass = 271 kg per t/yr at unit 1, the same plant: aluminium is a later tap on the same MRE reactor and carries no separate plant and no separate mass axis. It rides the same learning curve to the same 2055 position, at the same default progress ratio 0.56, as every other output of that plant.</p>'+
+    '<p>Aluminium plant mass = 271 kg per t/yr at unit 1, the same plant: aluminium is a later tap on the same MRE reactor and carries no separate plant and no separate mass axis. It rides the same learning curve to the same 2055 position, at the same default progress ratio 0.85, as every other output of that plant.</p>'+
     '<p>Aluminium containment is a duration, not a thermodynamic limit: the melt freezes against a 1675 C reactor line, Schneiderman\u2019s and Schreiner\u2019s own design choice carrying a stated 30 C margin, crossed at lambda-O2 = 0.375. CaO is last to reduce, concentrates to 69 mol%, and drives the liquidus up. Containment has a measured rate, 7 um/hr of YSZ recession, from Yu 2025.</p>';
 }
 function renderDerivationPanel(inp, m, v){
@@ -24561,7 +24708,7 @@ function regimeCellModel(ice, power, mass, fission, applied){
   const a = applied || scenarioModelArgs(PRESET_OF_FUNDING[state.funding]).args;
   /* STEP 68 PASS 2E E1: a cell is the counterfactual input-power state (R5.8), the Revision 4 path. */
   const rc = Object.assign({}, a, {ice:ice, power:power, mass:mass, fission:fission});
-  delete rc.fabProdStand; delete rc.fabLedgerRequest;   // R7.4: a Regime cell is not the fleet's landed state
+  rc.fabProdStand = undefined; rc.fabLedgerRequest = undefined;   // R7.4: a Regime cell is not the fleet's landed state. CLOSE-OUT D1: undefined reads the same everywhere the two keys are read and keeps the object out of dictionary mode
   return modelAtPower(rc);
 }
 /* STEP 68 PASS 2C PERF. The grid is 60 x 42 cells, each a model() call with the learning split, so it dominated render().
@@ -24570,8 +24717,19 @@ function regimeCellModel(ice, power, mass, fission, applied){
    inputs (the applied arguments, ice, power source, axis bounds, brightness anchor, CONFIG, L and canvas size) are unchanged.
    Every colour is computed by the same expressions from the same regimeCellModel() result, so the painted grid is identical. */
 var __regimePending = false, __regimeLast = null, __regimeCache = null;
+var __standingMassPainted = null;   // CLOSE-OUT T1: the standing mass this render painted (the fleet's), for the curve plot's own footer
 /* STEP 68 PASS 2E E1: the marker plots the output state (m.mass, m.power); every model() call inside the field is at input power. */
-function drawField(m, standingMass, standingPower){ __powerInputDepth++; try { return drawFieldInput(m, m.mass, m.power); } finally { __powerInputDepth--; } }
+/* CLOSE-OUT D4: a reader's own drag hands the Regime grid to a trailing task that the next input supersedes, so a drag across
+   five detents computes one grid instead of five and the input handler returns without waiting for 2,520 cells. Every other
+   caller -- selectTab, the gates, the harnesses -- paints synchronously, as before, and the painted grid at rest is identical. */
+var __regimeTrail = null;
+function drawField(m, standingMass, standingPower){
+  if (__readerDrag){ const _rp = document.querySelector('.panel[data-t="regime"]'); if (_rp && !_rp.hidden){
+    __regimeLast = [m, standingMass, standingPower];
+    if (__regimeTrail !== null) clearTimeout(__regimeTrail);
+    __regimeTrail = setTimeout(function(){ __regimeTrail = null; const L = __regimeLast; __powerInputDepth++; try { drawFieldInput(L[0], L[0].mass, L[0].power); } finally { __powerInputDepth--; } if (typeof window.__regimeTrailDone === 'function') window.__regimeTrailDone(); }, 0);
+    return; } }
+  __powerInputDepth++; try { return drawFieldInput(m, m.mass, m.power); } finally { __powerInputDepth--; } }
 function drawFieldInput(m, standingMass, standingPower){
   const W=regCv.width, H=regCv.height, padL=52, padB=30, padT=12, padR=12;
   regCtx.clearRect(0,0,W,H);
@@ -24591,6 +24749,10 @@ function drawFieldInput(m, standingMass, standingPower){
   else {
     __regimePending = false;
     const _key = [JSON.stringify(_applied), ice, fission, mMin, mMax, pMin, pMax, wRef, configSig(), VALUE.L.value, W, H].join('|');
+    /* CLOSE-OUT D3: the twelve most recent grids are kept under the same key, so a drag back across a detent repaints from
+       the cache instead of recomputing 2,520 cells. */
+    if (typeof __regimeLRU === 'undefined') window.__regimeLRU = new Map();
+    { const _e = __regimeLRU.get(_key); if (_e) __regimeCache = _e; }
     const _hit = (__regimeCache && __regimeCache.key === _key);
     const _cols = _hit ? __regimeCache.cols : [];
     let _fold = 0;   // STEP 68 PASS 2E E3b: power-system-mass cells with zero water at the fold sample cells
@@ -24613,7 +24775,7 @@ function drawFieldInput(m, standingMass, standingPower){
       _i++;
       regCtx.fillStyle=col; regCtx.fillRect(padL+fx*plotW, padT+fy*plotH, cw+1, ch+1);
     }
-    if (!_hit) __regimeCache = {key:_key, cols:_cols, fold:_fold};
+    if (!_hit){ __regimeCache = {key:_key, cols:_cols, fold:_fold}; __regimeLRU.set(_key, __regimeCache); if (__regimeLRU.size > 12) __regimeLRU.delete(__regimeLRU.keys().next().value); }
     __regimeFoldPaint = {stamp:__renderStamp, n:(_hit ? __regimeCache.fold : _fold)};
   }
   regCtx.font='12px ui-monospace,monospace'; regCtx.fillStyle='#A2B2C8';
