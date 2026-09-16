@@ -639,6 +639,13 @@
           <div class="metric" title="Utilisation rides beside N because ceil() leaves the last plant partly idle unless the applied output divides the per-plant ceiling exactly. Two unit types, each ceilinged on its own capacity: dedicated O2 reactors and metal-primary plants, summed."><div class="ml2">Plant standing</div><div class="mv"><span id="m_plants" data-step60-plantcount></span><span class="munit" id="m_plants_sub"><span id="m_plants_ox"></span> O2 &middot; <span id="m_plants_metal"></span> metal &middot; cumulative <span id="m_plants_cum"></span></span></div></div>
           <div class="metric" id="card_insitu_standing" data-card="insitu-standing"><div class="ml2">In-situ solar standing</div><div class="mv"><span id="m_insitu" data-step68-insitustanding></span><span class="munit">kWe</span> <span class="munit" id="m_insitu_share"></span></div></div>
         </div>
+        <!-- STEP 70b: A CLEARING-TEST ANDON LIGHT STOOD HERE AND IS WITHDRAWN (Quinn, 2026-09-16):
+             "Calculate it for every year and don't call it/show it." The test is still computed for every
+             year 2032-2055 on both coverage readings, in programmeClearingSeries(); it has no reader
+             surface and no render path. The reason it has none is measured: on the log-linear trajectory
+             both readings are decided in the early 2030s, where delivery still prices at $81,061/kg and
+             almost any plant is worth running, while the same programmes read -$8.5B to +$142.0B at 2055.
+             A light green in 2032 beside a programme underwater in 2055 would mislead. -->
       </div>
 
       <div>
@@ -1976,13 +1983,14 @@
    "loSource": "The launch-price-independent operations slice implied by a $20M to $50M per year ground-operations estimate over pilot-scale output.",
    "hiSource": "The propellant break-even sales-price ceiling, which this entry's own string calls financing-inflated and explicitly not an operating cost.",
    "rule": "NOT-CENTRABLE",
-   "disposition": "STANDS",
+   "disposition": "SUPERSEDED",
+   "supersededBy": "Step 70, Quinn's ruling of 2026-09-16: the propellant operating cost is not modelled. THIS ENTRY WAS ALREADY VESTIGIAL BEFORE THAT RULING -- valueModel() computes op_prop as max(op_propF / water_kg, op_propV) and never reads this entry's value -- so what the ruling changes is not what this number does but what it describes: the $5,000/kg operating floor it documents is now not charged at any state. The interval and both end-point sources are RETAINED as the record.",
    "reason": "THE UPPER END IS DISQUALIFIED AS AN OPERATING FIGURE BY ITS OWN SOURCE, so the interval's arithmetic middle of 18,650 is anchored on a number this entry says is not a cost. Arithmetic 18,650 against geometric 8,404 is a factor of 2.2, the eSinter signature. Recorded, and CORRECTED on 2026-09-08 by the seat that wrote it: this line asserted that the negative propellant verdict is robust across the whole of this band because margin_prop turns negative for any operating floor above 980 $/kg. The 980 was measured at ONE delivery cost, D = 2,000, which is the 2055 era default and one detent of an eleven-detent rail running 1,000 to 1,000,000 $/kg, and it was measured on the build that stood before this same step moved captureEff and L. The floor is D * (1 - r_prop): it moves with the delivery cost by construction and with the state through r_prop, so a floor quoted without the delivery cost it was taken at is a number with a free variable in it. Re-measured on THIS build across the nine preset cells against all eleven detents, 99 finite pairs: the floor runs -5,132,519.51 to 142,447.34 $/kg and is positive at 22 of the 99. It clears this band's own 2,000 $/kg floor at 9 of the 99, and at those nine states the propellant margin is POSITIVE and the verdict fails. Two of the nine cells reach that anywhere on the rail: The Commercial Break at 2040, whose floor is already 4,985.66 $/kg at its own era-default delivery cost of 35,000, and Agency Led Baseline at 2055, which needs the top detent. Taken at each cell's own era-default delivery cost the verdict holds at eight of the nine. The retired 980 reproduces exactly on the pre-install-1 backup, r_prop 0.509768 there against 0.994154 at the same cell here, so it was superseded twice over: once by the delivery cost it never named, and once by the coefficient moves this step installed after it was written. What sets the sign is the delivery cost, and this line said so in its own last clause while quoting a floor that had none."
   },
   "claims": [
    "propellant-operating-floor"
   ],
-  "status": "PROJECTED, UNVERIFIED-pending",
+  "status": "SUPERSEDED (Step 70, Quinn's ruling of 2026-09-16), and VESTIGIAL before that: valueModel() never reads this entry. The retired rung description was PROJECTED, UNVERIFIED-pending and is kept here as the record of the superseded value.",
   "source": "Propellant in-situ operating floor, launch-price-independent. $5,000/kg central, band $2,000 to $35,300/kg. The launch-price-independent operations slice, sourced to the roughly $20M to $50M per year ground-operations estimate over pilot-scale output that [[propellant-operating-floor]] carries, which yields about $2,000 to tens-of-thousands per kg at low production rate. The upper bound near $35,300 is retained only as the propellant break-even sales-price ceiling; it is financing-inflated and explicitly not an operating cost, and it is not an operating figure from any held primary. Projected, not read from a per-kg primary."
  },
  "op_const": {
@@ -2007,7 +2015,7 @@
   "source": "The construction operating floor in the model is about $0.83/kg at $1/kWh, being eSinter of 3 MJ/kg (about 0.83 kWh/kg) wall-plug times the price; a delivered-basis figure is HALF the wall-plug figure at a magnetron efficiency of 0.5, so about $0.42/kg, and the delivered-basis floor of 0.3264 kWh/kg is our own conversion from the per-area figures Metzger and Autry 2023 report, not a per-mass figure they print ([[sintering-specific-energy]] Part 1); no Earth-supplied reagent. MOVED FROM 0 TO 0.83 $/kg at Step 56. This is a correction rather than a centring: the entry already carried its own wall-plug arithmetic and the live value contradicted it, and wall-plug is the basis every other energy coefficient in this file uses. Magnitude is immaterial. At Agency Led Baseline / Sustained it is $786k/yr against a construction value of $1.84B, which is why it stood at zero on a negligibility declaration for as long as it did. EXAMINED AGAINST OP_PROP'S OWN REFORM, 2026-09-09, AND FOUND NOT TO QUALIFY. op_prop's reform corrected a fixed annual operations BUDGET that had been divided by one assumed output level and then held flat at every other level; op_const carries no such budget anywhere in its own sourcing. It is an energy INTENSITY (eSinter, kWh consumed per kilogram of product) times a commodity price ($/kWh), a genuinely constant per-kilogram figure by the physics it is built from rather than an extensive cost forced into a per-kg shape; there is no F for it to divide by output, because output never entered its derivation. It stands correctly as a flat $/kg figure. op_const IS, as of Step 58 install 2, charged the same landed-hardware capital term C_hw as op_prop, through P_const = r_const * (C_hw + D) + op_const."
  },
  "op_propF": {
-  "value": 50000000,
+  "value": 1,
   "unit": "$/yr",
   "band": {
    "kind": "INTERVAL",
@@ -2016,17 +2024,18 @@
    "loSource": "Kornuta, D. et al., 2019, Commercial Lunar Propellant Architecture, REACH 13:100026: $20M/yr flat annual operating cost, one design point, 2,450 MT water/yr, 30,000 kg mining hardware, 10-year hardware life.",
    "hiSource": "Sowers, G.F. and Dreyer, C.B., 2019 NIAC Phase I Final Report, Table 4.9.3, Scenario 3: $127.7M/yr, a flat $3,000/kg-plant/yr factor applied to a 26,200 kg system mass across a 1,882 mT/yr demand scenario.",
    "rule": "NOT-CENTRABLE",
-   "disposition": "STANDS",
+   "disposition": "SUPERSEDED",
+   "supersededBy": "Step 70, Quinn's ruling of 2026-09-16: the propellant operating cost is not modelled and the live value is 1. The interval, both end-point sources and the NOT-CENTRABLE rule below are RETAINED as the record of what was charged before that ruling; they are no longer a live band around the live value.",
    "reason": "F is the fixed-per-year, tonnage-independent slice of propellant operations: ground control, mission operations, comms/DSN time, program office, safety and licensing. No primary in the corpus isolates this slice from the mass-linked slice below; Kornuta's $20M/yr and Sowers' $78.6M-$127.7M/yr are both totals that bundle staff time with hardware-linked cost. $50M/yr is the working central value used in Section 4 of the source report; it is a choice inside this DERIVED band, not fixed by any primary."
   },
   "claims": [
    "propellant-operating-floor"
   ],
-  "status": "SOURCED at its two end points (Kornuta and Sowers Scenario 3), DERIVED as a band, ASSUMPTION at the $50M/yr central working value",
-  "source": "Step 58 install 1, ruled 2026-09-08. op_prop is reformed from a flat $5,000/kg constant, frozen at whatever output rate produced it and carried unchanged to every other output rate, to op_prop = max(F / water_kg_per_yr, v): a fixed annual operations cost F divided by the live water rate, floored at a minimum per-kilogram figure v (VALUE.op_propV) so the term does not fall toward zero at high output. The old constant's own source string already called itself a fixed annual cost over pilot-scale output; this is a form correction to what that string always asserted the coefficient was, not a re-sourcing. F's rung differs from v's: F is SOURCED at its two individual end points, DERIVED as the $20M-$130M/yr band spanning them, and ASSUMPTION at the $50M/yr point used as the central working value in the source report's own worked table."
+  "status": "CONTROL (Step 70, Quinn's ruling of 2026-09-16): an authoring decision that DISABLES the term, not an estimate of anything. The word SOURCED does not apply to the live value of 1. The retired $50M/yr working value was SOURCED at its two end points (Kornuta and Sowers Scenario 3), DERIVED as a band and ASSUMPTION at the central point; that rung description is kept here as the record of the superseded value and describes nothing live.",
+  "source": "STEP 70, QUINN'S RULING OF 2026-09-16: THE PROPELLANT OPERATING COST IS NOT MODELLED. op_propF and op_propV are both set to 1 and both stay wired, so the max() form and every pre-existing test pinning op_prop through the override path reproduce unchanged. The ground is that this cost is EXOGENOUS OVERHEAD SELF-SUFFICIENCY CANNOT REDUCE -- ground control, mission operations, comms and DSN time, programme office, safety and licensing -- so charging it against in-situ production misstates what in-situ production buys. ZERO IS AVOIDED BECAUSE ZERO IS LOADED IN THIS FILE: gate X1 is named for op_prop = 0 behaviour and the painted crossover text carries a retired zero-op_prop branch, so one dollar trips no branch and no sentinel while being identical to zero at the fourth significant figure of every painted figure. Since waterMinTpy guarantees at least 1 kg/yr of water above the pre-production threshold, op_prop is exactly $1/kg at every computed state. THE SUPERSEDED BAND IS KEPT ON THE RECORD AND NOT DELETED: the interval, both end-point sources and the NOT-CENTRABLE rule stand below as the record of what was charged before this ruling. THE SUPERSEDED RECORD FOLLOWS. Step 58 install 1, ruled 2026-09-08. op_prop is reformed from a flat $5,000/kg constant, frozen at whatever output rate produced it and carried unchanged to every other output rate, to op_prop = max(F / water_kg_per_yr, v): a fixed annual operations cost F divided by the live water rate, floored at a minimum per-kilogram figure v (VALUE.op_propV) so the term does not fall toward zero at high output. The old constant's own source string already called itself a fixed annual cost over pilot-scale output; this is a form correction to what that string always asserted the coefficient was, not a re-sourcing. F's rung differs from v's: F is SOURCED at its two individual end points, DERIVED as the $20M-$130M/yr band spanning them, and ASSUMPTION at the $50M/yr point used as the central working value in the source report's own worked table."
  },
  "op_propV": {
-  "value": 70,
+  "value": 1,
   "unit": "$/kg",
   "band": {
    "kind": "INTERVAL",
@@ -2035,14 +2044,15 @@
    "loSource": "Kornuta 2019: $20M/yr / 2,450 MT water/yr = $8.16/kg, a quotient this project's own arithmetic performs on Kornuta's printed annual dollar and annual output figures; Kornuta states neither division.",
    "hiSource": "Sowers 2019 NIAC Phase I Final Report, Table 4.9.3: $78.6M/1,100 mT = $71.45/kg, $82.7M/1,158 mT = $71.42/kg, $127.7M/1,882 mT = $67.86/kg, a $68-$72/kg band across his three demand scenarios; Sowers states none of the three divisions.",
    "rule": "NOT-CENTRABLE",
-   "disposition": "STANDS",
+   "disposition": "SUPERSEDED",
+   "supersededBy": "Step 70, Quinn's ruling of 2026-09-16: the propellant operating cost is not modelled and the live value is 1, which sits outside the [8, 72] interval below. That interval, both end-point sources and the NOT-CENTRABLE rule are RETAINED as the record of what was charged before that ruling.",
    "reason": "v is a structural floor, applied at every scale, not a design point read at one scale. $70/kg (rounded from Sowers' $68-$72/kg band) is used rather than Kornuta's six-times-lower $8/kg because it is the more conservative of two numbers carrying the same evidentiary weight, both DERIVED quotients from a single author's design projection at a single design point, neither measured on flying hardware at production scale. Repurposing a DERIVED design-point quotient as a structural floor for all scales is an authoring choice (ASSUMPTION), not a reading of either source."
   },
   "claims": [
    "propellant-operating-floor"
   ],
-  "status": "DERIVED as a quotient of two primaries' printed figures; ASSUMPTION as a structural floor applied at every scale",
-  "source": "Step 58 install 1, ruled 2026-09-08. Neither Kornuta's $8/kg nor Sowers' $68-$72/kg is a per-kg figure either primary prints; both are quotients this project's own arithmetic performs on an annual dollar figure and an annual output figure each primary does print. $70/kg is the more conservative choice between two DERIVED numbers of identical evidentiary weight, not the better-evidenced one in any absolute sense, and that is stated here rather than left implied."
+  "status": "CONTROL (Step 70, Quinn's ruling of 2026-09-16): an authoring decision that DISABLES the term, not an estimate of anything. The retired $70/kg value was DERIVED as a quotient of two primaries' printed figures and ASSUMPTION as a structural floor applied at every scale; that rung description is kept here as the record of the superseded value and describes nothing live.",
+  "source": "STEP 70, QUINN'S RULING OF 2026-09-16: THE PROPELLANT OPERATING COST IS NOT MODELLED. op_propF and op_propV are both set to 1 and both stay wired, so the max() form and every pre-existing test pinning op_prop through the override path reproduce unchanged. The ground is that this cost is EXOGENOUS OVERHEAD SELF-SUFFICIENCY CANNOT REDUCE -- ground control, mission operations, comms and DSN time, programme office, safety and licensing -- so charging it against in-situ production misstates what in-situ production buys. ZERO IS AVOIDED BECAUSE ZERO IS LOADED IN THIS FILE: gate X1 is named for op_prop = 0 behaviour and the painted crossover text carries a retired zero-op_prop branch, so one dollar trips no branch and no sentinel while being identical to zero at the fourth significant figure of every painted figure. Since waterMinTpy guarantees at least 1 kg/yr of water above the pre-production threshold, op_prop is exactly $1/kg at every computed state. THE SUPERSEDED BAND IS KEPT ON THE RECORD AND NOT DELETED: the interval, both end-point sources and the NOT-CENTRABLE rule stand below as the record of what was charged before this ruling. THE SUPERSEDED RECORD FOLLOWS. Step 58 install 1, ruled 2026-09-08. Neither Kornuta's $8/kg nor Sowers' $68-$72/kg is a per-kg figure either primary prints; both are quotients this project's own arithmetic performs on an annual dollar figure and an annual output figure each primary does print. $70/kg is the more conservative choice between two DERIVED numbers of identical evidentiary weight, not the better-evidenced one in any absolute sense, and that is stated here rather than left implied."
  },
  "waterMinTpy": {
   "value": 0.001,
@@ -2058,6 +2068,74 @@
   ],
   "status": "CONTROL, an authoring choice, not sourced",
   "source": "Step 58 install 1, ruled 2026-09-08. The threshold below which the model classifies a state as pre-production rather than computing op_prop, P_prop and margin_prop as finite figures through the F/water singularity. See VALUE.op_propF and VALUE.op_propV for the reform this threshold guards."
+ },
+ "learnGCeiling": {
+  "value": 10,
+  "unit": "1",
+  "band": {
+   "kind": "NO_BAND",
+   "rule": "NOT-CENTRABLE",
+   "disposition": "STANDS",
+   "reason": "NO SOURCE IN THIS PROJECT'S CORPUS STATES AN IRREDUCIBLE MINIMUM SPECIFIC MASS FOR ANY LUNAR PLANT OF ANY TYPE. THE RULED QUANTITY IS THE RATIO, NOT THE FLOOR: Quinn ruled a tenfold ceiling on the mass learning multiplier, set cold on 2026-09-16, and it is an ASSUMPTION in those words. The floor in kg per (t regolith/yr) is DERIVED from it as s_1/10, where s_1 = 1000/kExc is the first unit, so the ceiling is exactly 10 by construction and a later re-measurement of s_1 moves both ends of the identity together. Typing the floor as an absolute instead was the first cut and it did not reproduce the ruling: 1.57 against a measured s_1 of 15.7035 gives a ceiling of 10.0022, two numbers meant to be one statement disagreeing in the third digit. The corpus bounds the answer from one side and does not locate it: every published figure is a first-unit or first-of-a-kind estimate and not one of them is an asymptote. THE FIRST-UNIT BAND, recorded here beside the floor rather than merged with it, is 10.83 kg per (t regolith/yr) (Linne, Kleinhenz and Paz 2020, a 325 kg PSR pilot over 30,000 kg/yr of regolith, DERIVED: the source prints mass, water rate, grade and capture separately and performs no such division) to 22.76 (Guerrero-Gonzalez and Zabel 2023 Fe-Si MRE, 4,534 kg less the 2,242 kg array over about 199 t/yr of reactor feed, DERIVED: the yield turning oxygen into feed is this project's digitized Fig. 4 reading at 0.120 +/- 0.004). THE TWO ENDS DO NOT MEASURE THE SAME MEASURAND. Linne's denominator is raw regolith at deposit grade through a chain with no beneficiation stage; Guerrero-Gonzalez's is reactor feed behind a 616 kg beneficiation subsystem at an assumed enrichment of three. They sit on opposite sides of a stage this model does not have, the same caveat CONFIG.kExc's own entry already carries about the same two plants. WHAT THE FLOOR STOPS, stated as the measurement that motivated it rather than as a derivation of the number: at the 0.56 detent The Commercial Break 2055 reached 0.083 kg per (t regolith/yr), 131 times below the lightest plant anyone has published. A floor is a different quantity from a lightest-published-estimate and this corpus contains only the latter. IT IS A FLOOR FOR MRE AT AN OPERATING POINT, not a floor for MRE: Guerrero-Gonzalez runs a fixed 1,850 K iron-inclusive design and Jehn 2024 runs 1,600 to 2,000 K at 100 kg batches with 93 percent of the FeO magnetically removed before the melt, which is the same chemistry at a different floor."
+  },
+  "claims": [
+   "throughput-coefficient"
+  ],
+  "status": "ASSUMPTION (Quinn's ruling of 2026-09-16, set cold; NO SOURCE STATES AN IRREDUCIBLE MINIMUM SPECIFIC MASS FOR ANY LUNAR PLANT OF ANY TYPE). This entry is the RATIO, dimensionless, and the floor it implies is derived from it at call time. The first-unit end of the identity, s_1 = 1000/kExc = 15.70 kg per (t regolith/yr), is DERIVED and is the geometric centre of the two published plants named in the band reason; the floor is s_1 divided by this ratio.",
+  "source": "Step 70, Quinn's ruling of 2026-09-16: 'we can't expect 10,000 years of innovation in 30 years... rapid innovation until things get good enough.' The asymptotic floor on the plant specific-mass identity, applied to the MASS leg of the learning curve only. The identity the model runs is s(N) = s_floor + (s_1 - s_floor) * PR^log2(N) with s_1 = 1000/kExc and s_floor = s_1 / this ratio, and the multiplier it consumes is phi(N) = s_1/s(N), so the mass multiplier G is capped asymptotically at exactly this ratio and approaches it rather than hitting a clamp. NEITHER END IS TYPED: s_1 is read from kExc and the floor is divided out of it, so the two cannot drift apart. THE FORM IS ASYMPTOTIC ON PURPOSE: a hard clamp puts a corner on every rail a reader drags, and the rails are walked at step 0.00025. THE COST LEG IS DELIBERATELY NOT FLOORED. psi, the hardware-cost multiplier that drives C_hw, is the sibling expression on the same line of learningMultipliersCounts() and is left alone: C_hw is the leg with measured anchors and the mass leg is the one with none, and a reader meeting a floored mass beside an unfloored cost is entitled to know that is a decision. NOTE ON THE BASIS, recorded rather than smoothed: CONFIG.kExc.basis reads 'landed mass less the power system, the model mining budget (mass minus M_power)', while the model's own M_mining is max(0, M_eff - M_power - mFab) and subtracts the fab as well. The 15.70 is stated on the landed-mass-less-power-system-and-fab basis, which is what the code computes; it is kExc's own basis STRING that omits the fab term."
+ },
+ "insituMaturityFloor": {
+  "value": 0.3401,
+  "unit": "kWe/(yr t) of fab",
+  "band": {
+   "kind": "INTERVAL",
+   "lo": 0.182,
+   "hi": 0.636,
+   "loSource": "1/(fSol*L) evaluated at the favourable end of both parent bands. DERIVED: it is this project's arithmetic on two coefficients, and no primary prints a maturity threshold for in-situ photovoltaic fabrication.",
+   "hiSource": "1/(fSol*L) at the unfavourable end of both parent bands. DERIVED, on the same basis.",
+   "rule": "NOT-CENTRABLE",
+   "disposition": "STANDS",
+   "reason": "THE BAND IS THE PARENTS' BANDS PROPAGATED, NOT A RANGE ANYONE MEASURED. fSol is graded ASSUMPTION and L is graded DESIGN, so this threshold's own position is uncertain by a factor of about 3.5. WHAT THAT UNCERTAINTY COSTS, stated as the thing a reader actually cares about: the year the in-situ rate crosses the floor, which is the timer the ruling installs, moves from 2039 at 0.182 to 2055 at 0.636, against 2043 at the live value. A threshold whose crossing year spans sixteen of the model's twenty-six years is a real threshold with a soft date, and it must not be quoted as a date the model knows."
+  },
+  "claims": [
+   "solar-mass-allocation"
+  ],
+  "status": "ASSUMPTION (Quinn's ruling of 2026-09-16, set cold as a design intent): the threshold itself is a CONTROL choice -- that the fab is not used until it is mature enough -- and the number it takes is DERIVED, being the app's own fab mass break-even 1/(fSol*L) rather than an invented constant. No source in this corpus supplies a maturity threshold for in-situ fabrication; the two parents under it are graded ASSUMPTION and DESIGN.",
+  "source": "Step 70b, Quinn's ruling of 2026-09-16: 'just enact a ceiling and it becomes a timer. the tech isn't used until it is mature enough.' A landing year whose in-situ rate is below this contributes no in-situ share; at or above it the buildout ceiling governs as before. THE FUNCTION IS THE AUTHORITY AND THIS ENTRY IS THE RECORD: insituMaturityFloor(fSol, L) computes 1/(fSol*L) from the live coefficients at every call, so the threshold follows them; the value printed here is what that returns at the shipped coefficients and is not read by the model. BEFORE THIS RULING THE SAME EXPRESSION GATED NOTHING: insituShareApplied() computed it as threshFab and then returned the buildout ceiling unconditionally, so the app carried a dead threshold. IT IS ONE OF TWO GATES AND NOT A REPLACEMENT FOR THE OTHER: FAB_EPOCH's cumulative fab-unit count inside fabCeiling asks whether enough fab exists to use the technology, while this asks whether the technology is good enough yet. In-situ requires both. Retiring the count gate was ordered and reverted on measurement: removal moves Early Shift to Mars 2055 water by 4.019 percent and its in-situ share by 31.6 percent, because that tier never accumulates fab and the count is what stops it collecting in-situ solar it never built the capacity for."
+ },
+ "lenderHurdle": {
+  "value": 0.10,
+  "unit": "1/yr",
+  "band": {
+   "kind": "INTERVAL",
+   "lo": 0.10,
+   "hi": 0.20,
+   "loSource": "The rate named as the example in this project's Economy ruling of 2026-09-14; nearest a government-backed or concessionary facility. ASSUMPTION, not read from any primary.",
+   "hiSource": "The corpus holds one adjacent figure and it is not a lender hurdle: Charania and DePasquale 2007 solve at NPV(0.217, 18) = 0, quoted at one remove through Shishko slide 2. That is a discount rate in a different model on an 18-year horizon. ASSUMPTION.",
+   "rule": "NOT-CENTRABLE",
+   "disposition": "STANDS",
+   "reason": "EVERY VALUE IN THIS BAND IS AN ASSUMPTION AND NONE IS SOURCED. No primary in this project's holdings prints a lender hurdle rate for a lunar asset. The deck's own model rate is 12.5 percent (Shishko slide 15) and the Evidence Ledger already states that the 12.5 and the 21.7 must not be merged, which is why neither is adopted here. 10 percent is Quinn's ruling of 2026-09-16 and is the rate his own Economy ruling named as its example."
+  },
+  "claims": [
+   "amortized-plant-identity"
+  ],
+  "status": "ASSUMPTION (Quinn's ruling of 2026-09-16), set cold. No source in this corpus supplies a lender hurdle rate for a lunar asset, and none is claimed for this value: the rung is an authoring decision and the number is Quinn's.",
+  "source": "Step 70, Quinn's ruling of 2026-09-16. The annual rate the bank test charges in lenderMargin(). At a tenor of 11 years the capital recovery factor is CRF(0.10, 11) = 0.15396314/yr, computed from the app's own VALUE.L rather than typed; lenderMargin() returns it and the andon prints what the function returned, so no literal of it is load-bearing anywhere. THE LENDER TEST IS STRICTLY HARSHER THAN THE PAINTED VALUE CARDS AT EVERY RATE INCLUDING ZERO, which is worth stating because it has been asserted the other way: the cards annualise capital on a declining balance at (1 - (1 - 0.15)^11)/11 = 0.075696/yr, and CRF(0, 11) = 1/11 = 0.090909/yr is already 1.20 times that before any interest is charged. At 10 percent the lender charges capital 2.03 times the rate the cards charge it, and no positive rate exists at which the two agree. A scenario whose Propellant value card is positive can therefore fail the lender test."
+ },
+ "lenderTenor": {
+  "value": 11,
+  "unit": "yr",
+  "band": {
+   "kind": "NO_BAND",
+   "rule": "NOT-CENTRABLE",
+   "disposition": "STANDS",
+   "reason": "SET EQUAL TO THE ASSET LIFE FOR NOW, AND SEPARATE FROM IT BY CONSTRUCTION. Before Step 70 the loan tenor and the plant life were one variable: lenderMargin() passed inp to valueModel(), which read inp.L, and then re-read the same inp.L for the CRF. A seven-year loan against an eleven-year plant would also have shortened the plant's own amortisation, changing the thing financed rather than the financing, so a tenor different from the asset life was not expressible at all. It is its own parameter now and it is set to 11, so nothing moves until someone sets it otherwise."
+  },
+  "claims": [
+   "amortized-plant-identity"
+  ],
+  "status": "CONTROL (Step 70, Quinn's ruling of 2026-09-16): the loan tenor, an authoring parameter, numerically equal to VALUE.L today and independent of it by construction.",
+  "source": "Step 70, Quinn's ruling of 2026-09-16. The tenor over which the capital recovery factor amortises the lender test, in years. Equal to VALUE.L's 11 yr at this build; the two are different quantities and are now different keys, so moving the loan does not move the plant."
  },
  "C_hw": {
   "value": 0,
@@ -2173,7 +2251,17 @@
  "eraDefault": {
   "2030": 100000,
   "2040": 35000,
-  "2055": 2000
+  "2055": 5000
+ },
+ "interp": {
+  "kind": "LOG-LINEAR-IN-TIME",
+  "rule": "Constant fractional decline between the era anchors, hitting 2030, 2040 and 2055 exactly. D(y) = D0 (D1/D0)^((y-2030)/10) to 2040 and D1 (D2/D1)^((y-2040)/15) after, with the three anchors read from eraDefault rather than typed. Held flat before 2030 and after 2055.",
+  "ruled": "Quinn, 2026-09-16: the anchors are already multiplicative, so linear interpolation between them invents a shape the anchors do not support.",
+  "impliedRates": "DERIVED from this object's own anchors: 9.97 percent a year from 2030 to 2040 (mu = 0.10498 log units/yr) and 12.17 percent a year from 2040 to 2055 (mu = 0.12973). Neither rate is typed anywhere; both are consequences of the three anchors and move with them. The second figure was 17.37 percent a year (mu = 0.19081) while the 2055 anchor stood at $2,000, and moving that anchor to $5,000 is what brought it out of a region the cited dataset leaves empty.",
+  "formSource": "SOURCED. Farmer, J. D. and Lafond, F., 2016, How predictable is technological progress?, Research Policy 45:647-665, DOI 10.1016/j.respol.2015.11.001. The paper models log cost as a geometric random walk with drift, y_t = y_(t-1) + gamma + n_t (PRINTED, Eq. 2, p. 650), which is constant fractional change per unit of calendar time and is the form used here. The FORM is sourced; the two segment rates above are DERIVED from this app's own anchors, and that paper prints no lunar delivery-cost rate.",
+  "rateCaution": "WHERE THE TWO DERIVED RATES SIT IN THE CITED DISTRIBUTION, stated in the source's own units so the comparison can be checked. Across its 53 retained technologies the median annual decline is 6.8 percent (mu = 0.07), the interquartile range 3.9 to 9.1 percent (mu 0.039 to 0.095), the 39 chemical and process technologies top out at mu = 0.12, which that source prints as 11.3 percent a year (PolyesterFiber), and the distribution is COMPLETELY EMPTY between mu = 0.13 and mu = 0.35 -- zero of 53. The 2030-2040 leg at mu = 0.10498 (9.97 percent a year) sits just above the interquartile top and beside two named series, Kroll-process titanium sponge at 0.10 and this source's own solar PV series at 0.10. THE 2040-2055 LEG IS A KNIFE-EDGE AND MUST NOT BE DESCRIBED AS COMFORTABLE: at mu = 0.12973 (12.17 percent a year) it clears the empty band's lower edge of 0.13 by 0.00027 and exceeds the process-technology maximum of 0.12 by 0.0097. AN ANCHOR EXACTLY ON THAT CEILING WOULD BE ABOUT $5,785/kg; $5,000 was ruled instead because it is a detent a reader can select on the delivery dial's own rail, and this entry claims no ceiling that the ruled value clears. It is out of the gap, which is what the $5,000 anchor bought; it is not at or inside the process ceiling, and a reader told otherwise would compute 0.1297 against 0.12 and be right to distrust the record. PERCENT A YEAR AND LOG UNITS ARE NOT THE SAME NUMBER and this entry keeps both: mu = -ln(1 - rate), so 0.12 log units is 11.3 percent a year and 12.2 percent a year is 0.1297 log units. A SECOND CAUTION from the same source, adjacent rather than binding: the entries nearest an electrolysis or capital-mass lever are the slowest in the whole set (primary aluminium 0.02, primary magnesium 0.04, sodium 0.01). Delivery cost is a launch price rather than a process cost, so that cluster is named for weighing rather than applied.",
+  "notTheLearningRateExclusion": "THIS DOES NOT CONTRADICT THE STANDING EXCLUSION AND MUST NOT BE 'FIXED' BY RE-EXCLUDING THE SOURCE. Step 60 ruled Farmer-Lafond EXCLUDED as a LEARNING RATE, because its Table 1 is an annual calendar-time decline with cumulative production never entering the model, so no conversion to a per-doubling rate exists in any convention. That exclusion stands untouched. This use asks the paper for calendar-time decline, which is what it actually measures. One sentence in the project's own summary of it carries both facts together: the analysis works entirely in calendar time, cumulative production never enters the forecast-error model, and no rate is ever expressed per doubling of cumulative production. The first half is why it is excluded as a learning rate; the second half is why it is the right citation here.",
+  "outsideTheAnchors": "Held flat below 2030 and above 2055, stated rather than inferred. CURVE_EPOCH is 2030 and the cohort census starts there, so no earlier year is ever evaluated. Past 2055 there is no further anchor, and continuing a 17.37 percent annual decline would carry the price toward zero on no evidence; the horizon ends at 2055 in any case. Holding flat adds nothing beyond the anchors."
  },
  "claims": [
   "falling-launch-price",
@@ -2182,7 +2270,7 @@
   "clps-small-lander-cost",
   "leo-to-surface-multiplier"
  ],
- "status": "2030 contracted-but-unarchived forward price, UNVERIFIED-pending on the ispace-SpaceX and CLPS primaries; 2040 PROJECTED; 2055 PROJECTED/ASSUMPTION",
+ "status": "2030 contracted-but-unarchived forward price, UNVERIFIED-pending on the ispace-SpaceX and CLPS primaries; 2040 PROJECTED; 2055 RULED (Quinn, 2026-09-16) at $5,000/kg, DERIVED as the anchor that puts the 2040-2055 decline inside the range the cited rate distribution populates rather than in the gap it leaves empty. The 2055 figure is no longer a placeholder awaiting Step 70 and carries no marker.",
  "note": "Dollars per kg of delivery cost avoided. The era default seeds the dial at load, on a preset click, on Restore, and on an era click that finds the dial at the previous era's default; a value the reader dragged survives an era click (LC4)."
 };
   /* C_HW, Step 58 install 2, Quinn's ruling of 2026-09-08. Hardware cost enters as a reader-
@@ -2681,7 +2769,7 @@
    "counterCase": "A4 (the ranking does not use Shishko). The ranking is computed live from tonnages, so the [[break-even-sales-price]] Shishko correction does not touch the headline conclusion."
   },
   "propellant-operating-floor": {
-   "source": "op_prop, the propellant in-situ operating floor, is op_prop = max(F / water_kg_per_yr, v): a fixed annual operations cost F (band $20M-$130M/yr, central $50M/yr) divided by the plant own live water rate, floored at v = $70/kg. It replaces a flat $5,000/kg constant frozen at whatever output rate produced it, though it is charged the same landed-hardware capital term C_hw as construction is, as of install 2 (P_prop = r_prop * (C_hw + D) + op_prop). Below a minimum-production threshold op_prop carries no finite figure rather than an astronomical one; the near-$35,300 figure is not part of this coefficient, it is the financing-inflated propellant break-even sales-price ceiling and is explicitly not an operating cost. No held primary states lunar propellant operations as a per-kg number. op_const does not take this reform, examined and confirmed rather than left open: it is an energy intensity (eSinter, 3 MJ/kg) times a commodity price, a genuinely per-kilogram figure with no fixed annual budget behind it for output to divide, unlike op_prop's retired form. It stays about $0.83/kg at $1/kWh wall-plug; a delivered-basis figure is HALF the wall-plug figure at a magnetron efficiency of 0.5, so about $0.42/kg, riding on [[sintering-specific-energy]] and [[sintering-yield]].",
+   "source": "STEP 70, QUINN'S RULING OF 2026-09-16: THE PROPELLANT OPERATING COST IS NOT MODELLED. op_prop keeps its form, op_prop = max(op_propF / water_kg_per_yr, op_propV), and both coefficients are now {opPropF} and {opPropV}, so the term resolves to {opPropV} at every state above the pre-production threshold and the floor this claim is named for is no longer charged. Those two figures are resolved from the registry at render rather than typed here, because this sentence and the Evidence Ledger statement both typed the retired $50M/yr and $70/kg and both went false in the same edit. The ground is that the cost is exogenous overhead self-sufficiency cannot reduce -- ground control, mission operations, comms and DSN time, programme office, safety and licensing -- so charging it against in-situ production misstates what in-situ production buys. ONE DOLLAR RATHER THAN ZERO because zero is a loaded value in this file: gate X1 is named for op_prop = 0 behaviour and the crossover text below carries a retired zero-op_prop branch. THE CLAIM IS STILL MODELLED, which is why its state is unchanged: op_prop is still computed at every producing state, and it is the magnitude that moved, not the existence of the term. WHAT THE CROSSOVER BECOMES: with op_prop at $1/kg, D* = (op_prop + r_prop * C_hw) / (1 - r_prop) is driven almost entirely by the hardware term, so any sentence quoting a crossover band built on the retired $70/kg floor or the $2,000-$35,300/kg op_prop band is describing the superseded form. THE SUPERSEDED RECORD FOLLOWS, retained and not deleted. op_prop, the propellant in-situ operating floor, was op_prop = max(F / water_kg_per_yr, v): a fixed annual operations cost F (band $20M-$130M/yr, central $50M/yr) divided by the plant own live water rate, floored at v = $70/kg. It replaced a flat $5,000/kg constant frozen at whatever output rate produced it, though it is charged the same landed-hardware capital term C_hw as construction is, as of install 2 (P_prop = r_prop * (C_hw + D) + op_prop). Below a minimum-production threshold op_prop carries no finite figure rather than an astronomical one; the near-$35,300 figure is not part of this coefficient, it is the financing-inflated propellant break-even sales-price ceiling and is explicitly not an operating cost. No held primary states lunar propellant operations as a per-kg number. op_const does not take this reform, examined and confirmed rather than left open: it is an energy intensity (eSinter, 3 MJ/kg) times a commodity price, a genuinely per-kilogram figure with no fixed annual budget behind it for output to divide, unlike op_prop's retired form. It stays about $0.83/kg at $1/kWh wall-plug; a delivered-basis figure is HALF the wall-plug figure at a magnetron efficiency of 0.5, so about $0.42/kg, riding on [[sintering-specific-energy]] and [[sintering-yield]].",
    "status": "PROJECTED, UNVERIFIED-pending",
    "tier": "PROJECTED, UNVERIFIED-pending",
    "counterCase": "A3 (op_prop and C_hw together drive the soft crossover). op_prop still scales inversely with production rate and is large only at pilot scale, and the soft crossover band D* is (op_prop + r_prop * C_hw) / (1 - r_prop): a genuine hardware-cost term now shares the driving with op_prop, and a crossover exists even where op_prop alone would not produce one. Neither must ever be promoted out of \"soft band.\""
@@ -3736,7 +3824,7 @@
  "honesty": {
   "lead": "The robust result is mass-payback and it does not depend on the launch price: at each programme's own preset settings, construction out-produces propellant per tonne of standing plant by the model-native factor C_full / cap, about one to two orders at the scenario ice grades, driven by the mass and ice knobs. The launch-price crossover rides on top as a soft band. A positive propellant value here is Earth delivery cost the programme does not pay, not a booked sale: the demand side is unproven, with zero signed water or propellant offtakes ([[offtake-record]]). That absence triggers [[signed-offtake-break]]. The ledger records the stated date as pending a held source; the app does not carry it.",
   "crossBand": "Soft launch-price crossover: propellant margin turns negative below about D* = (op_prop + r_prop * C_hw) / (1 - r_prop). This band moves with landed mass and with the Learning rate, which lowers the plant price C_hw.",
-  "crossNone": "With no standing plant to amortise, r_prop is zero, so there is no launch-price crossover: propellant carries a positive margin at every launch price, thinner than construction forever. That is the true capital-only behavior. (Before Step 58 install 2 this branch also covered op_prop=0; it no longer does, because a nonzero plant price C_hw creates a real crossover even where the operating floor is zero.)",
+  "crossNoneRetired": "RETIRED at Step 70b (V-03, 2026-09-16). This key held the CROSS-NONE honesty text, which asserted that with no standing plant to amortise there is no launch-price crossover and propellant carries a positive margin at every launch price. It is retired because NO READER STATE REACHES IT: 0 of 891 states swept, since the branch needs landed mass exactly zero. The text is removed rather than justified, and the branch that selected it went with it. The key is kept as this record so the retirement is legible to the next reader; nothing reads it.",
   "crossFail": "No launch-price crossover applies: the propellant plant does not pay back its own landed mass at this state, so its margin is negative at every launch price.",
   "crossPreProduction": "This state is below the minimum-production threshold: water output is zero or near it. op_prop carries no finite figure here, rather than an astronomical dollar value approaching infinity as output falls toward zero, and no launch-price crossover is stated for a state that is not yet producing.",
   "grades": "The 2030 delivery price traces to a signed contract, though the delivery itself is still a forward event. op_prop is an estimate with no settled source figure. The $35,300/kg quoted on Shishko slide 2 from Charania and DePasquale 2007 is a modeled break-even sales price, not a production cost; its capital-versus-operating split has no settled figure. kExc is derived from two published plants own masses and rates, neither of which states the coefficient itself."
@@ -6160,7 +6248,7 @@
  "propellant-operating-floor": {
   "was": "The Propellant Operating Floor Is a Fixed Annual Cost Over Live Output, Floored, Not a Flat $5,000/kg Constant",
   "claim": "payback",
-  "statement": "The propellant in-situ operating floor op_prop is op_prop = max(F / water_kg_per_yr, v): a fixed annual operations cost F, band $20M to $130M/yr, central working value $50M/yr, divided by the plant's own live water rate, floored at v = $70/kg so the term does not fall toward zero at high output. It replaces a flat $5,000/kg constant that was frozen at whatever output rate produced it and carried unchanged to every other output rate, even though its own source string already called itself a fixed annual cost over pilot-scale output. Below a minimum-production threshold op_prop carries no finite figure, rather than a finite figure approaching an astronomical dollar value as output falls toward zero; the app marks that state pre-production instead. No held primary states lunar propellant operations as a per-kg number; F and v are each read off design-study totals divided by design-study output, a division neither primary performs. The near-$35,300 figure is not part of this coefficient at all: it is the [[break-even-sales-price]] financed sales price, a different quantity, and was never an operating cost.",
+  "statement": "STEP 70, QUINN'S RULING OF 2026-09-16: THE PROPELLANT OPERATING COST IS NOT MODELLED. op_prop keeps its form, op_prop = max(op_propF / water_kg_per_yr, op_propV); op_propF is now {opPropF} and op_propV is now {opPropV}, so the term resolves to {opPropV} at every state above the pre-production threshold and the floor this section is named for is no longer charged. The cost is exogenous overhead that self-sufficiency cannot reduce -- ground control, mission operations, comms and DSN time, programme office, safety and licensing -- so charging it against in-situ production misstates what in-situ production buys. Both figures in this paragraph are resolved from the registry at render rather than typed, so this sentence cannot outlive the numbers it reports; it stated a $50M/yr budget and a $70/kg floor as live until 2026-09-16, when the ruling made both false in one edit and no standing check noticed. THE SUPERSEDED FORM FOLLOWS, retained as the record and not deleted. op_prop was max(F / water_kg_per_yr, v): a fixed annual operations cost F, band $20M to $130M/yr, central working value $50M/yr, divided by the plant's own live water rate, floored at v = $70/kg so the term did not fall toward zero at high output. It replaced a flat $5,000/kg constant that was frozen at whatever output rate produced it and carried unchanged to every other output rate, even though its own source string already called itself a fixed annual cost over pilot-scale output. Below a minimum-production threshold op_prop carries no finite figure, rather than a finite figure approaching an astronomical dollar value as output falls toward zero; the app marks that state pre-production instead. No held primary states lunar propellant operations as a per-kg number; F and v are each read off design-study totals divided by design-study output, a division neither primary performs. The near-$35,300 figure is not part of this coefficient at all: it is the [[break-even-sales-price]] financed sales price, a different quantity, and was never an operating cost.",
   "evidence": [
    {
     "n": "1",
@@ -8304,7 +8392,91 @@
        the metals entry; DERIVATION.coeff.phiM's label/claimNote corrected off the retired "oxygen and
        alloy" framing; renderDefinitionsTab() lead paragraph, same correction. 508757b8 to the value
        below, recomputed by pinOfKnobData(KNOB_DATA) on the patched file. */
-    __pin: "a9bb4370"
+    /* Step 70 (Quinn's rulings of 2026-09-16), items 1, 2 and 4. THREE NUMERIC LEAVES MOVED AND ALL
+       THREE ARE NAMED: VALUE.op_propF 50,000,000 -> 1 and VALUE.op_propV 70 -> 1 (the propellant
+       operating cost is not modelled), and three entries are added, VALUE.learnGCeiling (the ruled ceiling ratio behind the asymptotic
+       mass floor on Wright's law), VALUE.lenderHurdle and VALUE.lenderTenor (the clearing bar). Band
+       dispositions moved STANDS -> SUPERSEDED on VALUE.op_prop, op_propF and op_propV with every
+       interval and both end-point sources retained, and the status and source strings on those three
+       plus the CLAIMS propellant-operating-floor source were rewritten so none describes a live value
+       that no longer exists. a9bb4370 to the value below, recomputed by pinOfKnobData(KNOB_DATA)
+       on the patched file and read off the app's own function rather than typed. */
+    /* Step 70 (Quinn's rulings of 2026-09-16), items 1, 2 and 4. THREE NUMERIC LEAVES MOVED AND ALL
+       THREE ARE NAMED: VALUE.op_propF 50,000,000 -> 1 and VALUE.op_propV 70 -> 1 (the propellant
+       operating cost is not modelled), and three entries are added, VALUE.learnGCeiling (the ruled ceiling ratio behind the asymptotic
+       mass floor on Wright's law), VALUE.lenderHurdle and VALUE.lenderTenor (the clearing bar). Band
+       dispositions moved STANDS -> SUPERSEDED on VALUE.op_prop, op_propF and op_propV with every
+       interval and both end-point sources retained, and the status and source strings on those three
+       plus the CLAIMS propellant-operating-floor source were rewritten so none describes a live value
+       that no longer exists. 7a9b020e to the value below, recomputed by pinOfKnobData(KNOB_DATA)
+       on the patched file and read off the app's own function rather than typed. */
+    /* Step 70 (Quinn's rulings of 2026-09-16), items 1, 2 and 4. THE NUMERIC LEAVES THAT MOVED ARE
+       NAMED: VALUE.op_propF 50,000,000 -> 1 and VALUE.op_propV 70 -> 1 (the propellant operating cost
+       is not modelled), and three entries are added, VALUE.learnGCeiling (the ruled tenfold ceiling on
+       the mass learning multiplier, the floor being divided out of the first unit rather than typed),
+       VALUE.lenderHurdle and VALUE.lenderTenor (the clearing bar). Band dispositions moved STANDS ->
+       SUPERSEDED on VALUE.op_prop, op_propF and op_propV with every interval and both end-point sources
+       retained; the status and source strings on those three, the CLAIMS propellant-operating-floor
+       source and the LEDGER statement were rewritten so none describes a live value that no longer
+       exists, the last two reading their figures from LEDGER_TOKENS rather than typing them.
+       ac83eb19 to the value below, recomputed by pinOfKnobData(KNOB_DATA) on the patched file and
+       read off the app's own function rather than typed. */
+    /* Step 70 (Quinn's rulings of 2026-09-16), items 1, 2 and 4. THE NUMERIC LEAVES THAT MOVED ARE
+       NAMED: VALUE.op_propF 50,000,000 -> 1 and VALUE.op_propV 70 -> 1 (the propellant operating cost
+       is not modelled), and three entries are added, VALUE.learnGCeiling (the ruled tenfold ceiling on
+       the mass learning multiplier, the floor being divided out of the first unit rather than typed),
+       VALUE.lenderHurdle and VALUE.lenderTenor (the clearing bar). Band dispositions moved STANDS ->
+       SUPERSEDED on VALUE.op_prop, op_propF and op_propV with every interval and both end-point sources
+       retained; the status and source strings on those three, the CLAIMS propellant-operating-floor
+       source and the LEDGER statement were rewritten so none describes a live value that no longer
+       exists, the last two reading their figures from LEDGER_TOKENS rather than typing them.
+       fca19a6f to the value below, recomputed by pinOfKnobData(KNOB_DATA) on the patched file and
+       read off the app's own function rather than typed. */
+    /* Step 70 (Quinn's rulings of 2026-09-16), items 1, 2 and 4. THE NUMERIC LEAVES THAT MOVED ARE
+       NAMED: VALUE.op_propF 50,000,000 -> 1 and VALUE.op_propV 70 -> 1 (the propellant operating cost
+       is not modelled), and three entries are added, VALUE.learnGCeiling (the ruled tenfold ceiling on
+       the mass learning multiplier, the floor being divided out of the first unit rather than typed),
+       VALUE.lenderHurdle and VALUE.lenderTenor (the clearing bar). Band dispositions moved STANDS ->
+       SUPERSEDED on VALUE.op_prop, op_propF and op_propV with every interval and both end-point sources
+       retained; the status and source strings on those three, the CLAIMS propellant-operating-floor
+       source and the LEDGER statement were rewritten so none describes a live value that no longer
+       exists, the last two reading their figures from LEDGER_TOKENS rather than typing them.
+       9a4928a6 to the value below, recomputed by pinOfKnobData(KNOB_DATA) on the patched file and
+       read off the app's own function rather than typed. */
+    /* Step 70 (Quinn's rulings of 2026-09-16), items 1, 2 and 4. THE NUMERIC LEAVES THAT MOVED ARE
+       NAMED: VALUE.op_propF 50,000,000 -> 1 and VALUE.op_propV 70 -> 1 (the propellant operating cost
+       is not modelled), and three entries are added, VALUE.learnGCeiling (the ruled tenfold ceiling on
+       the mass learning multiplier, the floor being divided out of the first unit rather than typed),
+       VALUE.lenderHurdle and VALUE.lenderTenor (the clearing bar). Band dispositions moved STANDS ->
+       SUPERSEDED on VALUE.op_prop, op_propF and op_propV with every interval and both end-point sources
+       retained; the status and source strings on those three, the CLAIMS propellant-operating-floor
+       source and the LEDGER statement were rewritten so none describes a live value that no longer
+       exists, the last two reading their figures from LEDGER_TOKENS rather than typing them.
+       c12a2062 to the value below, recomputed by pinOfKnobData(KNOB_DATA) on the patched file and
+       read off the app's own function rather than typed. */
+    /* Step 70 (Quinn's rulings of 2026-09-16), items 1, 2 and 4. THE NUMERIC LEAVES THAT MOVED ARE
+       NAMED: VALUE.op_propF 50,000,000 -> 1 and VALUE.op_propV 70 -> 1 (the propellant operating cost
+       is not modelled), and three entries are added, VALUE.learnGCeiling (the ruled tenfold ceiling on
+       the mass learning multiplier, the floor being divided out of the first unit rather than typed),
+       VALUE.lenderHurdle and VALUE.lenderTenor (the clearing bar). Band dispositions moved STANDS ->
+       SUPERSEDED on VALUE.op_prop, op_propF and op_propV with every interval and both end-point sources
+       retained; the status and source strings on those three, the CLAIMS propellant-operating-floor
+       source and the LEDGER statement were rewritten so none describes a live value that no longer
+       exists, the last two reading their figures from LEDGER_TOKENS rather than typing them.
+       f8b9fe22 to the value below, recomputed by pinOfKnobData(KNOB_DATA) on the patched file and
+       read off the app's own function rather than typed. */
+    /* Step 70 (Quinn's rulings of 2026-09-16), items 1, 2 and 4. THE NUMERIC LEAVES THAT MOVED ARE
+       NAMED: VALUE.op_propF 50,000,000 -> 1 and VALUE.op_propV 70 -> 1 (the propellant operating cost
+       is not modelled), and three entries are added, VALUE.learnGCeiling (the ruled tenfold ceiling on
+       the mass learning multiplier, the floor being divided out of the first unit rather than typed),
+       VALUE.lenderHurdle and VALUE.lenderTenor (the clearing bar). Band dispositions moved STANDS ->
+       SUPERSEDED on VALUE.op_prop, op_propF and op_propV with every interval and both end-point sources
+       retained; the status and source strings on those three, the CLAIMS propellant-operating-floor
+       source and the LEDGER statement were rewritten so none describes a live value that no longer
+       exists, the last two reading their figures from LEDGER_TOKENS rather than typing them.
+       b5751ec4 to the value below, recomputed by pinOfKnobData(KNOB_DATA) on the patched file and
+       read off the app's own function rather than typed. */
+    __pin: "3cf3e87a"
   };
 
   root.KNOB_DATA = KNOB_DATA;
@@ -8958,6 +9130,23 @@ function curveCumulative(rate, era){
    its end rather than a branch asserting it. FAB_RATE is a flat annual cohort-landing rate per
    funding tier; no source in this project's holdings bounds it, disclosed the same way
    fabSaturateN is disclosed, and it is not read by model() directly, only through fabCeiling. */
+/* THE FAB'S OWN BUILDOUT CURVE, a sibling of curveCumulative rather than a branch inside it. FAB_EPOCH is a
+   plain constant beside CURVE_EPOCH, not a CONFIG coefficient, because it names a design decision rather
+   than a measured quantity. At an era before it, fabCumulative's loop never executes and returns exactly 0
+   for every funding tier, a property of a for loop whose start exceeds its end rather than a branch
+   asserting it.
+   STEP 70b: THIS CONSTANT WAS RETIRED AND THE RETIREMENT IS REVERTED (ruling of 2026-09-16), because the
+   measurement it rested on did not reproduce. Removal was ordered on the expectation of a zero delta at the
+   ruled maturity floor; measured by clone diff it moves 2 of 9 cells, and Early Shift to Mars 2055 by 4.019
+   percent of its water (337.37 against 324.33) with its in-situ share 31.6 percent higher. fabCeiling
+   differs at 10 of 15 tier-year probes; at 2043 the low tier reads 0.875 against 0.250. The 2043 crossing
+   makes the two gates agree before 2043 and not after, because one count has accumulated since 2030 and the
+   other since 2040.
+   TWO GATES, TWO DIFFERENT QUESTIONS, AND IN-SITU NEEDS BOTH. The maturity floor asks whether the technology
+   is good enough yet, on the rate against 1/(fSol*L). This count asks whether enough fab exists to use it.
+   A programme can satisfy either without the other, and Early Shift to Mars is the thin tier that never
+   accumulates fab -- so this gate is what stops it collecting in-situ solar it never built the capacity for,
+   which matters because its failure is what the scenario ordering rests on. */
 const FAB_EPOCH = 2040;
 const FAB_RATE = { low: 1, med: 2, high: 4 };
 function fabCumulative(rate, era){
@@ -8972,20 +9161,83 @@ function fabCeiling(era, funding){
 /* THE IN-SITU SHARE IS AN OUTPUT (Step 68 pass 2A, Quinn's ruling of 2026-09-14). It is the era's buildout ceiling
    wherever the In-situ solar rate clears the mass break-even, fabPayback = fabProd - 1 / (fSol * L) > 0
    [kWe/(yr t)], and 0 below it; the ledger is linear in the share, so the share jumps at the break-even. The
-   expression is model()'s own threshFab and fabPayback on the same two inputs. FAB_RATE_ERA_DEFAULT holds each era's
-   In-situ solar rate default: 0.02 at 2030 and 2040, below the 0.3401 break-even, and 0.35 at 2055, the first rail
-   step above it (placeholders; Step 70 sets the numbers). */
-const FAB_RATE_ERA_DEFAULT = { '2030': 0.02, '2040': 0.3, '2055': 0.65 };   // R6: 2055 default 0.65 kWe/(yr t), above the 1/(L fFis) = 0.606 fission takeover (Quinn 2026-09-15); 2040 0.3 (Quinn 2026-09-15, Step 68 wave 1c)
-/* STEP 68 PASS 2B (Quinn's ruling of 2026-09-14, Revision 3 R3.2): fission stays and all solar is in-situ at 2055. The
-   preset fission/solar mix [1, the fission share of standing power] is 0.5 at 2055 (placeholder; Step 70 sets it) and 1 at
-   2030 and 2040. At 2030 fission is unavailable, so the entry is inert. */
+   expression is model()'s own threshFab and fabPayback on the same two inputs.
+   FAB_RATE_ERA_DEFAULT IS RULED (Quinn, 2026-09-16) AND NO LONGER A PLACEHOLDER: 0.02 / 0.30 / 0.65 stand
+   unchanged, chosen over the sourced band's floor after being shown that the sourced rate sharpens the scenario
+   ordering four- to eightfold. Three measured facts a later reader cannot infer travel with it.
+   (1) THE 2030 ENTRY DOES NO WORK, ON BOTH HALVES, AND NOTHING IN THIS STEP MAKES IT LIVE. fabCeiling sums
+       fab units from FAB_EPOCH = 2040, so the 2030 in-situ share is 0 whatever this entry reads -- all nine
+       cells bit-identical across a 0.02-to-450 sweep of it. Sweeping it 0.002 to 0.25 also leaves the derived
+       maturity crossing at 2043 at every probe and moves zero model outputs, because on a two-segment
+       log-linear curve the crossing sits above the 2040 anchor of 0.30 and the 2030 entry cannot reach it.
+       WHAT THE ENTRY MEANS is that the fab is too immature to use at 2030 -- a reader-facing statement
+       carried by the number's position below the floor, not a mechanical effect. It must not be described
+       as a productivity figure that does work in 2030, because it does none.
+   (2) THE 2040 ENTRY DRIVES THE 2055 CELLS, not the 2055 entry: it covers 15 of 26 loop years and 10 of the 11
+       still standing at 2055 under an 11-year fleet life. Sweeping 2040 alone moved The Commercial Break 2055
+       water 10.2x against 2x for the 2055 entry. Any sentence attributing 2055 in-situ output to the 2055
+       entry is false.
+   (3) THE WHOLE RAIL SITS BELOW WHERE THE EVIDENCE BEGINS: about 292x under the sourced band's floor of 87.5
+       to 450 kWe/(yr t), both ends DERIVED, and the model's own response plateaus around 50 to 90. These are
+       ruled working values, not sourced ones. */
+const FAB_RATE_ERA_DEFAULT = { '2030': 0.02, '2040': 0.3, '2055': 0.65 };
+/* STEP 70b: ONE LOG-LINEAR INTERPOLATOR, SHARED. Constant fractional change between anchors, hitting each
+   anchor exactly, held flat outside them. The delivery cost and the in-situ rate both interpolate this way
+   for the same reason -- both quantities are multiplicative, so linear interpolation invents a shape the
+   anchors do not support -- and they share this rather than carrying two near-copies that can drift. */
+function logLinearBetweenAnchors(y, y0, v0, y1, v1, y2, v2){
+  if (!(v0 > 0 && v1 > 0 && v2 > 0)) return v2;            // a non-positive anchor has no log form
+  if (y <= y0) return v0;
+  if (y >= y2) return v2;
+  if (y <= y1) return v0 * Math.pow(v1 / v0, (y - y0) / (y1 - y0));
+  return v1 * Math.pow(v2 / v1, (y - y1) / (y2 - y1));
+}
+/* THE IN-SITU MATURITY FLOOR [kWe/(yr t)], Quinn's ruling of 2026-09-16: "just enact a ceiling and it
+   becomes a timer. the tech isn't used until it is mature enough." A year whose in-situ rate is below this
+   contributes NO in-situ share; at or above it the fab contributes as before. The floor is the app's own fab
+   mass break-even, 1/(fSol x L) = 0.3401 -- a computed physical threshold rather than an invented constant.
+   IT GATED NOTHING BEFORE THIS: insituShareApplied() computed threshFab and returned the ceiling regardless.
+   UNCERTAINTY TRAVELS WITH IT: the two coefficients under it are graded ASSUMPTION (fSol) and DESIGN (L),
+   and propagating their bands puts the floor between 0.182 and 0.636. The floor is therefore a threshold
+   whose own position is uncertain by a factor of about 3.5, which is why the crossing year it implies is
+   reported as a computed consequence rather than as a date the model knows. */
+function insituMaturityFloor(fSolEff, Lv){
+  const f = (fSolEff > 0) ? fSolEff : CONFIG.fSol.value;
+  const L = (Lv > 0) ? Lv : VALUE.L.value;
+  return 1 / (f * L);
+}
+/* The in-situ rate in a given LANDING YEAR, interpolated between the three era anchors. Before this the rate
+   was a step function by era bucket, which put the whole 2040-2055 stretch at one value; the model solves
+   year by year and the floor is crossed in a year, not at an era boundary. */
+function fabRateAtYear(y){
+  const A = FAB_RATE_ERA_DEFAULT;
+  return logLinearBetweenAnchors(y, 2030, A['2030'], 2040, A['2040'], 2055, A['2055']);
+}   // R6: 2055 default 0.65 kWe/(yr t), above the 1/(L fFis) = 0.606 fission takeover (Quinn 2026-09-15); 2040 0.3 (Quinn 2026-09-15, Step 68 wave 1c)
+/* STEP 70, ITEM 3 (Quinn's ruling of 2026-09-16): RETIRED FROM THE CENSUS PATH. THIS CONSTANT SETS NO FISSION SHARE
+   AND NEVER DID. Standing fission is whole reactors from REACTOR_SCHEDULE and reads 8,900 / 100 / 11,800 kWe at the
+   three 2055 cells whatever this value says -- exactly flat across its entire 0-to-1 rail, measured on clones. What it
+   DID do was reach the learning cohort census through `mix: state.mix` on scenarioModelArgsInput()'s argument object,
+   which applyLearning() read one line before fleetArgs() discarded it. Pricing each kWe at a requested share changed how
+   many plant units a landed tonne stands, so N_cum moved 726 -> 691 across the rail and The Commercial Break 2055
+   Propellant value card moved $4.254B to $2.997B, 35 percent of its own value, on a control named for something it did
+   not control. Both doors into the census are now closed (scenarioModelArgsInput and withPresetLearning) and the census
+   prices each cohort at its own landing year's scheduled fission share instead.
+   WHAT THIS VALUE STILL IS: the era default for `state.mix`, the Advanced fission/solar control a reader can drag. It
+   seeds that control, matchesPreset() compares it and the abstract fade reads it. It reaches no tonnage and no dollar.
+   Quinn ruled retirement from the census path, not the removal of the reader's control, so the constant stays wired.
+   The Step 68 record it supersedes: fission stays and all solar is in-situ at 2055; the preset fission/solar mix
+   [1, the fission share of standing power] is 0.5 at 2055 and 1 at 2030 and 2040; at 2030 fission is unavailable. */
 const MIX_2055_DEFAULT = 0.5;
 const MIX_ERA_DEFAULT = { '2030': 1, '2040': 1, '2055': MIX_2055_DEFAULT };
 function insituShareApplied(a, ceil){
   const fSolEff = (a.fSolOvr != null) ? a.fSolOvr : CONFIG.fSol.value;
   const fabProdEff = (a.fabProd != null) ? a.fabProd : CONFIG.fabProd.value;
-  const threshFab = 1 / (fSolEff * VALUE.L.value);
-  return ceil;   // R7 T1: the share of new solar made in situ follows the fab ramp; no break-even
+  /* STEP 70b (Quinn, 2026-09-16): THE BREAK-EVEN NOW GATES. This function computed threshFab and then
+     returned the ceiling unconditionally, so the app's own 0.3401 fab break-even was a dead threshold.
+     It is the maturity floor: below it the fab contributes nothing, at or above it the buildout ceiling
+     governs as before. R7 T1's "no break-even" is superseded by this ruling. */
+  const threshFab = insituMaturityFloor(fSolEff, VALUE.L.value);
+  return (fabProdEff >= threshFab) ? ceil : 0;
 }
 function curveStanding(rate, era, L){
   const E = Number(era); let s = 0;
@@ -9298,7 +9550,16 @@ function modelCore(a){
   // of xAssumed and the already-resolved inputs above; nothing here is stateful across trials.
   function fabTrial(xAssumed, scaled){
     const mSolarLandedT = Math.max(0, mSolarBranch - VALUE.L.value * (fleetLedger ? kWeRequested * fSolEff : xAssumed));   // R7 M2: a fleet state lands only its landed solar   // R5 L1: [t] = [t] - [yr] [t/yr], the standing in-situ array is L years of fab output; STEP 68 PASS 2G: clamped at 0 as the published relation states (round-off at a full in-situ share)
-    const mFabT = (fSolEff > 0) ? mSpecFab * (fleetLedger ? kWeRequested * fSolEff : xAssumed) / fSolEff : 0;   // R7 M2: a fleet state carries the fab tonnes it landed   // R5 L2: [t] = [yr t/kWe] [t/yr] / [t/kWe]
+    /* STEP 70b: THE PRODUCT IS NOT FORMED WHERE THERE IS NO FAB OUTPUT TO CARRY. mSpecFab is Infinity at a
+       fab rate of exactly 0 (line above), and a zero rate also leaves the applied in-situ share at 0, so the
+       requested output is 0: the old form multiplied Infinity by 0 and took water and construction NaN at six
+       of the nine cells whenever state.fabProd was driven to zero. mFab is fab tonnage, and zero requested
+       output is zero tonnage whatever the specific mass, so the request is tested before the multiplication.
+       Where the request is positive the arithmetic is unchanged, and where it was already finite the old form
+       evaluated to 0 as well -- so no painted figure moves. The reader rail cannot reach 0 (min 0.02), which
+       is not a reason to leave it: a value the model cannot evaluate is bounded where it is evaluated. */
+    const __fabReqT = (fleetLedger ? kWeRequested * fSolEff : xAssumed);                                       // [t/yr]
+    const mFabT = (fSolEff > 0 && __fabReqT > 0 && isFinite(mSpecFab)) ? mSpecFab * __fabReqT / fSolEff : 0;   // R7 M2: a fleet state carries the fab tonnes it landed   // R5 L2: [t] = [yr t/kWe] [t/yr] / [t/kWe]
     const mPwrT = mixEff*fFisEff*power + mSolarLandedT + transAdd;
     const miningT = Math.max(0, massEff - mPwrT - mFabT);
     const RcapT = CONFIG.kExc.value * miningT * __G;   // R_cap [t/yr] = kExc [t/yr per t] * M_mining [t] * G_learn [1]
@@ -9695,8 +9956,12 @@ const STEP60_UNIT_CAPACITY_KG_O2_YR = 5000; // Schreiner 2016 pp.1601-1602, per-
 const STEP60_M1_KG_PER_T_YR = 271;          // Guerrero-Gonzalez plant specific mass at unit N=1
 const STEP60_TARGET_KG_PER_T_YR = 50;       // Step 58's measured margins measured target
 const LEARN_DETENTS = [0.56, 0.788, 0.85, 0.90, 0.95, 2.0];
-/* The preset's Learning rate detent, index 2 (0.85), Quinn's ruling of 2026-09-15, a placeholder until Step 70 sets
-   scenario defaults. Was index 0 (0.56) before this ruling. */
+/* THE PRESET'S LEARNING RATE DETENT, index 2 (0.85). RULED by Quinn on 2026-09-16 and no longer a placeholder:
+   0.85 stands, as ONE SHARED DETENT across all three scenarios rather than one per scenario. It was moved to
+   index 2 from index 0 (0.56) on 2026-09-15 and confirmed here. The rate reaches plant specific mass and the
+   hardware cost C_hw per cohort, so it moves every tonnage in the model; Step 70 also floors its mass leg
+   asymptotically at a tenfold ceiling (VALUE.learnGCeiling), which is what stops 0.56 building a plant 131x
+   lighter than the lightest one anyone has published. */
 const LEARN_PRESET_INDEX = 2;
 
 /* N = ceil(Ofull/unit_capacity): the last plant built is partly idle whenever Ofull is not an
@@ -9738,7 +10003,11 @@ function step66Plants(oxygen_t, metal_t){
    [units], each producing unit type counting at least one unit. The iteration stops at F(n) <= n (1 + 1e-12), cap 2,000;
    the bisection runs 80 halvings on reals. A type's count steps 0 to 1 where its output leaves zero. The Plant standing
    card and #m_plants_cum keep step66Plants()'s ceil counts.
-   phi_y = max(1, N_y)^(-b) [1] (capacity per plant tonne), psi_y = max(1, N_y)^b [1] (hardware cost per kg).
+   phi_y = s_1 / (s_floor + (s_1 - s_floor) * max(1, N_y)^b) [1] (capacity per plant tonne, Step 70's asymptotic mass
+   floor: s_1 = 1000/kExc kg per (t regolith/yr) is the first unit and s_floor is s_1 / VALUE.learnGCeiling, so the multiplier
+   is capped at exactly that ruled ratio; it is max(1, N_y)^(-b)
+   exactly when s_floor is 0, and it is 1 at N_y = 1 and at PR = 1 for any N_y),
+   psi_y = max(1, N_y)^b [1] (hardware cost per kg, NOT floored -- Step 70 item 1 floors the mass leg only).
    G = sum s r phi / sum s r, H = sum s r psi / sum s r over standing cohorts; Gcum over every cohort landed.
    Each cohort carries an owner tag (government or commercial capital) for Step 69; the multipliers sum both owners,
    because both owners' plants move regolith and count toward plants built.
@@ -9748,6 +10017,25 @@ const LEARN_ARG_KEYS = ['learnRate', 'learnG', 'learnH', 'learnGcum', 'N_cum', '
 var __learnMemo = new Map();
 function learningMultipliers(a0, f, era, PR){ __cumDepth++; try { return learningMultipliersCounts(a0, f, era, PR); } finally { __cumDepth--; } }
 /* STEP 68 PASS 2E E1: the counts, evaluated with model() at each cohort's balance power (R5.4: the fleet is not known when the counts are taken). */
+/* STEP 70, ITEM 3 (Quinn's ruling of 2026-09-16): the scheduled standing fission [kWe] in a landing year,
+   from the reactor schedule that owns the fission share -- scheduled reactors or the 100 kWe floor top-up,
+   whichever is larger, capped at ten a year, each unit standing R5.L_FIS years. This is the rule
+   powerFleetSolve() applies year by year; it is lifted here so the learning cohort census can price each
+   cohort's kWe at that cohort year's own fission share instead of at a share a reader requested. */
+function scheduledStandingFissionKWe(funding, y){
+  const rec = []; let standing = 0;
+  for (let yy = CURVE_EPOCH; yy <= y; yy++){
+    let st = 0;
+    for (let j = 0; j < rec.length; j++) if (yy - rec[j].y < R5.L_FIS) st += rec[j].F;
+    const avail = (yy >= FISSION_START_YEAR[funding]);
+    const nSched = avail ? reactorsScheduled(funding, yy) : 0;
+    const floorNeed = (avail && st < R5.FLOOR_FIS) ? Math.max(0, Math.ceil((R5.FLOOR_FIS - st) / REACTOR_KWE - 1e-9)) : 0;
+    const wanted = Math.min(REACTOR_CAP, Math.max(nSched, floorNeed));
+    rec.push({ y: yy, F: wanted * REACTOR_KWE });
+  }
+  for (let j = 0; j < rec.length; j++) if (y - rec[j].y < R5.L_FIS) standing += rec[j].F;
+  return standing;
+}
 function learningMultipliersCounts(a0, f, era, PR){
   const a = {}; Object.keys(a0).forEach(function(k){ if (LEARN_ARG_KEYS.indexOf(k) < 0 && k !== 'fabProdStand' && k !== 'fabLedgerRequest') a[k] = a0[k]; });   // R7 T2: the counts stand each cohort at its balance power
   /* CLOSE-OUT L1: on the fab's own ledger. A cohort whose fab runs short of silicon leaves the array unbuilt, as the painted
@@ -9762,13 +10050,55 @@ function learningMultipliersCounts(a0, f, era, PR){
   const key = JSON.stringify(a) + '|' + rates.join(',') + '|' + E + '|' + PR + '|' + L;
   if (__learnMemo.has(key)) return __learnMemo.get(key);
   const b = Math.log(PR) / Math.log(2);
-  const phi = function(n){ return Math.pow(Math.max(1, n), -b); }, psi = function(n){ return Math.pow(Math.max(1, n), b); };
+  /* STEP 70, ITEM 1 (Quinn's ruling of 2026-09-16): A FLOOR ON WRIGHT'S LAW, ASYMPTOTIC, MASS LEG ONLY.
+     "we can't expect 10,000 years of innovation in 30 years... rapid innovation until things get good enough."
+     The learning multiplier never multiplies a plant mass -- R_cap = kExc * M_mining * G_learn (line 9304) -- so the
+     mass leg's specific mass is the reciprocal, s = 1/(kExc*G), and a floor on plant specific mass is a CEILING on
+     kExc*G. The floor is applied to THE SPECIFIC-MASS IDENTITY and never to M_mining:
+         s(N) = s_floor + (s_1 - s_floor) * PR^log2(N),   s_1 = 1000/kExc [kg per (t regolith/yr)]
+     and the multiplier consumed here is phi(N) = s_1/s(N), which approaches s_1/s_floor asymptotically.
+     PR^log2(N) IS N^b EXACTLY, since b = log2(PR), which is why this reads as a power of n and not of PR.
+     EXACT AT TWO POINTS BY CONSTRUCTION, both of which rows pin: at n = 1, N^b = 1 and s = s_1 so phi = 1; at
+     PR = 1 (b = 0), N^b = 1 at every n so phi === 1 everywhere and the learning-free path is bit for bit.
+     NOTHING KINKS: s is smooth and strictly positive in n, so phi is a smooth rational function of n^b. There is no
+     clamp and no branch, which is the whole reason the asymptotic form was ruled over a hard clamp -- the rails are
+     walked at step 0.00025 and a clamp would put a declared discontinuity on every one of them.
+     psi IS NOT FLOORED. The cost leg keeps the bare Wright form: C_hw is the leg with measured anchors, the mass leg
+     is the one with none. See VALUE.learnGCeiling for the ruled ceiling ratio, the first-unit band under it,
+     and the word ASSUMPTION. The floor in kg per (t regolith/yr) is not stored anywhere: it is s_1 divided by
+     that ratio, computed on the line below, so the ceiling is exactly the ruled number by construction. */
+  /* STEP 70 CORRECTION: the floor is DIVIDED OUT of the first unit by the ruled ceiling ratio, never typed.
+     A typed absolute (1.57) against a measured s_1 (15.7035) gives a ceiling of 10.0022, not the ruled 10. */
+  const __s1 = 1000 / CONFIG.kExc.value, __sFloor = __s1 / VALUE.learnGCeiling.value;
+  const phi = function(n){ const wN = Math.pow(Math.max(1, n), b); const s = __sFloor + (__s1 - __sFloor) * wN; return (s > 0) ? __s1 / s : 1; }, psi = function(n){ return Math.pow(Math.max(1, n), b); };
   const owner = (a.funding === 'high') ? 'commercial' : 'government';
   const co = []; let cM = 0, cP = 0;
   for (let y = CURVE_EPOCH; y <= E; y++){ const r = f.rateM(y); cM += r; cP += f.rateP(y); co.push({y:y, r:r, owner:owner, cM:cM, cP:cP, surv:(E - y) < L}); }
+  /* STEP 70, ITEM 3 CORRECTION: the per-kWe hardware coefficients the cohort mix is built on, read the way
+     powerFleetSolve() reads them so the census and the fleet price a reactor and a solar kWe alike. No power
+     term appears here: the power rail is retired and dividing by it is what took LRN-19 red. */
+  const __trans70 = (CONFIG.transmission.value / 1000) * ((a.transDistKm != null) ? a.transDistKm : 3);   // [t/kWe]
+  const __fFis70 = (a.fFisOvr != null && a.fFisOvr !== CONFIG.fFis.value) ? a.fFisOvr : fFisAt(1);         // [t/kWe]
+  const __fSol70 = (a.fSolOvr != null) ? a.fSolOvr : CONFIG.fSol.value;                                    // [t/kWe]
+  const __cF70 = __fFis70 + __trans70, __cS70 = __fSol70 + __trans70;                                      // [t/kWe]
+  const __phiC070 = (a.phi_c0 != null) ? Math.max(0, Math.min(1, a.phi_c0)) : 0.10;                        // [1]
   let sRphi = 0, sR = 0, Nprev = 0;
   co.forEach(function(c){
-    const ca = Object.assign({}, a, {power:c.cP, mass:c.cM, phi_c:0});
+    /* STEP 70, ITEM 3: this cohort's kWe is priced at ITS OWN LANDING YEAR'S fission share, taken from the
+       reactor schedule, never from a requested mix. Before this ruling the whole census ran at the single
+       scalar `state.mix` carried in on the argument object, which is the path MIX_2055_DEFAULT reached the
+       value cards through: a heavier requested kWe stands fewer plant units, so N_cum moved 726 -> 691 and
+       the Propellant card moved 35 percent, on a constant that sets no fission share at all. */
+    /* STEP 70, ITEM 3 CORRECTION: reactors are bought out of the cohort's own landed tonnes first and the
+       remainder buys solar, which is powerFleetSolve()'s own rule and carries NO POWER TERM. The first cut of
+       this line divided by c.cP, the cumulative power rail, and that retired control then moved #h_water at
+       four of LRN-19's eighteen cells. The mass curve is a live control the census already rode through c.cM. */
+    const __Fy = scheduledStandingFissionKWe(a.funding, c.y);                                  // [kWe]
+    const __mEff70 = c.cM * (1 - __phiC070);                                                   // [t]
+    const __Sy70 = (__cS70 > 0) ? Math.max(0, __mEff70 - __Fy * __cF70) / __cS70 : 0;          // [kWe]
+    const __den70 = __Fy + __Sy70;                                                             // [kWe]
+    const __mixY = (__den70 > 0) ? Math.max(0, Math.min(1, __Fy / __den70)) : 0;               // [1]
+    const ca = Object.assign({}, a, {power:c.cP, mass:c.cM, phi_c:0, mix:__mixY});
     const F = function(n){ const G = (sR + c.r > 0) ? (sRphi + c.r * phi(n)) / (sR + c.r) : 1; const m = model(Object.assign({}, ca, {learnG:G})); return (m.oxygen > 0 ? Math.max(1, m.oxygen * 1000 / STEP60_UNIT_CAPACITY_KG_O2_YR) : 0) + (m.metalProduced > 0 ? Math.max(1, m.metalProduced / STEP66_METAL_UNIT_T_YR) : 0); };
     let n, it = 0;
     if (b === 0){ n = Math.max(Nprev, F(Nprev)); }
@@ -9796,7 +10126,9 @@ function applyLearning(args, fs, era, PR){
 function withPresetLearning(a, fs, ph, funding){
   const b = Object.assign({}, a);
   if (b.funding == null && funding != null) b.funding = funding;
-  if (b.mix == null) b.mix = MIX_ERA_DEFAULT[ph];
+  /* STEP 70, ITEM 3: `if (b.mix == null) b.mix = MIX_ERA_DEFAULT[ph];` stood here and is retired. It was the
+     second door MIX_2055_DEFAULT reached the census through, on the preset-labelled path. The census sets
+     each cohort's mix from the reactor schedule and fleetArgs() below sets the applied one. */
   if (b.fabProd == null && b.funding != null){
     const c = fabCeiling(ph, b.funding), sh = insituShareApplied({fabProd: FAB_RATE_ERA_DEFAULT[ph]}, c);
     b.fabProd = FAB_RATE_ERA_DEFAULT[ph]; b.fabCeiling = c; b.insituReq = sh; b.insitu = sh;
@@ -10015,8 +10347,12 @@ function powerFleet(a, fs, era, k, funding){
    the water kink. Replaces the cost-sorted purchase (alloc, topF, the regime segment tags, the fleet's
    regimeMax call). Spec: step68_se_learning_spec.md REVISION 7 (R7.1-R7.8). */
 var REACTOR_KWE = 100, REACTOR_CAP = 10;   // [kWe/reactor], [reactors/yr] (Quinn 2026-09-15)
-/* Reactors landed per landing year by funding tier. PLACEHOLDERS, Quinn's numbers for Step 70 (R7.8,
-   Wave 1c revision Quinn 2026-09-15: reactors start sooner). An integer or a fraction, each <=
+/* Reactors landed per landing year by funding tier. RULED AND CONFIRMED (Quinn, 2026-09-16) and no longer
+   placeholders: 93 reactors at Agency Led Baseline, 5 at Early Shift to Mars and 126 at The Commercial Break
+   through 2055, unchanged from the values carried here since the Wave 1c revision of 2026-09-15 (reactors
+   start sooner). ONE FIGURE A PAINTED SENTENCE MUST NOT CONFUSE WITH THESE: the SCHEDULED totals are 93 / 5 /
+   126, while STANDING fission at 2055 is 89 / 1 / 118, because the 2032-2035 cohorts have retired on the
+   20-year fission life. Any sentence stating a reactor count says which of the two it means. An integer or a fraction, each <=
    REACTOR_CAP; a year with no entry lands none. Fission is available from FISSION_START_YEAR[funding]
    (2032 at every tier) inside the fleet's own yearly gate, independently of ENVELOPE[funding][bucket]
    .fission (which is now DERIVED from this same schedule, immediately below, rather than carrying an
@@ -10047,6 +10383,35 @@ var R7 = { REACTOR_KWE: REACTOR_KWE, REACTOR_CAP: REACTOR_CAP, SCHEDULE: REACTOR
 })();
 /* Scheduled reactors [1] in landing year y for a funding tier, clamped to [0, REACTOR_CAP]. No reader
    control; the schedule is scenario data (R7.1). */
+/* STEP 70b, ITEM 5: the reactor schedule's own facts, for the two reader surfaces that used to type them.
+   THE CAP AND THE PEAK ARE DIFFERENT QUANTITIES: REACTOR_CAP is the ceiling a year may not exceed and the
+   peak is the most any year in this tier's own schedule actually lands. A sentence saying the schedule
+   "ramps to the cap" is true only while the two coincide, so it is computed rather than asserted. */
+/* STEP 70b: a small whole count as a word, so a sentence can read a live field without printing a digit.
+   The abstract's sentences carry no digits by its own declared standard (ABST-08 enforces it), and the
+   reactor cap is a field the model owns, so the only way to satisfy both is to spell the field. Bounded at
+   twenty: above that it returns the numeral, which takes ABST-08 red rather than printing a wrong word. A
+   visible failure on an unanticipated value is the right failure. */
+var COUNT_WORDS = ['zero','one','two','three','four','five','six','seven','eight','nine','ten',
+                   'eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen',
+                   'nineteen','twenty'];
+function countWord(n){
+  const i = Math.round(Number(n));
+  return (isFinite(i) && i >= 0 && i < COUNT_WORDS.length) ? COUNT_WORDS[i] : String(n);
+}
+function reactorSchedulePeak(funding){
+  const s = REACTOR_SCHEDULE[funding] || {};
+  let pk = 0;
+  Object.keys(s).forEach(function(y){ const n = reactorsScheduled(funding, Number(y)); if (n > pk) pk = n; });
+  return pk;
+}
+/* The first landing year, as one sentence can state it: the shared year when every tier agrees, else null. */
+function fissionStartSharedYear(){
+  const ks = Object.keys(FISSION_START_YEAR);
+  if (!ks.length) return null;
+  const first = FISSION_START_YEAR[ks[0]];
+  return ks.every(function(k){ return FISSION_START_YEAR[k] === first; }) ? first : null;
+}
 function reactorsScheduled(funding, y){
   var s = REACTOR_SCHEDULE[funding], n = (s && s[y] != null) ? Number(s[y]) : 0;
   return Math.max(0, Math.min(REACTOR_CAP, isFinite(n) ? n : 0));
@@ -10091,12 +10456,28 @@ function powerFleetSolve(a, fs, era, k, funding){
   const phiC0 = (a.phi_c0 != null) ? Math.max(0, Math.min(1, a.phi_c0)) : 0.10;   // [1] CLOSE-OUT S3: non-productive downmass comes off each landing first (modelCore's own default)
   for (let y = CURVE_EPOCH; y <= E; y++){
     const r = Math.max(0, fs.rateM(y)), rEff = r * (1 - phiC0), bucket = (y < 2040) ? '2030' : (y < 2055 ? '2040' : '2055');
-    const fp = (bucket === String(E)) ? a.fabProd : FAB_RATE_ERA_DEFAULT[bucket];                           // [kWe/(yr t)]
+    /* STEP 70b: THE RATE IS THIS YEAR'S, NOT THIS BUCKET'S, AND THE FLOOR GATES IT. The reader's own dial
+       still governs the era being viewed; every other year takes the log-linear interpolation of the three
+       anchors. A year under the maturity floor contributes no in-situ share, which is also what keeps a rate
+       of exactly 0 out of cI: 0 is below the floor, so it never reaches the 1/(fp x L) division that turned
+       Infinity x 0 into NaN and took water non-finite at all nine own-era cells. */
+    const fpRaw = (bucket === String(E)) ? a.fabProd : fabRateAtYear(y);                                     // [kWe/(yr t)]
+    const fpFloor = insituMaturityFloor((a.fSolOvr != null) ? a.fSolOvr : CONFIG.fSol.value, Lv);            // [kWe/(yr t)]
+    const fpMature = (fpRaw >= fpFloor);
+    /* STEP 70b CORRECTION: THE RATE IS NOT ZEROED. Zeroing it sends cI to Infinity and Infinity x 0 in
+       fabTrial's mFab term takes water non-finite -- the documented NaN path, reached at all six 2030 and
+       2040 cells when this line read `fpMature ? fpRaw : 0`. The ruling asks that an immature year make no
+       in-situ SHARE, and the share gate below is what implements it; the rate keeps the value the curve
+       gives it, which is also what it honestly is. Nothing consumes cI at a share of zero. */
+    const fp = fpRaw;   // [kWe/(yr t)]
     const cI = (fp > 0) ? 1 / (fp * Lv) + trans : Infinity;                                                  // [t/kWe]
     // Orchestrator call A: the fleet's own yearly gate reads FISSION_START_YEAR directly (year-grained),
     // not the era-bucket ENVELOPE flag (which is now derived FROM this same schedule, above, for the
     // premise/reader-toggle readers instead).
-    const fisAvail = (y >= FISSION_START_YEAR[funding]), share = fabCeiling(y, funding);                     // share [1] of new solar made in situ
+    const fisAvail = (y >= FISSION_START_YEAR[funding]);
+    /* STEP 70b: below the maturity floor the fab makes none of this year's solar, whatever the buildout
+       ceiling says. Above it the ceiling governs exactly as before. This is the timer. */
+    const share = fpMature ? fabCeiling(y, funding) : 0;                                                     // share [1] of new solar made in situ
     let Fs = 0, Ss = 0, Is = 0, Ms = 0, IfabS = 0;
     for (let j = 0; j < rec.length; j++){ const q = rec[j];
       if (y - q.y < R5.L_FIS){ Fs += q.F; Ms += q.mF; }
@@ -12760,7 +13141,27 @@ function valueModel(inp){
   const r_prop  = (cap   > 0) ? mass * annualFrac / cap   : Infinity;
   const r_const = (Cfull > 0) ? mass * annualFrac / Cfull : Infinity;
 
-  /* op_prop, Step 58 install 1, ruled 2026-09-08: a fixed annual operations cost F divided by the live
+  /* STEP 70, QUINN'S RULING OF 2026-09-16: BOTH TERMS ARE VESTIGIAL AND BOTH ARE $1.
+     PROPELLANT OPERATING COST IS NOT MODELLED. It is exogenous overhead that self-sufficiency cannot
+     reduce -- ground control, mission operations, comms and DSN time, programme office, safety and
+     licensing -- so charging it against in-situ production misstates what in-situ production buys.
+     BOTH CONSTANTS STAY WIRED rather than being deleted, so the max() form below is unchanged and every
+     test in this suite that pins op_prop through the inp.op_prop override path reproduces bit for bit.
+     ONE DOLLAR, NOT ZERO, AND THE REASON IS THAT ZERO WAS LOADED HERE WHEN THE RULING WAS MADE. Gate X1
+     is named for op_prop = 0 behaviour, and the painted crossover text then carried a retired zero-op_prop
+     branch, so a zero default would have landed on a value this file already assigned meaning to and would
+     have forced a sweep of every site treating zero as special. One dollar trips no branch and no sentinel.
+     That crossover text is itself retired at Step 70b (V-03, reached by 0 of 891 reader states), which
+     removes one of the two things that loaded zero and leaves X1 as the other. The reason is recorded
+     rather than deleted, because it is why the live value is 1.
+     WHAT IT RESOLVES TO: waterMinTpy guarantees at least 1 kg/yr of water above the pre-production
+     threshold, so op_propF / (water_tpy * 1000) is at most 1 and op_prop is exactly $1/kg at every
+     computed state -- identical to zero at the fourth significant figure of every painted figure.
+     THE SUPERSEDED BANDS ARE KEPT IN VALUE, MARKED SUPERSEDED AND NOT DELETED: $20M-$130M/yr on
+     op_propF (Kornuta 2019 and Sowers 2019 Table 4.9.3) and $8-$72/kg on op_propV, each with both
+     end-point sources and the NOT-CENTRABLE rule retained as the record of what was charged before.
+     THE RECORD OF THE SUPERSEDED FORM FOLLOWS.
+     op_prop, Step 58 install 1, ruled 2026-09-08: a fixed annual operations cost F divided by the live
      water rate, floored at a minimum per-kilogram figure v so the term does not fall toward
      zero at high output, and UNDEFINED -- not a finite figure approaching an astronomical
      dollar value -- below a minimum-production threshold, rather than the flat $5,000/kg
@@ -12842,14 +13243,117 @@ function valueModel(inp){
    valueModel() computes, with the capital recovery factor at a lender hurdle rate in place of annualFrac:
    CRF(i, L) = i (1 + i)^L / ((1 + i)^L - 1) [1/yr], CRF(0, L) = 1/L; r = mass CRF / capacity [1];
    P = r (C_hw,eff + D) + op [$/kg]; margin = D - P [$/kg]. No render path calls it and no element names it. */
-function lenderMargin(inp, i){
+/* STEP 70, ITEM 4 (Quinn's ruling of 2026-09-16). Three extensions, each defaulted so that every caller
+   written before this step reproduces bit for bit:
+   (a) $/yr AND A PROGRAMME TOTAL. It returned $/kg margins and no $/yr, so "the two streams summed as one
+       programme" was not expressible: the streams carry different tonnages and adding two $/kg margins is
+       dimensionally meaningless. value_prop, value_const and value_programme are built on the same tonnages
+       valueModel() already resolved, at the CRF charge rather than the declining-balance charge.
+   (b) THE CLEARING THRESHOLD IS A PARAMETER. It was hardcoded at `> 0`, which answered the question of what
+       clearing means before that question was asked. Quinn ruled margin > 0 -- a dollar made, coverage 1.0 --
+       so the default is 0 and the booleans are unchanged at it.
+   (c) TENOR IS ITS OWN PARAMETER. valueModel(inp) reads inp.L and the CRF re-read the same inp.L, so a tenor
+       different from the asset life could not be stated: shortening the loan also shortened the plant. It is
+       VALUE.lenderTenor now, 11 yr, numerically equal to the asset life and independent of it.
+   coverage is the year's revenue over the year's lender-charged production cost. It is exactly 1.0 where the
+   margin is exactly 0, and it is carried because a ratio says how far from a dollar a failing year sits. */
+function lenderMargin(inp, i, opts){
+  const o = opts || {};
   const v = valueModel(inp); const L = (inp.L != null) ? inp.L : VALUE.L.value;
-  const CRF = (i === 0) ? 1 / L : i * Math.pow(1 + i, L) / (Math.pow(1 + i, L) - 1);
+  const tenor = (o.tenor != null) ? o.tenor : ((VALUE.lenderTenor != null) ? VALUE.lenderTenor.value : L);
+  const thr = (o.threshold != null) ? o.threshold : 0;
+  const CRF = (i === 0) ? 1 / tenor : i * Math.pow(1 + i, tenor) / (Math.pow(1 + i, tenor) - 1);
   const r_prop = (v.cap > 0) ? v.mass * CRF / v.cap : Infinity, r_const = (v.Cfull > 0) ? v.mass * CRF / v.Cfull : Infinity;
   const P_prop = (v.op_prop != null) ? r_prop * (v.C_hw + v.D) + v.op_prop : null;
   const P_const = r_const * (v.C_hw + v.D) + v.op_const;
   const mp = (P_prop != null) ? v.D - P_prop : null, mc = v.D - P_const;
-  return {i:i, L:L, CRF:CRF, r_prop:r_prop, r_const:r_const, P_prop:P_prop, P_const:P_const, margin_prop:mp, margin_const:mc, clears_prop:(mp != null && mp > 0), clears_const:(mc > 0)};
+  const wt = v.water_tpy, ct = v.construction_tpy;
+  const value_prop  = (wt > 0 && mp != null) ? wt * 1000 * mp : 0;
+  const value_const = (ct > 0) ? ct * 1000 * mc : 0;
+  const value_programme = value_prop + value_const;
+  const revenue = ((wt > 0) ? wt * 1000 * v.D : 0) + ((ct > 0) ? ct * 1000 * v.D : 0);
+  const chargedCost = ((wt > 0 && P_prop != null) ? wt * 1000 * P_prop : 0) + ((ct > 0) ? ct * 1000 * P_const : 0);
+  return {i:i, L:L, tenor:tenor, threshold:thr, CRF:CRF, r_prop:r_prop, r_const:r_const, P_prop:P_prop, P_const:P_const,
+          margin_prop:mp, margin_const:mc, clears_prop:(mp != null && mp > thr), clears_const:(mc > thr),
+          value_prop:value_prop, value_const:value_const, value_programme:value_programme,
+          clears_programme:(value_programme > thr), revenue:revenue, chargedCost:chargedCost,
+          coverage:(chargedCost > 0) ? revenue / chargedCost : null};
+}
+/* STEP 70b, ITEM 1 (Quinn's ruling of 2026-09-16): THE DELIVERY COST ALONG THE TRAJECTORY [$/kg].
+   Log-linear between the era anchors -- constant fractional decline, hitting 2030, 2040 and 2055 exactly --
+   because the anchors are already multiplicative and linear interpolation between them would invent a shape
+   they do not support. The three anchors are read from LANDED_COST.eraDefault, never typed, so the curve
+   follows them if they move. Implied by those anchors: 9.97 percent a year to 2040, 17.37 percent after.
+   HELD FLAT OUTSIDE THE ANCHORS. Below 2030 nothing is ever evaluated (CURVE_EPOCH is 2030); above 2055
+   there is no further anchor and extending the decline would carry the price toward zero on no evidence.
+   The form is Farmer and Lafond 2016's own (Eq. 2, p. 650, log cost as a random walk with drift in calendar
+   time). See LANDED_COST.interp for the citation, the derived rates, the caution that the second segment's
+   rate falls inside a band their dataset leaves empty, and why this does not touch the Step 60 exclusion. */
+function landedCostAtYear(y){
+  /* STEP 70b: the arithmetic moved into logLinearBetweenAnchors(), which the in-situ rate shares. */
+  const A = LANDED_COST.eraDefault;
+  return logLinearBetweenAnchors(y, 2030, A['2030'], 2040, A['2040'], 2055, A['2055']);
+}
+/* STEP 70, ITEM 4: THE FIRST YEAR THE PROGRAMME TURNS A DOLLAR.
+   The cohort census and the power fleet already solve year by year from the 2030 epoch -- the three eras are
+   snapshots over a trajectory that exists -- so this walks that trajectory rather than building a second one.
+   Each year gets its own standing fleet, its own learning census and its own tonnages, and the programme test
+   is applied at THE LOG-LINEAR DELIVERY COST OF THAT YEAR (landedCostAtYear), Quinn's ruling of 2026-09-16.
+   NEITHER BASIS THIS REPLACES DISCRIMINATED ANYTHING, which is why the basis was ruled. Flat at the 2055
+   anchor of $2,000/kg, no scenario ever clears. Era-stepped, every scenario clears in 2032, because that
+   year carries the $100,000/kg anchor and any output at all is profitable against it. Both were measured
+   before the basis moved. Log-linear prices each year on the curve the three anchors actually describe.
+   Returns null where no year in the window clears, which is a reported outcome and never a silent pass.
+   Memoised on the arguments, curve, tier, rate and dial, because a render must not pay for 24 fleet solves. */
+/* STEP 70b (Quinn, 2026-09-16): THE CLEARING TEST FOR EVERY YEAR, COMPUTED AND PAINTED NOWHERE.
+   One row per year 2032-2055 at that year's own solved fleet and its own log-linear delivery cost,
+   carrying both coverage readings:
+     (a) revenue over production cost at the lender's CRF -- "does the plant pay for itself"
+     (c2) (card net + investment) / investment -- "does the programme pay for its own mass", 1.0 a true
+          break-even because it is 1.0 exactly when the net is 0, the same event as (a) = 1.0.
+   INVESTMENT IS THAT YEAR'S OWN, r(y) x 1000 x (C_hw,eff + D(y)), the same expression the hero's
+   investment line uses at an era, evaluated at the year instead. NO RENDER PATH AND NO DOM: this is a
+   hook for a later step and for an instrument keeping an eye on the trajectory. */
+var __clearMemo = new Map();
+function programmeClearingSeries(args, fsIn, funding, i, opts){
+  const a0 = {}; Object.keys(args).forEach(function(k){ if (LEARN_ARG_KEYS.indexOf(k) < 0) a0[k] = args[k]; });
+  const out = [];
+  for (let Y = CURVE_EPOCH + 2; Y <= 2055; Y++){
+    const D = landedCostAtYear(Y);
+    const aY = Object.assign({}, a0);
+    const kY = applyLearning(aY, fsIn, String(Y), step60Rate);
+    const faY = fleetArgs(aY, fsIn, String(Y), kY, funding);
+    const inp = Object.assign({}, faY.args, {landed_cost:D, C_hw:C_HW1});
+    const lm = lenderMargin(inp, i, opts);
+    const rate = Math.max(0, fsIn.rateM(Y));
+    const chwEff = C_HW1 * Math.pow(Math.max(1, (aY.N_cum != null ? aY.N_cum : 1)), (aY.b_learn != null ? aY.b_learn : 0));
+    const ins = rate * 1000 * (chwEff + D);
+    out.push({year:Y, D:D, investment:ins, programme:lm.value_programme,
+              coverage_a:lm.coverage, coverage_c2:(ins > 0) ? 1 + lm.value_programme / ins : null,
+              clears_a:(lm.coverage != null && lm.coverage > 1),
+              clears_c2:(ins > 0 && 1 + lm.value_programme / ins > 1),
+              clears_programme:lm.clears_programme});
+  }
+  return out;
+}
+function programmeClearingYear(args, fsIn, funding, D, i, opts){
+  const first = CURVE_EPOCH + 2, last = 2055;
+  const a0 = {}; Object.keys(args).forEach(function(k){ if (LEARN_ARG_KEYS.indexOf(k) < 0) a0[k] = args[k]; });
+  /* the basis is in the key: a build that changes how a year is priced must not read a cached year. */
+  const key = 'loglinear|' + JSON.stringify(a0) + '|' + funding + '|' + D + '|' + i + '|' + JSON.stringify(opts || {}) +
+              '|' + step60Rate + '|' + configSig() + '|' + JSON.stringify(CURVE.pts);
+  const hit = __clearMemo.get(key); if (hit !== undefined) return hit;
+  let out = null;
+  for (let Y = first; Y <= last; Y++){
+    const aY = Object.assign({}, a0);
+    const kY = applyLearning(aY, fsIn, String(Y), step60Rate);
+    const faY = fleetArgs(aY, fsIn, String(Y), kY, funding);
+    const lm = lenderMargin(Object.assign({}, faY.args, {landed_cost:landedCostAtYear(Y), C_hw:C_HW1}), i, opts);
+    if (lm.clears_programme){ out = Y; break; }
+  }
+  if (__clearMemo.size > 500) __clearMemo.clear();
+  __clearMemo.set(key, out);
+  return out;
 }
 
 /* envelopeWarnings() stood here and was deleted at Step 56 install 7, on the
@@ -13340,10 +13844,13 @@ function runValueTests(fileText){
   {
     const ed = LANDED_COST.eraDefault;
     const onRail = v=>RAIL.indexOf(v)>=0;
-    const pass = ed['2030']===100000 && ed['2040']===35000 && ed['2055']===2000
+    /* STEP 70b: the 2055 anchor is RULED at $5,000/kg (Quinn, 2026-09-16), replacing the $2,000 placeholder
+       this row was written against. The assertion itself is unchanged -- each era default must be an exact
+       member of the dial's own rail -- and $5,000 is a rail detent, so the row keeps its teeth. */
+    const pass = ed['2030']===100000 && ed['2040']===35000 && ed['2055']===5000
               && onRail(ed['2030']) && onRail(ed['2040']) && onRail(ed['2055']);
-    rec('LC1','GATE','era defaults (100k/35k/2k) are exact rail members returned by the phase map', pass,
-        pass?'2030->100,000  2040->35,000  2055->2,000, all on the rail':'era default off-rail or wrong');
+    rec('LC1','GATE','era defaults (100k/35k/5k) are exact rail members returned by the phase map', pass,
+        pass?'2030->100,000  2040->35,000  2055->5,000, all on the rail':'era default off-rail or wrong');
   }
 
   // ---- LC2 (GATE): knob free, not slaved to phase ----
@@ -13402,8 +13909,17 @@ function runValueTests(fileText){
             bad.push(blk+'.'+k+' INTERVAL ends are '+b.lo+' and '+b.hi);
           if (!b.loSource || !b.hiSource)
             bad.push(blk+'.'+k+' INTERVAL carries an end with no source');
-          if (!(e.value >= b.lo && e.value <= b.hi))
+          /* STEP 70b (ruling of 2026-09-16): A BAND MARKED SUPERSEDED IS NO LONGER A LIVE BAND, so a live
+             value outside it is the record working rather than the record rotting. Step 70 set op_propF and
+             op_propV to 1 on the ruling that propellant operating cost is not modelled, and marked all three
+             op_prop entries SUPERSEDED with their intervals and both end-point sources retained. Without this
+             branch the row read those retained intervals as live and failed on them. The teeth are unchanged
+             for every band still marked STANDS, and one is added below: claiming SUPERSEDED without naming
+             what superseded it is itself a FAIL, so the exemption cannot be taken by writing one word. */
+          if (!(e.value >= b.lo && e.value <= b.hi) && b.disposition !== 'SUPERSEDED')
             bad.push(blk+'.'+k+' live value '+e.value+' sits outside its own band ['+b.lo+', '+b.hi+']');
+          if (b.disposition === 'SUPERSEDED' && !b.supersededBy)
+            bad.push(blk+'.'+k+' band reads SUPERSEDED and names nothing that superseded it');
           if (b.disposition === 'MOVED' && b.target !== e.value)
             bad.push(blk+'.'+k+' band reads MOVED to '+b.target+' and the model runs on '+e.value);
           if (b.disposition === 'PENDING' && !b.pendingOn)
@@ -15538,7 +16054,10 @@ function composeDerivation(state, m, v){
      first: it is a different degenerate state from RPROP-FAILS and gets its own honesty text. */
   if(v.preProduction){ crossKey='PRE-PRODUCTION'; crossText=DERIVATION.honesty.crossPreProduction; }
   else if(!isFinite(v.r_prop) || v.r_prop >= 1){ crossKey='RPROP-FAILS'; crossText=DERIVATION.honesty.crossFail; }
-  else if(v.r_prop <= 0){ crossKey='CROSS-NONE'; crossText=DERIVATION.honesty.crossNone; }
+  /* STEP 70b, V-03: the CROSS-NONE branch stood here and is retired with its text. It was selected at
+     r_prop <= 0 and reached by 0 of 891 swept reader states, because it needs landed mass exactly zero.
+     A state at r_prop <= 0 now falls to CROSS-BAND below, whose D* is 0 by Dstar_prop's own guard at
+     r_prop <= 0 -- unreachable-path behaviour rather than a sentence any reader is shown. */
   else { crossKey='CROSS-BAND'; crossText=DERIVATION.honesty.crossBand+' Here D* = '+_dusd(LV('Dstar_prop',v.Dstar_prop,'value'))+'/kg.'; }
   rankSteps.push({text:crossText});
   /* THE MASS LEDGER SENTENCE, Step 58. It states the quantity in the units an engineer checks,
@@ -15981,7 +16500,14 @@ const ABSTRACTS = {
     sentences: [
       'This line mines Cabeus-grade ice at five weight percent, and that grade rests on a single in-situ point measurement.',
       'Each landing year splits its landed mass between power hardware and mining plant where it makes the most water, so at every era the power ceiling and the plant-throughput ceiling meet and the state reads balanced, with fission carrying the power once the schedule lands it.',
-      'The programme is moon-first with Mars later, and its reactor schedule ramps to the ten-a-year cap by Sustained.'
+      /* STEP 70b, ITEM 5: "ten-a-year cap" was typed here and again on the Equations tab, with no shared
+         source between them, over a field the model owns. Both now read it. The clause states the peak and
+         names it as the cap only while the schedule actually reaches the cap. */
+      (function(){ const pk = reactorSchedulePeak('med'), cap = REACTOR_CAP;
+        return 'The programme is moon-first with Mars later, and its reactor schedule ramps to ' +
+               (pk >= cap ? 'the ' + countWord(cap) + '-a-year cap'
+                          : 'a peak of ' + countWord(pk) + ' a year, below the ' + countWord(cap) + '-a-year cap,') +
+               ' by Sustained.'; })()
     ]
   },
   contested: {
@@ -16146,6 +16672,7 @@ const ABSTRACT_CSS =
   '.abstract .absvalue p{margin:8px 0 0;font-size:13.5px;line-height:1.6;max-width:82ch;}' +
   '.abstract .absbody p{margin:0 0 8px;font-size:13.5px;line-height:1.6;max-width:82ch;transition:color .25s ease;}' +
   '.abstract .absbody p:last-child{margin-bottom:0;}';
+/* STEP 70b: the andon light's styling went with the light itself. Nothing paints the clearing test. */
 
 function abstractMount(){
   const existing = document.getElementById('abstract');
@@ -22273,7 +22800,13 @@ const LEDGER_TOKENS = {
     if (which === 'builtpower')   return String(b.builtPower);
     throw new Error('boundary token asks for a half this resolver does not compute: ' + which);
   },
-  captureEff: function(){ return String(CONFIG.captureEff.value); }
+  captureEff: function(){ return String(CONFIG.captureEff.value); },
+  /* STEP 70, ITEM 2 (Quinn's ruling of 2026-09-16): the two propellant operating coefficients, read from the
+     registry at render. Both were typed as prose on two reader surfaces and both went false the moment the
+     ruling set them to 1. A sentence that restates a number the model owns cannot follow that number, and no
+     standing row scores prose against the coefficient it restates, so the repair is to stop restating it. */
+  opPropF:    function(){ return '$' + Number(VALUE.op_propF.value).toLocaleString('en-US') + '/yr'; },
+  opPropV:    function(){ return '$' + Number(VALUE.op_propV.value).toLocaleString('en-US') + '/kg'; }
 };
 function _cap1(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
 var _BOUNDARY = null;
@@ -22729,7 +23262,13 @@ function scenarioModelArgsInput(id){
     ice: own ? knobVal('ice') : s.ice, power: fs.power, mass: fs.mass,
     fission: fission, funding: s.funding, phase: ph,
     phi_c: own ? knobVal('phi_c') : p.phi_c, phi_o: knobVal('phi_o'),
-    phi_m: own ? knobVal('phi_m') : PHI_M_BY_ERA[ph][id], mix: state.mix,
+    /* STEP 70, ITEM 3 (Quinn's ruling of 2026-09-16): `mix: state.mix` STOOD HERE AND IS RETIRED.
+       This object is what applyLearning() reads on the next line, one line before fleetArgs() overwrites
+       `mix` with the fleet's own Fv/P, so the requested share never reached the physics and only ever
+       reached the learning census. The census now prices each cohort at its own landing year's scheduled
+       fission share (see scheduledStandingFissionKWe), and every consumer downstream of fleetArgs() keeps
+       reading the realised Fv/P it always read. */
+    phi_m: own ? knobVal('phi_m') : PHI_M_BY_ERA[ph][id],
     fSolOvr: state.solOvr/1000, fFisOvr: state.fisOvr/1000,
     phi_c0: (state.phiC0Ovr!=null?state.phiC0Ovr:CONFIG.phiC0.value),
     fabProd: state.fabProd, insituReq: insitu, fabCeiling: fabCeil, insitu: insitu };
@@ -23874,6 +24413,8 @@ function render(){
   renderValueTab(v);
   step60RenderValueTab(m, fs, ownArgs.args);
   paintInsituCard(m);
+  /* STEP 70b: the andon paint call stood here. The clearing test is computed on demand by
+     programmeClearingSeries() and reaches no reader, so render() no longer calls it. */
 
   renderBlurbPanel(m);
   renderNotesPanel(m);
@@ -23956,6 +24497,11 @@ function renderValueTab(v){
   document.getElementById('m_prop').textContent = _usd(v.value_prop);
   document.getElementById('m_const').textContent = _usd(v.value_const);
 }
+/* STEP 70b: paintLenderAndon() stood here and is withdrawn with its surface. The clearing test is
+   computed for every year and painted nowhere (Quinn, 2026-09-16). What replaces it is a queryable
+   internal series with the same status lenderMargin() has: no DOM, no state, no render path, reachable
+   by an instrument that boots the page and calls it, and by a later step that decides to surface it. */
+
 
 /* ============================================================
    SCENARIO TAB: app-layer wrapper over composeBlurb, ported
@@ -24373,7 +24919,7 @@ function buildRefBody(){
     '<p>The ice knob carries '+DETENTS.ice.length+' detents spanning '+DETENTS.ice[0]+' to '+DETENTS.ice[DETENTS.ice.length-1]+' wt% ('+DETENTS.ice.join(', ')+' wt%), inside the study’s adopted modeling envelope of 1 to 30 wt%, which is not a measured distribution. The only ground-truth anchor is the LCROSS about 5.6 wt% measurement at Cabeus (Colaprete et al. 2010): one site, one depth. No measurement establishes the distribution across this range; VIPER (2027) will add one more point.</p>'+
     '<h3 style="font-family:var(--mono);font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--ice);margin:22px 0 8px">Assumptions</h3>'+
     '<p>k_exc = '+CONFIG.kExc.value+' '+CONFIG.kExc.unit+': the plant throughput coefficient, this project’s geometric centre of two published plants reduced to its own basis.  At this value '+nPow+' of the '+nScen+' scenario points are power-limited, '+nBal+' are balanced, where the two ceilings meet, and the other '+(nScen-nPow-nBal)+' are held by the plant.</p>'+
-    '<p>f_sol = '+CONFIG.fSol.value+' '+CONFIG.fSol.unit+', f_fis = '+CONFIG.fFis.value+' '+CONFIG.fFis.unit+': specific masses for unbuilt hardware. f_sol is this project’s geometric middle of a 2 to 7 W/kg illuminated-ridge band no held source prints; f_fis is the Fission Surface Power directive’s own ratio, 15 t over 100 kWe, applied flat at every standing power. This paragraph called them both landed-payload allocations until 2026-09-08, which is what f_sol’s own retired 0.05 was and what its own entry says the live 0.2673 is not. The fission share of standing power is an output of the fixed per-scenario reactor schedule (at most 10 100 kWe reactors a year, first reactor 2032 at every scenario), not a cost-sorted choice the fleet makes each landing year; the share never changes either coefficient.</p>'+
+    '<p>f_sol = '+CONFIG.fSol.value+' '+CONFIG.fSol.unit+', f_fis = '+CONFIG.fFis.value+' '+CONFIG.fFis.unit+': specific masses for unbuilt hardware. f_sol is this project’s geometric middle of a 2 to 7 W/kg illuminated-ridge band no held source prints; f_fis is the Fission Surface Power directive’s own ratio, 15 t over 100 kWe, applied flat at every standing power. This paragraph called them both landed-payload allocations until 2026-09-08, which is what f_sol’s own retired 0.05 was and what its own entry says the live 0.2673 is not. The fission share of standing power is an output of the fixed per-scenario reactor schedule (at most '+REACTOR_CAP+' '+REACTOR_KWE+' kWe reactors a year, first reactor '+(fissionStartSharedYear() != null ? fissionStartSharedYear()+' at every scenario' : 'as each scenario\u2019s own schedule sets it')+'), not a cost-sorted choice the fleet makes each landing year; the share never changes either coefficient.</p>'+
     '<p>unit_capacity = 5,000 kg O2/yr (Schreiner 2016, reactor scope) against m1 = 271 kg/t/yr (Guerrero-Gonzalez, nine-subsystem plant scope): SCOPE MISMATCH, ASSUMED 1:1, NOT SOURCED. No source in this corpus states how many Schreiner reactors sit inside one Guerrero-Gonzalez plant.</p>'+
     '<p>Learning rate 0.56 (Brehm, Bui, Trancik et al. 2024, post-1990 launch vehicles) applied to ISRU plant units: transfer assumption, not measured. No source measures a learning rate for an ISRU plant, or any few-unit process plant, at commercial-space cadence.</p>'+
     '<p>Oxide reduction order at 1873 K, kJ per mol O2, derived from standard formation data: FeO 285, SiO2 569, TiO2 597, Al2O3 726, MgO 797, CaO 874. Aluminium is fourth of six and reduces before magnesium and calcium, which is the mechanism behind staged tapping: ferrosilicon comes off early, aluminium comes off late, on separate taps. Jehn 2024 runs it as two voltage stages on one melt, Stage 1 Si at 2.5 V and Mg at 2.8 V, Stage 2 Ti at 3.3 V and Al at 3.8 V.</p>'+
