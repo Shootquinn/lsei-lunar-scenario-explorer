@@ -18107,13 +18107,15 @@ function runAbstractTests(){
         if (!btn){ bad.push('no era button for ' + ph); return; }
         btn.click();
         curveDraw();
-        const E = Number(ph), hi = Number(cv.dataset.max) || 1;
+        const E = Number(ph);
         const sx = CSSW / W, sy = CSSH / H;
         Array.prototype.forEach.call(document.querySelectorAll('.curvehandle'), function(b){
           const y = Number(b.dataset.era), v = Number(b.dataset.rate);
           const bx = CURVE_PAD.l + (E === CURVE_EPOCH ? 0 :
                      ((y - CURVE_EPOCH) / (E - CURVE_EPOCH)) * (W - CURVE_PAD.l - CURVE_PAD.r));
-          const by = H - CURVE_PAD.b - (v / hi) * (H - CURVE_PAD.t - CURVE_PAD.b);
+          /* STEP 70.3: the fixed log axis, massRailPct(v) against MASS_RAIL_MIN/MASS_RAIL_MAX --
+             not (v / hi) against a locally-derived hi, which is curveDraw()'s own retired law. */
+          const by = H - CURVE_PAD.b - (massRailPct(v) / 100) * (H - CURVE_PAD.t - CURVE_PAD.b);
           const wantX = bx * sx, wantY = by * sy;
           const gotX = parseFloat(b.style.left), gotY = parseFloat(b.style.top);
           seen.push(ph + '/' + y + ' x ' + gotX.toFixed(1) + ' want ' + wantX.toFixed(1) +
@@ -18504,7 +18506,9 @@ function runAbstractTests(){
       function recordOff(){ delete cv.getContext; }
       function pxOf(y, E){ return CURVE_PAD.l + (Number(E) === CURVE_EPOCH ? 0 :
                              ((Number(y) - CURVE_EPOCH) / (Number(E) - CURVE_EPOCH)) * (W - CURVE_PAD.l - CURVE_PAD.r)); }
-      function pyOf(v, hi){ return H - CURVE_PAD.b - (v / hi) * (H - CURVE_PAD.t - CURVE_PAD.b); }
+      /* STEP 70.3: the fixed log axis, massRailPct(v) against MASS_RAIL_MIN/MASS_RAIL_MAX -- not
+         (v / hi) against a locally-derived hi, which is curveDraw()'s own retired law. */
+      function pyOf(v){ return H - CURVE_PAD.b - (massRailPct(v) / 100) * (H - CURVE_PAD.t - CURVE_PAD.b); }
       function nearest(list, want, get){
         let best = null, bd = Infinity;
         for (let i = 0; i < list.length; i++){ const d = Math.abs(get(list[i]) - want); if (d < bd){ bd = d; best = list[i]; } }
@@ -18600,11 +18604,10 @@ function runAbstractTests(){
             else if (Math.abs(bt - v[1]) > 1.0)
               bad.push(at + 'the shaded area tops out at ' + bt.toFixed(2) + ' against a drawn line at ' + v[1].toFixed(2) +
                        ', so the area is drawn from a different programme than the line above it');
-            const hi = Number(cv.dataset.max) || 1;
             const r = recordedRate(y);
             if (!isFinite(r)) bad.push(at + 'the canvas record carries no rate at that year');
-            else if (Math.abs(pyOf(r, hi) - v[1]) > 1.0)
-              bad.push(at + 'the canvas record says ' + r.toFixed(3) + ' t/yr, which maps to ' + pyOf(r, hi).toFixed(2) +
+            else if (Math.abs(pyOf(r) - v[1]) > 1.0)
+              bad.push(at + 'the canvas record says ' + r.toFixed(3) + ' t/yr, which maps to ' + pyOf(r).toFixed(2) +
                        ' against a drawn line at ' + v[1].toFixed(2) + ', so a harness reading the record and a reader reading the plot get different answers');
           }
           const heroDuring = modelPage();
@@ -24384,31 +24387,27 @@ function curveDraw(){
   const yrs = [];
   for (let y = CURVE_EPOCH; y <= E; y++) yrs.push(y);
   const vals = yrs.map(rate);
-  /* THE VERTICAL SCALE IS ANCHORED TO THE PROGRAMME AND NOT ONLY TO THE CURVE, and that is the
-     exit from a state the control could not get the reader out of. The ceiling used to be the
-     curve's own maximum with a floor of 1, so at era 2030, where the single live handle IS the
-     maximum by definition, dragging it to the bottom took the rate to 0, collapsed the ceiling to
-     the 1 t/yr floor, and left the whole plot a 0-to-1 t/yr world. Dragging back to the top of the
-     plot then returned 0.875 t/yr and water read 0.00, and no sequence of drags escaped, because
-     every drag was a fraction of a maximum the previous drag had set. The only exit was a preset
-     click, which is a reset and is signified as one nowhere.
-     The scenario's own envelope over the eras in scope is a fixed floor under that ceiling, so a
-     reader who drags to zero still has the programme's full range above the handle to drag back
-     into. At every preset state the envelope IS the curve's maximum, so this moves no pixel there;
-     it only refuses to shrink the world below the programme the reader is standing in. */
-  let envHi = 0;
-  if (state.funding && ENVELOPE[state.funding])
-    curveErasInScope(era).forEach(function(y){ envHi = Math.max(envHi, ENVELOPE[state.funding][String(y)].M); });
-  /* THE AXIS A LIVE GESTURE FROZE IS THE AXIS THE WHOLE PICTURE IS DRAWN ON. curveDragMove maps
-     the pointer through curveDragHi, taken once at pointerdown and held for the life of the drag,
-     and this function now runs on every pointermove so the line and the shaded area track the
-     handle. A repaint that recomputed the ceiling mid-gesture would draw the curve on one axis and
-     place the handle on another, and dragging a knot above the scenario envelope does raise this
-     ceiling, so the two would part exactly where the reader is pulling hardest. That is the same
-     runaway curveDragMove records: an axis re-read from the output of the move before it. Outside
-     a drag the ceiling is computed as it always was, and the release recomputes it once. */
-  const hi = (curveDragEra != null) ? (curveDragHi || 1)
-                                    : Math.max(1, envHi, Math.max.apply(null, vals));
+  /* STEP 70.3, QUINN'S RULING 2026-09-17: THE VERTICAL SCALE IS THE RAIL'S OWN FIXED LOG AXIS,
+     MASS_RAIL_MIN..MASS_RAIL_MAX (10..1,000,000), NOT THE PROGRAMME'S ENVELOPE AND NOT THE
+     CURVE'S OWN OUTPUT. The per-scenario floating ceiling this replaces (envHi, the larger of the
+     scenario's envelope over the eras in scope and the curve's own live maximum) is RETIRED here,
+     not widened or ported forward.
+     ITS BUG, FOR THE RECORD: the ceiling recomputed off the curve's OWN output, so at era 2030,
+     where the single live handle IS the maximum by definition, dragging it to the bottom took the
+     rate to 0, collapsed the ceiling to the 1 t/yr floor, and left the whole plot a 0-to-1 t/yr
+     world -- dragging back to the top then returned 0.875 t/yr and water read 0.00, and no
+     sequence of drags escaped, because every drag was a fraction of a maximum the previous drag
+     had set. The only exit was a preset click, a reset signified as one nowhere.
+     A FIXED 10..1,000,000 AXIS HAS NO REACTIVE COMPONENT FOR THAT RUNAWAY TO RUN AWAY IN: nothing
+     a reader drags, clicks, or scenario-switches ever moves this ceiling, so it cannot collapse
+     toward a drag's own output -- the bug class is impossible by construction, not merely floored.
+     Confirmed against the exact scenario that motivated envHi (Agency Led Baseline, era 2030,
+     dragging to the bottom of the plot and back): the axis reads MASS_RAIL_MAX before, during and
+     after every drag, and a drag to the bottom of the plot writes MASS_RAIL_MIN (10), never 0 --
+     massRailPct()'s own floor clamp, mirrored by massRailFromPct()'s inverse in curveDragMove
+     below, the same functions #k_mass's own rail uses (Step 70.2), reused here rather than a
+     second, independently authored log law that could drift from the rail's own. */
+  const hi = MASS_RAIL_MAX;
 
   /* THE RECORD, written before anything is drawn. */
   const knots = rate.knots.map(function(k){ return k[0] + ':' + k[1]; }).join(',');
@@ -24466,7 +24465,7 @@ function curveDraw(){
     cv.dataset.cssScaleY = String(sy);
     const px = function(y){ return (CURVE_PAD.l + (E === CURVE_EPOCH ? 0 :
                     ((y - CURVE_EPOCH) / (E - CURVE_EPOCH)) * (W - CURVE_PAD.l - CURVE_PAD.r))) * sx; };
-    const py = function(v){ return (H - CURVE_PAD.b - (v / hi) * (H - CURVE_PAD.t - CURVE_PAD.b)) * sy; };
+    const py = function(v){ return (H - CURVE_PAD.b - (massRailPct(v) / 100) * (H - CURVE_PAD.t - CURVE_PAD.b)) * sy; };
     /* THE ROW IS REBUILT, EXCEPT UNDER A LIVE DRAG, WHERE IT IS MOVED IN PLACE. A pointer that
        has captured a handle loses the capture the moment that element leaves the document, and
        this block replaced every handle on every render. That was survivable while render() ran on
@@ -24506,7 +24505,7 @@ function curveDraw(){
     const W = cv.width, H = cv.height;
     const px = function(y){ return CURVE_PAD.l + (E === CURVE_EPOCH ? 0 :
                     ((y - CURVE_EPOCH) / (E - CURVE_EPOCH)) * (W - CURVE_PAD.l - CURVE_PAD.r)); };
-    const py = function(v){ return H - CURVE_PAD.b - (v / hi) * (H - CURVE_PAD.t - CURVE_PAD.b); };
+    const py = function(v){ return H - CURVE_PAD.b - (massRailPct(v) / 100) * (H - CURVE_PAD.t - CURVE_PAD.b); };
     ctx.clearRect(0, 0, W, H);
     ctx.strokeStyle = 'rgba(160,170,190,0.35)';
     ctx.beginPath(); ctx.moveTo(CURVE_PAD.l, CURVE_PAD.t); ctx.lineTo(CURVE_PAD.l, H - CURVE_PAD.b);
@@ -24552,12 +24551,12 @@ function curveDraw(){
    CURVEUI-04 (its call-recorder shadows #curvePlot's own getContext() and assumes every stroke()
    there belongs to the single mass curve; a second and third stroke got folded into that recorded
    polyline). Moving to its own canvas removed the interference: "the plot shows both" without
-   touching curveDraw()'s own dataset, handles or drawing at all, on the vertical scale curveDraw()
-   already computed for the (unchanged) mass curve (read from #curvePlot's own dataset.max, a plain
-   property read, never its context), so the two constituents visibly sit inside the total they sum
-   to. */
+   touching curveDraw()'s own dataset, handles or drawing at all, on the SAME vertical scale
+   curveDraw() draws on -- STEP 70.3: both now read the one shared MASS_RAIL_MIN/MASS_RAIL_MAX
+   log-axis constant directly, rather than this function reading #curvePlot's live dataset.max, so
+   the two constituents visibly sit inside the total they sum to and the two canvases cannot drift
+   to two different ceilings. */
 function curveDraw2(){
-  const cv1 = document.getElementById('curvePlot');   // read-only: the shared axis scale, never its context
   const cv = document.getElementById('curvePlot2');
   const wrap = document.getElementById('curveWrap');
   if (!cv || !wrap) return null;
@@ -24567,13 +24566,13 @@ function curveDraw2(){
   const rateC = buildCurve('commercial', state.funding, era, null);
   const yrs = []; for (let y = CURVE_EPOCH; y <= E; y++) yrs.push(y);
   const valsA = yrs.map(rateA), valsC = yrs.map(rateC);
-  const hi = Math.max(1, (cv1 && Number(cv1.dataset.max)) || 0, Math.max.apply(null, valsA.concat(valsC)));
+  const hi = MASS_RAIL_MAX;   // STEP 70.3: the fixed rail ceiling, the one shared constant with #curvePlot
 
-  /* THE RECORD. cv1 (#curvePlot) and its dataset are untouched by this function -- everything
-     here is written to #curvePlot2's own dataset instead, on its own canvas, precisely so that a
-     harness temporarily shadowing #curvePlot's getContext() (CURVEUI-04's call-recorder measures
-     the single mass curve's own stroked polyline and would otherwise capture these strokes as if
-     they were part of that one curve) never sees a call from this function at all. */
+  /* THE RECORD. #curvePlot and its dataset are untouched by this function -- everything here is
+     written to #curvePlot2's own dataset instead, on its own canvas, precisely so that a harness
+     temporarily shadowing #curvePlot's getContext() (CURVEUI-04's call-recorder measures the
+     single mass curve's own stroked polyline and would otherwise capture these strokes as if they
+     were part of that one curve) never sees a call from this function at all. */
   cv.dataset.era = String(E);
   cv.dataset.max = String(hi);
   cv.dataset.agencyKnots = rateA.knots.map(function(k){ return k[0] + ':' + k[1]; }).join(',');
@@ -24592,7 +24591,7 @@ function curveDraw2(){
     const W = cv.width, H = cv.height;
     const px = function(y){ return CURVE_PAD.l + (E === CURVE_EPOCH ? 0 :
                     ((y - CURVE_EPOCH) / (E - CURVE_EPOCH)) * (W - CURVE_PAD.l - CURVE_PAD.r)); };
-    const py = function(v){ return H - CURVE_PAD.b - (v / hi) * (H - CURVE_PAD.t - CURVE_PAD.b); };
+    const py = function(v){ return H - CURVE_PAD.b - (massRailPct(v) / 100) * (H - CURVE_PAD.t - CURVE_PAD.b); };
     ctx.clearRect(0, 0, W, H);
     function strokeSeries(vals, color, dim){
       ctx.save();
@@ -24617,7 +24616,7 @@ function curveDraw2(){
     const rate2 = (which === 'agency') ? rateA : rateC;
     const px2 = function(y){ return (CURVE_PAD.l + (E === CURVE_EPOCH ? 0 :
                     ((y - CURVE_EPOCH) / (E - CURVE_EPOCH)) * (cv.width - CURVE_PAD.l - CURVE_PAD.r))) * sx; };
-    const py2 = function(v){ return (cv.height - CURVE_PAD.b - (v / hi) * (cv.height - CURVE_PAD.t - CURVE_PAD.b)) * sy; };
+    const py2 = function(v){ return (cv.height - CURVE_PAD.b - (massRailPct(v) / 100) * (cv.height - CURVE_PAD.t - CURVE_PAD.b)) * sy; };
     curveErasInScope(era).forEach(function(y){
       const b = document.createElement('button');
       b.type = 'button';
@@ -24664,10 +24663,12 @@ function curveDragMove2(ev){
   if (!cv) return;
   const box = cv.getBoundingClientRect();
   const H = cv.height;
-  const hi = Number(cv.dataset.max) || 1;
   const yPix = ((ev.clientY - box.top) / (box.height || H)) * H;
   const frac = ((H - CURVE_PAD.b) - yPix) / (H - CURVE_PAD.t - CURVE_PAD.b);
-  curveSetFromGesture2(curveDragWhich2, curveDragEra2, frac * hi);
+  /* STEP 70.3: massRailFromPct is the rail's own log-inverse (10..1,000,000), not frac * hi --
+     it clamps frac*100 to [0,100] itself, so a pointer above the plot top or below its floor
+     lands on exactly MASS_RAIL_MAX or MASS_RAIL_MIN, never on a value racing past either end. */
+  curveSetFromGesture2(curveDragWhich2, curveDragEra2, massRailFromPct(frac * 100));
   curveDraw2();
 }
 function curveDragEnd2(ev){
@@ -24735,13 +24736,17 @@ if (typeof document !== 'undefined' && document.getElementById('curveToggleAgenc
    and neither is ever the dead one. The rule this replaced inside this same pass, routing that
    handle to the detented rail, is recorded at curveKnots() with the measurement that retired it.
 
-   THE AXIS IS FROZEN FOR THE LIFE OF ONE DRAG. curveDragMove mapped the pointer to frac x hi with
+   THE AXIS USED TO BE FROZEN FOR THE LIFE OF ONE DRAG, AND STEP 70.3 RETIRES THE FREEZE ALONG
+   WITH THE CEILING IT WAS FROZEN AGAINST. curveDragMove used to map the pointer to frac x hi with
    hi re-read from the dataset the previous move had just rewritten, so when the dragged knot was
    the curve's maximum the axis rescaled off its own output: three identical pointermove events at
-   ONE screen position gave 10, then 8.75, then 7.66, then 6.70 t/yr. The pointer had not moved. A
-   reader who paused mid-drag watched the number fall on its own. hi is taken once, at
-   pointerdown, and held. */
-let curveDragEra = null, curveDragHi = 1, curveDragNode = null;
+   ONE screen position gave 10, then 8.75, then 7.66, then 6.70 t/yr. The pointer had not moved.
+   curveDragHi, taken once at pointerdown and held for the drag, was the fix for that -- freezing a
+   ceiling that could otherwise move mid-gesture. The fixed 10..1,000,000 log axis has no ceiling
+   left that ever moves, at pointerdown, mid-drag, or anywhere else, so there is nothing left to
+   freeze: massRailPct()/massRailFromPct() read the same two constants (MASS_RAIL_MIN,
+   MASS_RAIL_MAX) on every call, drag or no drag. curveDragHi is retired with it. */
+let curveDragEra = null, curveDragNode = null;
 /* THE RECOMPUTE WAITS OUT THE GESTURE AND THE HANDLE DOES NOT.
    curveDragMove called render() on every pointermove, so every event of a drag rebuilt the hero,
    the comparison strip, the open tab, the plot and the handle row before the next event arrived,
@@ -24765,11 +24770,12 @@ let curveDragEra = null, curveDragHi = 1, curveDragNode = null;
    ending one both cancel what is pending and advance curveDragToken, and curveDragMayRecompute is
    the guard the timer itself asks before it does anything, so a timer that survives both cancels
    still refuses an era that is not the era under the pointer.
-   THE AXIS IS STILL TAKEN ONCE. curveDragHi is read at pointerdown and every mapping below reads
-   it, the paint included. Nothing here re-reads dataset.max mid-gesture, and the deferral makes
-   that stricter rather than looser: a page that is not recomputing is not rewriting dataset.max
-   either, so CURVEUI-02 runs the settle between its own moves to keep that clause able to see the
-   runaway it was written for. */
+   THE AXIS NEEDS NO FREEZING NOW. Every mapping below reads massRailPct()/massRailFromPct()
+   directly, against the fixed MASS_RAIL_MIN/MASS_RAIL_MAX constants, so a mid-gesture repaint and
+   a pointerdown-time read compute the identical pixel -- there is no dataset.max re-read for a
+   drag to race against, and CURVEUI-02 still runs the settle between its own moves to prove the
+   still-pointer case, though the runaway it was originally written for is now impossible by
+   construction rather than merely prevented by a freeze. */
 const CURVE_DRAG_SETTLE = 500;
 let curveDragTimer = null, curveDragToken = 0;
 function curveDragMayRecompute(token, era){
@@ -24801,19 +24807,20 @@ function curveDragDefer(){
   }, CURVE_DRAG_SETTLE);
 }
 /* WHAT MOVES WHILE THE MODEL WAITS. The dragged handle's position, its dataset rate and its
-   aria-label, mapped through the axis the gesture froze at pointerdown, from the value setEraRate
-   accepted rather than the value the pointer asked for, so a clamped drag shows the reader the
-   clamp. THE HEADLINE MOVES ONLY WHERE IT IS THIS HANDLE'S OWN NUMBER: the row prints the rate at
-   the era on screen and a placed point wins at its own era, so at that era the printed value IS
-   v. Dragging an earlier handle moves the printed value through the spline, which is a model
-   recompute, and it waits for the settle with everything else. */
+   aria-label, mapped through the SAME fixed log axis curveDraw() paints on (STEP 70.3:
+   massRailPct(), not a per-drag frozen hi -- there is nothing left to freeze), from the value
+   setEraRate accepted rather than the value the pointer asked for, so a clamped drag shows the
+   reader the clamp. THE HEADLINE MOVES ONLY WHERE IT IS THIS HANDLE'S OWN NUMBER: the row prints
+   the rate at the era on screen and a placed point wins at its own era, so at that era the
+   printed value IS v. Dragging an earlier handle moves the printed value through the spline,
+   which is a model recompute, and it waits for the settle with everything else. */
 function curveDragPaint(cv, era, v){
-  const H = cv.height, hi = curveDragHi || 1;
+  const H = cv.height;
   const sy = Number(cv.dataset.cssScaleY) || 1;
   const b = document.querySelector('.curvehandle[data-era="' + era + '"]');
   if (b){
     b.dataset.rate = String(v);
-    if (b.style) b.style.top = ((H - CURVE_PAD.b - (v / hi) * (H - CURVE_PAD.t - CURVE_PAD.b)) * sy) + 'px';
+    if (b.style) b.style.top = ((H - CURVE_PAD.b - (massRailPct(v) / 100) * (H - CURVE_PAD.t - CURVE_PAD.b)) * sy) + 'px';
     if (b.setAttribute) b.setAttribute('aria-label', 'buildout landing rate at ' + era + ', ' +
       fmtNum(v, v < 10 ? 1 : 0) + ' t per year, arrow keys adjust');
   }
@@ -24836,8 +24843,6 @@ function curveDragStart(ev){
   curveDragToken++;
   curveDragEra = Number(b.dataset.era);
   curveDragNode = b;
-  const cv0 = document.getElementById('curvePlot');
-  curveDragHi = (cv0 && Number(cv0.dataset.max)) || 1;
   if (b.setPointerCapture && ev.pointerId != null) { try { b.setPointerCapture(ev.pointerId); } catch(e){} }
   b.addEventListener('pointermove', curveDragMove);
   b.addEventListener('pointerup', curveDragEnd);
@@ -24850,15 +24855,18 @@ function curveDragMove(ev){
   const cv = document.getElementById('curvePlot');
   if (!cv) return;
   const box = cv.getBoundingClientRect();
-  const H = cv.height, hi = curveDragHi;
+  const H = cv.height;
   const yPix = ((ev.clientY - box.top) / (box.height || H)) * H;
   const frac = ((H - CURVE_PAD.b) - yPix) / (H - CURVE_PAD.t - CURVE_PAD.b);
-  const v = curveSetFromGesture(curveDragEra, frac * hi);
+  /* STEP 70.3: massRailFromPct is the rail's own log-inverse (10..1,000,000), not frac * hi -- it
+     clamps frac*100 to [0,100] itself, so a pointer above the plot top or below its floor lands
+     on exactly MASS_RAIL_MAX or MASS_RAIL_MIN (never 0), mirroring the rail's own Home/End keys. */
+  const v = curveSetFromGesture(curveDragEra, massRailFromPct(frac * 100));
   /* THE PICTURE REPAINTS ON EVERY MOVE AND THE MODEL STILL WAITS. curveDraw() redraws the line,
      the shaded area, every handle in scope and the canvas record from the knots setEraRate has
-     just accepted, on the axis this gesture froze. It costs one spline evaluation per year on
-     screen and it does not call model(), so the deferral below still defers everything it was
-     installed to defer. Until 2026-09-08 only the dragged handle moved: a cold reader dragging the
+     just accepted, on the SAME fixed log axis every render draws on. It costs one spline
+     evaluation per year on screen and it does not call model(), so the deferral below still
+     defers everything it was installed to defer. Until 2026-09-08 only the dragged handle moved: a cold reader dragging the
      2055 handle held a dot 79 px from its own line on a plot 102 px tall, over a shaded area still
      drawing the previous programme, and dataset.knots and dataset.cumulative held the pre-drag
      numbers for the whole gesture, so a harness reading the record and a reader reading the plot
