@@ -8,7 +8,7 @@
   :root{
     --bg:#0b1420; --panel:#111e2d; --panel2:#0d1a27; --line:#25384d;
     --text:#e7eef6; --muted:#b9c7d6; --faint:#a1afbf;
-    --ice:#4ec9e8; --regolith:#e0a54f;
+    --ice:#4ec9e8; --regolith:#e0a54f; --cobalt:#3d7fd6;
     --good:#5bd6a0; --warn:#e8b04e; --crit:#e8695f; --pin:#b48ee8; --alloy:#9fb0c3;
     --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
     --mono:ui-monospace,"Cascadia Code","SF Mono",Menlo,Consolas,monospace;
@@ -18,20 +18,20 @@
     :root{
       --bg:#eef3f8; --panel:#ffffff; --panel2:#f4f8fc; --line:#d0dce7;
       --text:#152430; --muted:#374a5a; --faint:#4d5e6d;
-      --ice:#0d7fa0; --regolith:#a9691a;
+      --ice:#0d7fa0; --regolith:#a9691a; --cobalt:#1c4e96;
       --good:#0f9d6b; --warn:#b5811f; --crit:#c74a40; --pin:#6d3fb0; --alloy:#46607a;
     }
   }
   :root[data-theme="dark"]{
     --bg:#0b1420; --panel:#111e2d; --panel2:#0d1a27; --line:#25384d;
     --text:#e7eef6; --muted:#b9c7d6; --faint:#a1afbf;
-    --ice:#4ec9e8; --regolith:#e0a54f;
+    --ice:#4ec9e8; --regolith:#e0a54f; --cobalt:#3d7fd6;
     --good:#5bd6a0; --warn:#e8b04e; --crit:#e8695f; --pin:#b48ee8; --alloy:#9fb0c3;
   }
   :root[data-theme="light"]{
     --bg:#eef3f8; --panel:#ffffff; --panel2:#f4f8fc; --line:#d0dce7;
     --text:#152430; --muted:#374a5a; --faint:#4d5e6d;
-    --ice:#0d7fa0; --regolith:#a9691a;
+    --ice:#0d7fa0; --regolith:#a9691a; --cobalt:#1c4e96;
     --good:#0f9d6b; --warn:#b5811f; --crit:#c74a40; --pin:#6d3fb0; --alloy:#46607a;
   }
 
@@ -110,6 +110,11 @@
   input[type=range].mix::-moz-range-thumb{background:var(--good); box-shadow:0 0 0 1px var(--good);}
   input[type=range].ovr::-webkit-slider-thumb{background:var(--faint); box-shadow:0 0 0 1px var(--faint);}
   input[type=range].ovr::-moz-range-thumb{background:var(--faint); box-shadow:0 0 0 1px var(--faint);}
+  /* Step 70d, Quinn's colour spec: the metals-production split slider colour-coded red. ID-scoped
+     (not .oxy, which #k_phio keeps unstyled/default) so #k_phio is untouched. */
+  #k_phim::-webkit-slider-thumb{background:var(--crit); box-shadow:0 0 0 1px var(--crit);}
+  #k_phim::-moz-range-thumb{background:var(--crit); box-shadow:0 0 0 1px var(--crit);}
+  #v_phim{color:var(--crit);}
   input[type=range]:focus-visible{box-shadow:0 0 0 3px color-mix(in srgb, var(--ice) 40%, transparent);}
   /* Item 1, Step 39.5: the rail is fixed and the scenario's own ceiling renders as a marker on
      the track rather than a wall at the end of it. .rangewrap gives the marker a positioning
@@ -196,8 +201,8 @@
   .mk.active .ml{color:var(--text); font-weight:600;}
   .mk:not(.active){opacity:.62;}
 
-  /* THE PRODUCTION ROW. One row of four cards, water, oxygen, construction and electrical
-     silicon-iron, and nothing else between the timeline and the mass bar.
+  /* THE PRODUCTION ROW. One row of four cards, water, oxygen, construction and metals,
+     and nothing else between the timeline and the mass bar.
 
      STEP 57, QUINN'S RULING OF 2026-09-09. What stood here was two rows. Four flat panels
      carried the four products; three cards below them carried the alloy, the regolith feed and
@@ -220,15 +225,31 @@
      "alloy" or "metals produced", and it carries no caption; the unanswered ground stays a
      sentence on the Scenario tab, which OX-31 holds to the model.
 
+     STEP 70.1, THE STEP 62 NAMING BAN IS REVERSED (Quinn, 2026-09-16). THE STEP 62 SENTENCE
+     ABOVE NAMING THE BAN NO LONGER HOLDS. Quinn's own words: "it's metals so take out that
+     previous ruling. i was probably trying to fix another bullshit problem like we just did
+     with mining." The card is named Metals, plainly, "alloy" and "metals produced" no longer
+     barred. The unanswered ground Step 62 left standing -- no lunar experiment has weighed a
+     metal mass -- is not reopened by this reversal and stays a sentence on the Scenario tab,
+     which OX-31 holds to the model.
+
      THE ACCENT MEANS THE PRODUCT. The coloured top border is the treatment the retired cards
      carried. It is no longer a health scale, because a colour meaning plant utilisation on one
      card and product identity on the next is two languages on one row. Each card takes one fixed
      token from the palette declared at the top of this file: water the ice it is mined from,
-     construction the regolith it is sintered from, oxygen the good green, electrical
-     silicon-iron its own steel-grey token. Nothing here takes warn or crit, which stay signals.
+     construction the regolith it is sintered from, oxygen the good green, metals its own
+     steel-grey token. Nothing here takes warn or crit, which stay signals.
      The accent is a CLASS and never an inline colour, so the stylesheet resolves it and the row
      is correct in both themes; OX-30 holds the classes the render names against the rules
-     declared here. */
+     declared here.
+
+     STEP 70D, QUINN'S COLOUR SPEC (2026-09-16). The three tokens above are reassigned, not the
+     mapping's own rule: water now --cobalt (dark blue, new token), oxygen now --ice (light blue,
+     water's former token), metals now --crit (red). Construction keeps
+     --regolith, already gold. THE PRIOR SENTENCE ABOVE IS NO LONGER TRUE: the metals card
+     now does take crit, on Quinn's direct instruction, not by drift; crit stays the sole warn/crit
+     signal use inside a product card, still never mixed with the mass-bar or claim-status use of
+     the same token. */
   .outs{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:18px;}
   @media (max-width:640px){ .outs{grid-template-columns:repeat(2,1fr)} }
   .out{background:var(--panel2); border:1px solid var(--line); border-radius:var(--r);
@@ -238,15 +259,15 @@
   .out .oval{margin-top:9px;}
   .out .ovalue{font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:24px; font-weight:600; line-height:1;}
   .out .ounit{font-family:var(--mono); font-size:11px; color:var(--muted); margin-left:3px}
-  .out.acc-water .swatch{background:var(--ice);}
-  .out.acc-water .ovalue{color:var(--ice);}
+  .out.acc-water .swatch{background:var(--cobalt);}
+  .out.acc-water .ovalue{color:var(--cobalt);}
 
-  .out.acc-oxygen .swatch{background:var(--good);}
-  .out.acc-oxygen .ovalue{color:var(--good);}
+  .out.acc-oxygen .swatch{background:var(--ice);}
+  .out.acc-oxygen .ovalue{color:var(--ice);}
   .out.acc-construction .swatch{background:var(--regolith);}
   .out.acc-construction .ovalue{color:var(--regolith);}
-  .out.acc-alloy .swatch{background:var(--alloy);}
-  .out.acc-alloy .ovalue{color:var(--alloy);}
+  .out.acc-alloy .swatch{background:var(--crit);}
+  .out.acc-alloy .ovalue{color:var(--crit);}
   /* Step 63: the reactor-products card, one accent and three named lines (aluminium, the
      iron-silicon alloy, silicon), replacing the single-line card the same accent used to
      carry alone. Each .oline reuses .oname/.ovalue/.ounit at a smaller size so three rows
@@ -267,10 +288,10 @@
   .hero .lead.investline .big .sl{font-size:20px;}
   .hero .lead.investline .big .pot{font-size:20px;}
 
-  /* mass bar (ported from the shipping app, unmodified) */
+  /* mass bar (ported from the shipping app; STEP 70D recolours seg-p to --good and seg-m to --cobalt, structure unmodified) */
   .massbar{margin-top:14px; border-top:1px solid var(--line); padding-top:12px}
   .massbar .track2{height:16px; border-radius:5px; overflow:hidden; display:flex; background:var(--bg); border:1px solid var(--line)}
-  .massbar .seg-p{background:var(--warn)} .massbar .seg-m{background:var(--ice)} .massbar .seg-over{background:var(--crit)}
+  .massbar .seg-p{background:var(--good)} .massbar .seg-m{background:var(--cobalt)} .massbar .seg-over{background:var(--crit)}
   /* Step 52. The third segment was always painted and never named, so the two labelled ones
      did not sum to the standing total. It is the non-productive downmass fraction, it has a
      colour and a legend entry now, and the standing total prints above the bar so a reader
@@ -471,28 +492,6 @@
         <div class="rangewrap"><input type="range" id="k_mass"><span class="envmark" id="mk_mass" title="This scenario envelope ceiling on the annual landing rate"></span></div>
       </div>
 
-      <div class="knob">
-        <div class="krow"><span class="klabel">In-situ solar rate</span><span class="kval" id="v_fabprod"></span></div>
-        <input type="range" id="k_fabprod" min="0.02" max="5" step="0.01" value="0.02">
-      </div>
-
-      <!-- STEP 68 PASS 2E E2: the Power source chip is removed; the fission share of standing power is an output. -->
-      <!-- The Value controls, directly above the Advanced mode toggle. -->
-      <div class="knob" id="lcKnobWrap">
-        <div class="krow"><span class="klabel">Earth delivery cost</span><span class="kval" id="v_landedcost"></span></div>
-        <input type="range" id="k_landedcost">
-      </div>
-
-      <div class="knob" id="learnKnobWrap">
-        <div class="krow"><span class="klabel">Learning rate</span><span class="kval" id="v_learn"></span></div>
-        <input type="range" id="k_learn" min="0" max="5" step="1" value="2">
-      </div>
-
-      <div class="status">
-        <button class="chip" id="advToggle" type="button" aria-expanded="false" title="Advanced mode">Advanced mode</button>
-      </div>
-
-      <div class="advanced" id="advPanel" hidden>
         <div class="knob constr">
           <div class="krow"><span class="klabel">Construction split</span><span class="kval" id="v_phic"></span></div>
           <input type="range" class="constr" id="k_phic">
@@ -518,6 +517,28 @@
           <div class="krow"><span class="klabel">Metals-production split</span><span class="kval" id="v_phim"></span></div>
           <input type="range" class="oxy" id="k_phim">
         </div>
+
+      <div class="status">
+        <button class="chip" id="advToggle" type="button" aria-expanded="false" title="Advanced mode">Advanced mode</button>
+      </div>
+
+      <div class="advanced" id="advPanel" hidden>
+      <div class="knob">
+        <div class="krow"><span class="klabel">In-situ solar rate</span><span class="kval" id="v_fabprod"></span></div>
+        <input type="range" id="k_fabprod" min="0.02" max="5" step="0.01" value="0.02">
+      </div>
+
+      <!-- STEP 68 PASS 2E E2: the Power source chip is removed; the fission share of standing power is an output. -->
+      <!-- The Value controls, directly above the Advanced mode toggle. -->
+      <div class="knob" id="lcKnobWrap">
+        <div class="krow"><span class="klabel">Earth delivery cost</span><span class="kval" id="v_landedcost"></span></div>
+        <input type="range" id="k_landedcost">
+      </div>
+
+      <div class="knob" id="learnKnobWrap">
+        <div class="krow"><span class="klabel">Learning rate</span><span class="kval" id="v_learn"></span></div>
+        <input type="range" id="k_learn" min="0" max="5" step="1" value="2">
+      </div>
 
         <div class="knob ovr">
           <div class="krow"><span class="klabel">Solar kg/kWe</span><span class="kval" id="v_solovr"></span></div>
@@ -619,8 +640,8 @@
           </div>
           <div class="track2" id="massTrack"><div class="seg-p" id="segP"></div><div class="seg-m" id="segM"></div><div class="seg-f" id="segF"></div><div class="seg-n" id="segN"></div></div>
           <div class="key">
-            <span><i style="background:var(--warn)"></i><span id="keyP">power system &mdash;</span></span>
-            <span><i style="background:var(--ice)"></i><span id="keyM">mining plant &mdash;</span></span>
+            <span><i style="background:var(--good)"></i><span id="keyP">power system &mdash;</span></span>
+            <span><i style="background:var(--cobalt)"></i><span id="keyM">water plant &mdash;</span></span>
             <span><i style="background:var(--pin)"></i><span id="keyF">in-situ fabs &mdash;</span></span>
             <span><i style="background:var(--faint)"></i><span id="keyN">non-productive &mdash;</span></span>
             <span><span id="keyL">&mdash;</span></span>
@@ -634,11 +655,12 @@
       <div class="absvalue" id="absValue">
         <div class="abslab">Value</div>
         <div class="metrics">
-          <div class="metric"><div class="ml2">Propellant value</div><div class="mv"><span id="m_prop"></span><span class="munit">/yr</span></div></div>
+          <div class="metric"><div class="ml2">Propellant value</div><div class="mv"><span id="m_prop"></span><span class="munit" id="m_prop_unit">/yr</span></div></div>
           <div class="metric"><div class="ml2">Construction value</div><div class="mv"><span id="m_const"></span><span class="munit">/yr</span></div></div>
           <div class="metric" title="Utilisation rides beside N because ceil() leaves the last plant partly idle unless the applied output divides the per-plant ceiling exactly. Two unit types, each ceilinged on its own capacity: dedicated O2 reactors and metal-primary plants, summed."><div class="ml2">Plant standing</div><div class="mv"><span id="m_plants" data-step60-plantcount></span><span class="munit" id="m_plants_sub"><span id="m_plants_ox"></span> O2 &middot; <span id="m_plants_metal"></span> metal &middot; cumulative <span id="m_plants_cum"></span></span></div></div>
           <div class="metric" id="card_insitu_standing" data-card="insitu-standing"><div class="ml2">In-situ solar standing</div><div class="mv"><span id="m_insitu" data-step68-insitustanding></span><span class="munit">kWe</span> <span class="munit" id="m_insitu_share"></span></div></div>
         </div>
+        <div id="m_insitu_gate" class="mgatenote"></div>
         <!-- STEP 70b: A CLEARING-TEST ANDON LIGHT STOOD HERE AND IS WITHDRAWN (Quinn, 2026-09-16):
              "Calculate it for every year and don't call it/show it." The test is still computed for every
              year 2032-2055 on both coverage readings, in programmeClearingSeries(); it has no reader
@@ -926,6 +948,12 @@
   "kind": "section",
   "parent": "throughput",
   "title": "The Productive-Plant Mass Accounting",
+  "state": "modeled"
+ },
+ "mass-learning-ceiling": {
+  "kind": "section",
+  "parent": "throughput",
+  "title": "The Mass-Learning Ceiling",
   "state": "modeled"
  },
  "sintering-specific-energy": {
@@ -2079,7 +2107,8 @@
    "reason": "NO SOURCE IN THIS PROJECT'S CORPUS STATES AN IRREDUCIBLE MINIMUM SPECIFIC MASS FOR ANY LUNAR PLANT OF ANY TYPE. THE RULED QUANTITY IS THE RATIO, NOT THE FLOOR: Quinn ruled a tenfold ceiling on the mass learning multiplier, set cold on 2026-09-16, and it is an ASSUMPTION in those words. The floor in kg per (t regolith/yr) is DERIVED from it as s_1/10, where s_1 = 1000/kExc is the first unit, so the ceiling is exactly 10 by construction and a later re-measurement of s_1 moves both ends of the identity together. Typing the floor as an absolute instead was the first cut and it did not reproduce the ruling: 1.57 against a measured s_1 of 15.7035 gives a ceiling of 10.0022, two numbers meant to be one statement disagreeing in the third digit. The corpus bounds the answer from one side and does not locate it: every published figure is a first-unit or first-of-a-kind estimate and not one of them is an asymptote. THE FIRST-UNIT BAND, recorded here beside the floor rather than merged with it, is 10.83 kg per (t regolith/yr) (Linne, Kleinhenz and Paz 2020, a 325 kg PSR pilot over 30,000 kg/yr of regolith, DERIVED: the source prints mass, water rate, grade and capture separately and performs no such division) to 22.76 (Guerrero-Gonzalez and Zabel 2023 Fe-Si MRE, 4,534 kg less the 2,242 kg array over about 199 t/yr of reactor feed, DERIVED: the yield turning oxygen into feed is this project's digitized Fig. 4 reading at 0.120 +/- 0.004). THE TWO ENDS DO NOT MEASURE THE SAME MEASURAND. Linne's denominator is raw regolith at deposit grade through a chain with no beneficiation stage; Guerrero-Gonzalez's is reactor feed behind a 616 kg beneficiation subsystem at an assumed enrichment of three. They sit on opposite sides of a stage this model does not have, the same caveat CONFIG.kExc's own entry already carries about the same two plants. WHAT THE FLOOR STOPS, stated as the measurement that motivated it rather than as a derivation of the number: at the 0.56 detent The Commercial Break 2055 reached 0.083 kg per (t regolith/yr), 131 times below the lightest plant anyone has published. A floor is a different quantity from a lightest-published-estimate and this corpus contains only the latter. IT IS A FLOOR FOR MRE AT AN OPERATING POINT, not a floor for MRE: Guerrero-Gonzalez runs a fixed 1,850 K iron-inclusive design and Jehn 2024 runs 1,600 to 2,000 K at 100 kg batches with 93 percent of the FeO magnetically removed before the melt, which is the same chemistry at a different floor."
   },
   "claims": [
-   "throughput-coefficient"
+   "throughput-coefficient",
+   "mass-learning-ceiling"
   ],
   "status": "ASSUMPTION (Quinn's ruling of 2026-09-16, set cold; NO SOURCE STATES AN IRREDUCIBLE MINIMUM SPECIFIC MASS FOR ANY LUNAR PLANT OF ANY TYPE). This entry is the RATIO, dimensionless, and the floor it implies is derived from it at call time. The first-unit end of the identity, s_1 = 1000/kExc = 15.70 kg per (t regolith/yr), is DERIVED and is the geometric centre of the two published plants named in the band reason; the floor is s_1 divided by this ratio.",
   "source": "Step 70, Quinn's ruling of 2026-09-16: 'we can't expect 10,000 years of innovation in 30 years... rapid innovation until things get good enough.' The asymptotic floor on the plant specific-mass identity, applied to the MASS leg of the learning curve only. The identity the model runs is s(N) = s_floor + (s_1 - s_floor) * PR^log2(N) with s_1 = 1000/kExc and s_floor = s_1 / this ratio, and the multiplier it consumes is phi(N) = s_1/s(N), so the mass multiplier G is capped asymptotically at exactly this ratio and approaches it rather than hitting a clamp. NEITHER END IS TYPED: s_1 is read from kExc and the floor is divided out of it, so the two cannot drift apart. THE FORM IS ASYMPTOTIC ON PURPOSE: a hard clamp puts a corner on every rail a reader drags, and the rails are walked at step 0.00025. THE COST LEG IS DELIBERATELY NOT FLOORED. psi, the hardware-cost multiplier that drives C_hw, is the sibling expression on the same line of learningMultipliersCounts() and is left alone: C_hw is the leg with measured anchors and the mass leg is the one with none, and a reader meeting a floored mass beside an unfloored cost is entitled to know that is a decision. NOTE ON THE BASIS, recorded rather than smoothed: CONFIG.kExc.basis reads 'landed mass less the power system, the model mining budget (mass minus M_power)', while the model's own M_mining is max(0, M_eff - M_power - mFab) and subtracts the fab as well. The 15.70 is stated on the landed-mass-less-power-system-and-fab basis, which is what the code computes; it is kExc's own basis STRING that omits the fab term."
@@ -2136,6 +2165,45 @@
   ],
   "status": "CONTROL (Step 70, Quinn's ruling of 2026-09-16): the loan tenor, an authoring parameter, numerically equal to VALUE.L today and independent of it by construction.",
   "source": "Step 70, Quinn's ruling of 2026-09-16. The tenor over which the capital recovery factor amortises the lender test, in years. Equal to VALUE.L's 11 yr at this build; the two are different quantities and are now different keys, so moving the loan does not move the plant."
+ },
+ "learnRatePreset": {
+  "value": 0.85,
+  "unit": "1",
+  "band": {
+   "kind": "NO_BAND",
+   "rule": "NOT-CENTRABLE",
+   "disposition": "STANDS",
+   "reason": "RULED AGAINST THE MEASURED OPTIMUM. The lender-basis test (lenderMargin(), VALUE.lenderHurdle) crosses at a progress ratio 0.0086 from the shipped 0.85 detent, the third most knife-edge of the six on LEARN_DETENTS; 0.788, the next detent down, sits 3.3 times further from that same crossing. A rail chosen for margin against the lender test would have moved to 0.788 or lower. 0.85 was kept anyway, at the shared detent Quinn's own 2026-09-15/16 rulings set across all three scenarios, not at the value nearest the lender's own break-even."
+  },
+  "claims": [],
+  "status": "CONTROL (Quinn's ruling of 2026-09-16), an authored default kept against the model's own preference: the app does not pick the detent nearest a lender crossing, it picks the detent Quinn ruled shared across scenarios. Index 2 of LEARN_DETENTS = [0.56, 0.788, 0.85, 0.90, 0.95, 2.0].",
+  "source": "Quinn's rulings of 2026-09-15 (moved from index 0, 0.56, to a value shared across all three scenarios rather than one per scenario) and 2026-09-16 (confirmed at 0.85, index 2). The lender-basis proximity (0.0086 progress ratio to the crossing, third-most knife-edge of six detents, 0.788 sitting 3.3x further out) is a later measurement against this same ruling, recorded here because nothing else in the app states it: a reader meeting 0.85 has no way to know it was not the value nearest the lender's own break-even."
+ },
+ "reactorScheduleTotals": {
+  "value": null,
+  "unit": "reactors by 2055 (low/med/high)",
+  "band": {
+   "kind": "NO_BAND",
+   "rule": "NOT-CENTRABLE",
+   "disposition": "STANDS",
+   "reason": "RULED AGAINST THE MEASURED OPTIMUM. REACTOR_SCHEDULE lands 93 reactors at Agency Led Baseline, 5 at Early Shift to Mars and 126 at The Commercial Break through 2055. The model's own power-priority and mass-payback arithmetic reads The Commercial Break as under-reactored at these totals: it is still climbing at learning scale 4, not yet at the flatter part of the curve where an added reactor buys the least. A schedule chosen to match the model's own preference would land more reactors at The Commercial Break, not stop at 126."
+  },
+  "claims": [],
+  "status": "CONTROL (Quinn's ruling of 2026-09-15, wave 1c, confirmed 2026-09-16): a scenario schedule, not a model output and not a sourced ceiling.",
+  "source": "Quinn's ruling of 2026-09-15/16. The three totals are held flat against the model's own preference for more reactors at The Commercial Break because no held primary in this project's corpus states a lunar reactor count above one: every sourced figure this app carries for fission prices a single unit or a single directive anchor, never a fleet. Scaling the schedule to what the model alone would prefer has no source to test it against, so the schedule stops at the ruled totals and the under-reactoring is left standing rather than closed on an unsourced extrapolation."
+ },
+ "fabRateEraDefault": {
+  "value": null,
+  "unit": "kWe/(yr t) of fab, by era (2030/2040/2055)",
+  "band": {
+   "kind": "NO_BAND",
+   "rule": "NOT-CENTRABLE",
+   "disposition": "STANDS",
+   "reason": "RULED AGAINST THE MEASURED OPTIMUM. FAB_RATE_ERA_DEFAULT holds 0.02/0.30/0.65 across the three eras, about 292x under the sourced band's floor of 87.5 to 450 kWe/(yr t) (both ends DERIVED). The sourced rate was tested and sharpens the scenario ordering four- to eightfold against the shipped values. A rail chosen for the sharpest scenario separation would run at the sourced band, not 292x below it."
+  },
+  "claims": [],
+  "status": "CONTROL (Quinn's ruling of 2026-09-16): a working rate, not the sourced one, kept because the model's own response plateaus around 50-90 kWe/(yr t) and the whole sourced band sits far outside where the model's own output changes.",
+  "source": "Quinn's ruling of 2026-09-16. Held at 0.02/0.30/0.65 against a sourced rate shown to sharpen the scenario ordering four- to eightfold, because the sourced band (87.5-450 kWe/(yr t), DERIVED both ends) sits about 292x above the shipped rail and the model's own plateau (50-90 kWe/(yr t)) sits between the two, closer to the shipped values. The sharper ordering a sourced rate would buy is a real measured fact and is recorded here because nothing else in the app states it."
  },
  "C_hw": {
   "value": 0,
@@ -2340,7 +2408,7 @@
  },
  "power": {
   "fission-specific-power": {
-   "source": "Fission units stand 20 years in the yearly fleet, Quinn's ruling of 2026-09-15, a life extension past the 10-year design life NASA's Fission Surface Power point design states (Oleson et al. 2022, p. 3, 40 kWe over a 10-year operating life); landed solar, the in-situ array, the mining plant and the value layer keep the 11-year service life L. Wherever the era carries fission the fleet keeps at least 100 kWe of fission standing, the Fission Surface Power directive target, also Quinn's ruling of 2026-09-15. One figure applies here now. The model's own live coefficient runs fission power-system specific mass at 6.67 W/kg (fFis = 0.15 t/kWe, flat at every power level), the 2025 Fission Surface Power directive's own requirement arithmetic (100,000 We within a 15,000 kg landed allocation), applied directly. Colozza 2020's 6.47 W/kg component-level 10-kWe design point is a DESIGN figure on hardware that has not flown, 3.0 percent lighter than the requirement. KRUSTY ground-tested the physics at about 1 kWe electric. Not flight hardware. A fitted, margined extrapolation of Colozza's and Oleson's own design masses stood as the live coefficient at 6.05 W/kg (fFis = 0.16537 t/kWe) from ticket D03 until this ruling retired it; that audit is kept on the record at CONFIG.fFis.source and DERIVATION.coeff.fFis.claimNote.",
+   "source": "Fission units stand 20 years in the yearly fleet, Quinn's ruling of 2026-09-15, a life extension past the 10-year design life NASA's Fission Surface Power point design states (Oleson et al. 2022, p. 3, 40 kWe over a 10-year operating life); landed solar, the in-situ array, the water plant and the value layer keep the 11-year service life L. Wherever the era carries fission the fleet keeps at least 100 kWe of fission standing, the Fission Surface Power directive target, also Quinn's ruling of 2026-09-15. One figure applies here now. The model's own live coefficient runs fission power-system specific mass at 6.67 W/kg (fFis = 0.15 t/kWe, flat at every power level), the 2025 Fission Surface Power directive's own requirement arithmetic (100,000 We within a 15,000 kg landed allocation), applied directly. Colozza 2020's 6.47 W/kg component-level 10-kWe design point is a DESIGN figure on hardware that has not flown, 3.0 percent lighter than the requirement. KRUSTY ground-tested the physics at about 1 kWe electric. Not flight hardware. A fitted, margined extrapolation of Colozza's and Oleson's own design masses stood as the live coefficient at 6.05 W/kg (fFis = 0.16537 t/kWe) from ticket D03 until this ruling retired it; that audit is kept on the record at CONFIG.fFis.source and DERIVATION.coeff.fFis.claimNote.",
    "status": "VERIFIED",
    "tier": "VERIFIED",
    "counterCase": "A3 (the constant is scale-dependent; the app's single value is the large-system value). Colozza Table 22 shows specific power rising from 2.46 W/kg at 1 kWe to 6.47 W/kg at 10 kWe because shield and balance-of-plant are a large near-fixed base. A single 6.67 W/kg constant is optimistic at pilot scale and realistic only once the reactor is large. This feeds the mass-model claim below."
@@ -2377,6 +2445,12 @@
    "status": "UNVERIFIED-pending",
    "tier": "UNVERIFIED-pending",
    "counterCase": "A3 (the proxy question is an open modeling decision, not a document-reading gap). Whether power draw is an acceptable proxy for mass allocation in this architecture is an unresolved modeling decision. The Csank power-share split in Evidence 4 is a candidate input to that decision, not a resolution of it, and this claim does not adopt it as the mass split. What would resolve [[productive-plant-mass]]'s own mass-fraction question is a stated modeling decision, not a further document."
+  },
+  "mass-learning-ceiling": {
+   "source": "The tenfold ceiling on the mass-learning multiplier (VALUE.learnGCeiling) is a ruling, set cold, by authoring decision rather than by reading a primary. Full reasoning, the ruling date, and the corpus's own first-unit band (10.83 to 22.76 kg per t regolith/yr, neither end an asymptote) are recorded at VALUE.learnGCeiling itself; this entry is a pointer to that record and not a second copy of it.",
+   "status": "ASSUMPTION (ruled cold; no source in this project's corpus states an irreducible minimum specific mass for any lunar plant of any type)",
+   "tier": "ASSUMPTION (ruled cold; no source in this project's corpus states an irreducible minimum specific mass for any lunar plant of any type)",
+   "counterCase": "A3 (the floor moves with kExc; only the ratio is fixed). Because s_floor = s_1/10 and s_1 = 1000/kExc, the floor's own numeric value is not fixed by this ruling and moves whenever kExc is re-measured; a reader who quotes the floor as a fixed kilogram figure rather than re-reading it against the live kExc is quoting a number that can go stale, even though the ratio the ruling actually fixes, 10, cannot."
   }
  },
  "sintering": {
@@ -2514,7 +2588,7 @@
  },
  "branch-year": {
   "branch-year-convention": {
-   "source": "The 2030 branch year is identical across all three scenarios in plant and power, a modelling commitment recorded at [[envelope-shared-branch-year]]: 10 t landed in every case, which the yearly fleet splits into {pwrSysMass:water-agency-prospecting} t of power system standing {standingPower:water-agency-prospecting} kWe, {miningMass:water-agency-prospecting} t of mining plant and {feedstock:water-agency-prospecting} t/yr of regolith through that plant. Water is the one quantity it does not share, because grade is not shared: {water:water-agency-prospecting} t/yr at 5 wt% for Agency Led Baseline and The Commercial Break, {water:water-mars-prospecting} t/yr at 1 wt% for Early Shift to Mars ([[water-mars-prospecting]]). All three cells read {bind:water-agency-prospecting}.  A modeling convention, not an independently sourced fact.",
+   "source": "The 2030 branch year is identical across all three scenarios in plant and power, a modelling commitment recorded at [[envelope-shared-branch-year]]: 10 t landed in every case, which the yearly fleet splits into {pwrSysMass:water-agency-prospecting} t of power system standing {standingPower:water-agency-prospecting} kWe, {miningMass:water-agency-prospecting} t of water plant and {feedstock:water-agency-prospecting} t/yr of regolith through that plant. Water is the one quantity it does not share, because grade is not shared: {water:water-agency-prospecting} t/yr at 5 wt% for Agency Led Baseline and The Commercial Break, {water:water-mars-prospecting} t/yr at 1 wt% for Early Shift to Mars ([[water-mars-prospecting]]). All three cells read {bind:water-agency-prospecting}.  A modeling convention, not an independently sourced fact.",
    "status": "VERIFIED",
    "tier": "VERIFIED",
    "counterCase": "A3 (legitimate as a scenario device). A common branch year isolates what the later scenario choices drive. Keep it labeled a convention."
@@ -2769,7 +2843,7 @@
    "counterCase": "A4 (the ranking does not use Shishko). The ranking is computed live from tonnages, so the [[break-even-sales-price]] Shishko correction does not touch the headline conclusion."
   },
   "propellant-operating-floor": {
-   "source": "STEP 70, QUINN'S RULING OF 2026-09-16: THE PROPELLANT OPERATING COST IS NOT MODELLED. op_prop keeps its form, op_prop = max(op_propF / water_kg_per_yr, op_propV), and both coefficients are now {opPropF} and {opPropV}, so the term resolves to {opPropV} at every state above the pre-production threshold and the floor this claim is named for is no longer charged. Those two figures are resolved from the registry at render rather than typed here, because this sentence and the Evidence Ledger statement both typed the retired $50M/yr and $70/kg and both went false in the same edit. The ground is that the cost is exogenous overhead self-sufficiency cannot reduce -- ground control, mission operations, comms and DSN time, programme office, safety and licensing -- so charging it against in-situ production misstates what in-situ production buys. ONE DOLLAR RATHER THAN ZERO because zero is a loaded value in this file: gate X1 is named for op_prop = 0 behaviour and the crossover text below carries a retired zero-op_prop branch. THE CLAIM IS STILL MODELLED, which is why its state is unchanged: op_prop is still computed at every producing state, and it is the magnitude that moved, not the existence of the term. WHAT THE CROSSOVER BECOMES: with op_prop at $1/kg, D* = (op_prop + r_prop * C_hw) / (1 - r_prop) is driven almost entirely by the hardware term, so any sentence quoting a crossover band built on the retired $70/kg floor or the $2,000-$35,300/kg op_prop band is describing the superseded form. THE SUPERSEDED RECORD FOLLOWS, retained and not deleted. op_prop, the propellant in-situ operating floor, was op_prop = max(F / water_kg_per_yr, v): a fixed annual operations cost F (band $20M-$130M/yr, central $50M/yr) divided by the plant own live water rate, floored at v = $70/kg. It replaced a flat $5,000/kg constant frozen at whatever output rate produced it, though it is charged the same landed-hardware capital term C_hw as construction is, as of install 2 (P_prop = r_prop * (C_hw + D) + op_prop). Below a minimum-production threshold op_prop carries no finite figure rather than an astronomical one; the near-$35,300 figure is not part of this coefficient, it is the financing-inflated propellant break-even sales-price ceiling and is explicitly not an operating cost. No held primary states lunar propellant operations as a per-kg number. op_const does not take this reform, examined and confirmed rather than left open: it is an energy intensity (eSinter, 3 MJ/kg) times a commodity price, a genuinely per-kilogram figure with no fixed annual budget behind it for output to divide, unlike op_prop's retired form. It stays about $0.83/kg at $1/kWh wall-plug; a delivered-basis figure is HALF the wall-plug figure at a magnetron efficiency of 0.5, so about $0.42/kg, riding on [[sintering-specific-energy]] and [[sintering-yield]].",
+   "source": "STEP 70, QUINN'S RULING OF 2026-09-16: THE PROPELLANT OPERATING COST IS NOT MODELLED. op_prop keeps its form, op_prop = max(op_propF / water_kg_per_yr, op_propV), and both coefficients are now {opPropF} and {opPropV}, so the term resolves to {opPropV} at every state above the pre-production threshold and the floor this claim is named for is no longer charged. Those two figures are resolved from the registry at render rather than typed here, because this sentence and the Evidence Ledger statement both typed the retired $50M/yr and $70/kg and both went false in the same edit. The ground is that the cost is exogenous overhead self-sufficiency cannot reduce -- ground control, mission operations, comms and DSN time, programme office, safety and licensing -- so charging it against in-situ production misstates what in-situ production buys. ONE DOLLAR RATHER THAN ZERO because zero is a loaded value in this file: gate X1 is named for op_prop = 0 behaviour and the crossover text below carries a retired zero-op_prop branch. THE CLAIM IS STILL MODELLED, which is why its state is unchanged: op_prop is still computed at every producing state, and it is the magnitude that moved, not the existence of the term. WHAT THE CROSSOVER BECOMES: with op_prop at $1/kg, D* = (op_prop + r_prop * C_hw) / (1 - r_prop) is driven almost entirely by the hardware term, so any sentence quoting a crossover band built on the retired $70/kg floor or the $2,000-$35,300/kg op_prop band is describing the superseded form. THE SUPERSEDED RECORD FOLLOWS. op_prop, the propellant in-situ operating floor, was op_prop = max(F / water_kg_per_yr, v): a fixed annual operations cost F (band $20M-$130M/yr, central $50M/yr) divided by the plant own live water rate, floored at v = $70/kg. It replaced a flat $5,000/kg constant frozen at whatever output rate produced it, though it is charged the same landed-hardware capital term C_hw as construction is, as of install 2 (P_prop = r_prop * (C_hw + D) + op_prop). Below a minimum-production threshold op_prop carries no finite figure rather than an astronomical one; the near-$35,300 figure is not part of this coefficient, it is the financing-inflated propellant break-even sales-price ceiling and is explicitly not an operating cost. No held primary states lunar propellant operations as a per-kg number. op_const does not take this reform, examined and confirmed rather than left open: it is an energy intensity (eSinter, 3 MJ/kg) times a commodity price, a genuinely per-kilogram figure with no fixed annual budget behind it for output to divide, unlike op_prop's retired form. It stays about $0.83/kg at $1/kWh wall-plug; a delivered-basis figure is HALF the wall-plug figure at a magnetron efficiency of 0.5, so about $0.42/kg, riding on [[sintering-specific-energy]] and [[sintering-yield]].",
    "status": "PROJECTED, UNVERIFIED-pending",
    "tier": "PROJECTED, UNVERIFIED-pending",
    "counterCase": "A3 (op_prop and C_hw together drive the soft crossover). op_prop still scales inversely with production rate and is large only at pilot scale, and the soft crossover band D* is (op_prop + r_prop * C_hw) / (1 - r_prop): a genuine hardware-cost term now shares the driving with op_prop, and a crossover exists even where op_prop alone would not produce one. Neither must ever be promoted out of \"soft band.\""
@@ -2930,7 +3004,7 @@
   },
   "MOD-ICE-NOMINAL": {
    "key": "MOD-ICE-NOMINAL",
-   "text": "Calibrated central band, 2 to 8 wt%. At 5 wt%, the LCROSS point value, the model delivers 7.4 kWh per kg water, matching the excavate-and-heat design point: a {rhoLcross} to 1 regolith-to-water ratio in the deposit, and a {feedRatioLcross} to 1 ratio through the plant once capture efficiency is accounted for. Water scales with landed mass here: each landing year re-splits its landed mass between power hardware and mining plant, and the two ceilings meet at {balancedCells} of the nine preset cells. The energy constant is a mature-plant design target, roughly two to six times better than the integrated demonstration.",
+   "text": "Calibrated central band, 2 to 8 wt%. At 5 wt%, the LCROSS point value, the model delivers 7.4 kWh per kg water, matching the excavate-and-heat design point: a {rhoLcross} to 1 regolith-to-water ratio in the deposit, and a {feedRatioLcross} to 1 ratio through the plant once capture efficiency is accounted for. Water scales with landed mass here: each landing year re-splits its landed mass between power hardware and water plant, and the two ceilings meet at {balancedCells} of the nine preset cells. The energy constant is a mature-plant design target, roughly two to six times better than the integrated demonstration.",
    "claims": [
     "energy-per-kilogram",
     "ice-grade-evidence",
@@ -3000,7 +3074,7 @@
  "regime": {
   "REGIME-BALANCED": {
    "key": "REGIME-BALANCED",
-   "text": "Balanced: the power ceiling and the plant-throughput ceiling meet, within one part in ten thousand. Each landing year puts its landed mass where it makes the most water, so power hardware and mining plant are bought in the proportion that leaves neither idle. {presetRollCall} Landed power is an output of that split, so water moves with landed mass, the ice grade and the splits, and the fleet re-balances at each. The throughput ceiling rests on the plant coefficient kExc and the power ceiling on the energy per tonne of water, so a change in either coefficient moves where the balance falls.",
+   "text": "Balanced: the power ceiling and the plant-throughput ceiling meet, within one part in ten thousand. Each landing year puts its landed mass where it makes the most water, so power hardware and water plant are bought in the proportion that leaves neither idle. {presetRollCall} Landed power is an output of that split, so water moves with landed mass, the ice grade and the splits, and the fleet re-balances at each. The throughput ceiling rests on the plant coefficient kExc and the power ceiling on the energy per tonne of water, so a change in either coefficient moves where the balance falls.",
    "claims": [
     "min-of-two-limits",
     "binding-regime-labels",
@@ -3018,7 +3092,7 @@
   },
   "REGIME-MASS": {
    "key": "REGIME-MASS",
-   "text": "Landed-mass limited: too little landed mass remains for mining plant after the power system takes its allocation, so throughput caps water. Adding power does not increase production; adding mining mass does. The throughput ceiling rests on the plant coefficient kExc, this project geometric centre of the two published rates that reduce to its own basis, one a water-extraction plant and one an oxygen plant. Carrying it onto the construction branch is an assumption nothing in the record bounds, and that gap is unchanged. This label is set by the water branch alone, and construction shown beside it may be power-limited. The model takes a non-productive downmass fraction off raw landed mass first and then books everything left after the power system as productive plant, with no further deduction for balance-of-plant overhead, so the gap between non-power landed mass and mining plant is exactly that downmass fraction plus the landed mass of any in-situ fab, and nothing else.",
+   "text": "Landed-mass limited: too little landed mass remains for water plant after the power system takes its allocation, so throughput caps water. Adding power does not increase production; adding mining mass does. The throughput ceiling rests on the plant coefficient kExc, this project geometric centre of the two published rates that reduce to its own basis, one a water-extraction plant and one an oxygen plant. Carrying it onto the construction branch is an assumption nothing in the record bounds, and that gap is unchanged. This label is set by the water branch alone, and construction shown beside it may be power-limited. The model takes a non-productive downmass fraction off raw landed mass first and then books everything left after the power system as productive plant, with no further deduction for balance-of-plant overhead, so the gap between non-power landed mass and water plant is exactly that downmass fraction plus the landed mass of any in-situ fab, and nothing else.",
    "claims": [
     "throughput-coefficient",
     "productive-plant-mass",
@@ -3411,7 +3485,8 @@
   "kExc": {
    "label": "plant throughput kExc",
    "claim": "throughput-coefficient",
-   "kind": "config"
+   "kind": "config",
+   "claimNote": "Plant means production plant: water plant, oxygen plant and so on, each the named line's own plant. Each includes the mining that supports its own line, so the water plant is the mining feeding water together with the water production it feeds. There is no separate mining plant standing apart from the line it supplies."
   },
   "fFis": {
    "label": "fission power-system mass",
@@ -3685,7 +3760,7 @@
  },
  "notes": {
   "BIND-BALANCED": {
-   "text": "The two ceilings meet here: cap = W_power = W_thr within one part in ten thousand, because each landing year splits its landed mass between power hardware and mining plant where it makes the most water. {envelopeRollCall} Landed power is an output of that split, so no control moves power alone.",
+   "text": "The two ceilings meet here: cap = W_power = W_thr within one part in ten thousand, because each landing year splits its landed mass between power hardware and water plant where it makes the most water. {envelopeRollCall} Landed power is an output of that split, so no control moves power alone.",
    "claims": [
     "min-of-two-limits",
     "binding-regime-labels"
@@ -3699,7 +3774,7 @@
    ]
   },
   "BIND-MASS": {
-   "text": "Landed mass binds here: cap = W_thr < W_power, so the mining plant is starved and throughput, not power, caps water. The ceiling rests on kExc, which is this project geometric centre of the two published rates that sit on its own denominator, 43.93 and 92.31, rather than the calibrated 4 that stood here and that its own entry called the model weakest self-flagged number. That binding test is W_power against W_thr, a water-branch comparison; the construction figure runs its own minimum against C_power and the app does not label which side wins, so read this as a floor on the water number only and not on any construction tonnage printed beside it. No held source bounds kExc on the construction branch. The model also takes a non-productive downmass fraction off raw landed mass before the power system is costed out and books the whole remainder as productive plant, so the gap between non-power landed mass and mining plant is exactly that downmass fraction plus the landed mass of any in-situ fab, and nothing else, and the balance-of-plant overhead that would come out of the remainder is an unconfirmed assumption.",
+   "text": "Landed mass binds here: cap = W_thr < W_power, so the water plant is starved and throughput, not power, caps water. The ceiling rests on kExc, which is this project geometric centre of the two published rates that sit on its own denominator, 43.93 and 92.31, rather than the calibrated 4 that stood here and that its own entry called the model weakest self-flagged number. That binding test is W_power against W_thr, a water-branch comparison; the construction figure runs its own minimum against C_power and the app does not label which side wins, so read this as a floor on the water number only and not on any construction tonnage printed beside it. No held source bounds kExc on the construction branch. The model also takes a non-productive downmass fraction off raw landed mass before the power system is costed out and books the whole remainder as productive plant, so the gap between non-power landed mass and water plant is exactly that downmass fraction plus the landed mass of any in-situ fab, and nothing else, and the balance-of-plant overhead that would come out of the remainder is an unconfirmed assumption.",
    "claims": [
     "throughput-coefficient",
     "productive-plant-mass",
@@ -4445,6 +4520,41 @@
   "links": "[[throughput-coefficient]] to [[productive-plant-mass]] (mass accounting inflates plant mass, hence throughput) and [[min-of-two-limits]] (the min-of-two-limits structure a low kExc activates); [[productive-plant-mass]] to [[industrial-plant-price]] (cross-link), [[throughput-coefficient]] (inflated plant mass), and [[zero-intercept-mass-law]] (power-mass model).",
   "tags": "mass-budget, throughput-limit, modeling-convention, power-budget. ---"
  },
+ "mass-learning-ceiling": {
+  "was": "The Mass-Learning Floor Is a Ruled Ceiling on the Multiplier, Not a Sourced Physical Limit",
+  "claim": "throughput",
+  "statement": "The mass leg of the learning curve is floored asymptotically: the multiplier G approaches VALUE.learnGCeiling's ratio (10, by ruling) and never exceeds it, so the implied specific-mass floor is s_1/10 where s_1 = 1000/kExc. No source in this project's corpus states an irreducible minimum specific mass for any lunar plant of any type; the ceiling is a ruling, set cold, not a reading of a primary. The full derivation, the ruling date, and the corpus's own first-unit band (10.83 to 22.76 kg per t regolith/yr, neither end an asymptote) are recorded at VALUE.learnGCeiling and are not repeated here.",
+  "evidence": [],
+  "argument": [
+   {
+    "id": "A1",
+    "head": "no source supplies this floor",
+    "role": "support",
+    "text": "Every published figure this project holds for a lunar ISRU or metals plant's specific mass is a first-unit or first-of-a-kind estimate, not an asymptote a fleet of N units approaches. Linne, Kleinhenz and Paz 2020 and Guerrero-Gonzalez and Zabel 2023, the two plants VALUE.learnGCeiling's own band reasons from, each report one plant at one build, not a learning curve. Ruling a tenfold ceiling on the multiplier is an authoring decision that stops the mass leg running to zero, not a citation."
+   },
+   {
+    "id": "A2",
+    "head": "why the ratio rather than the floor is the ruled quantity",
+    "role": "support",
+    "text": "VALUE.learnGCeiling's own reason records that typing the floor as an absolute number first, rather than as a ratio on s_1 = 1000/kExc, did not reproduce the ruling once kExc was re-measured: the ratio is what was ruled, and the floor is what falls out of it."
+   },
+   {
+    "id": "A3",
+    "head": "the floor moves with kExc; only the ratio is fixed",
+    "role": "counter",
+    "text": "Because s_floor = s_1/10 and s_1 = 1000/kExc, the floor's own numeric value is not fixed by this ruling and moves whenever kExc is re-measured; a reader who quotes the floor as a fixed kilogram figure rather than re-reading it against the live kExc is quoting a number that can go stale, even though the ratio the ruling actually fixes, 10, cannot."
+   }
+  ],
+  "extras": [
+   {
+    "label": "Evidence preamble",
+    "text": "None. This is a ruled authoring ceiling, not a literature-sourcing target; VALUE.learnGCeiling carries the full reasoning and is the record, not this page.",
+    "role": "note"
+   }
+  ],
+  "links": "[[throughput-coefficient]] (s_1 = 1000/kExc is the first unit under this ceiling).",
+  "tags": "learning-curve, mass-budget, ruled-assumption. ---"
+ },
  "sintering-specific-energy": {
   "was": "Sintering Specific Energy Is This Project's Own Reconstruction from the Source's Per-Area Figures",
   "claim": "sintering",
@@ -4534,7 +4644,7 @@
  "envelope-agency-prospecting": {
   "was": "Scenario Landed-Mass Ceilings Are Premise; Power Ceilings Are Partly Sourced to the Fission Directive",
   "claim": "envelopes",
-  "statement": "Each (scenario, phase) cell carries a landed-mass ceiling, the Mass landing rate its preset sets, and whether fission is available there. The landed-mass ceilings are all scenario premises; where the app and workbook agree on them, that agreement is premise-to-premise consistency, not source verification, and must not be presented as sourced. Landed power is not a premise: each landing year the yearly fleet splits the landed mass between power hardware and mining plant, so standing power is an output, and the directive's 100 kWe requirement enters as the standing fission floor wherever fission is available. {bindingRollCall} {bindingHeadroom} That roll-call is computed from the presets at render and no part of it is typed here. THE PEDAGOGY THIS SECTION WAS BUILT ON HAS CHANGED AND A READER IS TOLD SO HERE: the app exists to let a reader watch the binding constraint change, and on the live coefficients no preset cell starts on the mass side, so meeting the mass regime now takes leaving the presets. The plant throughput coefficient runs at {kExcVal} t of regolith a year per tonne of plant, not the 4 t/yr/t this section once assumed. Which cells that puts on the mass side and which on the power side is the roll-call above, computed at render, not typed here.",
+  "statement": "Each (scenario, phase) cell carries a landed-mass ceiling, the Mass landing rate its preset sets, and whether fission is available there. The landed-mass ceilings are all scenario premises; where the app and workbook agree on them, that agreement is premise-to-premise consistency, not source verification, and must not be presented as sourced. Landed power is not a premise: each landing year the yearly fleet splits the landed mass between power hardware and water plant, so standing power is an output, and the directive's 100 kWe requirement enters as the standing fission floor wherever fission is available. {bindingRollCall} {bindingHeadroom} That roll-call is computed from the presets at render and no part of it is typed here. THE PEDAGOGY THIS SECTION WAS BUILT ON HAS CHANGED AND A READER IS TOLD SO HERE: the app exists to let a reader watch the binding constraint change, and on the live coefficients no preset cell starts on the mass side, so meeting the mass regime now takes leaving the presets. The plant throughput coefficient runs at {kExcVal} t of regolith a year per tonne of plant, not the 4 t/yr/t this section once assumed. Which cells that puts on the mass side and which on the power side is the roll-call above, computed at render, not typed here.",
   "evidence": [],
   "argument": [
    {
@@ -4628,7 +4738,7 @@
  "branch-year-convention": {
   "was": "The Shared 2030 Branch Year Is a Modeling Convention",
   "claim": "branch-year",
-  "statement": "All three scenarios start from the same 2030 branch year: 10 t of landed mass a year, and therefore the same {standingPower:water-agency-prospecting} kWe of standing power, the same {pwrSysMass:water-agency-prospecting} t power system, the same {miningMass:water-agency-prospecting} t mining plant, and the same {feedstock:water-agency-prospecting} t/yr of regolith through the plant. The water they produce from that identical plant differs because the grade does: {water:water-agency-prospecting} t/yr at 5 wt% for Agency Led Baseline and The Commercial Break, and {water:water-mars-prospecting} t/yr at 1 wt% for Early Shift to Mars, a factor of five that is exactly the grade ratio under the [[bilinear-water-law]] bilinear law. All three cells read {bind:water-agency-prospecting}: the throughput their 10 t of landed mass buys stands at {thrCeil:water-agency-prospecting} t/yr against a power ceiling of {powerCeil:water-agency-prospecting} t/yr at 5 wt%, a factor of {headroom:water-agency-prospecting}. All eight figures here are resolved from the model at render. The scenarios diverge only after 2030; the common starting point is a modeling convention.",
+  "statement": "All three scenarios start from the same 2030 branch year: 10 t of landed mass a year, and therefore the same {standingPower:water-agency-prospecting} kWe of standing power, the same {pwrSysMass:water-agency-prospecting} t power system, the same {miningMass:water-agency-prospecting} t water plant, and the same {feedstock:water-agency-prospecting} t/yr of regolith through the plant. The water they produce from that identical plant differs because the grade does: {water:water-agency-prospecting} t/yr at 5 wt% for Agency Led Baseline and The Commercial Break, and {water:water-mars-prospecting} t/yr at 1 wt% for Early Shift to Mars, a factor of five that is exactly the grade ratio under the [[bilinear-water-law]] bilinear law. All three cells read {bind:water-agency-prospecting}: the throughput their 10 t of landed mass buys stands at {thrCeil:water-agency-prospecting} t/yr against a power ceiling of {powerCeil:water-agency-prospecting} t/yr at 5 wt%, a factor of {headroom:water-agency-prospecting}. All eight figures here are resolved from the model at render. The scenarios diverge only after 2030; the common starting point is a modeling convention.",
   "evidence": [],
   "argument": [
    {
@@ -6248,7 +6358,7 @@
  "propellant-operating-floor": {
   "was": "The Propellant Operating Floor Is a Fixed Annual Cost Over Live Output, Floored, Not a Flat $5,000/kg Constant",
   "claim": "payback",
-  "statement": "STEP 70, QUINN'S RULING OF 2026-09-16: THE PROPELLANT OPERATING COST IS NOT MODELLED. op_prop keeps its form, op_prop = max(op_propF / water_kg_per_yr, op_propV); op_propF is now {opPropF} and op_propV is now {opPropV}, so the term resolves to {opPropV} at every state above the pre-production threshold and the floor this section is named for is no longer charged. The cost is exogenous overhead that self-sufficiency cannot reduce -- ground control, mission operations, comms and DSN time, programme office, safety and licensing -- so charging it against in-situ production misstates what in-situ production buys. Both figures in this paragraph are resolved from the registry at render rather than typed, so this sentence cannot outlive the numbers it reports; it stated a $50M/yr budget and a $70/kg floor as live until 2026-09-16, when the ruling made both false in one edit and no standing check noticed. THE SUPERSEDED FORM FOLLOWS, retained as the record and not deleted. op_prop was max(F / water_kg_per_yr, v): a fixed annual operations cost F, band $20M to $130M/yr, central working value $50M/yr, divided by the plant's own live water rate, floored at v = $70/kg so the term did not fall toward zero at high output. It replaced a flat $5,000/kg constant that was frozen at whatever output rate produced it and carried unchanged to every other output rate, even though its own source string already called itself a fixed annual cost over pilot-scale output. Below a minimum-production threshold op_prop carries no finite figure, rather than a finite figure approaching an astronomical dollar value as output falls toward zero; the app marks that state pre-production instead. No held primary states lunar propellant operations as a per-kg number; F and v are each read off design-study totals divided by design-study output, a division neither primary performs. The near-$35,300 figure is not part of this coefficient at all: it is the [[break-even-sales-price]] financed sales price, a different quantity, and was never an operating cost.",
+  "statement": "STEP 70, QUINN'S RULING OF 2026-09-16: THE PROPELLANT OPERATING COST IS NOT MODELLED. op_prop keeps its form, op_prop = max(op_propF / water_kg_per_yr, op_propV); op_propF is now {opPropF} and op_propV is now {opPropV}, so the term resolves to {opPropV} at every state above the pre-production threshold and the floor this section is named for is no longer charged. The cost is exogenous overhead that self-sufficiency cannot reduce -- ground control, mission operations, comms and DSN time, programme office, safety and licensing -- so charging it against in-situ production misstates what in-situ production buys. Both figures in this paragraph are resolved from the registry at render rather than typed, so this sentence cannot outlive the numbers it reports; it stated a $50M/yr budget and a $70/kg floor as live until 2026-09-16, when the ruling made both false in one edit and no standing check noticed. THE SUPERSEDED FORM FOLLOWS. op_prop was max(F / water_kg_per_yr, v): a fixed annual operations cost F, band $20M to $130M/yr, central working value $50M/yr, divided by the plant's own live water rate, floored at v = $70/kg so the term did not fall toward zero at high output. It replaced a flat $5,000/kg constant that was frozen at whatever output rate produced it and carried unchanged to every other output rate, even though its own source string already called itself a fixed annual cost over pilot-scale output. Below a minimum-production threshold op_prop carries no finite figure, rather than a finite figure approaching an astronomical dollar value as output falls toward zero; the app marks that state pre-production instead. No held primary states lunar propellant operations as a per-kg number; F and v are each read off design-study totals divided by design-study output, a division neither primary performs. The near-$35,300 figure is not part of this coefficient at all: it is the [[break-even-sales-price]] financed sales price, a different quantity, and was never an operating cost.",
   "evidence": [
    {
     "n": "1",
@@ -6306,6 +6416,7 @@
  "transmission-coefficient": "transmission-coefficient",
  "throughput-coefficient": "throughput-coefficient",
  "productive-plant-mass": "productive-plant-mass",
+ "mass-learning-ceiling": "mass-learning-ceiling",
  "sintering-specific-energy": "sintering-specific-energy",
  "sintering-yield": "sintering-yield",
  "envelope-agency-prospecting": "envelope-agency-prospecting",
@@ -6407,6 +6518,10 @@
   "match": 1.0
  },
  "productive-plant-mass": {
+  "arg": "A3",
+  "match": 1.0
+ },
+ "mass-learning-ceiling": {
   "arg": "A3",
   "match": 1.0
  },
@@ -8476,7 +8591,42 @@
        exists, the last two reading their figures from LEDGER_TOKENS rather than typing them.
        b5751ec4 to the value below, recomputed by pinOfKnobData(KNOB_DATA) on the patched file and
        read off the app's own function rather than typed. */
-    __pin: "3cf3e87a"
+    /* STEP 70C (coordinator's ruling of 2026-09-16, drift AUTHORISED, re-pin not left to the agent
+       that caused the drift): the CLAIMS propellant-operating-floor claim's own `source` field and the
+       second registry's `statement` field were rewritten, cutting the banned "retained ... not deleted"
+       procedural-statement-about-the-work pair from both: "THE SUPERSEDED RECORD FOLLOWS, retained and
+       not deleted." -> "THE SUPERSEDED RECORD FOLLOWS.", and "THE SUPERSEDED FORM FOLLOWS, retained as
+       the record and not deleted." -> "THE SUPERSEDED FORM FOLLOWS." EXT3 caught exactly this: stored
+       3cf3e87a no longer matched a recompute (b55b5616). b55b5616 to the value
+       below, recomputed by pinOfKnobData(KNOB_DATA) on the patched file and read off the app's own
+       function rather than typed. */
+    /* STEP 70C, SECOND RE-PIN (coordinator's ruling of 2026-09-16, item 10, drift AUTHORISED):
+       three registry entries were added to VALUE -- learnRatePreset, reactorScheduleTotals,
+       fabRateEraDefault -- each recording a ruling kept against the model's own measured optimum
+       (the Learning rate detent against the lender-basis crossing, the reactor schedule against the
+       model's own under-reactoring of The Commercial Break, the in-situ rate anchors against a
+       sourced rate shown to sharpen scenario ordering four- to eightfold), at the coordinator's own
+       direction. EXT3 caught exactly this: stored b55b5616 no longer matched a recompute
+       (c450ec0c). c450ec0c to the value below, recomputed by pinOfKnobData(KNOB_DATA)
+       on the patched file and read off the app's own function rather than typed. */
+    /* STEP 70D/70.1 RE-PIN (Quinn's rulings of 2026-09-16, drift AUTHORISED): kExc gained a
+       claimNote stating the plant definition ("plant means production plant... there is no
+       separate mining plant"); several CLAIMS/LEDGER source, statement and text fields had
+       "mining plant" corrected to "water plant" on the reader-facing surfaces that name the
+       water line's plant (Evidence Ledger sources/statements, REGIME-BALANCED, REGIME-MASS,
+       BIND-BALANCED, BIND-MASS); no numeric leaf moved and no claim changed its subject. EXT3
+       caught exactly this: stored c450ec0c no longer matched a recompute (dc903b4f). dc903b4f
+       to the value below, recomputed by pinOfKnobData(KNOB_DATA) on the patched file and read
+       off the app's own function rather than typed. */
+    /* STEP 70 POLISH RE-PIN (Quinn's authorisation of 2026-09-16, drift caused by the orchestrator's
+       own prepush-sweep edit, re-pin NOT taken by the causing agent per Quinn's standing rule):
+       VALUE.learnGCeiling's source string had a redundant attribution clause naming a reviewer cut
+       from its opening, leaving "The 15.70 is stated on" as the sentence start; no numeric leaf
+       moved and no claim changed its subject. EXT3 caught exactly this: stored e3af4fa2 no longer
+       matched a recompute (91c9ab04). e3af4fa2 to the value below, recomputed by
+       pinOfKnobData(KNOB_DATA) on the patched file (tools/selfcheck_knob_sidecar.js) and read off
+       the app's own function rather than typed. */
+    __pin: "91c9ab04"
   };
 
   root.KNOB_DATA = KNOB_DATA;
@@ -9212,6 +9362,24 @@ function insituMaturityFloor(fSolEff, Lv){
 function fabRateAtYear(y){
   const A = FAB_RATE_ERA_DEFAULT;
   return logLinearBetweenAnchors(y, 2030, A['2030'], 2040, A['2040'], 2055, A['2055']);
+}
+/* STEP 70c: THE CROSSING YEAR, READ FROM THE SAME ANCHORS fabRateAtYear() USES, NEVER TYPED. Inverts
+   logLinearBetweenAnchors on whichever of the two segments (2030-2040, 2040-2055) actually brackets the
+   live threshold; returns null where the threshold sits outside the anchors' own span (below the 2030
+   anchor, or above the 2055 anchor, at which point no year on the shipped trajectory ever crosses it).
+   Ceiling rounding, matching fpMature's own >= test: the first WHOLE year at or above the floor. */
+function fabCrossingYear(threshold){
+  const A = FAB_RATE_ERA_DEFAULT, pts = [[2030, A['2030']], [2040, A['2040']], [2055, A['2055']]];
+  if (!(threshold > 0)) return pts[0][0];
+  if (threshold <= pts[0][1]) return pts[0][0];
+  if (threshold > pts[2][1]) return null;
+  for (let i = 0; i < 2; i++){
+    const y0 = pts[i][0], v0 = pts[i][1], y1 = pts[i+1][0], v1 = pts[i+1][1];
+    if (threshold >= v0 && threshold <= v1 && v0 > 0 && v1 > 0){
+      return Math.ceil(y0 + (y1 - y0) * Math.log(threshold / v0) / Math.log(v1 / v0));
+    }
+  }
+  return null;
 }   // R6: 2055 default 0.65 kWe/(yr t), above the 1/(L fFis) = 0.606 fission takeover (Quinn 2026-09-15); 2040 0.3 (Quinn 2026-09-15, Step 68 wave 1c)
 /* STEP 70, ITEM 3 (Quinn's ruling of 2026-09-16): RETIRED FROM THE CENSUS PATH. THIS CONSTANT SETS NO FISSION SHARE
    AND NEVER DID. Standing fission is whole reactors from REACTOR_SCHEDULE and reads 8,900 / 100 / 11,800 kWe at the
@@ -14690,7 +14858,23 @@ const BLURB_TOKENS = {
                         ? 'At this state the power system takes the whole landed mass, so the state is power-system-mass limited.'
                         : 'At this state the power system leaves mining mass behind, so the state is not power-system-mass limited.')}),
   presetRollCall:  ()=>({str:presetRollCall('preset cell')}),
-  envelopeRollCall: ()=>({str:presetRollCall('envelope point')})
+  envelopeRollCall: ()=>({str:presetRollCall('envelope point')}),
+  /* STEP 70D METALS-GATE, QUINN'S RULING (2026-09-16): "make it a class/object instead of text
+     that requires echo site... all the numbers in the narrative should live update." The in-situ
+     maturity gate note (paintInsituCard(), #m_insitu_gate) welded m.fabProd, m.threshFab and
+     fabCrossingYear(m.threshFab) into a concatenated string. All three were already live —
+     dragging the In-situ solar rate slider or the 2040 fab-rate anchor moved them — but a bare
+     numeral concatenated into a string is indistinguishable from a typed constant to anything
+     reading the render. These three tokens put the figures through the same subst() mechanism
+     every BLURB and DERIVATION sentence in this file already uses, so the call site is a
+     template, not an echo. fabCrossYear reads its year from ctx (the caller's own
+     fabCrossingYear(m.threshFab) call, made once to decide which template variant to use) the
+     same way massRate/powerRate above take their rate from the caller rather than re-deriving
+     it, and falls back to recomputing only if a future caller omits ctx.yr. */
+  fabProdVal:    (m)=>({str:m.fabProd.toFixed(4)}),
+  threshFabVal:  (m)=>({str:m.threshFab.toFixed(4)}),
+  fabCrossYear:  (m,c)=>{ const yr = (c && c.yr !== undefined) ? c.yr : fabCrossingYear(m.threshFab);
+                           return {str: yr != null ? String(yr) : ''}; }
 };
 function _andList(list){
   return list.length < 2 ? list.join('') : list.slice(0, -1).join(', ') + ' and ' + list[list.length - 1];
@@ -16499,7 +16683,7 @@ const ABSTRACTS = {
     label: 'Agency Led Baseline',
     sentences: [
       'This line mines Cabeus-grade ice at five weight percent, and that grade rests on a single in-situ point measurement.',
-      'Each landing year splits its landed mass between power hardware and mining plant where it makes the most water, so at every era the power ceiling and the plant-throughput ceiling meet and the state reads balanced, with fission carrying the power once the schedule lands it.',
+      'Each landing year splits its landed mass between power hardware and water plant where it makes the most water, so at every era the power ceiling and the plant-throughput ceiling meet and the state reads balanced, with fission carrying the power once the schedule lands it.',
       /* STEP 70b, ITEM 5: "ten-a-year cap" was typed here and again on the Equations tab, with no shared
          source between them, over a field the model owns. Both now read it. The clause states the peak and
          names it as the cap only while the schedule actually reaches the cap. */
@@ -16522,7 +16706,7 @@ const ABSTRACTS = {
     label: 'The Commercial Break',
     sentences: [
       'This line mines the same Cabeus-grade ice as the agency programme and differs from it by capital alone.',
-      'Balance binds at nine cells in the whole matrix: each landing year buys power hardware and mining plant in the proportion that makes the most water, so the power and plant-throughput ceilings meet.',
+      'Balance binds at nine cells in the whole matrix: each landing year buys power hardware and water plant in the proportion that makes the most water, so the power and plant-throughput ceilings meet.',
       'Commercial capital takes over at Pilot and carries the envelope orders of magnitude above the start all three lines share.'
     ]
   }
@@ -16670,6 +16854,7 @@ const ABSTRACT_CSS =
   '.abstract .absvalue{margin-top:14px;}' +
   '.abstract .absvalue .abslab{display:block;margin-bottom:8px;}' +
   '.abstract .absvalue p{margin:8px 0 0;font-size:13.5px;line-height:1.6;max-width:82ch;}' +
+  '.abstract .absvalue .mgatenote{margin:8px 0 0;font-size:13.5px;line-height:1.6;max-width:82ch;}' +
   '.abstract .absbody p{margin:0 0 8px;font-size:13.5px;line-height:1.6;max-width:82ch;transition:color .25s ease;}' +
   '.abstract .absbody p:last-child{margin-bottom:0;}';
 /* STEP 70b: the andon light's styling went with the light itself. Nothing paints the clearing test. */
@@ -19832,10 +20017,10 @@ function runAbstractTests(){
        does not paper over it: no lunar experiment has weighed a metal mass, and that caveat
        stays a sentence on the Scenario tab, which OX-31 holds to the model, because a card
        carries a name, a number and a unit and nothing else. This row states what the row IS
-       NOW: four cards, water, oxygen, construction and the melt's own composition name,
-       electrical silicon-iron, in that order, each printing the model's own figure for that
-       product and a rate unit, and none of them printing the regolith feed, the standing mining
-       plant, or a name that asserts separated metal.
+       NOW (STEP 70.1, the Step 62 naming ban REVERSED by Quinn, 2026-09-16): four cards, water,
+       oxygen, construction and metals, in that order, each printing the model's own figure for
+       that product and a rate unit, and none of them printing the regolith feed, the standing
+       mining plant, or a name that asserts separated metal.
 
        THE FIGURES ARE PARSED OFF THE PAINTED NUMERALS AND COMPARED NUMERICALLY, with the
        tolerance taken from the number of decimals the card itself printed. Nothing is rebuilt
@@ -19846,7 +20031,7 @@ function runAbstractTests(){
        matcher, so this row's silence about the names still forbidden is a measurement rather
        than a needle that matches nothing. */
     (function(){
-      const NAME = 'the production row is four cards -- water, an oxygen card carrying total/dedicated/co-product as three named lines, construction, and one reactor-products card carrying aluminium, iron-silicon alloy and silicon as three named lines -- each printing the model’s own tonnage to the precision it prints and a rate unit, silicon printed as a strict-to-relaxed band rather than a picked point, and none of them naming metals produced, the regolith feed or the standing mining plant, at all nine preset and era states (DECOY: the four retired names are run through this row’s own matcher on a constructed row and are required to be caught there)';
+      const NAME = 'the production row is four cards -- water, an oxygen card carrying total/dedicated/co-product as three named lines, construction, and one metals card carrying aluminium, iron-silicon alloy and silicon as three named lines -- each printing the model’s own tonnage to the precision it prints and a rate unit, silicon printed as a strict-to-relaxed band rather than a picked point, and none of them naming metals produced, the regolith feed or the standing mining plant, at all nine preset and era states (DECOY: the four retired names are run through this row’s own matcher on a constructed row and are required to be caught there)';
       // Card 1 (Water) and card 3 (Construction) are simple; card 2 (Oxygen) and card 4
       // (Reactor products) are chain cards carrying named lines. Finding 1's own fix (the honest
       // dedicated/co-product oxygen split) makes the oxygen card the second chain card rather
@@ -19854,7 +20039,7 @@ function runAbstractTests(){
       const SIMPLE = [{ pos: 0, name: 'Water produced', key: 'water' }, { pos: 2, name: 'Construction', key: 'construction' }];
       const CHAINS = [
         { pos: 1, cardName: 'Oxygen produced', lines: [['Total', 'oxygenTotal'], ['Dedicated (life support)', 'oxygen'], ['Co-product (metals)', 'coproductO2']] },
-        { pos: 3, cardName: 'Reactor products', lines: [['Aluminium', 'aluminium'], ['Iron-silicon alloy', 'alloy'], ['Of which, silicon', ['siliconLow', 'siliconHigh']]] }
+        { pos: 3, cardName: 'Metals', lines: [['Aluminium', 'aluminium'], ['Iron-silicon alloy', 'alloy'], ['Of which, silicon', ['siliconLow', 'siliconHigh']]] }
       ];
       const WANT_COUNT = 4;
       const RETIRED = /^(metals produced|alloy produced|regolith feed|mining plant standing)$/i;
@@ -19918,7 +20103,7 @@ function runAbstractTests(){
       if (!checked) why.push('EMPTY POPULATION: no card was checked at any state');
       rec('PROD-01','GATE',NAME, why.length===0,
         why.length ? why.slice(0,3).join('  ')
-          : walked + ' states and ' + checked + ' readings, four cards -- water, oxygen (total/dedicated/co-product), construction, reactor products (aluminium/alloy/silicon) -- every numeral inside the tolerance its own printed precision allows (' +
+          : walked + ' states and ' + checked + ' readings, four cards -- water, oxygen (total/dedicated/co-product), construction, metals (aluminium/alloy/silicon) -- every numeral inside the tolerance its own printed precision allows (' +
             seen.slice(0,3).join(' | ') + '), none of them naming metals produced, the regolith feed or the standing mining plant, and the matcher confirmed against all ' +
             caught + ' retired names on a constructed row [POPULATION: every #outs .out at each of the nine preset and era states, each chain card’s children read as its own rows; it excludes the mass bar and the comparison strip, which carry fleet stocks rather than production rates. The alloy tonnage stood alone on this row at Step 62 under the name electrical silicon-iron and Quinn ruled it back to one line of three, iron-silicon alloy, beside aluminium and silicon; the Scenario tab’s own narrative, which OX-31 holds to the model, continues to carry the same alloy figure alongside the composition and purity caveats a card cannot carry, including that no lunar experiment has weighed a metal mass]');
     })();
@@ -22298,17 +22483,22 @@ function runAbstractTests(){
         : painted + ' states rendered, the Value part inside #abstract after the abstract body at each, 4 cards, #m_prop, #m_const, #m_plants, #m_insitu and #m_insitu_share painted; no Value tab or panel');
     });
 
-    // ---- RAIL68-04: the Value controls sit in the rail directly above Advanced mode ----
-    // RE-POINTED AT STEP 68 PASS 2A: the Hardware cost slider is removed (Quinn's ruling of 2026-09-14), so the
-    // Learning rate knob sits directly above the Advanced mode toggle.
-    const N04 = 'Earth delivery cost and Learning rate sit in the rail in that order, the Learning rate knob directly above the Advanced mode toggle, each a .knob with its label; #k_chw, #v_chw, #mk_chw and #chwKnobWrap are absent and no Hardware cost label is painted in the rail; both range controls write state and repaint their value';
+    // ---- RAIL68-04: the Value controls sit inside the Advanced panel ----
+    // RE-POINTED, QUINN'S RULING 2026-09-16 (phase 2 rail move): Earth delivery cost and
+    // Learning rate move OUT of the basic rail and INTO #advPanel; Construction split, Oxygen
+    // split and Metals-production split move the other way. This row used to assert DOM ORDER
+    // (directly above #advToggle); it now asserts CONTAINMENT (inside #advPanel) -- membership
+    // by id, not by position, the class of assertion this step's own retrospective holds safer:
+    // the locator class (asserting where a thing sits, not that it sits where ruled) has cost
+    // six repairs in this step.
+    const N04 = 'Earth delivery cost and Learning rate sit inside the Advanced panel (#advPanel), each a .knob with its label; #k_chw, #v_chw, #mk_chw and #chwKnobWrap are absent and no Hardware cost label is painted in the rail; both range controls write state and repaint their value (DECOY: a detached control, never inserted into the document, is confirmed to fail the same containment test #k_landedcost and #k_learn pass)';
     guard('RAIL68-04', N04, function(){
       const why = [];
-      const adv = byId('advToggle');
+      const adv = byId('advToggle'), advPanel = byId('advPanel');
       const wraps = [['k_landedcost','Earth delivery cost'],['k_learn','Learning rate']].map(function(p){
         const el = byId(p[0]); const k = el ? el.closest('.knob') : null;
         if (!el) why.push('#' + p[0] + ' is missing');
-        else if (!rail || !rail.contains(el)) why.push('#' + p[0] + ' is not inside aside.rail');
+        else if (!advPanel || !advPanel.contains(el)) why.push('#' + p[0] + ' is not inside #advPanel');
         if (k){ const l = k.querySelector('.klabel'); if (!l || (l.textContent||'').trim() !== p[1]) why.push('#' + p[0] + ' knob is labelled "' + (l ? l.textContent.trim() : '') + '" against "' + p[1] + '"'); }
         else if (el) why.push('#' + p[0] + ' has no .knob');
         return k;
@@ -22316,10 +22506,14 @@ function runAbstractTests(){
       ['k_chw','v_chw','mk_chw','chwKnobWrap'].forEach(function(i){ if (byId(i)) why.push('#' + i + ' is still in the document'); });
       if (rail && /Hardware cost/.test(rail.textContent||'')) why.push('"Hardware cost" is still painted in the rail');
       if (!adv) why.push('#advToggle is missing');
+      if (!advPanel) why.push('#advPanel is missing');
+      // DECOY: a control that is not in the document at all must read as NOT inside #advPanel --
+      // proves the containment predicate discriminates rather than trivially passing everything.
+      if (advPanel){
+        const decoyEl = document.createElement('input'); decoyEl.type = 'range';
+        if (advPanel.contains(decoyEl)) why.push('DECOY DID NOT FIRE: a detached control read as inside #advPanel');
+      }
       if (!why.length){
-        if (!(before(wraps[0], wraps[1]) && before(wraps[1], adv))) why.push('the order is not Earth delivery cost, Learning rate, Advanced mode');
-        let block = adv; while (block.parentNode && block.parentNode !== rail) block = block.parentNode;
-        if (block.previousElementSibling !== wraps[1]) why.push('the element directly above the Advanced mode toggle is not the Learning rate knob');
         at68('artemis', '2055');
         const lc = byId('k_landedcost'), kl = byId('k_learn');
         const lc0 = state.landed_cost, kl0 = Math.round(parseFloat(kl.value)), r0 = step60Rate;
@@ -22331,21 +22525,27 @@ function runAbstractTests(){
         fire68(lc, lc0); fire68(kl, kl0);
       }
       rec('RAIL68-04','GATE',N04, why.length === 0, why.length ? why.slice(0,4).join('; ')
-        : 'rail order Earth delivery cost, Learning rate, then Advanced mode directly below the Learning rate knob; no Hardware cost control; both range controls write state and repaint');
+        : 'Earth delivery cost and Learning rate sit inside #advPanel, each labelled correctly; no Hardware cost control; both range controls write state and repaint; decoy (detached control) correctly read as outside #advPanel');
     });
 
     // ---- RAIL68-04L: the Learning rate is a six-detent slider driving step60Rate ----
-    const N04L = 'the Learning rate is #k_learn, a range input in the rail above #advToggle with six detents 0.56, 0.788, 0.85, 0.90, 0.95 and 2.0 in order and default 0.85 (Quinn\'s ruling of 2026-09-15, was 0.56); each detent sets step60Rate and #v_learn paints the number only; no #rateDial and no data-r button remains';
+    // RE-POINTED, QUINN'S RULING 2026-09-16: #k_learn moves into #advPanel. This row used to
+    // assert DOM order (above #advToggle); it now asserts CONTAINMENT (inside #advPanel).
+    const N04L = 'the Learning rate is #k_learn, a range input inside #advPanel with six detents 0.56, 0.788, 0.85, 0.90, 0.95 and 2.0 in order and default 0.85 (Quinn\'s ruling of 2026-09-15, was 0.56); each detent sets step60Rate and #v_learn paints the number only; no #rateDial and no data-r button remains (DECOY: a detached control, never inserted into the document, is confirmed to fail the same containment test #k_learn passes)';
     guard('RAIL68-04L', N04L, function(){
       const why = [];
       const WANT = [0.56, 0.788, 0.85, 0.90, 0.95, 2.0];
-      const k = byId('k_learn'), v = byId('v_learn'), adv = byId('advToggle');
+      const k = byId('k_learn'), v = byId('v_learn'), advPanel = byId('advPanel');
       if (byId('rateDial')) why.push('#rateDial is still in the document');
       if (document.querySelector('button[data-r]')) why.push('a data-r button is still in the document');
       if (!k || k.type !== 'range') why.push('#k_learn is not a range input');
       else {
-        if (!rail || !rail.contains(k)) why.push('#k_learn is not inside aside.rail');
-        if (!before(k, adv)) why.push('#k_learn is not above #advToggle');
+        if (!advPanel || !advPanel.contains(k)) why.push('#k_learn is not inside #advPanel');
+        // DECOY: a detached control must fail the same containment test #k_learn passes.
+        if (advPanel){
+          const decoyEl = document.createElement('input'); decoyEl.type = 'range';
+          if (advPanel.contains(decoyEl)) why.push('DECOY DID NOT FIRE: a detached control read as inside #advPanel');
+        }
         if (k.getAttribute('value') !== String(LEARN_PRESET_INDEX)) why.push('#k_learn defaults to index ' + k.getAttribute('value') + ', not ' + LEARN_PRESET_INDEX + ' (' + WANT[LEARN_PRESET_INDEX] + ')');
         const n = Math.round((parseFloat(k.max) - parseFloat(k.min)) / (parseFloat(k.step) || 1)) + 1;
         if (n !== 6) why.push('#k_learn carries ' + n + ' detents, not 6');
@@ -22359,7 +22559,7 @@ function runAbstractTests(){
         if (step60Rate !== 0.56) why.push('returning to detent 0 left step60Rate at ' + step60Rate);
       }
       rec('RAIL68-04L','GATE',N04L, why.length === 0, why.length ? why.slice(0,4).join('; ')
-        : '#k_learn in the rail above #advToggle, 6 detents, each detent sets step60Rate to 0.56, 0.788, 0.85, 0.9, 0.95, 2 and #v_learn paints that number; no #rateDial or data-r button');
+        : '#k_learn inside #advPanel, 6 detents, each detent sets step60Rate to 0.56, 0.788, 0.85, 0.9, 0.95, 2 and #v_learn paints that number; no #rateDial or data-r button; decoy (detached control) correctly read as outside #advPanel');
     });
 
     // ---- RAIL68-05: the two chips and the rule above the Power source toggle are gone ----
@@ -22724,7 +22924,7 @@ const LEDGER_TOKENS = {
     const c = presetCensus();
     if (!isFinite(c.headLo)) return (c.balanced > 0 ? 'No cell here is power limited with throughput to spare: at the balanced cells the throughput ceiling meets the power ceiling.' : 'No cell here carries a finite throughput headroom.');   // STEP 68 PASS 2E E4 WORDS
     return 'Measured at the cells power holds, the throughput ceiling stands ' + c.headLo.toFixed(2) +
-           ' to ' + c.headHi.toFixed(2) + ' times the power ceiling, so the mining plant these' +
+           ' to ' + c.headHi.toFixed(2) + ' times the power ceiling, so the water plant these' +
            ' scenarios land is oversized for the power they land beside it.';
   },
   throughputRollCall: function(){
@@ -23463,6 +23663,12 @@ function squares(m){
      Quinn 2026-09-09, never "alloy" or "metals produced", because a material name is a
      compositional claim and the melt this card weighs is the one Schneiderman assayed.
 
+     STEP 70.1, REVERSED (Quinn, 2026-09-16): "it's metals so take out that previous ruling. i
+     was probably trying to fix another bullshit problem like we just did with mining." The
+     card is named Metals; "alloy" and "metals produced" are no longer barred words for it.
+     The unanswered ground above -- no lunar experiment has weighed a metal mass -- still stands
+     and stays a sentence on the Scenario tab, which OX-31 holds to the model.
+
      MINING PLANT STANDING AND REGOLITH FEED stay retired from Step 57 for the reasons stated
      then: the mass bar already prints the mining plant figure, and nothing downstream of the
      regolith feed is a product. Both are process quantities in the Scenario tab's narrative,
@@ -23478,7 +23684,15 @@ function squares(m){
      literal painted over a light-theme page, and it is what the retired health scale did.
 
      dp REPRODUCES THE RETIRED PANELS EXACTLY for the restored fourth card, and the other three
-     kept their own rules: water its three-way rule, oxygen and construction theirs. */
+     kept their own rules: water its three-way rule, oxygen and construction theirs.
+
+     STEP 70D METALS-GATE, QUINN'S RULING: "the title of the metals card is METALS." The card
+     carried the name internally (renamed from "Reactor products" in a prior pass) but no
+     render path ever painted a card-level title for a reader to read; the oxygen chain card
+     is the same shape and carries none either, and that is unchanged here, since Quinn's
+     ruling names only the metals card. cardTitle:true is the one flag that turns the card's
+     own `name` into a painted heading in ensureSquares()/the paint loop below, on the alloy
+     card alone. */
   return [
     {name:'Water produced',  vid:'h_water',    v:m.water,        unit:'t/yr', accent:'water',
      dp:m.water<1?2:(m.water<10?1:0)},
@@ -23489,7 +23703,7 @@ function squares(m){
     ]},
     {name:'Construction',    vid:'h_const',    v:m.construction, unit:'t/yr', accent:'construction',
      dp:m.construction<10?1:0},
-    {name:'Reactor products', accent:'alloy', lines:[
+    {name:'Metals', accent:'alloy', cardTitle:true, lines:[
       {name:'Aluminium',          vid:'h_al',    v:m.aluminium, unit:'t/yr', dp:m.aluminium<10?2:0},
       {name:'Iron-silicon alloy', vid:'h_alloy', v:m.alloy,     unit:'t/yr', dp:m.alloy<10?2:0},
       {name:'Of which, silicon',  vid:'h_si',    band:true, vLow:m.siliconLow, vHigh:m.siliconHigh, unit:'t/yr',
@@ -23515,15 +23729,22 @@ function ensureSquares(sq){
   const n = sq.length;
   while (outsEl.children.length > n) outsEl.removeChild(outsEl.lastChild);
   for (let i=0; i<n; i++){
-    const want = sq[i].lines ? 'chain' : 'simple';
-    const wantLines = sq[i].lines ? sq[i].lines.length : 0;
+    const isChain = !!sq[i].lines;
+    /* STEP 70D METALS-GATE: a chain card carries a card-level title only when its own spec
+       says so (cardTitle:true, the alloy/metals card alone today). 'chaint' is a distinct
+       cached kind from 'chain' so a card that gains or loses the flag across renders rebuilds
+       its markup rather than reusing a shape that no longer matches. */
+    const hasTitle = isChain && !!sq[i].cardTitle;
+    const want = isChain ? (hasTitle ? 'chaint' : 'chain') : 'simple';
+    const wantLines = isChain ? sq[i].lines.length : 0;
     let o = outsEl.children[i];
     if (!o){ o=document.createElement('div'); o.className='out'; o.id='out-'+i; outsEl.appendChild(o); }
-    if (o.dataset.kind !== want || (want==='chain' && o.querySelectorAll('.oline').length !== wantLines)){
-      if (want === 'chain'){
-        o.innerHTML = '<div class="swatch"></div>' + sq[i].lines.map(function(){
-          return '<div class="oline"><span class="oname"></span><span class="ovalue"></span><span class="ounit"></span></div>';
-        }).join('');
+    if (o.dataset.kind !== want || (isChain && o.querySelectorAll('.oline').length !== wantLines)){
+      if (isChain){
+        o.innerHTML = '<div class="swatch"></div>' + (hasTitle ? '<div class="oname cname"></div>' : '') +
+          sq[i].lines.map(function(){
+            return '<div class="oline"><span class="oname"></span><span class="ovalue"></span><span class="ounit"></span></div>';
+          }).join('');
       } else {
         o.innerHTML = '<div class="swatch"></div><div class="oname"></div><div class="oval"><span class="ovalue"></span><span class="ounit"></span></div>';
       }
@@ -24347,6 +24568,14 @@ function render(){
        `lines` paints each .oline in order instead of the card's own single .oname/.ovalue. */
     el.className='out acc-'+sq.accent;
     if (sq.lines){
+      /* STEP 70D METALS-GATE, QUINN'S RULING: "the title of the metals card is METALS." Paints
+         into the .cname element ensureSquares() built above when cardTitle is set, never into
+         .oname bare, so this can never collide with the per-line .oname query below or with
+         any instrument that reads a chain card's own .oname at the line level. */
+      if (sq.cardTitle){
+        const titleEl = el.querySelector('.cname');
+        if (titleEl) titleEl.textContent = sq.name;
+      }
       const lineEls = el.querySelectorAll('.oline');
       sq.lines.forEach(function(ln, j){
         const le = lineEls[j];
@@ -24391,7 +24620,7 @@ function render(){
   const overdrawn = m.mPwr > total;
   document.getElementById('keyP').textContent='power system '+fmtNum(m.mPwr,m.mPwr<10?1:0)+' t'+
     (overdrawn ? ' (exceeds the '+fmtNum(total,0)+' t standing fleet; mining and non-productive are zero because none of it is payable)' : '');
-  document.getElementById('keyM').textContent='mining plant '+fmtNum(Math.max(0,m.mining),m.mining<10?1:0)+' t';
+  document.getElementById('keyM').textContent='water plant '+fmtNum(Math.max(0,m.mining),m.mining<10?1:0)+' t';
   document.getElementById('keyF').textContent='in-situ fabs '+fmtNum(Math.max(0,m.mFab||0),(m.mFab||0)<10?1:0)+' t';
   document.getElementById('keyN').textContent='non-productive '+fmtNum(nonProd,nonProd<10?1:0)+' t';
   /* CLOSE-OUT T1: the total over the bar is the mass its four segments divide, m.mass, the fleet's own standing mass. The
@@ -24492,9 +24721,45 @@ function paintInsituCard(m){
   const Psol = (m.fSol > 0 && m.mSolarBranch > 0) ? m.mSolarBranch / m.fSol : 0;                        // [kWe]
   document.getElementById('m_insitu').textContent = fmtNum(P, P < 10 ? 1 : 0);
   document.getElementById('m_insitu_share').textContent = (Psol > 0) ? (100 * P / Psol).toFixed(1) + '% of solar power made in situ' : 'no solar power standing';
+  /* STEP 70c: THE MATURITY GATE GETS A READER SURFACE. Zero occurrences of "0.3401", "2043" or
+     "maturity floor" existed anywhere in the painted document before this (step70_designer_review.md
+     Section 4), though the gate is live and a one-detent drag moves this same card by 41 percent. Both
+     figures below are read off m (model()'s own live threshFab and fabProd, the same two
+     insituShareApplied() and powerFleetSolve() compare), never typed. */
+  const gateNote = document.getElementById('m_insitu_gate');
+  if (gateNote){
+    if (m.threshFab != null && isFinite(m.threshFab) && m.fabProd != null && m.fabProd < m.threshFab){
+      /* STEP 70D METALS-GATE, QUINN'S RULING: the three figures below (the dialled rate, the
+         floor, and the crossing year) are carried by {fabProdVal}/{threshFabVal}/{fabCrossYear}
+         and resolved through subst(), the same token mechanism every BLURB and DERIVATION
+         sentence in this file uses, rather than concatenated in as bare numerals. The
+         conditional structure is unchanged: this branch only runs while fabProd < threshFab, and
+         the crossing-year clause is only spliced into the template while yr is non-null, so an
+         unreachable crossing prints no dangling clause and no bare {fabCrossYear} token. */
+      const yr = fabCrossingYear(m.threshFab);
+      const tpl = 'The dialled In-situ solar rate, {fabProdVal} kWe/(yr\u00b7t), sits below the ' +
+        '{threshFabVal} kWe/(yr\u00b7t) in-situ maturity floor, so the fab lands no new in-situ' +
+        ' solar at this rate' + (yr != null ? '; this scenario\u2019s own trajectory clears the floor in {fabCrossYear}' : '') + '.';
+      gateNote.textContent = subst(tpl, m, {yr: yr});
+    } else {
+      gateNote.textContent = '';
+    }
+  }
 }
 function renderValueTab(v){
-  document.getElementById('m_prop').textContent = _usd(v.value_prop);
+  /* STEP 70c: "$0" painted identically whether propellant margin was a measured zero (never observed
+     at any reachable state) or nothing was produced at all (phi_c = 1.0 at any of the nine scenario-era
+     cells, water = 0, v.preProduction = true, op_prop = null). Those are different claims; this states
+     which one holds rather than painting one number for both. No number is invented and the /yr unit is
+     hidden rather than left dangling after words that are not a rate. */
+  const propUnit = document.getElementById('m_prop_unit');
+  if (v.preProduction){
+    document.getElementById('m_prop').textContent = 'no propellant produced';
+    if (propUnit) propUnit.hidden = true;
+  } else {
+    document.getElementById('m_prop').textContent = _usd(v.value_prop);
+    if (propUnit) propUnit.hidden = false;
+  }
   document.getElementById('m_const').textContent = _usd(v.value_const);
 }
 /* STEP 70b: paintLenderAndon() stood here and is withdrawn with its surface. The clearing test is
@@ -25499,7 +25764,7 @@ function paintRegimeCaption(m){
 
     'The boundary itself is where the two ceilings cross: the power ceiling Wpower, which is the '+
     'water the installed power can make, against the throughput ceiling Wthr, which is the water '+
-    'the mining plant can move. '+
+    'the water plant can move. '+
     /* STEP 68 PASS 2D: the words branch on the state's learning multiplier G. G > 1 frees plant mass for power (two edges);
        G = 1 is the learning-free boundary; G < 1 frees nothing, each plant moves less regolith per landed tonne and no split runs. */
     (_sp.G > 1
@@ -25709,7 +25974,7 @@ function renderNotesPanel(m){
         ' The power system on this state weighs '+esc(fmtNum(m.mPwr, m.mPwr<10?1:0))+' t of the '+esc(fmtNum(m.mass,0))+' t standing. '+
         xref('fission-specific-power')+' and '+xref('solar-mass-allocation')+' carry the two allocations.');
 
-  h+=_p('The two weakest terms in the chain multiply each other, because the mass accounting books the whole post-downmass remainder as productive plant, leaving the gap between non-power landed mass and mining plant equal to the downmass fraction plus the '+esc(fmtNum(m.mFab, m.mFab<10?1:0))+' t in-situ fab and nothing else, and the throughput coefficient then multiplies exactly that number. '+
+  h+=_p('The two weakest terms in the chain multiply each other, because the mass accounting books the whole post-downmass remainder as productive plant, leaving the gap between non-power landed mass and water plant equal to the downmass fraction plus the '+esc(fmtNum(m.mFab, m.mFab<10?1:0))+' t in-situ fab and nothing else, and the throughput coefficient then multiplies exactly that number. '+
         xref('productive-plant-mass')+' is the accounting and '+xref('throughput-coefficient')+' is the coefficient.');
 
   h+= pend.length
