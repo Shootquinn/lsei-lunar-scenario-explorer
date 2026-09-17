@@ -24241,7 +24241,15 @@ document.getElementById('railRestore').addEventListener('click', ()=>{
    FAB-00, proportionalGiveBack()), not a Quinn ruling: phi_o and phi_c each surrender share in proportion
    to their OWN current live value, ported here verbatim as that function's reference
    implementation names it. If Quinn rules a different order, this is the one function to change.
-   ============================================================ */
+
+   STEP 70.4 -- RETIRED FROM THE LIVE PATH, KEPT AS A NAMED FIXTURE. Gameplan Step 70.4, confirmed by
+   direct trace: this function computes the give-back as a CONTINUOUS value split, which
+   autoCoupleFabToSilicon() then re-quantized with nearestIdx() -- a split that lands exactly
+   equidistant between two detents (e.g. 0.025 between 0 and 0.05) rounds BOTH phi_o and phi_c down
+   in the same step, spending the whole shared pool on a move that needed only one detent from one
+   side. `step70_4_se_instrument.js` GB-02 monkey-patches this exact function, by this exact name, to
+   observe the unfixed algorithm's own call sequence live -- so it stays here, byte-for-byte, as that
+   decoy's reference target. autoCoupleFabToSilicon() below no longer calls it. */
 function proportionalGiveBack(phi_c, phi_o, phi_m, delta){
   const pool = phi_o + phi_c;
   const take = Math.min(delta, pool);
@@ -24263,30 +24271,45 @@ function proportionalGiveBack(phi_c, phi_o, phi_m, delta){
 function liveModelForAutoCouple(){
   return model(scenarioModelArgs(PRESET_OF_FUNDING[state.funding]).args);
 }
+/* STEP 70.4 -- THE FIX (Gameplan Step 70.4). phi_c/phi_o/phi_m
+   are DETENT INDICES into DETENTS.phi_o (phi_m rides the same array by reference), never continuous
+   values, so the give-back moves index-to-index and there is no fractional value left to round.
+   Exactly one index moves per call, taken from exactly one of phi_o/phi_c -- the one holding the
+   LARGER index, ties (equal index) broken with phi_o giving up first (arbitrary, stated as such in
+   the SE review; not load-bearing -- flip the `takeFromO` line below if Quinn rules the other way).
+   Total index sum is conserved by construction: nothing here is ever rounded. */
+function oneDetentGiveBack(cIdx, oIdx, mIdx, maxIdx){
+  if (mIdx >= maxIdx) return { cIdx: cIdx, oIdx: oIdx, mIdx: mIdx, applied: false };
+  if (cIdx <= 0 && oIdx <= 0) return { cIdx: cIdx, oIdx: oIdx, mIdx: mIdx, applied: false };
+  const takeFromO = oIdx > 0 && (cIdx <= 0 || oIdx >= cIdx);
+  return {
+    cIdx: takeFromO ? cIdx : cIdx - 1,
+    oIdx: takeFromO ? oIdx - 1 : oIdx,
+    mIdx: mIdx + 1,
+    applied: true
+  };
+}
 /* Fires ONLY from a genuine reader drag on #k_fabprod -- the listener below is the sole call
    site, so a preset click, an era click or any other programmatic state change (none of which
-   call this function) never triggers it (FAB-01, FAB-04). Raises phi_m one phi-detent at a time,
-   taking share from phi_o and phi_c via proportionalGiveBack(), until the live fabBinding stops
-   reading 'silicon' (FAB-01: the ceiling cleared, onto 'request', 'power' or 'regolith') or the
-   shared budget is exhausted (phi_o and phi_c both driven to their floor, FAB-03). phi_c, phi_o
-   and phi_m all ride the identical 21-value rail (Step 49's own comment on DETENTS.phi_o), so one
-   rail's values serve all three and the loop is bounded at its length -- a stalled loop cannot
-   spin. Leaves phi_c/phi_o/phi_m untouched, by construction, whenever fabBinding is not already
-   'silicon' at entry (FAB-05). */
+   call this function) never triggers it (FAB-01, FAB-04). Raises phi_m one phi-detent INDEX at a
+   time, taking one detent index from whichever of phi_o/phi_c currently holds the larger index (via
+   oneDetentGiveBack(), STEP 70.4), until the live fabBinding stops reading 'silicon' (FAB-01: the
+   ceiling cleared, onto 'request', 'power' or 'regolith') or the shared budget is exhausted (phi_o
+   and phi_c both driven to their floor, FAB-03/GB-03). phi_c, phi_o and phi_m all ride the identical
+   21-value rail (Step 49's own comment on DETENTS.phi_o), so one rail's values serve all three and
+   the loop is bounded at its length -- a stalled loop cannot spin. Leaves phi_c/phi_o/phi_m
+   untouched, by construction, whenever fabBinding is not already 'silicon' at entry (FAB-05). */
 function autoCoupleFabToSilicon(){
   const P = DETENTS.phi_o;
-  const delta = P[1] - P[0];
+  const maxIdx = P.length - 1;
   for (let i = 0; i < P.length; i++){
     const m = liveModelForAutoCouple();
     if (m.fabBinding !== 'silicon') return;
-    if (state.phi_m >= P.length - 1) return;
-    const curC = P[state.phi_c], curO = P[state.phi_o], curM = P[state.phi_m];
-    if (curC + curO <= 1e-9) return;
-    const gb = proportionalGiveBack(curC, curO, curM, delta);
-    if (gb.appliedDelta <= 1e-12) return;
-    state.phi_c = nearestIdx(P, gb.phi_c);
-    state.phi_o = nearestIdx(P, gb.phi_o);
-    state.phi_m = nearestIdx(P, gb.phi_m);
+    const step = oneDetentGiveBack(state.phi_c, state.phi_o, state.phi_m, maxIdx);
+    if (!step.applied) return;
+    state.phi_c = step.cIdx;
+    state.phi_o = step.oIdx;
+    state.phi_m = step.mIdx;
   }
 }
 document.getElementById('k_fabprod').addEventListener('input', e=>{
