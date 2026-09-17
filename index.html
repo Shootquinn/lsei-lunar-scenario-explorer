@@ -2120,11 +2120,11 @@
    "kind": "INTERVAL",
    "lo": 0.182,
    "hi": 0.636,
-   "loSource": "1/(fSol*L) evaluated at the favourable end of both parent bands. DERIVED: it is this project's arithmetic on two coefficients, and no primary prints a maturity threshold for in-situ photovoltaic fabrication.",
-   "hiSource": "1/(fSol*L) at the unfavourable end of both parent bands. DERIVED, on the same basis.",
+   "loSource": "1/(fSol*L) with fSol swept alone across its own band at L held at its live value, and with L swept alone across its own band at fSol held at its live value; the lower of the two single-variable extremes. Reached at fSol=0.5, L=11 (the L-alone sweep's own low end, 0.249 at L=15, does not go lower). DERIVED, on this project's own arithmetic; no primary prints a maturity threshold for in-situ photovoltaic fabrication.",
+   "hiSource": "1/(fSol*L), same one-factor-at-a-time method as loSource: the higher of the two single-variable extremes. Reached at fSol=0.143, L=11 (the L-alone sweep's own high end, 0.534 at L=7, does not go higher). DERIVED, on the same basis.",
    "rule": "NOT-CENTRABLE",
-   "disposition": "STANDS",
-   "reason": "THE BAND IS THE PARENTS' BANDS PROPAGATED, NOT A RANGE ANYONE MEASURED. fSol is graded ASSUMPTION and L is graded DESIGN, so this threshold's own position is uncertain by a factor of about 3.5. WHAT THAT UNCERTAINTY COSTS, stated as the thing a reader actually cares about: the year the in-situ rate crosses the floor, which is the timer the ruling installs, moves from 2039 at 0.182 to 2055 at 0.636, against 2043 at the live value. A threshold whose crossing year spans sixteen of the model's twenty-six years is a real threshold with a soft date, and it must not be quoted as a date the model knows."
+   "disposition": "STANDS, TEXT CORRECTED",
+   "reason": "THE METHOD IS ONE-FACTOR-AT-A-TIME, DELIBERATELY, NOT A JOINT WORST CASE. fSol and L are both first-generation design targets, not independent random draws from a measured distribution, and there is no physical reason a single design would land on the worst end of both at once; stacking two unrelated design choices to their mutual extreme overstates the uncertainty a joint interval would honestly report. Varying each alone and taking the envelope, this band's own printed ends reproduce exactly: fSol alone gives [0.182, 0.636], L alone gives [0.249, 0.534], and the wider of the two, per coefficient, is what is kept. A PRIOR VERSION OF THIS ENTRY DESCRIBED THE SAME NUMBERS AS A JOINT CORNER OF BOTH BANDS TAKEN TOGETHER, WHICH THEY NEVER WERE AND WHICH A TRUE JOINT INTERVAL PROPAGATION WOULD HAVE WIDENED TO [0.133, 0.999] -- A RANGE WHOSE TOP EXCEEDS THE RULED 2055 RATE CEILING OF 0.65 AND WOULD IMPLY IN-SITU SOLAR NEVER MATURES UNDER THE RULED DEFAULT TRAJECTORY AT ALL. That implication does not survive contact with what fSol and L actually are: two design choices, not two independent hazards to be compounded. The numbers were always right; the method they were attributed to was not. fSol is graded ASSUMPTION and L is graded DESIGN, so this threshold's own position still carries real uncertainty: the year the in-situ rate crosses the floor moves from 2039 at 0.182 to 2055 at 0.636, against 2043 at the live value. A threshold whose crossing year spans sixteen of the model's twenty-six years is a real threshold with a soft date, and it must not be quoted as a date the model knows."
   },
   "claims": [
    "solar-mass-allocation"
@@ -8626,7 +8626,18 @@
        matched a recompute (91c9ab04). e3af4fa2 to the value below, recomputed by
        pinOfKnobData(KNOB_DATA) on the patched file (tools/selfcheck_knob_sidecar.js) and read off
        the app's own function rather than typed. */
-    __pin: "91c9ab04"
+    /* STEP 70 MATURITY-FLOOR RE-PIN (Quinn's ruling of 2026-09-16, drift AUTHORISED as part of the
+       same ruling): the insituMaturityFloor band's loSource, hiSource and reason text were rewritten.
+       The band's own numeric ends (0.182, 0.636) did not move -- they already equal the one-factor-
+       at-a-time sensitivity envelope over fSol and L varied in turn. What moved is the description:
+       it previously claimed a joint corner of both parent bands taken together, which never happened
+       and which a true joint interval propagation would in any case have widened past the ruled 2055
+       rate ceiling. The text now says one-factor-at-a-time and states why: two first-generation design
+       targets, not independent random draws, so stacking both to their mutual worst case has no
+       physical basis. EXT3 caught exactly this: stored 91c9ab04 no longer matched a recompute
+       (73739193). 91c9ab04 to the value below, recomputed by pinOfKnobData(KNOB_DATA) on the patched
+       file and read off the app's own function rather than typed. */
+    __pin: "73739193"
   };
 
   root.KNOB_DATA = KNOB_DATA;
