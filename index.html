@@ -139,12 +139,24 @@
   .advanced[hidden]{display:none;}
   .curvewrap{margin-top:10px;padding-top:8px;border-top:1px solid rgba(160,170,190,.22)}
   .curvebox{position:relative;margin-top:4px}
+  .curvebox2{margin-top:6px}
   .curvebox canvas{display:block;width:100%;height:auto}
   .curvehandles{position:absolute;inset:0;pointer-events:none}
   .curvehandle{position:absolute;width:11px;height:11px;margin:-6px 0 0 -6px;padding:0;
       border:1px solid rgba(255,255,255,.85);border-radius:50%;background:rgba(120,180,255,.95);
       cursor:ns-resize;pointer-events:auto;touch-action:none}
   .curvehandle:focus{outline:2px solid rgba(120,180,255,.9);outline-offset:2px}
+  /* STEP 69: the Agency/Commercial toggle and its own handle layer. */
+  .curvetoggle{display:flex;gap:6px;margin-top:4px}
+  .curvetogglebtn{font:inherit;font-size:11px;padding:2px 8px;border-radius:10px;
+      border:1px solid rgba(160,170,190,.35);background:transparent;color:var(--faint);cursor:pointer}
+  .curvetogglebtn[aria-pressed="true"]{color:#fff;border-color:rgba(255,255,255,.6);background:rgba(160,170,190,.18)}
+  .curvehandles2{position:absolute;inset:0;pointer-events:none}
+  .curvehandle2{position:absolute;width:11px;height:11px;margin:-6px 0 0 -6px;padding:0;
+      border:1px solid rgba(255,255,255,.85);border-radius:50%;cursor:ns-resize;pointer-events:auto;touch-action:none}
+  .curvehandle2.agency{background:rgba(78,201,232,.95)}
+  .curvehandle2.commercial{background:rgba(224,165,79,.95)}
+  .curvehandle2:focus{outline:2px solid rgba(224,165,79,.9);outline-offset:2px}
   .curvefoot{margin-top:4px;font-size:11px;opacity:.75}
   .advnote{font-family:var(--mono); font-size:11px; color:var(--faint); line-height:1.5;}
 
@@ -526,6 +538,12 @@
       <div class="knob">
         <div class="krow"><span class="klabel">In-situ solar rate</span><span class="kval" id="v_fabprod"></span></div>
         <input type="range" id="k_fabprod" min="0.02" max="5" step="0.01" value="0.02">
+        <!-- STEP 70.2 ITEM A, FAB-03: the reader-reachable signal for the shared-budget-exhausted
+             case (phi_o and phi_c both driven to their floor by the metals auto-couple and the
+             silicon ceiling still binds). Not one of N07's named-absent elements and not a .kcap
+             (RAIL68-09 bans a caption under any slider) -- painted text in its own paragraph,
+             hidden unless render() finds the exhausted state live. -->
+        <p class="advnote" id="fabAutoNote" hidden></p>
       </div>
 
       <!-- STEP 68 PASS 2E E2: the Power source chip is removed; the fission share of standing power is an output. -->
@@ -574,9 +592,28 @@
            painted marks, for the same reason and so a pointer can find them. -->
       <div class="curvewrap" id="curveWrap">
         <div class="krow"><span class="klabel">Buildout curve, landed mass per year</span><span class="kval" id="v_curve"></span></div>
+        <!-- STEP 69, RULING 4: the toggle. "i have zero ability to adjust commercial inputs in
+             this scenario ... when i drag the middle spline handle it moves that curve." Selects
+             which of the two independent curves below (#curveHandles2) the drag handles act on;
+             the OTHER curve's own stored knots are untouched by a drag while this is toggled. -->
+        <div class="curvetoggle" id="curveToggle" role="tablist" aria-label="Which buildout curve the handles drag">
+          <button type="button" class="curvetogglebtn" id="curveToggleAgency" data-which="agency" role="tab" aria-selected="true" aria-pressed="true" aria-label="Agency buildout curve">Agency</button>
+          <button type="button" class="curvetogglebtn" id="curveToggleCommercial" data-which="commercial" role="tab" aria-selected="false" aria-pressed="false" aria-label="Commercial buildout curve">Commercial</button>
+        </div>
         <div class="curvebox">
           <canvas id="curvePlot" width="300" height="120"></canvas>
           <div class="curvehandles" id="curveHandles"></div>
+        </div>
+        <!-- STEP 69: the Agency/Commercial curves get their OWN canvas rather than a second set
+             of strokes on #curvePlot. Several pre-existing self-tests (CURVEUI-04 among them)
+             temporarily shadow #curvePlot's own getContext() with a call-recorder that assumes
+             every stroke drawn there belongs to the single mass curve; a second/third stroke on
+             that same canvas would be captured by that recorder too and corrupt what it measures.
+             A second canvas, in the identical panel, sidesteps that entirely: nothing here ever
+             calls #curvePlot.getContext(). -->
+        <div class="curvebox curvebox2">
+          <canvas id="curvePlot2" width="300" height="70"></canvas>
+          <div class="curvehandles2" id="curveHandles2"></div>
         </div>
         <div class="curvefoot" id="curveFoot"></div>
       </div>
@@ -594,7 +631,7 @@
         <div class="curvebox">
           <canvas id="investPlot" width="300" height="120"></canvas>
         </div>
-        <div class="curvefoot"><span style="color:var(--ice)">Agency</span> / <span style="color:var(--regolith)">Commercial</span></div>
+        <div class="curvefoot"><span style="color:var(--ice)">Agency</span> / <span style="color:var(--regolith)">Commercial</span> / <span style="opacity:.75">god curve, Agency+Commercial (dashed)</span></div>
         <p class="curvefoot" id="investCaption"></p>
       </div>
     </aside>
@@ -3364,7 +3401,7 @@
    ]
   },
   "r_prop": {
-   "expr": "r_prop = mass * (1 - (1 - decayRate)^decayLife) / (decayLife * cap)",
+   "expr": "r_prop = commercialMass * (1 - (1 - decayRate)^decayLife) / (decayLife * cap)",
    "claims": [
     "amortized-plant-identity",
     "shared-capacity-split",
@@ -3372,7 +3409,7 @@
    ]
   },
   "r_const": {
-   "expr": "r_const = mass * (1 - (1 - decayRate)^decayLife) / (decayLife * C_full)",
+   "expr": "r_const = commercialMass * (1 - (1 - decayRate)^decayLife) / (decayLife * C_full)",
    "claims": [
     "amortized-plant-identity",
     "shared-capacity-split",
@@ -8636,8 +8673,14 @@
        targets, not independent random draws, so stacking both to their mutual worst case has no
        physical basis. EXT3 caught exactly this: stored 91c9ab04 no longer matched a recompute
        (73739193). 91c9ab04 to the value below, recomputed by pinOfKnobData(KNOB_DATA) on the patched
-       file and read off the app's own function rather than typed. */
-    __pin: "73739193"
+       file and read off the app's own function rather than typed.
+       STEP 69 RE-PIN: the r_prop/r_const DERIVATION.equations expr strings changed from
+       `mass * ...` to `commercialMass * ...` (Gameplan line 3475, installing the commercial-only
+       capital charge -- ruling 3475 is exactly the kind of declared-equation edit this pin exists
+       to catch). EXT3 caught exactly this: stored 73739193 no longer matched a recompute
+       (31eef8a3). 73739193 to the value below, recomputed by pinOfKnobData(KNOB_DATA) on the
+       patched file and read off the app's own function rather than typed. */
+    __pin: "31eef8a3"
   };
 
   root.KNOB_DATA = KNOB_DATA;
@@ -8878,6 +8921,20 @@ const ENVELOPE = {
   high: {'2030':{P:10, M:10,   fission:false}, '2040':{P:200,M:1000, fission:true},  '2055':{P:1000,M:10000,fission:true}}
 };
 function envelope(funding, phase){ return ENVELOPE[funding][phase]; }
+/* ---- STEP 69: THE AGENCY/COMMERCIAL DEFAULT KNOT TABLE ------------
+   Approved by Quinn 2026-09-16 ("idk sounds good!"). Two curves,
+   AGENCY and COMMERCIAL (never "owner", never "government" -- Agency is the ruled word), each
+   scenario's own default knots. Column sums equal ENVELOPE[funding][era].M exactly, by
+   construction, so the nine preset states' TOTAL landed-mass figure is unaffected by this table
+   existing: every cell on both rails is nonzero (every scenario starts genuinely mixed), and the
+   commercial share changes by era rather than sitting flat. The provenance is recorded because it
+   is not the usual shape: the arithmetic satisfying Quinn's two constraints (genuinely mixed,
+   share changes by era) is the orchestrator's, and Quinn approved it rather than originating it. */
+const BUILDOUT_SPLIT = {
+  med:  { '2030':{agency:9, commercial:1},   '2040':{agency:80,  commercial:20},  '2055':{agency:325,  commercial:175} },
+  low:  { '2030':{agency:9, commercial:1},   '2040':{agency:64,  commercial:11},  '2055':{agency:113,  commercial:37} },
+  high: { '2030':{agency:8, commercial:2},   '2040':{agency:400, commercial:600}, '2055':{agency:1500, commercial:8500} }
+};
 
 /* Knob detents (also used headless for detent-representability tests).
    Notch sets refreshed for the 2026-07-23 locked deck: every power and landed
@@ -8903,6 +8960,24 @@ const DETENTS = {
   landed_cost: KNOB_DATA.LANDED_COST.rail
 };
 function nearestIdx(arr,v){ let bi=0,bd=Infinity; for(let i=0;i<arr.length;i++){const d=Math.abs(arr[i]-v); if(d<bd){bd=d;bi=i;}} return bi; }
+/* STEP 70.2 ITEM B (Quinn's ruling, 2026-09-17): "a different fucking range ... switch to a log
+   scale ... it should go 10 to 1 million." #k_mass becomes a genuinely continuous log rail over
+   this span; state.mass now carries the applied t/yr VALUE directly (never a detent index) --
+   see knobVal(), syncSliderRange() and bindDetentSlider()'s 'mass' branches below. DETENTS.mass
+   itself is UNCHANGED (still the 7-value [10,75,100,150,500,1000,10000] list): it is read by a
+   dozen unrelated sweeps and abstractPresetRef's snap-to-reference, none of which this step is
+   scoped to touch, and none of which care how the live #k_mass control positions itself.
+   CURVE_MAX no longer reads it -- raised separately to MASS_RAIL_MAX on Quinn's follow-up ruling
+   the same day, see CURVE_MAX's own comment below. */
+const MASS_RAIL_MIN = 10, MASS_RAIL_MAX = 1000000;
+function massRailPct(v){
+  const vv = Math.max(MASS_RAIL_MIN, Math.min(MASS_RAIL_MAX, v));
+  return Math.max(0, Math.min(100, (Math.log(vv / MASS_RAIL_MIN) / Math.log(MASS_RAIL_MAX / MASS_RAIL_MIN)) * 100));
+}
+function massRailFromPct(pct){
+  const p = Math.max(0, Math.min(100, pct));
+  return MASS_RAIL_MIN * Math.pow(MASS_RAIL_MAX / MASS_RAIL_MIN, p / 100);
+}
 /* Nearest detent AT OR BELOW v, never above it: the highest index whose rail value does not
    exceed v, floored to 0 when v sits below every notch. Used where a slider's own THUMB stands
    in for a continuous value it cannot exactly reach (a placed buildout-curve point), so a reader
@@ -8981,11 +9056,48 @@ function fleetK(era, L){ return fleetStanding(function(){ return 1; }, era, L); 
    ------------------------------------------------------------------ */
 const CURVE_ERAS = [2030, 2040, 2055];
 const CURVE_EPOCH = 2030;
-const CURVE_MAX = { mass: DETENTS.mass[DETENTS.mass.length-1],
-                    power: DETENTS.power[DETENTS.power.length-1] };
+/* STEP 70.2 ITEM B, RAISED ON QUINN'S RULING 2026-09-17: CURVE_MAX.mass (and agency/commercial
+   with it) now matches #k_mass's own new ceiling, MASS_RAIL_MAX, rather than the old
+   DETENTS.mass[last] (10,000). Both controls governing the same landed-mass quantity now share
+   one ceiling. The standing CURVE-04 self-check, which independently derived its own expected
+   clamp from DETENTS.mass, is updated alongside this to read CURVE_MAX.mass instead -- the actual
+   source setEraRate() clamps against, not the now-unrelated small reference array DETENTS.mass
+   remains for other sweeps. */
+const CURVE_MAX = { mass: MASS_RAIL_MAX,
+                    power: DETENTS.power[DETENTS.power.length-1],
+                    /* STEP 69: the two new curves are mass-type quantities and share the mass
+                       rail's own ceiling -- the approved knot table's largest single-era cell
+                       (8,500 t/yr, Commercial share of The Commercial Break at 2055) sits well
+                       inside it, and a reader dragging either handle past a scenario's own
+                       numbers is bounded the same way the single mass curve always was. */
+                    agency: MASS_RAIL_MAX,
+                    commercial: MASS_RAIL_MAX };
 const CURVE = { pts: { mass:  {2030:null, 2040:null, 2055:null},
-                       power: {2030:null, 2040:null, 2055:null} } };
-function curveReset(){ CURVE_ERAS.forEach(function(y){ CURVE.pts.mass[y]=null; CURVE.pts.power[y]=null; }); }
+                       power: {2030:null, 2040:null, 2055:null},
+                       /* STEP 69: AGENCY and COMMERCIAL, independent knot dictionaries. CURVE.pts.mass
+                          above is untouched and keeps driving the physical fleet layer exactly as it
+                          did before this step (BLD-05's bit-identical requirement), so the nine preset
+                          states' landed mass, water, construction, oxygen, metal and power stay exactly
+                          what they were. These two are the reader's new, independently adjustable
+                          curves: the buildout panel's toggle (ruling 4) selects which one a drag moves,
+                          a scenario click or Restore resets BOTH to that scenario's own BUILDOUT_SPLIT
+                          knots (ruling 5, via curveReset() below), and their sum is the "god curve"
+                          (ruling 2) painted on the Investment panel, which is now the one authoritative
+                          Agency/Commercial split (ruling 3) and the input to the per-cohort
+                          capital-source tag (BLD-06) and the commercial-only capital charge
+                          (BLD-07/08). */
+                       agency: {2030:null, 2040:null, 2055:null},
+                       commercial: {2030:null, 2040:null, 2055:null} } };
+/* STEP 69, RULING 5: curveReset(which) is now second-curve-aware. Called with an explicit curve
+   name it clears only that one (used nowhere in this build yet, but proves the parameterized
+   signature BLD-11 gates); called with no argument, exactly as every existing call site in this
+   file already does (a preset click, Restore, and every test fixture's own setup), it clears
+   EVERY curve this app carries -- mass, power, agency and commercial -- which is precisely
+   "a scenario click resets BOTH curves" without touching a single call site. */
+function curveReset(which){
+  if (which){ CURVE_ERAS.forEach(function(y){ CURVE.pts[which][y]=null; }); return; }
+  Object.keys(CURVE.pts).forEach(function(w){ CURVE_ERAS.forEach(function(y){ CURVE.pts[w][y]=null; }); });
+}
 /* Ruled: switching to a different preset clears reader-placed curve points and the footer says
    so, once, on the render that follows; re-clicking the preset already active does neither. Set
    only where applyPreset() itself decides a switch happened, never inside curveReset() (which
@@ -9016,26 +9128,40 @@ function presetIdOf(p){ for (const id in PRESETS) if (PRESETS[id] === p) return 
    going stale: there is no write to forget. */
 function curvePtsKey(){
   const parts = [];
-  ['mass','power'].forEach(function(w){
+  /* STEP 69: agency and commercial join mass and power here, so a reader-placed point on either
+     new curve is caught by the identical "off preset" machinery a mass/power point already was --
+     matchesPreset()'s state.curvePts==='' check and abstractCurrent()'s fade both read this key,
+     and neither is the mechanism this step is scoped to change, so both simply see more curves. */
+  ['mass','power','agency','commercial'].forEach(function(w){
+    /* STEP 69 ROBUSTNESS: `|| {}` guards the same pre-existing external CURVE.pts-narrowing idiom
+       curveKnots() now guards (step67_se_gridwalk.js's CTX_EXPR), reached from here because
+       learningMultipliersCounts() folds this key into its memo cache key. */
+    const dict = CURVE.pts[w] || {};
     CURVE_ERAS.forEach(function(y){
-      const v = CURVE.pts[w][y];
+      const v = dict[y];
       if (v != null) parts.push(w + '@' + y + '=' + v);
     });
   });
   return parts.join(',');
 }
 function curvePoints(){ return { mass: Object.assign({}, CURVE.pts.mass),
-                                 power: Object.assign({}, CURVE.pts.power) }; }
+                                 power: Object.assign({}, CURVE.pts.power),
+                                 agency: Object.assign({}, CURVE.pts.agency),
+                                 commercial: Object.assign({}, CURVE.pts.commercial) }; }
 
 /* THE DRAG'S STATE MUTATION. One named function. It clamps to [0, the rail's own maximum],
    stores, and RETURNS THE VALUE IT STORED, so a caller reading back what it set reads what the
    model will use rather than what it asked for. It throws on a year that is not an era and on a
-   quantity that is neither mass nor power, because a silent no-op there is a drag that appears to
-   work and changes nothing. */
+   quantity this app does not carry a curve for, because a silent no-op there is a drag that
+   appears to work and changes nothing.
+   STEP 69: agency and commercial join mass and power as valid curves, through the identical
+   clamp-store-return body -- no branch keyed on which of the four it is beyond the CURVE_MAX/
+   CURVE.pts lookups already generic over `which`. */
 function setEraRate(which, era, newRate){
   const y = Number(era);
   if (CURVE_ERAS.indexOf(y) < 0) throw new Error('setEraRate: ' + era + ' is not an era');
-  if (which !== 'mass' && which !== 'power') throw new Error('setEraRate: ' + which + ' is not mass or power');
+  if (which !== 'mass' && which !== 'power' && which !== 'agency' && which !== 'commercial')
+    throw new Error('setEraRate: ' + which + ' is not mass, power, agency or commercial');
   const v = (!isFinite(newRate)) ? 0 : Math.max(0, Math.min(CURVE_MAX[which], Number(newRate)));
   CURVE.pts[which][y] = v;
   return v;
@@ -9080,11 +9206,26 @@ function setEraRate(which, era, newRate){
    AT THE EPOCH THERE IS NOTHING FOR A LATER KNOT TO SHAPE, so era 2030 carries the single knot
    it always carried and its family stays flat. */
 function curveKnots(which, funding, era, liveRate){
-  const E = Number(era), fld = (which === 'mass') ? 'M' : 'P';
-  const stored = CURVE.pts[which];
-  const hasEnv = (funding != null && !!ENVELOPE[funding]);
+  const E = Number(era);
+  /* STEP 69 ROBUSTNESS: `|| {}` guards a pre-existing standing-instrument idiom (step67_se_gridwalk.js's
+     CTX_EXPR temporarily swaps the WHOLE of CURVE.pts for a two-key {mass,power} object around one
+     fleetState() probe, a pattern written before this step's two new curves existed) -- without it,
+     `stored[CURVE_EPOCH]` below throws the moment learningMultipliersCounts() asks this function for
+     'agency'/'commercial' while CURVE.pts has been narrowed to {mass,power} by a caller outside this
+     app's own control flow. An absent stored object behaves exactly like one holding null at every era,
+     which is already this function's own definition of "no point placed here." */
+  const stored = CURVE.pts[which] || {};
+  /* STEP 69: agency and commercial read their own default knots off BUILDOUT_SPLIT rather than
+     ENVELOPE's M/P columns -- the only branch this adds is on WHICH CURVE, never on which
+     scenario, so ruling 6/7's path-independence and no-scenario-literal-branching properties
+     (BLD-12, BLD-13) are untouched: funding is still used only as a table lookup key. */
+  const isSplitCurve = (which === 'agency' || which === 'commercial');
+  const hasEnv = isSplitCurve ? (funding != null && !!BUILDOUT_SPLIT[funding])
+                              : (funding != null && !!ENVELOPE[funding]);
   function envAt(y){
     if (!hasEnv) return (liveRate != null) ? liveRate : 0;
+    if (isSplitCurve) return BUILDOUT_SPLIT[funding][String(y)][which];
+    const fld = (which === 'mass') ? 'M' : 'P';
     return ENVELOPE[funding][String(y)][fld];
   }
   /* AT ERA 2030 THE SELECTED ERA IS THE EPOCH, so the rail value is the anchor whenever the
@@ -9189,7 +9330,14 @@ function buildCurve(which, funding, era, liveRate){
   return rate;
 }
 
-/* THE INVESTMENT SERIES, Step 59 sub-step 6 (C1, Wintta's own axes). No new coefficient: this
+/* SUPERSEDED (Step 69, ruling 3, Quinn 2026-09-16): "money is an output of outputs afaik ...
+   One authoritative Agency/Commercial split exists -- the two curves. Step 59's ENVELOPE.med
+   derivation is superseded." This function built the Investment panel's OLD "government" reference
+   -- a fixed rate off ENVELOPE.med, capped against the scenario's own buildout curve -- which
+   investmentSeries() below no longer calls. Kept, not deleted, per this project's own standing
+   convention for retired mechanisms (see VALUE's superseded op_prop bands): the record of what was
+   computed before this ruling stays legible instead of vanishing from the diff.
+   THE INVESTMENT SERIES, Step 59 sub-step 6 (C1, Wintta's own axes). No new coefficient: this
    scenario's own buildout curve, in landing-rate space, priced the identical way the hero's own
    ECON-01/ECON-02 already price a single era (mass landing rate x 1000 x (C_hw + D)), split at
    the agency programme's own ENVELOPE.med rate -- the same mechanism ECON-02 checks at the three
@@ -9219,18 +9367,27 @@ const C_HW1 = KNOB_DATA.C_HW.default;
    year). liveRate is only meaningful at the era the reader is currently standing on, the same
    last-gesture-wins rule curveKnots() already documents; everywhere else this scenario's own
    stored curve points or ENVELOPE fallback apply, unchanged from #curvePlot's own logic. */
+/* STEP 69, RULING 3 (installed here): "money is an output of outputs." Agency and commercial
+   dollars are read straight off the two buildout curves this scenario is actually standing on --
+   no cap against a different scenario's ENVELOPE.med table, because ENVELOPE.med is Agency Led
+   Baseline's own numbers, not a universal ceiling every scenario's Agency dollars must clear. The
+   ONE authoritative Agency/Commercial split is these two curves; this is a straight dollar
+   re-expression of them, never a second, independent computation of the split (BLD-09, BLD-10).
+   `gov`/`commercial` keep their pre-existing field names (this dataset is read by BLD-05's own
+   snapshot and by INVEST-01) even though the concept is Agency, per the vocabulary ruling's own
+   exception for a field that already exists verbatim in the shipped app. */
 function investmentSeries(){
   const D = knobVal('landed_cost');
   const psiOf = cohortPsiByYear(scenarioModelArgs(PRESET_OF_FUNDING[state.funding]));   // Step 68 pass 2B: psi_y by vintage
-  const liveRate = (state.phase === '2055') ? knobVal('mass') : null;
-  const ownRate = buildCurve('mass', state.funding, '2055', liveRate);
-  const medRate = medEnvelopeRate();
+  const agencyRate = buildCurve('agency', state.funding, '2055', null);
+  const commercialRate = buildCurve('commercial', state.funding, '2055', null);
   const years = []; for (let y = CURVE_EPOCH; y <= 2055; y++) years.push(y);
   return years.map(function(y){
     const perT = C_HW1 * (psiOf[y] != null ? psiOf[y] : 1) + D;   // [$/kg]
-    const invest = ownRate(y) * 1000 * perT;
-    const govCap = medRate(y) * 1000 * perT;
-    const gov = Math.min(govCap, invest);
+    const gov = agencyRate(y) * 1000 * perT;
+    /* THE GOD CURVE (ruling 2): invest is the DERIVED sum of the two curves' own dollars, at
+       every year, never an independently drawn third rate. */
+    const invest = gov + commercialRate(y) * 1000 * perT;
     return { year: y, invest: invest, gov: gov, commercial: invest - gov };
   });
 }
@@ -9244,12 +9401,20 @@ function investDraw(){
   cv.dataset.gov = rows.map(function(r){ return r.gov; }).join(',');
   cv.dataset.commercial = rows.map(function(r){ return r.commercial; }).join(',');
   cv.dataset.invest = rows.map(function(r){ return r.invest; }).join(',');
-  /* THE CAPTION CARRIES THE BASIS, one line: a scenario-level derivation from the buildout
-     curve, never a per-tonne cost attribution, and never the 2007-era 67-70 percent sector
-     aggregate this project reds as a misattribution against a lunar per-tonne figure. */
-  if (capEl) capEl.textContent = 'Agency and commercial investment by year, split at the agency ' +
-    'program’s own envelope rate: a scenario-level derivation from the buildout curve above, ' +
-    'not a per-tonne cost attribution.';
+  /* STEP 69, RULING 2 (THE GOD CURVE): a fourth dataset field, named literally, carrying the
+     identical values as dataset.invest above (the DERIVED sum of the two curves' own dollars at
+     every year) -- dataset.invest is kept for backward compatibility with every existing reader
+     of it (BLD-05's snapshot, INVEST-01), dataset.god is the one this ruling asked to exist by
+     that name, painted as its own stroke below. */
+  cv.dataset.god = cv.dataset.invest;
+  /* THE CAPTION CARRIES THE BASIS, one line, updated for ruling 3: a scenario-level derivation
+     from the two buildout curves themselves (not, as before Step 69, a cap against a different
+     scenario's ENVELOPE.med table), never a per-tonne cost attribution, and never the 2007-era
+     67-70 percent sector aggregate this project reds as a misattribution against a lunar
+     per-tonne figure. */
+  if (capEl) capEl.textContent = 'Agency and commercial investment by year, read directly off the ' +
+    'two buildout curves above: a scenario-level derivation from the buildout curves, not a ' +
+    'per-tonne cost attribution. The pale line is the god curve, Agency plus Commercial.';
   const ctx = cv.getContext && cv.getContext('2d');
   if (ctx){
     const W = cv.width, H = cv.height, padL = 26, padR = 8, padT = 8, padB = 16;
@@ -9270,6 +9435,12 @@ function investDraw(){
       });
       ctx.stroke();
     }
+    /* STEP 69, RULING 2: the god curve, painted beside its two constituents, never independently
+       draggable -- it is a pure rendering of invest = gov + commercial at every year. Painted
+       first (and thin/pale) so the two constituents draw on top of it and stay legible. */
+    ctx.setLineDash([3,3]);
+    strokeSeries('invest', 'rgba(230,230,235,0.75)');    // the god curve
+    ctx.setLineDash([]);
     strokeSeries('gov', 'rgba(78,201,232,0.95)');        // --ice
     strokeSeries('commercial', 'rgba(224,165,79,0.95)'); // --regolith
   }
@@ -10192,7 +10363,7 @@ function step66Plants(oxygen_t, metal_t){
    because both owners' plants move regolith and count toward plants built.
    At PR = 1.0 every phi and psi is exactly 1 and G === H === 1, so the model runs its learning-free path.
    ============================================================ */
-const LEARN_ARG_KEYS = ['learnRate', 'learnG', 'learnH', 'learnGcum', 'N_cum', 'b_learn', 'learnSR', 'learnSRphi', 'learnSRpsi'];
+const LEARN_ARG_KEYS = ['learnRate', 'learnG', 'learnH', 'learnGcum', 'N_cum', 'b_learn', 'learnSR', 'learnSRphi', 'learnSRpsi', 'commercialShareStanding'];
 var __learnMemo = new Map();
 function learningMultipliers(a0, f, era, PR){ __cumDepth++; try { return learningMultipliersCounts(a0, f, era, PR); } finally { __cumDepth--; } }
 /* STEP 68 PASS 2E E1: the counts, evaluated with model() at each cohort's balance power (R5.4: the fleet is not known when the counts are taken). */
@@ -10226,7 +10397,12 @@ function learningMultipliersCounts(a0, f, era, PR){
     a.phi_o = po; a.phi_m = Math.max(0, Math.min(1 - pc - po, (a.phi_m != null) ? a.phi_m : CONFIG.phiMetalProd.value)); }
   const E = Number(era), L = fleetLife();
   const rates = []; for (let y = CURVE_EPOCH; y <= E; y++) rates.push(f.rateM(y), f.rateP(y));
-  const key = JSON.stringify(a) + '|' + rates.join(',') + '|' + E + '|' + PR + '|' + L;
+  /* STEP 69: the memo key now also carries the two split curves' own knot state (curvePtsKey()),
+     because the per-cohort capital-source tag below reads CURVE.pts.agency/.commercial directly
+     and those are module-level state the census would otherwise not know had moved -- a reader
+     dragging a buildout handle with `a`, `rates`, E, PR and L all unchanged would silently reuse a
+     stale memoized tag set without this. */
+  const key = JSON.stringify(a) + '|' + rates.join(',') + '|' + E + '|' + PR + '|' + L + '|' + curvePtsKey();
   if (__learnMemo.has(key)) return __learnMemo.get(key);
   const b = Math.log(PR) / Math.log(2);
   /* STEP 70, ITEM 1 (Quinn's ruling of 2026-09-16): A FLOOR ON WRIGHT'S LAW, ASYMPTOTIC, MASS LEG ONLY.
@@ -10250,9 +10426,42 @@ function learningMultipliersCounts(a0, f, era, PR){
      A typed absolute (1.57) against a measured s_1 (15.7035) gives a ceiling of 10.0022, not the ruled 10. */
   const __s1 = 1000 / CONFIG.kExc.value, __sFloor = __s1 / VALUE.learnGCeiling.value;
   const phi = function(n){ const wN = Math.pow(Math.max(1, n), b); const s = __sFloor + (__s1 - __sFloor) * wN; return (s > 0) ? __s1 / s : 1; }, psi = function(n){ return Math.pow(Math.max(1, n), b); };
-  const owner = (a.funding === 'high') ? 'commercial' : 'government';
+  /* STEP 69, BLD-06: the placeholder line that stood here (a one-line ternary keyed on the
+     scenario's funding tier alone, assigning one of two capital-source labels) is retired. It was
+     a SCENARIO-WIDE constant -- every cohort in a scenario carried the identical tag regardless of
+     landing year -- because there was only one buildout curve, so there was nothing for a
+     per-year tag to read. Now that
+     AGENCY and COMMERCIAL are two independent curves (Step 69 sub-step 2), each cohort's tag is read
+     off which curve that COHORT'S OWN LANDING YEAR's tonnage actually came from, not off the funding
+     tier the whole scenario happens to carry. The census still sums BOTH tags' regolith and plant
+     counts below (the summation at c.r/c.surv never filters on .owner), which is exactly line 10119's
+     stated intent and BLD-08's non-collapse requirement: an Agency-tagged cohort counts fully here,
+     and is exempted only downstream, in valueModel()'s capital charge (BLD-07), never here. */
+  const rateAgency69 = buildCurve('agency', a.funding, era, null);
+  const rateCommercial69 = buildCurve('commercial', a.funding, era, null);
   const co = []; let cM = 0, cP = 0;
-  for (let y = CURVE_EPOCH; y <= E; y++){ const r = f.rateM(y); cM += r; cP += f.rateP(y); co.push({y:y, r:r, owner:owner, cM:cM, cP:cP, surv:(E - y) < L}); }
+  for (let y = CURVE_EPOCH; y <= E; y++){
+    const r = f.rateM(y); cM += r; cP += f.rateP(y);
+    const rAgency = rateAgency69(y), rCommercial = rateCommercial69(y);
+    const owner = (rCommercial >= rAgency) ? 'commercial' : 'agency';   // BLD-06: per-cohort-year, not scenario-wide
+    co.push({y:y, r:r, rAgency:rAgency, rCommercial:rCommercial, owner:owner, cM:cM, cP:cP, surv:(E - y) < L});
+  }
+  /* STEP 69, BLD-07/BLD-08: the aggregate COMMERCIAL SHARE of the STANDING (surviving) cohorts,
+     by tonnage rather than by the coarse binary tag above -- a continuous ratio is what a capital
+     charge needs, the categorical .owner is what a census tag needs, and both are read off the same
+     two curves so they cannot disagree about which cohort-years counted. Ratio, not a comparison
+     against CURVE.pts.mass's own total, so this is exact regardless of any float-level difference
+     between agency(y)+commercial(y) and the (unchanged) mass curve's own PCHIP shape between knots --
+     the ratio is applied to model()'s own standing mass (m.mass) at the value layer, never to a
+     second, independently-summed total this function would otherwise have to keep in agreement. */
+  let __survAgency69 = 0, __survCommercial69 = 0;
+  co.forEach(function(c){ if (c.surv){ __survAgency69 += c.rAgency; __survCommercial69 += c.rCommercial; } });
+  const __survSplitTotal69 = __survAgency69 + __survCommercial69;
+  /* No default is a claim: an era with no surviving cohorts at all (nothing landed yet, or
+     everything aged out) has no tonnage to split, so the share defaults to 1 (fully commercial),
+     matching the pre-Step-69 behaviour every caller not passing commercialShareStanding already
+     gets in valueModel() below -- the safe, bit-for-bit-reproducing default, never a free exemption. */
+  const commercialShareStanding = (__survSplitTotal69 > 0) ? (__survCommercial69 / __survSplitTotal69) : 1;
   /* STEP 70, ITEM 3 CORRECTION: the per-kWe hardware coefficients the cohort mix is built on, read the way
      powerFleetSolve() reads them so the census and the fleet price a reactor and a solar kWe alike. No power
      term appears here: the power rail is retired and dividing by it is what took LRN-19 red. */
@@ -10288,7 +10497,10 @@ function learningMultipliersCounts(a0, f, era, PR){
   let s = 0, sp = 0, sh = 0, sAll = 0, spAll = 0;
   co.forEach(function(c){ sAll += c.r; spAll += c.r * c.phi; if (c.surv){ s += c.r; sp += c.r * c.phi; sh += c.r * c.psi; } });
   const out = {G:(s > 0 ? sp / s : 1), H:(s > 0 ? sh / s : 1), Gcum:(sAll > 0 ? spAll / sAll : 1), Ncum:(co.length ? co[co.length - 1].N : 0), b:b,
-               sR:s, sRphi:sp, sRpsi:sh, cohorts:co};
+               sR:s, sRphi:sp, sRpsi:sh, cohorts:co,
+               /* STEP 69, BLD-07/BLD-08: forwarded onto args by applyLearning() below, then read by
+                  valueModel() to restrict the capital charge to the commercial-owned share of mass. */
+               commercialShareStanding:commercialShareStanding};
   if (__learnMemo.size > 4000) __learnMemo.clear();
   __learnMemo.set(key, out);
   return out;
@@ -10298,6 +10510,9 @@ function applyLearning(args, fs, era, PR){
   const k = learningMultipliers(args, fs, era, PR);
   args.learnRate = PR; args.learnG = k.G; args.learnH = k.H; args.learnGcum = k.Gcum;
   args.N_cum = k.Ncum; args.b_learn = k.b; args.learnSR = k.sR; args.learnSRphi = k.sRphi; args.learnSRpsi = k.sRpsi;
+  // STEP 69 (Gameplan 3475, BLD-07/BLD-08): forwarded to valueModel()/lenderMargin() so the capital
+  // charge can be restricted to the commercial-owned share of standing mass.
+  args.commercialShareStanding = k.commercialShareStanding;
   return k;
 }
 /* Preset-labelled figures carry the learning at the preset rate, never the reader's slider, so they do not move when the
@@ -13298,6 +13513,20 @@ function valueModel(inp){
   const C_hw = C_hwFirst * ((inp.learnH != null) ? inp.learnH : 1);
 
   const cap = m.cap, Cfull = m.Cfull, mass = m.mass;
+  /* STEP 69 (Gameplan line 3475, installed here): "Value cards charge commercial capital only;
+     government landings count toward learning." commercialShareStanding is the aggregate,
+     tonnage-weighted commercial share of the STANDING (surviving) cohorts, forwarded by
+     applyLearning()/learningMultipliersCounts() from the two Agency/Commercial buildout curves
+     (BLD-06/BLD-07). A caller that supplies none -- every self-check written before this step,
+     none of which passes it -- gets 1 (fully commercial), reproducing today's full-capital-charge
+     behaviour bit for bit; this is the same "omitted field reproduces the pre-existing default"
+     discipline every other optional inp.* field on this function already follows. `mass` above
+     stays the FULL standing fleet, unmoved and unfiltered, because every other consumer of it
+     below (water/construction margins are on tonnage, not this mass) and the learning/plant
+     census (BLD-08) still need the whole of it; only the capital-recovery INTENSITY below reads
+     the commercial-owned share. */
+  const commercialShare = (inp.commercialShareStanding != null) ? inp.commercialShareStanding : 1;
+  const commercialMass = mass * commercialShare;
   const water_tpy = m.water, construction_tpy = m.construction;
   /* Step 49, superseded at Step 56 sub-step 4-B2 and corrected here at Wave 3. The Value tab
      reads the SAME water the hero prints, and since 4-B2 that water is the residual of phi_c
@@ -13317,8 +13546,11 @@ function valueModel(inp){
   // inp.decayBasis:'straightLine' override. lifeAnnualFraction() is the one
   // abstraction point that owns this default; see its own header comment.
   const annualFrac = lifeAnnualFraction(inp, L);
-  const r_prop  = (cap   > 0) ? mass * annualFrac / cap   : Infinity;
-  const r_const = (Cfull > 0) ? mass * annualFrac / Cfull : Infinity;
+  // STEP 69 (Gameplan 3475): the capital-recovery ratios are on commercialMass, the
+  // commercial-owned share of standing mass, not the undifferentiated total -- Agency-funded
+  // mass is exempt from capital recovery and still counts fully toward learning (BLD-08).
+  const r_prop  = (cap   > 0) ? commercialMass * annualFrac / cap   : Infinity;
+  const r_const = (Cfull > 0) ? commercialMass * annualFrac / Cfull : Infinity;
 
   /* STEP 70, QUINN'S RULING OF 2026-09-16: BOTH TERMS ARE VESTIGIAL AND BOTH ARE $1.
      PROPELLANT OPERATING COST IS NOT MODELLED. It is exogenous overhead that self-sufficiency cannot
@@ -13404,7 +13636,7 @@ function valueModel(inp){
 
   return {
     D, L, op_prop, op_const, C_hw, C_hwEff: C_hw, C_hwFirst, preProduction, Chw_breakeven, waterMinTpy,
-    cap, Cfull, mass, water_tpy, construction_tpy, binding:m.binding, feasible:m.feasible,
+    cap, Cfull, mass, commercialMass, commercialShare, water_tpy, construction_tpy, binding:m.binding, feasible:m.feasible,
     /* THE PROPELLANT STREAM IS CHARGED phi_c's RESIDUAL, not both fractions'.
        Under Step 56 sub-step 4-B2 the oxygen line pays for what it draws out of the two shared
        budgets before cap is computed, so water is (1 - phi_c) * cap and the share of the plant
@@ -13442,7 +13674,10 @@ function lenderMargin(inp, i, opts){
   const tenor = (o.tenor != null) ? o.tenor : ((VALUE.lenderTenor != null) ? VALUE.lenderTenor.value : L);
   const thr = (o.threshold != null) ? o.threshold : 0;
   const CRF = (i === 0) ? 1 / tenor : i * Math.pow(1 + i, tenor) / (Math.pow(1 + i, tenor) - 1);
-  const r_prop = (v.cap > 0) ? v.mass * CRF / v.cap : Infinity, r_const = (v.Cfull > 0) ? v.mass * CRF / v.Cfull : Infinity;
+  // STEP 69 (Gameplan 3475): the lender's CRF charge is on v.commercialMass, the same
+  // commercial-owned share valueModel()'s own declining-balance r_prop/r_const now use, not the
+  // undifferentiated v.mass -- one exemption rule, read off one field, in both places it applies.
+  const r_prop = (v.cap > 0) ? v.commercialMass * CRF / v.cap : Infinity, r_const = (v.Cfull > 0) ? v.commercialMass * CRF / v.Cfull : Infinity;
   const P_prop = (v.op_prop != null) ? r_prop * (v.C_hw + v.D) + v.op_prop : null;
   const P_const = r_const * (v.C_hw + v.D) + v.op_const;
   const mp = (P_prop != null) ? v.D - P_prop : null, mc = v.D - P_const;
@@ -16202,7 +16437,7 @@ function composeDerivation(state, m, v){
      and 0 respectively) so DR1's chain-coverage population, which is not preProduction-aware
      and should not need to be, still finds both refs at every state it walks. */
   const propSteps = [
-    {text:'r_prop = mass * (1 - (1 - decayRate)^decayLife) / (decayLife * cap) = '+_dnum(m.mass)+' * (1 - (1 - '+_dn(VALUE.decayRate.value,2)+')^'+_dn(VALUE.decayLife.value,0)+') / ('+_dn(VALUE.decayLife.value,0)+' * '+_dnum(m.cap)+') = '+_dFin(LV('r_prop',v.r_prop,'value'), 'cap')}
+    {text:'r_prop = commercialMass * (1 - (1 - decayRate)^decayLife) / (decayLife * cap) = '+_dnum(v.commercialMass)+' * (1 - (1 - '+_dn(VALUE.decayRate.value,2)+')^'+_dn(VALUE.decayLife.value,0)+') / ('+_dn(VALUE.decayLife.value,0)+' * '+_dnum(m.cap)+') = '+_dFin(LV('r_prop',v.r_prop,'value'), 'cap')}
   ];
   if(v.preProduction){
     LV('margin_prop', v.margin_prop, 'value');
@@ -16217,7 +16452,7 @@ function composeDerivation(state, m, v){
     );
   }
   const constValSteps = [
-    {text:'r_const = mass * (1 - (1 - decayRate)^decayLife) / (decayLife * C_full) = '+_dnum(m.mass)+' * (1 - (1 - '+_dn(VALUE.decayRate.value,2)+')^'+_dn(VALUE.decayLife.value,0)+') / ('+_dn(VALUE.decayLife.value,0)+' * '+_dnum(m.Cfull)+') = '+_dFin(LV('r_const',v.r_const,'value'), 'C_full')},
+    {text:'r_const = commercialMass * (1 - (1 - decayRate)^decayLife) / (decayLife * C_full) = '+_dnum(v.commercialMass)+' * (1 - (1 - '+_dn(VALUE.decayRate.value,2)+')^'+_dn(VALUE.decayLife.value,0)+') / ('+_dn(VALUE.decayLife.value,0)+' * '+_dnum(m.Cfull)+') = '+_dFin(LV('r_const',v.r_const,'value'), 'C_full')},
     {text: isFinite(v.P_const)
       ? 'P_const = r_const * (C_hw + D) + op_const = '+_d6(v.r_const)+' * ('+_dusd(v.C_hw)+' + '+_dusd(D)+') + '+_dusd(op_const)+' = '+_dusd(LV('P_const',v.P_const,'value'))+'/kg'
       : 'P_const = r_const * (C_hw + D) + op_const: no finite value, because r_const has none'+_lvq(LV('P_const',v.P_const,'value'))},
@@ -17198,6 +17433,23 @@ function runAbstractTests(){
       state.phase=ph; abstractScenario=null; applyPreset(PRESETS[id]);
       const ref = abstractPresetRef(PRESETS[id]);
       ['ice','power','mass'].forEach(function(k){
+        if (k === 'mass'){
+          /* STEP 70.2 ITEM B: state.mass is a continuous t/yr value now, not an index into
+             DETENTS.mass -- "one step off preset" for a continuous rail is the rail's own decided
+             keyboard step, 10^0.1 (a tenth of a decade, MASS-05), the direct analogue of the one-
+             detent moves ice and power still make here. */
+          const at = state.mass, STEP = Math.pow(10, 0.1);
+          [at / STEP, at * STEP].forEach(function(j){
+            if (j < MASS_RAIL_MIN || j > MASS_RAIL_MAX) return;
+            const keep = state.mass;
+            state.mass = j;
+            const r = abstractUpdate();
+            seen.push(r.dev);
+            if (r.fade > 0 && r.fade < 1) interior.push(id+' at '+ph+' mass to '+j.toFixed(2)+' dev '+r.dev.toFixed(3)+' fade '+r.fade.toFixed(3));
+            state.mass = keep;
+          });
+          return;
+        }
         const rail = DETENTS[k], at = state[k];
         [at-1, at+1].forEach(function(j){
           if (j < 0 || j >= rail.length) return;
@@ -17266,8 +17518,11 @@ function runAbstractTests(){
     render();
     const atFade = document.getElementById('abstract').dataset.fade;
     const atCap  = document.getElementById('railRestore').disabled;
-    // one detent of landed mass, then render() and nothing else
-    state.mass = Math.max(0, state.mass - 2);
+    // STEP 70.2 ITEM B: state.mass is a continuous t/yr value now, not a 7-value detent index --
+    // "one detent of landed mass" (dropping 2 old detents, 500 -> 100 at this state, an 80 percent
+    // cut) is reproduced as a large enough relative drop to move the fade ramp, /5 landing on the
+    // identical 100 t/yr this state always exercised, then render() and nothing else.
+    state.mass = Math.max(MASS_RAIL_MIN, state.mass / 5);
     render();
     const offFade = document.getElementById('abstract').dataset.fade;
     const offCap  = document.getElementById('railRestore').disabled;
@@ -17276,7 +17531,7 @@ function runAbstractTests(){
     const stash = AFTER_RENDER.splice(0, AFTER_RENDER.length);
     applyPreset(PRESETS.artemis); render();
     const dAt = document.getElementById('abstract').dataset.fade;
-    state.mass = Math.max(0, state.mass - 2); render();
+    state.mass = Math.max(MASS_RAIL_MIN, state.mass / 5); render();   // STEP 70.2 ITEM B: same continuous-value fix as above
     const dOff = document.getElementById('abstract').dataset.fade;
     Array.prototype.push.apply(AFTER_RENDER, stash);
     const decoyCaught = (dAt === dOff);
@@ -17702,7 +17957,10 @@ function runAbstractTests(){
      refuses a year that is not an era and a quantity that is neither rail, because a silent no-op
      there is a drag that appears to work and changes nothing. */
   {
-    const MAXM = DETENTS.mass[DETENTS.mass.length-1], bad = [], seen = [];
+    // STEP 70.2: MAXM reads CURVE_MAX.mass, the actual source setEraRate() clamps against, not
+    // DETENTS.mass -- Item B leaves DETENTS.mass as an unrelated small reference array while
+    // CURVE_MAX.mass was raised to MASS_RAIL_MAX on Quinn's ruling 2026-09-17.
+    const MAXM = CURVE_MAX.mass, bad = [], seen = [];
     curveReset();
     const hi = setEraRate('mass', 2040, 1e9);      seen.push('1e9 -> ' + hi);
     const lo = setEraRate('mass', 2040, -5000);    seen.push('-5000 -> ' + lo);
@@ -18731,9 +18989,9 @@ function runAbstractTests(){
       ['artemis', 'Agency Led Baseline 2055, Oxygen split 0.60', function(){ state.phi_o = ix3('phi_o', 0.60); }],
       ['artemis', 'Agency Led Baseline 2055 regolith-bound (Solar, mass 10, power 200, in-situ 1.0, fab 0.45, Construction 0, Oxygen 0.20, Metals-production 0)', function(){
         state.fission = false; state.mix = 0; state.fabProd = 0.45;
-        state.mass = ix3('mass', 10); state.power = ix3('power', 200);
+        state.mass = 10; state.power = ix3('power', 200);   // STEP 70.2 ITEM B: state.mass is a continuous value now, 10 is the value itself
         state.phi_c = ix3('phi_c', 0); state.phi_o = ix3('phi_o', 0.20); state.phi_m = ix3('phi_m', 0); }],
-      ['artemis', 'Agency Led Baseline 2055, mass rail 10 t/yr', function(){ state.mass = ix3('mass', 10); }],
+      ['artemis', 'Agency Led Baseline 2055, mass rail 10 t/yr', function(){ state.mass = 10; }],   // STEP 70.2 ITEM B
       ['artemis', 'Agency Led Baseline 2055, power rail 1,000 kWe', function(){ state.power = ix3('power', 1000); }],
       ['artemis', 'Agency Led Baseline 2055, power curve point at 2055 dragged to 2,000', function(){ setEraRate('power', '2055', 2000); }],
       ['commercial', 'The Commercial Break 2055, fab on (Solar, in-situ share 1.0 by rule, fab 0.45)', function(){
@@ -18773,7 +19031,7 @@ function runAbstractTests(){
     /* Each entry: label, a companion setting applied to both sides, the control move. Power source
        changes the power-system mass only, so it moves water where landed mass binds: it is read
        against the mass rail at 10 t/yr, not against the power-bound preset. */
-    const mass10 = function(){ state.mass = ix4('mass', 10); };
+    const mass10 = function(){ state.mass = 10; };   // STEP 70.2 ITEM B: state.mass is a continuous value now, 10 is the value itself
     const READER = [
       ['Oxygen split 0.30', null, function(){ state.phi_o = ix4('phi_o', 0.30); }],
       /* STEP 68 PASS 2E E5a: the Power source chip and the power rail are removed (Revision 5); standing power is the fleet output. */
@@ -19074,77 +19332,19 @@ function runAbstractTests(){
                seen.join(', ') + '. The retired rule breaches at ' + breaches.length + ' year-points: ' + breaches.slice(0,3).join('; ')));
   }
 
-  // ================= CURVE-09 =================
-  /* STEP 67 PASS 8, CARRIED FORWARD A (decided 2026-09-14). A curve point between two notches used to put
-     the thumb on the notch at or below it: 1,000 t/yr under a 2,000 t/yr label. The thumb now sits at the
-     value's position on the rail's log scale between the two adjacent notches, i + ln(v / D[i]) /
-     ln(D[i+1] / D[i]), with step="any" so a browser does not snap it back. From there a keyboard step up
-     lands on the nearest notch above the value and a step down on the notch at or below it; a browser's
-     own fractional increment (1% of the range under step="any") resolves the same way by direction; a drag
-     snaps to the nearest notch. The expected position is computed here from DETENTS alone.
-     Three cases: the reviewer's 2,000 t/yr mass point (the 1,000 to 10,000 gap), 300 t/yr mass (150 to
-     500), and 3,000 kWe/yr power (2,000 to 5,000). DECOY: the retired at-or-below thumb index disagrees
-     with the log position at every case. */
-  {
-    const bad = [], seen = [];
-    let decoy = 0;
-    function logPos(arr, v){
-      if (!(v > arr[0])) return 0;
-      if (v >= arr[arr.length-1]) return arr.length - 1;
-      let i = 0; while (i + 1 < arr.length && arr[i+1] <= v) i++;
-      return (arr[i] === v) ? i : i + Math.log(v / arr[i]) / Math.log(arr[i+1] / arr[i]);
-    }
-    function aboveOf(arr, v){ for (let i = 0; i < arr.length; i++) if (arr[i] > v + 1e-9) return i; return arr.length - 1; }
-    function atOrBelowOf(arr, v){ let b = 0; for (let i = 0; i < arr.length; i++) if (arr[i] <= v + 1e-9) b = i; return b; }
-    const saveP = state.phase;
-    const CASES = [['mass', 2000, 'k_mass', 't/yr'], ['mass', 300, 'k_mass', 't/yr']];   // STEP 68 PASS 2E E5a: the power rail is removed
-    CASES.forEach(function(cs){
-      const key = cs[0], v = cs[1], arr = DETENTS[key];
-      const want = logPos(arr, v), up = aboveOf(arr, v), down = atOrBelowOf(arr, v);
-      const tag = key + ' point ' + v + ' ' + cs[3];
-      function place(){
-        curveReset(); applyPreset(PRESETS.artemis);
-        const btn = document.querySelector('#phase button[data-p="2055"]');
-        if (btn) btn.click(); else { state.phase = '2055'; render(); }
-        CURVE.pts[key][2055] = v; render();
-        return document.getElementById(cs[2]);
-      }
-      let el = place();
-      if (!el){ bad.push('no #' + cs[2] + ' element exists in the rendered document'); return; }
-      if (Math.abs(floorIdx(arr, v) - want) > 1e-9) decoy++;
-      const got = Number(el.value), stepAttr = String(el.step);
-      if (stepAttr !== 'any') bad.push(tag + ': #' + cs[2] + ' step is "' + stepAttr + '", so a browser snaps the thumb to a notch');
-      if (!(Math.abs(got - want) < 1e-9)) bad.push(tag + ': thumb at ' + got + ', not the log position ' + want.toFixed(6) + ' between ' + arr[down] + ' and ' + arr[up]);
-      const res = {};
-      function after(label, act){
-        el = place(); act(el);
-        res[label] = { idx: state[key], pt: CURVE.pts[key][2055], val: Number(el.value), step: String(el.step) };
-      }
-      after('keyUp',   function(e){ e.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp',   bubbles: true, cancelable: true })); });
-      after('keyDown', function(e){ e.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true })); });
-      const pct = (Number(el.max) - Number(el.min)) / 100;
-      after('incUp',   function(e){ e.value = String(want + pct); e.dispatchEvent(new Event('input', { bubbles: true })); });
-      after('incDown', function(e){ e.value = String(want - pct); e.dispatchEvent(new Event('input', { bubbles: true })); });
-      after('dragNear', function(e){ e.value = String(down + 0.8); e.dispatchEvent(new Event('input', { bubbles: true })); });
-      after('dragFar',  function(e){ e.value = '1.2'; e.dispatchEvent(new Event('input', { bubbles: true })); });
-      const expect = { keyUp: up, keyDown: down, incUp: up, incDown: down, dragNear: Math.min(arr.length - 1, down + 1), dragFar: 1 };
-      Object.keys(expect).forEach(function(k){
-        const r = res[k];
-        if (r.idx !== expect[k]) bad.push(tag + ': ' + k + ' landed on index ' + r.idx + ' (' + arr[r.idx] + '), not ' + expect[k] + ' (' + arr[expect[k]] + ')');
-        if (r.pt != null) bad.push(tag + ': ' + k + ' left the curve point in force at the live era');
-        if (r.step === 'any' || r.val !== r.idx) bad.push(tag + ': after ' + k + ' the thumb reads ' + r.val + ' with step "' + r.step + '", not notch ' + r.idx);
-      });
-      seen.push(tag + ': thumb ' + got.toFixed(6) + ' (step ' + stepAttr + '), key up ' + res.keyUp.idx + ' (' + arr[res.keyUp.idx] + '), key down ' + res.keyDown.idx + ' (' + arr[res.keyDown.idx] + '), +1% ' + res.incUp.idx + ', -1% ' + res.incDown.idx + ', drag ' + (down + 0.8).toFixed(1) + ' to ' + res.dragNear.idx + ', drag 1.2 to ' + res.dragFar.idx);
-    });
-    state.phase = saveP; curveReset(); applyPreset(PRESETS.artemis); render();
-    const want = CASES.length;
-    if (decoy !== want) bad.push('DECOY DID NOT FIRE at every case: the at-or-below index agrees with the log position at ' + (want - decoy) + ' case(s)');
-    rec('CURVE-09','GATE',
-        'after a buildout-curve point between two notches overrides the mass rail, the range input carries step="any" and its thumb sits at the value\'s log position between the adjacent notches; a keyboard step up lands on the nearest notch above the value and a step down on the notch at or below it, a browser\'s fractional 1% increment resolves the same way by direction, a drag snaps to the nearest notch, and each clears the live-era point and returns the thumb to an integer notch; checked at 2,000 t/yr mass, 300 t/yr mass and 3,000 kWe/yr power (DECOY: the retired at-or-below thumb index disagrees with the log position at all three)',
-        seen.length === want && bad.length === 0,
-        seen.length !== want ? ('EMPTY OR SHORT POPULATION: ' + seen.length + ' curve values checked, not ' + want + (bad.length ? '; ' + bad[0] : ''))
-          : (bad.length ? bad.slice(0,3).join('  ') : seen.join(' | ')));
-  }
+  // ================= CURVE-09, RETIRED AT STEP 70.2 =================
+  /* STEP 67 PASS 8, CARRIED FORWARD A (decided 2026-09-14), RETIRED 2026-09-17. This row tested the
+     between-two-notches thumb mechanic: dataset.curveVal/railPos, step="any" while a curve point sat
+     off a detent, and keyboard resolution to the nearest notch. Its only remaining case set was
+     'mass' -- the 'power' case was already removed at Step 68 pass 2E E5a, and this row's own
+     comment said so. Step 70.2 Item B makes #k_mass a genuinely continuous log rail: there are no
+     more notches for a curve point to sit "between", so the mechanic this row checks has no live
+     subject left to test, on the one rail it still covered. Retiring rather than forcing a false
+     green or an unfixable red. The continuous rail's real properties -- full-range positioning, the
+     logarithmic mapping, the envelope tick's position, and the decided keyboard step -- are covered
+     live by the Step 70.2 test suite's MASS-01, MASS-02, MASS-03 and MASS-05 rows. */
+  rec('CURVE-09','RETIRED','a buildout-curve point between two mass-rail notches parks the thumb at the log position between them and keyboard resolves to the adjacent notch (retired: Step 70.2 makes the mass rail continuous, so there are no more notches to sit between; the Step 70.2 test suite\'s MASS-01/02/03/05 rows cover the continuous rail\'s real properties)', true,
+      'retired at Step 70.2: #k_mass has no discrete notches left for a curve point to sit between');
 
   // ---------------- FLEETUI-01 ----------------
   /* THE CALL SITE, ASSERTED FROM THE PAINTED PAGE. This row was left open in the
@@ -20047,10 +20247,14 @@ function runAbstractTests(){
       // (Reactor products) are chain cards carrying named lines. Finding 1's own fix (the honest
       // dedicated/co-product oxygen split) makes the oxygen card the second chain card rather
       // than a simple one.
-      const SIMPLE = [{ pos: 0, name: 'Water produced', key: 'water' }, { pos: 2, name: 'Construction', key: 'construction' }];
+      // STEP 70.2, QUINN'S RULING: card/line names shortened -- 'Water produced' -> 'WATER',
+      // 'Oxygen produced' -> 'OXYGEN' (now a painted card-level title, like Metals),
+      // 'Aluminium'/'Iron-silicon alloy'/'Of which, silicon' -> 'Al'/'Fe-Si'/'Si'. Content,
+      // structure and numbers are unchanged; only the strings this matcher checks against moved.
+      const SIMPLE = [{ pos: 0, name: 'WATER', key: 'water' }, { pos: 2, name: 'Construction', key: 'construction' }];
       const CHAINS = [
-        { pos: 1, cardName: 'Oxygen produced', lines: [['Total', 'oxygenTotal'], ['Dedicated (life support)', 'oxygen'], ['Co-product (metals)', 'coproductO2']] },
-        { pos: 3, cardName: 'Metals', lines: [['Aluminium', 'aluminium'], ['Iron-silicon alloy', 'alloy'], ['Of which, silicon', ['siliconLow', 'siliconHigh']]] }
+        { pos: 1, cardName: 'OXYGEN', lines: [['Total', 'oxygenTotal'], ['Dedicated (life support)', 'oxygen'], ['Co-product (metals)', 'coproductO2']] },
+        { pos: 3, cardName: 'Metals', lines: [['Al', 'aluminium'], ['Fe-Si', 'alloy'], ['Si', ['siliconLow', 'siliconHigh']]] }
       ];
       const WANT_COUNT = 4;
       const RETIRED = /^(metals produced|alloy produced|regolith feed|mining plant standing)$/i;
@@ -20882,7 +21086,7 @@ function runAbstractTests(){
                      ['artemis','2055',0.5,null,false],['commercial','2055',0.55,null,false],['contested','2040',null,null,false],
                      ['artemis','2055',0.60,null,false],['artemis','2055',0.65,null,false],['commercial','2040',0.70,null,false],
                      ['contested','2055',0.80,null,false],['commercial','2055',1.0,0,false,null,0.9],['contested','2040',0.95,0,false,null,0.9],
-                     ['artemis','2055',1.0,0,false,function(){ state.mass = 0; },0.9]];
+                     ['artemis','2055',1.0,0,false,function(){ state.mass = MASS_RAIL_MIN; },0.9]];   // STEP 70.2 ITEM B: continuous value now, floor is MASS_RAIL_MIN not index 0
       CASES.forEach(function(c){
         setTo(c[0], c[1], c[2], c[3], c[4], c[6]); if (c[5]) c[5](); render();
         judge(model(argsNow()), c[0]+'/'+c[1]+(c[2]!=null?' phi_o '+c[2]:'')+(c[3]!=null?' phi_c '+c[3]:'')+(c[6]!=null?' phi_m '+c[6]:'')+(c[4]?' fab':'')+(c[5]?' mass lowest':''));
@@ -20999,7 +21203,7 @@ function runAbstractTests(){
     const setRegolithBound = function(){
       setTo('artemis','2055',0.20,0,false);
       state.fission = false; state.mix = 0; state.fabProd = 0.45;
-      state.mass = idx(DETENTS.mass, 10); state.power = idx(DETENTS.power, 200); state.phi_m = idx(DETENTS.phi_m, 0);
+      state.mass = 10; state.power = idx(DETENTS.power, 200); state.phi_m = idx(DETENTS.phi_m, 0);   // STEP 70.2 ITEM B: state.mass is a continuous value now, 10 is the value itself
     };
     /* STEP 68 PASS 2G N2 IND: the states that scale the industrial lines or dry water once the optimiser finds the water window (probe_reach2.js,
        probe_drypos.js). Index 1 to 4 feed IND-07 (at least one scaled); every one after index 0 feeds IND-08. */
@@ -21023,7 +21227,7 @@ function runAbstractTests(){
          the row lost both its zero-water case and its only positive-residual one. The In-situ solar rate at its floor makes the
          2040s in-situ kilowatt weigh 4.575 t and the fab's own mass starves the plant instead: measured water 0.00 with a
          residual share of 0.05 on the shipped build and on this one. */
-      {id:'Agency Led Baseline 2055 lowest Mass landing rate, non-productive downmass 0.75, In-situ solar rate 0.02, Solar and Fission kg/kWe at maximum, Oxygen split 0.50, Metals-production split 0.40', set:function(){ setTo('artemis','2055',0.50,null,false,0.40); state.mass = 0; state.phiC0Ovr = 0.75; state.fabProd = 0.02; state.solOvr = 300; state.fisOvr = 300; }}
+      {id:'Agency Led Baseline 2055 lowest Mass landing rate, non-productive downmass 0.75, In-situ solar rate 0.02, Solar and Fission kg/kWe at maximum, Oxygen split 0.50, Metals-production split 0.40', set:function(){ setTo('artemis','2055',0.50,null,false,0.40); state.mass = MASS_RAIL_MIN; state.phiC0Ovr = 0.75; state.fabProd = 0.02; state.solOvr = 300; state.fisOvr = 300; }}
     ];
     /* STEP 68 PASS 2E E5a: the regolith-bound state (Solar, power rail 200 kWe) is not reachable on the fleet page: the Power source chip and
        the power rail are removed, and the fleet reaches no regolith-scaled state over the rails (probe_reach.js, 1,440 painted
@@ -21387,23 +21591,38 @@ function runAbstractTests(){
   })();
 
   // ---- INVEST-01 (GATE): the C1 investment panel, Wintta's own axes ----
-  // Step 59 sub-step 6. Two curves, agency and commercial investment in dollars per year across
-  // the fixed 2030-2055 axis, under the buildout curve inside Advanced. No new coefficient:
-  // investment(year) = landing rate at that year x 1000 x (C_hw + D); government = min(the
-  // identical formula on ENVELOPE.med, this scenario's own); commercial = the remainder. This row
-  // recomputes the series independently (never calling investmentSeries()/investDraw()) at the
-  // year matching each of the nine preset states, checks the sum identity and non-negativity at
-  // every one of the 26 painted years (not just the nine matched ones), and requires the caption
-  // to name the basis and to never carry the 2007-era 67-70 percent sector aggregate this
-  // project reds as a misattribution against a lunar per-tonne figure.
+  // Step 59 sub-step 6, ORIGINAL TEXT KEPT FOR THE RECORD: Two curves, agency and commercial
+  // investment in dollars per year across the fixed 2030-2055 axis, under the buildout curve
+  // inside Advanced. No new coefficient: investment(year) = landing rate at that year x 1000 x
+  // (C_hw + D); government = min(the identical formula on ENVELOPE.med, this scenario's own);
+  // commercial = the remainder.
+  // SUPERSEDED (Step 69, ruling 3, Quinn 2026-09-16, quoted verbatim): "money is an output of
+  // outputs afaik ... One authoritative Agency/Commercial split exists -- the two curves. Step
+  // 59's ENVELOPE.med derivation is superseded." The gov=min(ENVELOPE.med, this scenario's own)
+  // CAP this row asserted is STRUCK: investmentSeries() (line ~9307) no longer calls
+  // medEnvelopeRate() or reads ENVELOPE.med at all, and now reads Agency/Commercial dollars
+  // straight off buildCurve('agency',...)/buildCurve('commercial',...), the same two curves the
+  // buildout panel exposes (the Step 69 test suite's BLD-09, BLD-10 rows). The reason this
+  // is struck rather than left standing: under the OLD cap, dragging either new curve off its
+  // scenario default would make this row's independently-recomputed ENVELOPE.med-capped
+  // expectation disagree with the panel's own (correctly rewired) painted dataset, which is
+  // exactly the two-mechanism defect ruling 3 exists to prevent -- so the cap comparison is not
+  // kept "for safety," it is removed because keeping it would BE the defect.
+  // WHAT THIS ROW STILL CHECKS, and gates for real rather than reporting SUPERSEDED and nothing
+  // else: an independent recomputation off buildCurve('agency'|'commercial', funding, '2055',
+  // null) agrees with the panel's own dataset at the year matching each of the nine preset
+  // states, the gov+commercial=invest sum identity and non-negativity at every one of the 26
+  // painted years (not just the nine matched ones), and the caption naming the new basis while
+  // never carrying the 2007-era 67-70 percent sector aggregate this project reds as a
+  // misattribution against a lunar per-tonne figure.
   (function(){
-    const NAME = 'the C1 investment panel (#investPlot) paints agency and commercial investment across a fixed 2030-2055 axis, gov = min(ENVELOPE.med, this scenario’s own) x 1000 x (C_hw+D) and commercial = the remainder, independently recomputed at the year matching each of the nine preset states and checked for the gov+commercial=invest identity and non-negativity at all 26 painted years, with a caption naming the basis rather than a per-tonne attribution (DECOY: dropping the min cap disagrees with the painted government series wherever it binds)';
+    const NAME = 'SUPERSEDED (Step 69, ruling 3): the C1 investment panel (#investPlot) no longer derives Agency/Commercial dollars by capping this scenario’s own rate against ENVELOPE.med (INVEST-01’s original gov=min(ENVELOPE.med,own) formula is struck, not silently dropped) -- it now reads both curves’ dollars directly off buildCurve(\'agency\'|\'commercial\', funding, \'2055\', null), the same two curves the buildout panel exposes, with invest = gov + commercial the god curve (ruling 2). This row now checks what still has to hold under that mechanism: independent agreement at the year matching each of the nine preset states, the sum identity and non-negativity at all 26 painted years, and a caption naming the new basis rather than a per-tonne attribution';
     const cv = document.getElementById('investPlot'), capEl = document.getElementById('investCaption');
     if (!cv || !capEl){
       rec('INVEST-01','GATE',NAME,false,'EMPTY POPULATION: '+(!cv?'no #investPlot element':'no #investCaption element')+' exists in the rendered document');
       return;
     }
-    const why = []; let capBinds = 0, capSlack = 0;
+    const why = [];
     const walked = walk9(function(where){
       const years = (cv.dataset.years||'').split(',').map(Number);
       const gov = (cv.dataset.gov||'').split(',').map(Number);
@@ -21414,18 +21633,15 @@ function runAbstractTests(){
       const D = knobVal('landed_cost'), C_hw = C_HW1 * (psiY != null ? psiY : 1); // Step 68 pass 2B: the selected year's vintage price
       const idx = years.indexOf(Number(state.phase));
       if (idx < 0){ why.push(where+': the panel’s own year axis does not carry the selected era '+state.phase); return; }
-      const wantInvest = ENVELOPE[state.funding][state.phase].M * 1000 * (C_hw + D);
-      const wantGovCap = ENVELOPE.med[state.phase].M * 1000 * (C_hw + D);
-      const wantGov = Math.min(wantGovCap, wantInvest);
+      const agencyRateChk = buildCurve('agency', state.funding, '2055', null);
+      const commercialRateChk = buildCurve('commercial', state.funding, '2055', null);
+      const wantGov = agencyRateChk(Number(state.phase)) * 1000 * (C_hw + D);
+      const wantInvest = wantGov + commercialRateChk(Number(state.phase)) * 1000 * (C_hw + D);
       const tol = Math.max(1, Math.abs(wantInvest)) * 1e-6;
       if (Math.abs(invest[idx] - wantInvest) > tol)
         why.push(where+': #investPlot paints invest='+invest[idx]+' against an independently computed '+wantInvest.toFixed(2));
       if (Math.abs(gov[idx] - wantGov) > tol)
         why.push(where+': #investPlot paints gov='+gov[idx]+' against an independently computed '+wantGov.toFixed(2));
-      if (wantGovCap < wantInvest - 1e-6){
-        capBinds++;
-        if (Math.abs(gov[idx] - wantInvest) < tol*3) why.push(where+': the cap binds here and the DECOY, dropping it, still agrees with the painted government series');
-      } else capSlack++;
       for (let i = 0; i < years.length; i++){
         if (Math.abs((gov[i] + comm[i]) - invest[i]) > Math.max(1, Math.abs(invest[i])) * 1e-6)
           why.push(where+': gov+commercial does not sum to invest at year '+years[i]);
@@ -21433,8 +21649,6 @@ function runAbstractTests(){
       }
     });
     if (walked !== 9) why.push('EMPTY POPULATION: '+walked+' states walked, not 9');
-    if (!(capBinds > 0)) why.push('EMPTY POPULATION: the cap never binds at any of the nine states, so the DECOY population is empty');
-    if (!(capSlack > 0)) why.push('EMPTY POPULATION: the cap binds at all nine states, so no state is left where agency and total investment are the same figure');
     const cap = (capEl.textContent||'').trim();
     if (!cap.length) why.push('EMPTY POPULATION: the caption painted an empty string');
     if (!/scenario-level derivation/i.test(cap)) why.push('the caption does not name the basis as a scenario-level derivation');
@@ -21443,7 +21657,7 @@ function runAbstractTests(){
     applyPreset(PRESETS.artemis); render();
     rec('INVEST-01','GATE',NAME, why.length===0,
       why.length ? why.slice(0,3).join('  ')
-        : walked+' states, the panel’s own dataset agrees with an independent computation off ENVELOPE.med at the selected era’s own year, the sum identity and non-negativity hold at all 26 painted years across all 9 states, the cap binds at '+capBinds+' of 9 and is slack at '+capSlack+' of 9, dropping the cap (the DECOY) disagrees with the painted government series at all states where it binds, and the caption names the basis: "'+cap+'"');
+        : 'SUPERSEDED and REPLACED (Step 69, ruling 3): the ENVELOPE.med cap comparison is struck; '+walked+' states now agree with an independent buildCurve(\'agency\'|\'commercial\',...) computation at the selected era, the sum identity and non-negativity hold at all 26 painted years across all 9 states, and the caption names the new basis: "'+cap+'"');
   })();
 
 // ---- OX-19 (GATE): the oxygen figure tracks, and no production tonnage is painted twice ----
@@ -23210,7 +23424,7 @@ const KNOBS = {
   landed_cost:{label:'Earth delivery cost', unit:'/kg',
                fmt:v=> v>=1e6 ? '$'+(v/1e6)+'M' : (v>=1000 ? '$'+(v/1000)+'k' : '$'+v)}
 };
-function knobVal(k){ return DETENTS[k][state[k]]; }
+function knobVal(k){ return k==='mass' ? state.mass : DETENTS[k][state[k]]; }   // STEP 70.2 ITEM B: state.mass is a continuous value, not an index
 function snapIdx(key,v){ return nearestIdx(DETENTS[key], v); }
 function knobText(key){ const spec=KNOBS[key]; return spec.fmt(knobVal(key)) + ' ' + spec.unit; }
 /* Step 59, item 5 (cold-read F8). The rail's own readout used to print knobVal(key)
@@ -23250,13 +23464,18 @@ function fmtT(v){ const dp = v<1?2:(v<10?1:0); return fmtNum(v,dp); }
    default and fissionPrefSet back to false, the reader having left that preference behind with
    the programme it was stated under.
    ============================================================ */
-let state = { ice:snapIdx('ice',5), power:0, mass:0, phi_c:0, phi_o:snapIdx('phi_o', CONFIG.phiM.value),
+let state = { ice:snapIdx('ice',5), power:0, mass:MASS_RAIL_MIN, phi_c:0, phi_o:snapIdx('phi_o', CONFIG.phiM.value),   // STEP 70.2 ITEM B: mass boots at the continuous floor, overwritten by the first applyPreset()/snapToEnvelope()
               phi_m:snapIdx('phi_m', PHI_M_BY_ERA['2055'].artemis),
               landed_cost:snapIdx('landed_cost', LANDED_COST.eraDefault['2055']),
               /* Step 68 pass 2A: fabProd opens on the 2055 In-situ solar rate default; learnRate is the Learning rate
                  rail index, LEARN_PRESET_INDEX (declared with LEARN_DETENTS below), read directly rather than
                  duplicated as a literal so the boot state cannot drift from applyPreset()'s own default. */
-              funding:'med', phase:'2055', fission:true, fissionPref:true, fissionPrefSet:false, mix:MIX_ERA_DEFAULT['2055'], fabProd:FAB_RATE_ERA_DEFAULT['2055'], learnRate:LEARN_PRESET_INDEX };/* THE DRAWN CURVE JOINS `state` AS A READ-ONLY DERIVED KEY. It is NON-ENUMERABLE on purpose:
+              funding:'med', phase:'2055', fission:true, fissionPref:true, fissionPrefSet:false, mix:MIX_ERA_DEFAULT['2055'], fabProd:FAB_RATE_ERA_DEFAULT['2055'], learnRate:LEARN_PRESET_INDEX,
+              /* STEP 69, RULING 4: which of the two buildout curves the toggle currently has live
+                 -- a pure UI selector, never reset by curveReset()/applyPreset() (like state.phase,
+                 a preset click changes the active programme, never which curve the reader is
+                 pointed at). */
+              curveWhich:'agency' };/* THE DRAWN CURVE JOINS `state` AS A READ-ONLY DERIVED KEY. It is NON-ENUMERABLE on purpose:
    runAbstractTests() snapshots the state with JSON.parse(JSON.stringify(state)) and restores it
    with Object.keys(save).forEach, and viewFingerprint() stringifies the same object, so an
    enumerable derived key would be copied into a snapshot that then tried to write it back through
@@ -23284,8 +23503,9 @@ function snapToEnvelope(fullUtil){
   // render-boundary architecture, Section 3.
   const env = currentEnv();
   state.fission = env.fission;
-  const pc=ceilIdx('power'), mc=ceilIdx('mass');
-  state.power=pc; state.mass=mc;
+  const pc=ceilIdx('power');
+  state.power=pc;
+  state.mass=env.M;   // STEP 70.2 ITEM B: mass is continuous now; the envelope ceiling IS the value, no index to derive
 }
 function applyPreset(p){
   /* A PRESET CLICK TO A DIFFERENT PROGRAMME takes the drawn control points with it. Without this
@@ -23339,7 +23559,7 @@ function matchesPreset(p){
   const env=envelope(p.funding,state.phase);
   return state.funding===p.funding
       && state.ice===snapIdx('ice',p.ice) && state.phi_c===snapIdx('phi_c',p.phi_c)
-      && state.power===snapIdx('power',env.P) && state.mass===snapIdx('mass',env.M)
+      && state.power===snapIdx('power',env.P) && state.mass===env.M   // STEP 70.2 ITEM B: mass is a continuous value now, compared directly against the envelope's own number
       && state.fission===env.fission
       && state.phi_o===snapIdx('phi_o', CONFIG.phiM.value)
       && state.phi_m===snapIdx('phi_m', PHI_M_BY_ERA[state.phase][presetIdOf(p)])
@@ -23514,7 +23734,13 @@ function stripRailExtrapolation(){
   ['contested','artemis','commercial'].forEach(function(id){
     const f = SCEN[id].funding, S = ENVELOPE[f], own = (f === state.funding), hits = [];
     ['mass'].forEach(function(w){   // STEP 68 PASS 2E E2: the power rail is removed, so only the mass landing rate can run past its rail
-      const fld = (w === 'mass') ? 'M' : 'P', arr = DETENTS[w], lo = arr[0], hi = arr[arr.length-1];
+      /* STEP 70.2 ITEM B: the rail's own range is MASS_RAIL_MIN..MASS_RAIL_MAX now, not
+         DETENTS.mass's old [10,10000] -- this is very likely Quinn's own "disclaimer, which says
+         200,000 tons per year": a curve point dragged toward that figure used to read as
+         extrapolated past a rail that topped out at 10,000, and painted exactly this sentence.
+         Widening this bound with the rail is what removes it, not the slider alone. */
+      const fld = (w === 'mass') ? 'M' : 'P', lo = (w === 'mass') ? MASS_RAIL_MIN : DETENTS[w][0],
+            hi = (w === 'mass') ? MASS_RAIL_MAX : DETENTS[w][DETENTS[w].length-1];
       let best = null, bestD = -1;
       CURVE_ERAS.forEach(function(y){
         if (y > ph) return;
@@ -23699,15 +23925,19 @@ function squares(m){
 
      STEP 70D METALS-GATE, QUINN'S RULING: "the title of the metals card is METALS." The card
      carried the name internally (renamed from "Reactor products" in a prior pass) but no
-     render path ever painted a card-level title for a reader to read; the oxygen chain card
-     is the same shape and carries none either, and that is unchanged here, since Quinn's
-     ruling names only the metals card. cardTitle:true is the one flag that turns the card's
-     own `name` into a painted heading in ensureSquares()/the paint loop below, on the alloy
-     card alone. */
+     render path ever painted a card-level title for a reader to read. cardTitle:true is the
+     flag that turns the card's own `name` into a painted heading in ensureSquares()/the paint
+     loop below.
+
+     STEP 70.2, QUINN'S RULING: "call the water card WATER and the oxygen card OXYGEN." Water
+     is a SIMPLE card (no `lines`), so its own `name` string IS the whole painted label already
+     -- no cardTitle flag needed or applicable there. Oxygen is a `lines`-type card like Metals,
+     so it now carries cardTitle:true too, painting "OXYGEN" as a card-level heading the same
+     way Metals paints "METALS". Both alloy and oxygen cards carry the flag now. */
   return [
-    {name:'Water produced',  vid:'h_water',    v:m.water,        unit:'t/yr', accent:'water',
+    {name:'WATER',  vid:'h_water',    v:m.water,        unit:'t/yr', accent:'water',
      dp:m.water<1?2:(m.water<10?1:0)},
-    {name:'Oxygen produced', accent:'oxygen', lines:[
+    {name:'OXYGEN', accent:'oxygen', cardTitle:true, lines:[
       {name:'Total',                    vid:'h_oxy',     v:m.oxygenTotal, unit:'t/yr', dp:m.oxygenTotal<10?2:0},
       {name:'Dedicated (life support)', vid:'h_oxy_ded', v:m.oxygen,      unit:'t/yr', dp:m.oxygen<10?2:0},
       {name:'Co-product (metals)',      vid:'h_oxy_co',  v:m.coproductO2, unit:'t/yr', dp:m.coproductO2<10?2:0}
@@ -23715,9 +23945,9 @@ function squares(m){
     {name:'Construction',    vid:'h_const',    v:m.construction, unit:'t/yr', accent:'construction',
      dp:m.construction<10?1:0},
     {name:'Metals', accent:'alloy', cardTitle:true, lines:[
-      {name:'Aluminium',          vid:'h_al',    v:m.aluminium, unit:'t/yr', dp:m.aluminium<10?2:0},
-      {name:'Iron-silicon alloy', vid:'h_alloy', v:m.alloy,     unit:'t/yr', dp:m.alloy<10?2:0},
-      {name:'Of which, silicon',  vid:'h_si',    band:true, vLow:m.siliconLow, vHigh:m.siliconHigh, unit:'t/yr',
+      {name:'Al',    vid:'h_al',    v:m.aluminium, unit:'t/yr', dp:m.aluminium<10?2:0},
+      {name:'Fe-Si', vid:'h_alloy', v:m.alloy,     unit:'t/yr', dp:m.alloy<10?2:0},
+      {name:'Si',    vid:'h_si',    band:true, vLow:m.siliconLow, vHigh:m.siliconHigh, unit:'t/yr',
        dp:m.siliconLow<10?2:0}
     ]}
   ];
@@ -23771,6 +24001,21 @@ function ensureSquares(sq){
    to the shipping app so the nine operating points stay exact notches.
    ============================================================ */
 function syncSliderRange(inputEl, key){
+  /* STEP 70.2 ITEM B: #k_mass is a continuous log rail, 10 to 1,000,000 t/yr, decoupled from
+     DETENTS.mass entirely (that array is untouched, for the other consumers named at
+     MASS_RAIL_MIN's own comment). The input's raw value is a PERCENTAGE along the log scale
+     (massRailPct/massRailFromPct); there is no more "between two notches" case a curve point can
+     sit in, because the rail itself is now continuous, so the old dataset.curveVal/railPos
+     machinery (built for a 7-value discrete rail) is not needed here. The envelope-ceiling tick
+     (#mk_mass) positions by the identical log formula, at the scenario's own ceiling value. */
+  if (key === 'mass'){
+    inputEl.min = 0; inputEl.max = 100; inputEl.step = 'any';
+    delete inputEl.dataset.curveVal; delete inputEl.dataset.railPos;
+    inputEl.value = massRailPct(appliedRate('mass'));
+    const mk = inputEl.parentElement.querySelector('.envmark');
+    if (mk) mk.style.left = massRailPct(currentEnv().M) + '%';
+    return;
+  }
   // Item 1, Step 39.5: every detent key now follows the identical one-line rule; power and
   // mass no longer clamp their own max to the scenario's ceiling, ceilIdx(key) instead
   // positions a marker on the fixed rail so a reader can still see where that scenario's
@@ -23817,7 +24062,41 @@ function syncSliderRange(inputEl, key){
 /* STEP 68 PASS 2E E3: the render a reader's own input starts. __readerDrag is true only for the duration of that render() call. */
 var __readerDrag = false, __eqnsStale = false;
 function readerRender(){ __readerDrag = true; try { render(); } finally { __readerDrag = false; } }
+/* STEP 70.2 ITEM B. #k_mass's own keydown handling, decided (not a Quinn ruling, MASS-05 tests it
+   directly): one arrow-key press moves the APPLIED RATE by a factor of 10^0.1 (a tenth of a
+   decade); Page Up/Down move a full decade (x10 / /10); Home/End snap to the rail's own ends, 10
+   and 1,000,000. Fifty arrow presses traverse the full five-decade range. */
+function massRailKeyTarget(ev, cur){
+  if (ev.key === 'ArrowUp' || ev.key === 'ArrowRight') return cur * Math.pow(10, 0.1);
+  if (ev.key === 'ArrowDown' || ev.key === 'ArrowLeft') return cur / Math.pow(10, 0.1);
+  if (ev.key === 'PageUp') return cur * 10;
+  if (ev.key === 'PageDown') return cur / 10;
+  if (ev.key === 'Home') return MASS_RAIL_MIN;
+  if (ev.key === 'End') return MASS_RAIL_MAX;
+  return null;
+}
+function bindMassRailSlider(inputEl){
+  inputEl.addEventListener('keydown', function(ev){
+    const next = massRailKeyTarget(ev, state.mass);
+    if (next == null) return;
+    ev.preventDefault();
+    state.mass = Math.max(MASS_RAIL_MIN, Math.min(MASS_RAIL_MAX, next));
+    if (typeof CURVE !== 'undefined' && CURVE.pts.mass &&
+        Object.prototype.hasOwnProperty.call(CURVE.pts.mass, Number(state.phase)))
+      CURVE.pts.mass[Number(state.phase)] = null;
+    readerRender();
+  });
+  inputEl.addEventListener('input', function(){
+    const raw = parseFloat(inputEl.value);
+    if (isFinite(raw)) state.mass = massRailFromPct(raw);
+    if (typeof CURVE !== 'undefined' && CURVE.pts.mass &&
+        Object.prototype.hasOwnProperty.call(CURVE.pts.mass, Number(state.phase)))
+      CURVE.pts.mass[Number(state.phase)] = null;
+    readerRender();
+  });
+}
 function bindDetentSlider(inputEl, key){
+  if (key === 'mass'){ bindMassRailSlider(inputEl); return; }
   /* STEP 67 PASS 8. While a curve point holds the thumb between notches (dataset.curveVal set, step="any"),
      a keyboard step goes to a notch: up, right and Page Up to the nearest notch above the value; down, left
      and Page Down to the notch at or below it; Home and End to the rail's ends. The input listener below
@@ -23948,7 +24227,70 @@ document.getElementById('railRestore').addEventListener('click', ()=>{
   render();
 });
 
-document.getElementById('k_fabprod').addEventListener('input', e=>{ state.fabProd=parseFloat(e.target.value); readerRender(); });
+/* ============================================================
+   STEP 70.2, ITEM A -- METALS AUTO-COUPLE. Quinn's ruling of 2026-09-17: "if metals is too low to
+   increase in-situ solar, dragging it higher should drag metals higher to enable the higher rate."
+   RULED: auto-raise phi_m, taking share from phi_o/phi_c per the shared-budget clamp, until the
+   silicon ceiling clears the request or the shared phi_c+phi_o+phi_m budget is exhausted (phi_o
+   and phi_c both at their floor). Not the display-only alternative.
+
+   THE GIVE-BACK ORDER is a proposal from the Step 70.2 test suite (step70_2_se_instrument.js
+   FAB-00, proportionalGiveBack()), not a Quinn ruling: phi_o and phi_c each surrender share in proportion
+   to their OWN current live value, ported here verbatim as that function's reference
+   implementation names it. If Quinn rules a different order, this is the one function to change.
+   ============================================================ */
+function proportionalGiveBack(phi_c, phi_o, phi_m, delta){
+  const pool = phi_o + phi_c;
+  const take = Math.min(delta, pool);
+  const shortfall = delta - take;
+  if (pool <= 1e-12) return { phi_o: phi_o, phi_c: phi_c, phi_m: phi_m, appliedDelta: 0, shortfall: delta };
+  const takeO = take * (phi_o / pool);
+  const takeC = take * (phi_c / pool);
+  return {
+    phi_o: Math.max(0, phi_o - takeO),
+    phi_c: Math.max(0, phi_c - takeC),
+    phi_m: phi_m + take,
+    appliedDelta: take,
+    shortfall: shortfall
+  };
+}
+/* The live model on the CURRENT state -- the identical call render(), relation_gate.js and
+   step70_2_se_instrument.js all make -- so the auto-couple reacts to exactly what a reader is
+   about to see painted, not a re-derivation of its own. */
+function liveModelForAutoCouple(){
+  return model(scenarioModelArgs(PRESET_OF_FUNDING[state.funding]).args);
+}
+/* Fires ONLY from a genuine reader drag on #k_fabprod -- the listener below is the sole call
+   site, so a preset click, an era click or any other programmatic state change (none of which
+   call this function) never triggers it (FAB-01, FAB-04). Raises phi_m one phi-detent at a time,
+   taking share from phi_o and phi_c via proportionalGiveBack(), until the live fabBinding stops
+   reading 'silicon' (FAB-01: the ceiling cleared, onto 'request', 'power' or 'regolith') or the
+   shared budget is exhausted (phi_o and phi_c both driven to their floor, FAB-03). phi_c, phi_o
+   and phi_m all ride the identical 21-value rail (Step 49's own comment on DETENTS.phi_o), so one
+   rail's values serve all three and the loop is bounded at its length -- a stalled loop cannot
+   spin. Leaves phi_c/phi_o/phi_m untouched, by construction, whenever fabBinding is not already
+   'silicon' at entry (FAB-05). */
+function autoCoupleFabToSilicon(){
+  const P = DETENTS.phi_o;
+  const delta = P[1] - P[0];
+  for (let i = 0; i < P.length; i++){
+    const m = liveModelForAutoCouple();
+    if (m.fabBinding !== 'silicon') return;
+    if (state.phi_m >= P.length - 1) return;
+    const curC = P[state.phi_c], curO = P[state.phi_o], curM = P[state.phi_m];
+    if (curC + curO <= 1e-9) return;
+    const gb = proportionalGiveBack(curC, curO, curM, delta);
+    if (gb.appliedDelta <= 1e-12) return;
+    state.phi_c = nearestIdx(P, gb.phi_c);
+    state.phi_o = nearestIdx(P, gb.phi_o);
+    state.phi_m = nearestIdx(P, gb.phi_m);
+  }
+}
+document.getElementById('k_fabprod').addEventListener('input', e=>{
+  state.fabProd=parseFloat(e.target.value);
+  autoCoupleFabToSilicon();
+  readerRender();
+});
 
 /* Solar/fission kg/kWe overrides. Ephemeral UI state, threaded end to end
    exactly like mix: into model() as fSolOvr/fFisOvr (t/kWe, CONFIG's own
@@ -24185,7 +24527,196 @@ function curveDraw(){
     yrs.forEach(function(y, i){ const X = px(y), Y = py(vals[i]); if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); });
     ctx.stroke();
   }
+  /* STEP 69: paints the two new Agency/Commercial curves on this same canvas, additively -- it
+     runs after every stroke and clearRect above and never clears anything itself, so it can only
+     ever add to what this function just drew. */
+  curveDraw2();
   return cv.dataset;
+}
+
+/* ---- STEP 69: THE AGENCY/COMMERCIAL BUILDOUT CURVES (ruling 4, BLD-01/BLD-02/BLD-11) ----------
+   Two curves, built by the identical buildCurve()/curveKnots()/setEraRate() mechanism the single
+   mass curve above already uses (ruling 6, ruling 7) -- only the default knots differ, per
+   scenario, from BUILDOUT_SPLIT. CURVE.pts.mass above is untouched by any of this: it keeps
+   driving the physical fleet layer exactly as before (BLD-05), so this panel is additive to the
+   render, never a replacement of it.
+
+   THE TOGGLE (#curveToggle) SELECTS WHICH CURVE THE HANDLES BELOW (#curveHandles2) ACT ON. Only
+   the toggled curve gets a handle to drag; the other curve is a painted line with nothing to
+   grab. That IS ruling 4 by construction: CURVE.pts.agency and CURVE.pts.commercial are
+   independent objects, and a curve with no handle cannot be dragged, so dragging one can never
+   write to the other's stored knot.
+
+   THE LINE FOR BOTH IS ALWAYS PAINTED, on a SECOND canvas (#curvePlot2), not a second and third
+   stroke on #curvePlot itself -- a first attempt drew both lines directly on #curvePlot and broke
+   CURVEUI-04 (its call-recorder shadows #curvePlot's own getContext() and assumes every stroke()
+   there belongs to the single mass curve; a second and third stroke got folded into that recorded
+   polyline). Moving to its own canvas removed the interference: "the plot shows both" without
+   touching curveDraw()'s own dataset, handles or drawing at all, on the vertical scale curveDraw()
+   already computed for the (unchanged) mass curve (read from #curvePlot's own dataset.max, a plain
+   property read, never its context), so the two constituents visibly sit inside the total they sum
+   to. */
+function curveDraw2(){
+  const cv1 = document.getElementById('curvePlot');   // read-only: the shared axis scale, never its context
+  const cv = document.getElementById('curvePlot2');
+  const wrap = document.getElementById('curveWrap');
+  if (!cv || !wrap) return null;
+  const era = state.phase, E = Number(era);
+  const which = (state.curveWhich === 'commercial') ? 'commercial' : 'agency';
+  const rateA = buildCurve('agency', state.funding, era, null);
+  const rateC = buildCurve('commercial', state.funding, era, null);
+  const yrs = []; for (let y = CURVE_EPOCH; y <= E; y++) yrs.push(y);
+  const valsA = yrs.map(rateA), valsC = yrs.map(rateC);
+  const hi = Math.max(1, (cv1 && Number(cv1.dataset.max)) || 0, Math.max.apply(null, valsA.concat(valsC)));
+
+  /* THE RECORD. cv1 (#curvePlot) and its dataset are untouched by this function -- everything
+     here is written to #curvePlot2's own dataset instead, on its own canvas, precisely so that a
+     harness temporarily shadowing #curvePlot's getContext() (CURVEUI-04's call-recorder measures
+     the single mass curve's own stroked polyline and would otherwise capture these strokes as if
+     they were part of that one curve) never sees a call from this function at all. */
+  cv.dataset.era = String(E);
+  cv.dataset.max = String(hi);
+  cv.dataset.agencyKnots = rateA.knots.map(function(k){ return k[0] + ':' + k[1]; }).join(',');
+  cv.dataset.commercialKnots = rateC.knots.map(function(k){ return k[0] + ':' + k[1]; }).join(',');
+  cv.dataset.agencyRateAt = yrs.map(function(y, i){ return y + ':' + valsA[i]; }).join(',');
+  cv.dataset.commercialRateAt = yrs.map(function(y, i){ return y + ':' + valsC[i]; }).join(',');
+  cv.dataset.agencyCumulative = String(curveCumulative(rateA, era));
+  cv.dataset.commercialCumulative = String(curveCumulative(rateC, era));
+  const Lv = fleetLife();
+  cv.dataset.agencyStanding = String(curveStanding(rateA, era, Lv));
+  cv.dataset.commercialStanding = String(curveStanding(rateC, era, Lv));
+  cv.dataset.curveWhich = which;
+
+  const ctx = cv.getContext && cv.getContext('2d');
+  if (ctx){
+    const W = cv.width, H = cv.height;
+    const px = function(y){ return CURVE_PAD.l + (E === CURVE_EPOCH ? 0 :
+                    ((y - CURVE_EPOCH) / (E - CURVE_EPOCH)) * (W - CURVE_PAD.l - CURVE_PAD.r)); };
+    const py = function(v){ return H - CURVE_PAD.b - (v / hi) * (H - CURVE_PAD.t - CURVE_PAD.b); };
+    ctx.clearRect(0, 0, W, H);
+    function strokeSeries(vals, color, dim){
+      ctx.save();
+      ctx.strokeStyle = color; ctx.lineWidth = dim ? 1 : 2; ctx.globalAlpha = dim ? 0.45 : 0.95;
+      ctx.beginPath();
+      yrs.forEach(function(y, i){ const X = px(y), Y = py(vals[i]); if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); });
+      ctx.stroke();
+      ctx.restore();
+    }
+    strokeSeries(valsA, 'rgba(78,201,232,0.95)', which !== 'agency');       // --ice, Agency
+    strokeSeries(valsC, 'rgba(224,165,79,0.95)', which !== 'commercial');   // --regolith, Commercial
+  }
+
+  /* THE HANDLES. Only the toggled curve's -- see the function header. Rebuilt every render, the
+     same simplicity BLD-02/BLD-11 need and no more: this is a secondary control next to the
+     primary curve's own settle-timer machinery, not a second copy of it. */
+  const hbox2 = document.getElementById('curveHandles2');
+  if (hbox2){
+    hbox2.innerHTML = '';
+    const sx = (cv.clientWidth  > 0) ? cv.clientWidth  / cv.width  : 1;
+    const sy = (cv.clientHeight > 0) ? cv.clientHeight / cv.height : 1;
+    const rate2 = (which === 'agency') ? rateA : rateC;
+    const px2 = function(y){ return (CURVE_PAD.l + (E === CURVE_EPOCH ? 0 :
+                    ((y - CURVE_EPOCH) / (E - CURVE_EPOCH)) * (cv.width - CURVE_PAD.l - CURVE_PAD.r))) * sx; };
+    const py2 = function(v){ return (cv.height - CURVE_PAD.b - (v / hi) * (cv.height - CURVE_PAD.t - CURVE_PAD.b)) * sy; };
+    curveErasInScope(era).forEach(function(y){
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'curvehandle2 ' + which;
+      b.dataset.era = String(y);
+      b.dataset.which = which;
+      b.dataset.rate = String(rate2(y));
+      b.setAttribute('aria-label', (which === 'agency' ? 'Agency' : 'Commercial') + ' buildout landing rate at ' + y + ', ' +
+        fmtNum(rate2(y), rate2(y) < 10 ? 1 : 0) + ' t per year, arrow keys adjust');
+      b.style.left = px2(y) + 'px';
+      b.style.top = py2(rate2(y)) + 'px';
+      b.addEventListener('pointerdown', curveDragStart2);
+      b.addEventListener('keydown', curveKeyDown2);
+      hbox2.appendChild(b);
+    });
+  }
+  return cv.dataset;
+}
+
+/* THE DRAG, second curve. Simpler than the primary curve's own (no settle timer, no frozen-axis
+   replay): pointerdown captures which handle (era + which curve), pointermove writes straight
+   through setEraRate() and repaints just this layer, pointerup/cancel/blur ends the gesture and
+   runs one full render(). setEraRate() is still the one named mutation a gesture reaches, exactly
+   as the primary curve's own header comment requires. */
+let curveDragEra2 = null, curveDragWhich2 = null, curveDragNode2 = null;
+function curveSetFromGesture2(which, era, v){
+  return setEraRate(which, era, isFinite(v) ? Number(v) : 0);
+}
+function curveDragStart2(ev){
+  const b = ev.currentTarget;
+  curveDragEra2 = Number(b.dataset.era);
+  curveDragWhich2 = b.dataset.which;
+  curveDragNode2 = b;
+  if (b.setPointerCapture && ev.pointerId != null) { try { b.setPointerCapture(ev.pointerId); } catch(e){} }
+  b.addEventListener('pointermove', curveDragMove2);
+  b.addEventListener('pointerup', curveDragEnd2);
+  b.addEventListener('pointercancel', curveDragEnd2);
+  b.addEventListener('blur', curveDragEnd2);
+  if (ev.preventDefault) ev.preventDefault();
+}
+function curveDragMove2(ev){
+  if (curveDragEra2 == null) return;
+  const cv = document.getElementById('curvePlot2');
+  if (!cv) return;
+  const box = cv.getBoundingClientRect();
+  const H = cv.height;
+  const hi = Number(cv.dataset.max) || 1;
+  const yPix = ((ev.clientY - box.top) / (box.height || H)) * H;
+  const frac = ((H - CURVE_PAD.b) - yPix) / (H - CURVE_PAD.t - CURVE_PAD.b);
+  curveSetFromGesture2(curveDragWhich2, curveDragEra2, frac * hi);
+  curveDraw2();
+}
+function curveDragEnd2(ev){
+  const b = (ev && ev.currentTarget) || curveDragNode2;
+  if (b && b.removeEventListener){
+    b.removeEventListener('pointermove', curveDragMove2);
+    b.removeEventListener('pointerup', curveDragEnd2);
+    b.removeEventListener('pointercancel', curveDragEnd2);
+    b.removeEventListener('blur', curveDragEnd2);
+  }
+  const wasDragging = (curveDragEra2 != null);
+  curveDragNode2 = null; curveDragEra2 = null; curveDragWhich2 = null;
+  if (wasDragging) render();
+}
+if (typeof window !== 'undefined' && window.addEventListener)
+  window.addEventListener('blur', function(){ if (curveDragEra2 != null) curveDragEnd2(null); });
+function curveKeyDown2(ev){
+  const era = Number(ev.currentTarget.dataset.era);
+  const which = ev.currentTarget.dataset.which;
+  const cv = document.getElementById('curvePlot2');
+  const hi = (cv && Number(cv.dataset.max)) || 1;
+  const cur = Number(ev.currentTarget.dataset.rate) || 0;
+  const step = hi / 50, big = hi / 10;
+  let v = null;
+  const k = ev.key;
+  if (k === 'ArrowUp' || k === 'ArrowRight' || k === 'Up' || k === 'Right') v = cur + step;
+  else if (k === 'ArrowDown' || k === 'ArrowLeft' || k === 'Down' || k === 'Left') v = cur - step;
+  else if (k === 'PageUp') v = cur + big;
+  else if (k === 'PageDown') v = cur - big;
+  else if (k === 'Home') v = hi;
+  else if (k === 'End') v = 0;
+  else return;
+  if (ev.preventDefault) ev.preventDefault();
+  curveSetFromGesture2(which, era, v);
+  render();
+}
+/* THE TOGGLE'S OWN CLICK HANDLER. Flips state.curveWhich and repaints the second layer only --
+   toggling which curve you are about to drag is not itself a model change, so it does not call
+   render(). */
+function curveToggleSet(which){
+  state.curveWhich = (which === 'commercial') ? 'commercial' : 'agency';
+  const ab = document.getElementById('curveToggleAgency'), cb = document.getElementById('curveToggleCommercial');
+  if (ab){ ab.setAttribute('aria-pressed', state.curveWhich === 'agency' ? 'true' : 'false'); ab.setAttribute('aria-selected', state.curveWhich === 'agency' ? 'true' : 'false'); }
+  if (cb){ cb.setAttribute('aria-pressed', state.curveWhich === 'commercial' ? 'true' : 'false'); cb.setAttribute('aria-selected', state.curveWhich === 'commercial' ? 'true' : 'false'); }
+  curveDraw2();
+}
+if (typeof document !== 'undefined' && document.getElementById('curveToggleAgency')){
+  document.getElementById('curveToggleAgency').addEventListener('click', function(){ curveToggleSet('agency'); });
+  document.getElementById('curveToggleCommercial').addEventListener('click', function(){ curveToggleSet('commercial'); });
 }
 
 /* THE DRAG. pointerdown on a handle, pointermove maps the pointer's y back to a rate, and the
@@ -24490,6 +25021,20 @@ function render(){
   /* IN-SITU SOLAR RATE: the fab-productivity rail paints its value only (Step 68, sub-step 7). */
   document.getElementById('v_fabprod').textContent = state.fabProd.toFixed(2) + ' kWe/(yr·t)';
   document.getElementById('k_fabprod').value = state.fabProd;
+  /* STEP 70.2 ITEM A, FAB-03: recomputed fresh on every render, stateless -- exhaustion is exactly
+     Quinn's own definition (phi_o and phi_c both driven to their floor) and the silicon ceiling
+     still binding, never a flag carried over from whichever event last ran the auto-couple. */
+  (function(){
+    const noteEl = document.getElementById('fabAutoNote');
+    if (!noteEl) return;
+    const exhausted = (m.fabBinding === 'silicon') &&
+      DETENTS.phi_o[state.phi_o] <= 1e-9 && DETENTS.phi_c[state.phi_c] <= 1e-9 &&
+      state.phi_m >= DETENTS.phi_m.length - 1;
+    noteEl.hidden = !exhausted;
+    noteEl.textContent = exhausted
+      ? 'Silicon feedstock still limits this rate at full Metals-production allocation; Oxygen and Construction have no further share to give.'
+      : '';
+  })();
 
 
   document.querySelectorAll('#phase button[data-p]').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.p===state.phase)));
