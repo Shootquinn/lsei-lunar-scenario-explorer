@@ -24141,6 +24141,12 @@ function bindDetentSlider(inputEl, key){
     if ((key === 'mass' || key === 'power') && typeof CURVE !== 'undefined' &&
         CURVE.pts[key] && Object.prototype.hasOwnProperty.call(CURVE.pts[key], Number(state.phase)))
       CURVE.pts[key][Number(state.phase)] = null;
+    /* STEP 70.5 -- THE SYMMETRIC FLIP SIDE OF autoCoupleFabToSilicon() (Gameplan Step 70.5). Fires
+       ONLY here, gated key==='phi_m', which is only ever reached from a genuine 'input' event on
+       #k_phim's own DOM element (the sole listener DETENT_KEYS.forEach binds to it below) -- never
+       from a preset click, an era click, or autoCoupleFabToSilicon()'s own direct state.phi_m
+       writes, none of which touch #k_phim's element or dispatch its 'input' event. */
+    if (key === 'phi_m') reduceFabProdToSiliconCeiling();
     readerRender();
   });
 }
@@ -24317,6 +24323,39 @@ document.getElementById('k_fabprod').addEventListener('input', e=>{
   autoCoupleFabToSilicon();
   readerRender();
 });
+/* STEP 70.5, THE SYMMETRIC FLIP SIDE (Gameplan Step 70.5).
+   Step 70.2/70.4 built one direction: raising #k_fabprod, when the silicon ceiling binds,
+   auto-raises phi_m (autoCoupleFabToSilicon() above, fired ONLY from #k_fabprod's own listener).
+   This is the flip side: dragging #k_phim DOWN, when that leaves the CURRENTLY STORED
+   state.fabProd unachievable, auto-reduces fabProd to match, so no slider combination ever
+   displays a request the model is not actually delivering. Called ONLY from
+   bindDetentSlider()'s key==='phi_m' branch above -- never from #k_fabprod's own listener, to
+   avoid the two mechanisms oscillating against each other.
+
+   THE CEILING VALUE, A DELIBERATE DEPARTURE FROM THE BRIEF'S LITERAL WORDING ("reduce fabProd to
+   kWeFromSiliconT"), confirmed live rather than assumed (see the review, and FABDN-00 in
+   step70_5_se_instrument.js): kWeFromSilicon is an ABSOLUTE kWe build-rate ceiling (the same
+   measurand as kWeRequested), typically 10^4-10^7 at every reachable non-floor state; state.fabProd
+   is a SPECIFIC PRODUCTIVITY coefficient, kWe per tonne-year, domain [0.02, 5]. Assigning the
+   former into the latter and clamping would SATURATE TO fabProd's own MAXIMUM in virtually every
+   reachable case -- raising, not reducing. Proven algebraically and swept live across all 9
+   preset/era cells, fabProd in {0.02, 0.1, 0.3, 0.5, 0.65, 1, 3, 5}, and mass up to the rail's own
+   ceiling (1,000,000 t/yr): fabBinding reads 'silicon' ONLY at phi_m's own floor (idx 0), where
+   metalProduced = phi_m * Mfull is identically 0 for any Mfull, so kWeFromSilicon is identically 0
+   too -- the true achievable rate there is exactly 0, below every legal fabProd value. Reducing to
+   #k_fabprod's own declared floor, read live off the DOM rather than hardcoded, is the closest the
+   control can represent: always the correct direction (down, never up), never outside the
+   control's own legal range, and the same kind of residual "cannot fully achieve" gap the existing
+   #fabAutoNote mechanism already tolerates for the other direction's own exhaustion case. */
+function reduceFabProdToSiliconCeiling(){
+  const m = liveModelForAutoCouple();
+  if (m.fabBinding !== 'silicon') return;
+  const fabEl = document.getElementById('k_fabprod');
+  const floorV = parseFloat(fabEl.min);
+  if (!(state.fabProd > floorV)) return;   // already at the floor -- nothing left to give
+  state.fabProd = floorV;
+  fabEl.value = String(state.fabProd);     // painted directly; no 'input' dispatch, no recursion
+}
 
 /* Solar/fission kg/kWe overrides. Ephemeral UI state, threaded end to end
    exactly like mix: into model() as fSolOvr/fFisOvr (t/kWe, CONFIG's own
