@@ -139,24 +139,21 @@
   .advanced[hidden]{display:none;}
   .curvewrap{margin-top:10px;padding-top:8px;border-top:1px solid rgba(160,170,190,.22)}
   .curvebox{position:relative;margin-top:4px}
-  .curvebox2{margin-top:6px}
   .curvebox canvas{display:block;width:100%;height:auto}
   .curvehandles{position:absolute;inset:0;pointer-events:none}
   .curvehandle{position:absolute;width:11px;height:11px;margin:-6px 0 0 -6px;padding:0;
       border:1px solid rgba(255,255,255,.85);border-radius:50%;background:rgba(120,180,255,.95);
       cursor:ns-resize;pointer-events:auto;touch-action:none}
+  .curvehandle[data-which="agency"]{background:rgba(78,201,232,.95)}
+  .curvehandle[data-which="commercial"]{background:rgba(224,165,79,.95)}
   .curvehandle:focus{outline:2px solid rgba(120,180,255,.9);outline-offset:2px}
-  /* STEP 69: the Agency/Commercial toggle and its own handle layer. */
+  /* STEP 69: the Agency/Commercial toggle. */
   .curvetoggle{display:flex;gap:6px;margin-top:4px}
   .curvetogglebtn{font:inherit;font-size:11px;padding:2px 8px;border-radius:10px;
       border:1px solid rgba(160,170,190,.35);background:transparent;color:var(--faint);cursor:pointer}
+  .curvetogglebtn[data-which="agency"]{color:rgba(78,201,232,.95);border-color:rgba(78,201,232,.45)}
+  .curvetogglebtn[data-which="commercial"]{color:rgba(224,165,79,.95);border-color:rgba(224,165,79,.45)}
   .curvetogglebtn[aria-pressed="true"]{color:#fff;border-color:rgba(255,255,255,.6);background:rgba(160,170,190,.18)}
-  .curvehandles2{position:absolute;inset:0;pointer-events:none}
-  .curvehandle2{position:absolute;width:11px;height:11px;margin:-6px 0 0 -6px;padding:0;
-      border:1px solid rgba(255,255,255,.85);border-radius:50%;cursor:ns-resize;pointer-events:auto;touch-action:none}
-  .curvehandle2.agency{background:rgba(78,201,232,.95)}
-  .curvehandle2.commercial{background:rgba(224,165,79,.95)}
-  .curvehandle2:focus{outline:2px solid rgba(224,165,79,.9);outline-offset:2px}
   .curvefoot{margin-top:4px;font-size:11px;opacity:.75}
   .advnote{font-family:var(--mono); font-size:11px; color:var(--faint); line-height:1.5;}
 
@@ -594,8 +591,9 @@
         <div class="krow"><span class="klabel">Buildout curve, landed mass per year</span><span class="kval" id="v_curve"></span></div>
         <!-- STEP 69, RULING 4: the toggle. "i have zero ability to adjust commercial inputs in
              this scenario ... when i drag the middle spline handle it moves that curve." Selects
-             which of the two independent curves below (#curveHandles2) the drag handles act on;
-             the OTHER curve's own stored knots are untouched by a drag while this is toggled. -->
+             which of the two curves in the plot below the drag handles act on; the OTHER curve's
+             own stored knots are untouched by a drag while this is toggled, and the total the
+             fleet reads is always the two curves' sum. -->
         <div class="curvetoggle" id="curveToggle" role="tablist" aria-label="Which buildout curve the handles drag">
           <button type="button" class="curvetogglebtn" id="curveToggleAgency" data-which="agency" role="tab" aria-selected="true" aria-pressed="true" aria-label="Agency buildout curve">Agency</button>
           <button type="button" class="curvetogglebtn" id="curveToggleCommercial" data-which="commercial" role="tab" aria-selected="false" aria-pressed="false" aria-label="Commercial buildout curve">Commercial</button>
@@ -603,17 +601,6 @@
         <div class="curvebox">
           <canvas id="curvePlot" width="300" height="120"></canvas>
           <div class="curvehandles" id="curveHandles"></div>
-        </div>
-        <!-- STEP 69: the Agency/Commercial curves get their OWN canvas rather than a second set
-             of strokes on #curvePlot. Several pre-existing self-tests (CURVEUI-04 among them)
-             temporarily shadow #curvePlot's own getContext() with a call-recorder that assumes
-             every stroke drawn there belongs to the single mass curve; a second/third stroke on
-             that same canvas would be captured by that recorder too and corrupt what it measures.
-             A second canvas, in the identical panel, sidesteps that entirely: nothing here ever
-             calls #curvePlot.getContext(). -->
-        <div class="curvebox curvebox2">
-          <canvas id="curvePlot2" width="300" height="70"></canvas>
-          <div class="curvehandles2" id="curveHandles2"></div>
         </div>
         <div class="curvefoot" id="curveFoot"></div>
       </div>
@@ -9072,20 +9059,22 @@ const CURVE_MAX = { mass: MASS_RAIL_MAX,
                        numbers is bounded the same way the single mass curve always was. */
                     agency: MASS_RAIL_MAX,
                     commercial: MASS_RAIL_MAX };
-const CURVE = { pts: { mass:  {2030:null, 2040:null, 2055:null},
+const CURVE = { pts: { /* STEP 70.6: `mass` STORES NOTHING NOW AND STAYS AS A KEY. The total landing rate
+                          has no store of its own: it is the sum of the two curves below, and
+                          setEraRate('mass') writes those. The key remains, always null, so a caller that
+                          indexes it reads "no point placed" and a blank knot set that lists it is still a
+                          complete one. */
+                       mass:  {2030:null, 2040:null, 2055:null},
                        power: {2030:null, 2040:null, 2055:null},
-                       /* STEP 69: AGENCY and COMMERCIAL, independent knot dictionaries. CURVE.pts.mass
-                          above is untouched and keeps driving the physical fleet layer exactly as it
-                          did before this step (BLD-05's bit-identical requirement), so the nine preset
-                          states' landed mass, water, construction, oxygen, metal and power stay exactly
-                          what they were. These two are the reader's new, independently adjustable
-                          curves: the buildout panel's toggle (ruling 4) selects which one a drag moves,
-                          a scenario click or Restore resets BOTH to that scenario's own BUILDOUT_SPLIT
-                          knots (ruling 5, via curveReset() below), and their sum is the "god curve"
-                          (ruling 2) painted on the Investment panel, which is now the one authoritative
-                          Agency/Commercial split (ruling 3) and the input to the per-cohort
-                          capital-source tag (BLD-06) and the commercial-only capital charge
-                          (BLD-07/08). */
+                       /* STEP 69: AGENCY and COMMERCIAL, independent knot dictionaries. Since Step 70.6
+                          they are the ONLY store of the landing rate and their sum is the total the
+                          physical fleet layer reads (water, construction, oxygen, metal and power). The
+                          buildout panel's toggle (ruling 4) selects which one a drag moves, a scenario
+                          click or Restore resets BOTH to that scenario's own BUILDOUT_SPLIT knots (ruling
+                          5, via curveReset() below), and their sum is the "god curve" (ruling 2) painted
+                          on the Investment panel, which is the one authoritative Agency/Commercial split
+                          (ruling 3) and the input to the per-cohort capital-source tag (BLD-06) and the
+                          commercial-only capital charge (BLD-07/08). */
                        agency: {2030:null, 2040:null, 2055:null},
                        commercial: {2030:null, 2040:null, 2055:null} } };
 /* STEP 69, RULING 5: curveReset(which) is now second-curve-aware. Called with an explicit curve
@@ -9163,8 +9152,30 @@ function setEraRate(which, era, newRate){
   if (which !== 'mass' && which !== 'power' && which !== 'agency' && which !== 'commercial')
     throw new Error('setEraRate: ' + which + ' is not mass, power, agency or commercial');
   const v = (!isFinite(newRate)) ? 0 : Math.max(0, Math.min(CURVE_MAX[which], Number(newRate)));
+  /* STEP 70.6: THE TOTAL HAS NO STORE OF ITS OWN. 'mass' moves the total landing rate at this era
+     and scales Agency and Commercial together, each keeping its current share of that total. At a
+     knot where the two sum to zero there is no current share, so the scenario's approved default
+     share at this era stands in for it. */
+  if (which === 'mass'){
+    const f = state.funding, a = knotValue('agency', f, y), c = knotValue('commercial', f, y), t = a + c;
+    const sa = (t > 0) ? a / t : defaultAgencyShare(f, y);
+    CURVE.pts.agency[y] = v * sa;
+    CURVE.pts.commercial[y] = v - v * sa;
+    return v;
+  }
   CURVE.pts[which][y] = v;
   return v;
+}
+/* THE STORED KNOT, else THE SCENARIO'S APPROVED DEFAULT, for one actor at one era. */
+function knotValue(which, funding, y){
+  const st = (CURVE.pts[which] || {})[y];
+  return (st != null) ? st : BUILDOUT_SPLIT[funding][String(y)][which];
+}
+/* THE APPROVED DEFAULT SHARE of the total that Agency lands at an era. Every cell of BUILDOUT_SPLIT is
+   nonzero, so this is defined at every era of every scenario. */
+function defaultAgencyShare(funding, y){
+  const d = BUILDOUT_SPLIT[funding][String(y)];
+  return d.agency / (d.agency + d.commercial);
 }
 
 /* THE KNOT SET. 2030 always carries a point: the selected era's rail when the reader is standing
@@ -9296,7 +9307,62 @@ function pchipSlopes(xs, ys){
 /* THE CURVE. Returns a rate function over years and carries its own description, so a test reads
    which family it is in rather than inferring it from the numbers. */
 function buildCurve(which, funding, era, liveRate){
-  const ks = curveKnots(which, funding, era, liveRate);
+  if ((which === 'mass' || which === 'agency' || which === 'commercial') && funding != null && BUILDOUT_SPLIT[funding])
+    return buildSplitCurve(which, funding, era, liveRate);
+  return buildCurveFromKnots(curveKnots(which, funding, era, liveRate), era);
+}
+/* STEP 70.6: ONE PHYSICAL TOTAL, TWO TONNAGE CURVES.
+   The total is the PCHIP fit through the era totals (Agency knot plus Commercial knot at each era),
+   exactly the curve the single mass store used to carry. Each actor's share of that total is
+   interpolated LINEARLY IN YEAR between the knot shares, and an actor's curve is share(y) x total(y).
+   The three properties that follow are the design's reason for existing: each actor's curve passes
+   through its own knots, the two curves sum exactly to the total at every year, and a scenario's
+   preset (no stored point) reproduces the total it always had, bit for bit, because its knot totals
+   are the ENVELOPE figures. Between knots an actor's curve is a share times the total and not a fit
+   of its own; two independent fits summed drift from the total by up to 22.5 t/yr.
+   A KNOT WHOSE TOTAL IS ZERO HAS NO SHARE OF ITS OWN, so the scenario's approved default share at that
+   era anchors the interpolation on either side.
+   THE LIVE TOTAL at the era in view: `liveRate` when a caller supplies one, else (for an actor curve)
+   the Mass landing rate rail's value when this is the reader's own scenario at the era in view. It
+   applies only when neither actor has a stored point at that era, and only when it differs from the
+   default total, so a preset evaluates the stored table untouched. */
+function buildSplitCurve(which, funding, era, liveRate){
+  const E = Number(era);
+  /* `state` is absent where this function is evaluated without the page (the headless sidecar), and there is
+     no rail to read: the live total is then only what the caller supplies. */
+  let live = (liveRate != null) ? liveRate
+           : (which !== 'mass' && typeof state !== 'undefined' && funding === state.funding && E === Number(state.phase)) ? state.mass : null;
+  if (live != null && (knotStored('agency', E) || knotStored('commercial', E))) live = null;
+  let la = null, lc = null;
+  if (live != null){
+    const d = BUILDOUT_SPLIT[funding][String(E)], dt = d.agency + d.commercial;
+    if (live !== dt){ la = live * d.agency / dt; lc = live * d.commercial / dt; }
+  }
+  const ka = curveKnots('agency', funding, era, la), kc = curveKnots('commercial', funding, era, lc);
+  const tk = ka.map(function(k, i){ return [k[0], k[1] + kc[i][1]]; });
+  const total = buildCurveFromKnots(tk, era);
+  if (which === 'mass') return total;
+  const xs = ka.map(function(k){ return k[0]; });
+  const shareA = ka.map(function(k, i){ return (tk[i][1] > 0) ? k[1] / tk[i][1] : defaultAgencyShare(funding, k[0]); });
+  const share = function(y){
+    if (xs.length === 1) return shareA[0];
+    const yy = Math.max(xs[0], Math.min(xs[xs.length-1], y));
+    let i = 0; while (i < xs.length-2 && yy > xs[i+1]) i++;
+    const t = (yy - xs[i]) / (xs[i+1] - xs[i]);
+    return shareA[i] + t * (shareA[i+1] - shareA[i]);
+  };
+  const rate = function(y){
+    const yy = Math.max(CURVE_EPOCH, Math.min(E, Number(y)));
+    const a = share(yy);
+    return ((which === 'agency') ? a : 1 - a) * total(yy);
+  };
+  rate.family = total.family; rate.knots = (which === 'agency') ? ka : kc; rate.raw = rate; rate.era = E;
+  return rate;
+}
+function knotStored(which, y){ return ((CURVE.pts[which] || {})[y]) != null; }
+/* THE FIT ITSELF: flat, quadratic or monotone PCHIP through a knot list, year held inside [2030, era],
+   rate held at or above zero. */
+function buildCurveFromKnots(ks, era){
   const xs = ks.map(function(k){ return k[0]; }), ys = ks.map(function(k){ return k[1]; });
   const E = Number(era);
   let family, rateRaw;
@@ -9379,15 +9445,21 @@ const C_HW1 = KNOB_DATA.C_HW.default;
 function investmentSeries(){
   const D = knobVal('landed_cost');
   const psiOf = cohortPsiByYear(scenarioModelArgs(PRESET_OF_FUNDING[state.funding]));   // Step 68 pass 2B: psi_y by vintage
-  const agencyRate = buildCurve('agency', state.funding, '2055', null);
-  const commercialRate = buildCurve('commercial', state.funding, '2055', null);
+  /* STEP 70.6: up to the era in view the dollars come from the two curves the fleet layer reads (the
+     ones in view, with any point the reader has placed); past that era, which the fleet does not
+     evaluate, they come from the scenario's own 2055 curves. */
+  const Ev = Number(state.phase);
+  const agencyView = buildCurve('agency', state.funding, state.phase, null);
+  const commercialView = buildCurve('commercial', state.funding, state.phase, null);
+  const agencyFull = buildCurve('agency', state.funding, '2055', null);
+  const commercialFull = buildCurve('commercial', state.funding, '2055', null);
   const years = []; for (let y = CURVE_EPOCH; y <= 2055; y++) years.push(y);
   return years.map(function(y){
     const perT = C_HW1 * (psiOf[y] != null ? psiOf[y] : 1) + D;   // [$/kg]
-    const gov = agencyRate(y) * 1000 * perT;
+    const gov = (y <= Ev ? agencyView : agencyFull)(y) * 1000 * perT;
     /* THE GOD CURVE (ruling 2): invest is the DERIVED sum of the two curves' own dollars, at
        every year, never an independently drawn third rate. */
-    const invest = gov + commercialRate(y) * 1000 * perT;
+    const invest = gov + (y <= Ev ? commercialView : commercialFull)(y) * 1000 * perT;
     return { year: y, invest: invest, gov: gov, commercial: invest - gov };
   });
 }
@@ -9692,7 +9764,9 @@ function scenFleet(funding, era, L, massRate, powerRate){
   const M = (massRate != null) ? massRate : e.M, P = (powerRate != null) ? powerRate : e.P;
   const saved = CURVE.pts;
   CURVE.pts = { mass:  {2030:null, 2040:null, 2055:null},
-                power: {2030:null, 2040:null, 2055:null} };
+                power: {2030:null, 2040:null, 2055:null},
+                agency: {2030:null, 2040:null, 2055:null},
+                commercial: {2030:null, 2040:null, 2055:null} };   // STEP 70.6: the fleet reads the two actor curves, so the blank set carries them
   try { return fleetState(M, P, era, (L != null) ? L : null, funding); }
   finally { CURVE.pts = saved; }
 }
@@ -10449,11 +10523,10 @@ function learningMultipliersCounts(a0, f, era, PR){
   /* STEP 69, BLD-07/BLD-08: the aggregate COMMERCIAL SHARE of the STANDING (surviving) cohorts,
      by tonnage rather than by the coarse binary tag above -- a continuous ratio is what a capital
      charge needs, the categorical .owner is what a census tag needs, and both are read off the same
-     two curves so they cannot disagree about which cohort-years counted. Ratio, not a comparison
-     against CURVE.pts.mass's own total, so this is exact regardless of any float-level difference
-     between agency(y)+commercial(y) and the (unchanged) mass curve's own PCHIP shape between knots --
-     the ratio is applied to model()'s own standing mass (m.mass) at the value layer, never to a
-     second, independently-summed total this function would otherwise have to keep in agreement. */
+     two curves so they cannot disagree about which cohort-years counted. The two curves sum to the
+     total the fleet landed at every year (Step 70.6), and the ratio is applied to model()'s own
+     standing mass (m.mass) at the value layer, never to a second, independently-summed total this
+     function would otherwise have to keep in agreement. */
   let __survAgency69 = 0, __survCommercial69 = 0;
   co.forEach(function(c){ if (c.surv){ __survAgency69 += c.rAgency; __survCommercial69 += c.rCommercial; } });
   const __survSplitTotal69 = __survAgency69 + __survCommercial69;
@@ -12365,8 +12438,10 @@ function runTests(fileText){
     const MASS_MAX = DETENTS.mass[DETENTS.mass.length-1];
     function closedQuad(a0, aT, n){ const c = (aT-a0)/(n*n); return a0*(n+1) + c*(n*(n+1)*(2*n+1)/6); }
     function quadCase(label, a0, aT, era){
-      curveReset(); setEraRate('mass', 2030, a0);
-      const rate = buildCurve('mass', null, era, aT);
+      /* STEP 70.6: setEraRate('mass') moves the total through the two actor curves and stores no total of its
+         own, so the two-scalar probe reaches the fit directly: the knot list is the row's own subject. */
+      curveReset();
+      const rate = buildCurveFromKnots([[CURVE_EPOCH, a0], [Number(era), aT]], era);
       const n = Number(era) - CURVE_EPOCH;
       const got = curveCumulative(rate, era), want = closedQuad(a0, aT, n);
       cases.push(label + ' ' + got.toFixed(4) + ' vs ' + want.toFixed(4));
@@ -12383,8 +12458,8 @@ function runTests(fileText){
     worst = Math.max(worst, quadCase('ceiling to ceiling', MASS_MAX, MASS_MAX, '2055'));
     worst = Math.max(worst, quadCase('floor to ceiling at 2040', 0, MASS_MAX, '2040'));
     /* THE THREE SEEDED DEFECTS, each an accumulation error a reader could not see. */
-    curveReset(); setEraRate('mass', 2030, 10);
-    const rr = buildCurve('mass', null, '2055', 500), truth = closedQuad(10, 500, 25);
+    curveReset();
+    const rr = buildCurveFromKnots([[CURVE_EPOCH, 10], [2055, 500]], '2055'), truth = closedQuad(10, 500, 25);
     function seeded(kind){
       let s = 0;
       if (kind === 'offbyone'){ for (let y = CURVE_EPOCH+1; y <= 2055; y++) s += rr(y); }
@@ -12423,8 +12498,8 @@ function runTests(fileText){
     PTS.forEach(function(a0){
       PTS.forEach(function(a1){
         PTS.forEach(function(a2){
-          curveReset(); setEraRate('mass', 2030, a0); setEraRate('mass', 2040, a1);
-          const rate = buildCurve('mass', null, '2055', a2);
+          curveReset();   // STEP 70.6: the three knots go to the fit itself, as CURVE-02's do
+          const rate = buildCurveFromKnots([[2030, a0], [2040, a1], [2055, a2]], '2055');
           states++;
           let cum = 0, prev = 0;
           for (let y = CURVE_EPOCH; y <= 2055; y++){
@@ -17711,7 +17786,7 @@ function runAbstractTests(){
       if (km){ const home = km.value;
         const setM = function(v){ km.value = String(v); km.dispatchEvent(new Event('input', {bubbles:true})); render(); };
         try { setM(km.min); const s0 = paintedSlope(); setM(km.max); const s1 = paintedSlope(); massEnds = [s0, s1]; massMoves = s0 != null && s1 != null && s0 !== s1; }
-        finally { setM(home); applyPreset(PRESETS.artemis); state.phase='2055'; render(); } } }
+        finally { setM(home); curveReset(); applyPreset(PRESETS.artemis); state.phase='2055'; render(); } } }   // STEP 70.6: a rail move stores actor points, and a same-preset apply keeps them
     if (!massMoves) why.push('the caption says the Mass landing rate moves the line, and the painted slope reads '+JSON.stringify(massEnds)+' at the two ends of that rail');
     const decoyFires = painted != null && Math.abs(Number((bisected*1.05).toFixed(dp)) - Number(bisected.toFixed(dp))) > 1e-9;
     // LIVE DECOY, driven through the real read path rather than against a typed-in number:
@@ -17969,7 +18044,9 @@ function runAbstractTests(){
     if (hi !== MAXM) bad.push('the rail ceiling does not clamp: 1e9 stored as ' + hi);
     if (lo !== 0) bad.push('the floor does not clamp: -5000 stored as ' + lo);
     if (nan !== 0) bad.push('a non-finite rate is not held at zero: stored as ' + nan);
-    if (mid !== 300 || CURVE.pts.mass[2040] !== 300) bad.push('the stored value is not the returned value');
+    /* STEP 70.6: the total is stored as its two actors' points, so the stored value is their sum. */
+    const storedTotal = (CURVE.pts.agency[2040] == null || CURVE.pts.commercial[2040] == null) ? NaN : CURVE.pts.agency[2040] + CURVE.pts.commercial[2040];
+    if (mid !== 300 || !(Math.abs(storedTotal - 300) <= 1e-9)) bad.push('the stored value is not the returned value');
     let threwYear = false, threwWhich = false;
     try { setEraRate('mass', 2041, 5); } catch(e){ threwYear = true; }
     try { setEraRate('volume', 2040, 5); } catch(e){ threwWhich = true; }
@@ -17989,11 +18066,12 @@ function runAbstractTests(){
        2040 wherever the algebra put it. */
     const kr = (cv ? cv.dataset.knots : '') || '';
     if (n1 !== n0) bad.push('placing a 2040 control point changed the knot count: ' + n0 + ' -> ' + n1);
-    if (kr.indexOf('2040:300') < 0) bad.push('the plot\'s knot record does not carry the 2040 point that was set: ' + kr);
+    const kr2040 = kr.split(',').filter(function(t){ return t.indexOf('2040:') === 0; }).map(function(t){ return Number(t.slice(5)); })[0];
+    if (!(Math.abs(kr2040 - 300) <= 1e-9)) bad.push('the plot\'s knot record does not carry the 2040 point that was set: ' + kr);
     if (!(Math.abs(c1 - c0) > 1)) bad.push('placing a 2040 control point did not move the cumulative');
     // a preset click is a new programme
     applyPreset(PRESETS.contested); render();
-    if (CURVE.pts.mass[2040] !== null) bad.push('a preset click did not clear the drawn control points');
+    if (CURVE.pts.agency[2040] !== null || CURVE.pts.commercial[2040] !== null) bad.push('a preset click did not clear the drawn control points');
     curveReset(); applyPreset(PRESETS.artemis); render();
     rec('CURVE-04','GATE',
         'setEraRate() is the single named mutation on the curve: it clamps to the rail\'s own range, holds a non-finite rate at zero, RETURNS THE VALUE IT STORED so a caller reads what the model will use rather than what it asked for, refuses a year that is not an era and a quantity that is neither rail, moves the whole curve rather than one point, and is cleared by a preset click because a preset is a new programme',
@@ -18313,6 +18391,8 @@ function runAbstractTests(){
         return NaN;
       }
       function modelAt(y){ return buildCurve('mass', state.funding, state.phase, knobVal('mass'))(Number(y)); }
+      /* STEP 70.6: the handle sits on the dragged actor's curve, and the model reads the total. */
+      function draggedAt(y){ return buildCurve(state.curveWhich, state.funding, state.phase, null)(Number(y)); }
       function handle(y){ return document.querySelector('.curvehandle[data-era="' + y + '"]'); }
       function uniq(a){ return a.filter(function(v, i, s){ return s.indexOf(v) === i; }).length; }
       function goTo(ph){ curveReset(); applyPreset(PRESETS.artemis);
@@ -18329,11 +18409,12 @@ function runAbstractTests(){
       else {
         const was = painted(2040), pageWas = modelPage();
         curveDragStart(press(h0));
-        const modelRun = [], paintedRun = [], pageRun = [], rateRun = [], topRun = [], armed = [];
+        const modelRun = [], draggedRun = [], paintedRun = [], pageRun = [], rateRun = [], topRun = [], armed = [];
         for (let i = 0; i < 6; i++){
           curveDragMove({ clientY: 10 + i * 9 });
           const live = handle(2040);
           modelRun.push(modelAt(2040));
+          draggedRun.push(draggedAt(2040));
           paintedRun.push(painted(2040));
           pageRun.push(modelPage());
           rateRun.push(live ? Number(live.dataset.rate) : NaN);
@@ -18359,8 +18440,8 @@ function runAbstractTests(){
         if (uniq(rateRun) !== 6 || uniq(topRun) !== 6)
           bad.push('the handle froze under the pointer: ' + uniq(rateRun) + ' rates and ' + uniq(topRun) +
                    ' positions across 6 moves at 6 distinct pointer positions');
-        if (rateRun.some(function(v, i){ return Math.abs(v - modelRun[i]) > 1e-9; }))
-          bad.push('the handle shows the reader a number the model is not holding');
+        if (rateRun.some(function(v, i){ return Math.abs(v - draggedRun[i]) > 1e-9; }))
+          bad.push('the handle shows the reader a number the dragged curve is not holding');
 
         /* 3. THE SETTLE RECOMPUTES AND DISARMS ITSELF. */
         const owed = curveDragSettleNow();
@@ -18488,15 +18569,19 @@ function runAbstractTests(){
     else {
       const saveP = state.phase;
       const W = cv.width, H = cv.height;
-      const drawn = { path: null, bars: [] };
+      /* STEP 70.6: THE PLOT NOW DRAWS TWO CURVES, so the recorder keeps EVERY stroked polyline and every
+         cohort bar with the fill colour it was issued under. The axis stroke (three points) is filtered
+         out by length: a curve polyline carries one vertex per year on screen. The Agency line is drawn
+         first and the Commercial line second; each curve shades its own bars in its own colour. */
+      const drawn = { paths: [], bars: [] };
       let cur = null;
       const REC = {
-        clearRect: function(){ drawn.path = null; drawn.bars.length = 0; },
+        clearRect: function(){ drawn.paths.length = 0; drawn.bars.length = 0; },
         beginPath: function(){ cur = []; },
         moveTo: function(x, y){ if (cur) cur.push([x, y]); },
         lineTo: function(x, y){ if (cur) cur.push([x, y]); },
-        stroke: function(){ if (cur && cur.length >= 2) drawn.path = cur.slice(); },
-        fillRect: function(x, y, w, h){ drawn.bars.push([x, y, w, h]); },
+        stroke: function(){ if (cur && cur.length >= 2) drawn.paths.push(cur.slice()); },
+        fillRect: function(x, y, w, h){ drawn.bars.push([x, y, w, h, String(this.fillStyle)]); },
         fill: function(){}, closePath: function(){}, save: function(){}, restore: function(){},
         setLineDash: function(){}, arc: function(){}, rect: function(){}, fillText: function(){},
         strokeRect: function(){}, translate: function(){}, scale: function(){},
@@ -18514,22 +18599,27 @@ function runAbstractTests(){
         for (let i = 0; i < list.length; i++){ const d = Math.abs(get(list[i]) - want); if (d < bd){ bd = d; best = list[i]; } }
         return { item: best, d: bd };
       }
-      function vertexAt(y, E){
-        if (!drawn.path) return null;
-        const n = nearest(drawn.path, pxOf(y, E), function(p){ return p[0]; });
+      function curvePaths(E){ return drawn.paths.filter(function(p){ return p.length === Number(E) - CURVE_EPOCH + 1; }); }
+      function vertexAt(y, E, which){
+        const ps = curvePaths(E);
+        if (ps.length !== 2) return null;
+        const path = ps[which === 'commercial' ? 1 : 0];
+        const n = nearest(path, pxOf(y, E), function(p){ return p[0]; });
         return (n.item && n.d <= 0.51) ? n.item : null;
       }
-      function barTopAt(y, E){
-        if (!drawn.bars.length) return null;
-        const n = nearest(drawn.bars, pxOf(y, E), function(b){ return b[0] + b[2]/2; });
+      function barTopAt(y, E, which){
+        const tint = (which === 'commercial') ? 'rgba(224,165,79,' : 'rgba(78,201,232,';
+        const mine = drawn.bars.filter(function(b){ return b[4].indexOf(tint) === 0; });
+        if (!mine.length) return null;
+        const n = nearest(mine, pxOf(y, E), function(b){ return b[0] + b[2]/2; });
         return n.item ? n.item[1] : null;
       }
       function handleBackingY(b){
         const sy = Number(cv.dataset.cssScaleY) || 1;
         return parseFloat(b.style.top) / sy;
       }
-      function recordedRate(y){
-        const m = (cv.dataset.rateAt || '').split(',');
+      function recordedRate(y, which){
+        const m = (cv.dataset[which + 'RateAt'] || '').split(',');
         for (let i = 0; i < m.length; i++){ const p = m[i].split(':'); if (Number(p[0]) === Number(y)) return Number(p[1]); }
         return NaN;
       }
@@ -18568,10 +18658,12 @@ function runAbstractTests(){
       const popNote = [];
 
       recordOn();
+      ['agency', 'commercial'].forEach(function(which){
+      state.curveWhich = which;
       STATES.forEach(function(ph){
         const inScope = curveErasInScope(ph);
         const out = CURVE_ERAS.filter(function(y){ return inScope.indexOf(y) < 0; });
-        popNote.push('era ' + ph + ': ' + inScope.length + ' of ' + CURVE_ERAS.length + ' handled (' + inScope.join(', ') + ')' +
+        popNote.push(which + ' toggle, era ' + ph + ': ' + inScope.length + ' of ' + CURVE_ERAS.length + ' handled (' + inScope.join(', ') + ')' +
                      (out.length ? ', excluding ' + out.join(', ') + ' as out of scope' : ', excluding none'));
         goTo(ph);
         out.forEach(function(y){
@@ -18584,6 +18676,7 @@ function runAbstractTests(){
           const b0 = document.querySelector('.curvehandle[data-era="' + y + '"]');
           if (!b0){ bad.push('era ' + ph + ': curveErasInScope() puts ' + y + ' in scope and no handle exists there'); return; }
           handles++;
+          if (b0.dataset.which !== which) bad.push(which + ' toggle, era ' + ph + '/' + y + ': the handle carries data-which "' + b0.dataset.which + '"');
           const heroBefore = modelPage();
           curveDragStart(press(b0));
           for (let i = 0; i < MOVES; i++){
@@ -18591,20 +18684,21 @@ function runAbstractTests(){
             const b = document.querySelector('.curvehandle[data-era="' + y + '"]');
             if (!b){ bad.push('era ' + ph + '/' + y + ': the handle left the document mid-drag'); break; }
             const E = Number(cv.dataset.era);
-            const at = 'era ' + ph + ', handle ' + y + ', move ' + (i+1) + ': ';
+            const at = which + ' toggle, era ' + ph + ', handle ' + y + ', move ' + (i+1) + ': ';
             scored++;
-            const v = vertexAt(y, E);
+            if (curvePaths(E).length !== 2){ bad.push(at + 'the canvas was issued ' + curvePaths(E).length + ' curve polylines, not the Agency and Commercial two'); continue; }
+            const v = vertexAt(y, E, which);
             if (!v){ bad.push(at + 'the canvas has no stroked vertex at that year own column'); continue; }
             const hy = handleBackingY(b);
             if (Math.abs(hy - v[1]) > 1.0)
               bad.push(at + 'the handle sits ' + (hy - v[1]).toFixed(2) + ' backing px from the drawn curve at its own column, ' +
                        hy.toFixed(2) + ' against ' + v[1].toFixed(2) + ' on a plot ' + (H - CURVE_PAD.t - CURVE_PAD.b) + ' px tall');
-            const bt = barTopAt(y, E);
+            const bt = barTopAt(y, E, which);
             if (bt == null) bad.push(at + 'the shaded area has no cohort bar at that year column');
             else if (Math.abs(bt - v[1]) > 1.0)
               bad.push(at + 'the shaded area tops out at ' + bt.toFixed(2) + ' against a drawn line at ' + v[1].toFixed(2) +
                        ', so the area is drawn from a different programme than the line above it');
-            const r = recordedRate(y);
+            const r = recordedRate(y, which);
             if (!isFinite(r)) bad.push(at + 'the canvas record carries no rate at that year');
             else if (Math.abs(pyOf(r) - v[1]) > 1.0)
               bad.push(at + 'the canvas record says ' + r.toFixed(3) + ' t/yr, which maps to ' + pyOf(r).toFixed(2) +
@@ -18612,20 +18706,22 @@ function runAbstractTests(){
           }
           const heroDuring = modelPage();
           if (heroDuring !== heroBefore)
-            bad.push('era ' + ph + '/' + y + ': the model page moved from "' + heroBefore + '" to "' + heroDuring +
+            bad.push(which + ' toggle, era ' + ph + '/' + y + ': the model page moved from "' + heroBefore + '" to "' + heroDuring +
                      '" during an unpaused stream, so the 0.5 s settle that was ruled is not holding');
           const owed = curveDragSettleNow();
-          if (!owed) bad.push('era ' + ph + '/' + y + ': ' + MOVES + ' pointermove events, one of them above the plot ceiling, left the settle owing no recompute');
+          if (!owed) bad.push(which + ' toggle, era ' + ph + '/' + y + ': ' + MOVES + ' pointermove events, one of them above the plot ceiling, left the settle owing no recompute');
           const heroAfter = modelPage();
           if (heroAfter === heroBefore)
-            bad.push('EMPTY COUNTER-POPULATION at era ' + ph + '/' + y + ': the settle left the model page at ' + heroBefore +
+            bad.push('EMPTY COUNTER-POPULATION at ' + which + ' toggle, era ' + ph + '/' + y + ': the settle left the model page at ' + heroBefore +
                      ', so this clause cannot tell a deferred recompute from an absent one');
-          seen.push(ph + '/' + y + ': model page held at ' + heroBefore + ' across ' + MOVES + ' moves and read ' + heroAfter + ' once the settle fired');
+          seen.push(which + ' ' + ph + '/' + y + ': model page held at ' + heroBefore + ' across ' + MOVES + ' moves and read ' + heroAfter + ' once the settle fired');
           curveDragEnd(press(document.querySelector('.curvehandle[data-era="' + y + '"]') || b0));
         });
       });
+      });
       recordOff();
 
+      state.curveWhich = 'agency';
       state.phase = saveP; curveReset(); applyPreset(PRESETS.artemis); render();
       const want = MOVES * handles;
       rec('CURVEUI-04','GATE',
@@ -18683,7 +18779,7 @@ function runAbstractTests(){
           applyPreset(PRESETS[other]); render();
           if (activePreset() !== other)
             bad.push(PRESETS[pid].label + ' at ' + ph + ': clicking a different preset after the drag does not light that preset’s own pill');
-          if (CURVE.pts.mass[y] !== null)
+          if (CURVE.pts.agency[y] !== null || CURVE.pts.commercial[y] !== null)   // STEP 70.6: the total is stored as its two actors' points
             bad.push(PRESETS[pid].label + ' at ' + ph + ': clicking a different preset after the drag leaves the point at ' + y + ' standing');
         });
       });
@@ -18710,10 +18806,12 @@ function runAbstractTests(){
     document.querySelector('#phase button[data-p="2055"]').click();
     setEraRate('mass', 2055, 9000); render();
     document.querySelector('.preset[data-s="artemis"]').click();
-    if (CURVE.pts.mass[2055] !== 9000) why.push('re-clicking the active preset cleared the placed point, ' + CURVE.pts.mass[2055] + ' where 9000 was placed');
+    /* STEP 70.6: the placed total is its two actors' points, so the stored value is their sum. */
+    const placed2055 = (CURVE.pts.agency[2055] == null || CURVE.pts.commercial[2055] == null) ? NaN : CURVE.pts.agency[2055] + CURVE.pts.commercial[2055];
+    if (!(Math.abs(placed2055 - 9000) <= 1e-9)) why.push('re-clicking the active preset cleared the placed point, ' + placed2055 + ' where 9000 was placed');
     setEraRate('mass', 2055, 9000); render();
     document.querySelector('.preset[data-s="commercial"]').click();
-    if (CURVE.pts.mass[2055] !== null) why.push('switching to a different preset left the point standing at ' + CURVE.pts.mass[2055]);
+    if (CURVE.pts.agency[2055] !== null || CURVE.pts.commercial[2055] !== null) why.push('switching to a different preset left the point standing at ' + CURVE.pts.agency[2055] + ' / ' + CURVE.pts.commercial[2055]);
     curveReset(); applyPreset(PRESETS.artemis); render();
     rec('CURVE-RECLICK-01','GATE',
         're-clicking the active preset keeps a reader-placed curve point; switching to a different preset clears it',
@@ -20919,7 +21017,7 @@ function runAbstractTests(){
     } finally {
       Object.assign(state, savedState);
       const p = JSON.parse(savedPts);
-      CURVE_ERAS.forEach(function(y){ CURVE.pts.mass[y] = p.mass[y]; CURVE.pts.power[y] = p.power[y]; });
+      CURVE_ERAS.forEach(function(y){ CURVE.pts.mass[y] = p.mass[y]; CURVE.pts.power[y] = p.power[y]; CURVE.pts.agency[y] = p.agency[y]; CURVE.pts.commercial[y] = p.commercial[y]; });   // STEP 70.6: the fleet reads the two actors, so they are restored too
       lastAppliedPresetId = savedPid; curveResetByPresetSwitch = savedSwitch;
     }
     for(const s of probe){
@@ -21645,6 +21743,17 @@ function runAbstractTests(){
         why.push(where+': #investPlot paints invest='+invest[idx]+' against an independently computed '+wantInvest.toFixed(2));
       if (Math.abs(gov[idx] - wantGov) > tol)
         why.push(where+': #investPlot paints gov='+gov[idx]+' against an independently computed '+wantGov.toFixed(2));
+      /* STEP 70.6: at every year up to the era in view the dollars are the two tonnage curves the fleet
+         reads times the year's price, and the god series is the total the fleet landed times that price. */
+      const psiAll = cohortPsiByYear(scenarioModelArgs(PRESET_OF_FUNDING[state.funding])), flNow = fleetNow();
+      const aView = buildCurve('agency', state.funding, state.phase, null), cView = buildCurve('commercial', state.funding, state.phase, null);
+      for (let i = 0; i < years.length; i++){
+        if (years[i] > Number(state.phase)) continue;
+        const kY = 1000 * (C_HW1 * (psiAll[years[i]] != null ? psiAll[years[i]] : 1) + D), tolY = Math.max(1, Math.abs(invest[i])) * 1e-6;
+        if (Math.abs(gov[i] - aView(years[i]) * kY) > tolY) why.push(where+': gov at '+years[i]+' is not the Agency curve times the price');
+        if (Math.abs(comm[i] - cView(years[i]) * kY) > tolY) why.push(where+': commercial at '+years[i]+' is not the Commercial curve times the price');
+        if (Math.abs(invest[i] - flNow.rateM(years[i]) * kY) > tolY) why.push(where+': god series at '+years[i]+' is not the fleet total times the price');
+      }
       for (let i = 0; i < years.length; i++){
         if (Math.abs((gov[i] + comm[i]) - invest[i]) > Math.max(1, Math.abs(invest[i])) * 1e-6)
           why.push(where+': gov+commercial does not sum to invest at year '+years[i]);
@@ -23442,6 +23551,10 @@ function knobText(key){ const spec=KNOBS[key]; return spec.fmt(knobVal(key)) + '
    naming a landing rate reads. The Scenario blurb, the Notes fleet sentence and the reactor note read
    knobVal(), the rail's index, and printed "lands 100 t" beside a 2040 handle dragged to 700 t/yr. */
 function appliedRate(key){
+  /* STEP 70.6: the landing rate applied at the era in view is the TOTAL, whatever moved it: a placed
+     point on either actor, the Mass landing rate rail, or a preset default. */
+  if (key === 'mass' && typeof CURVE !== 'undefined' && typeof buildCurve === 'function')
+    return buildCurve('mass', state.funding, state.phase, state.mass)(Number(state.phase));
   const stored = (typeof CURVE !== 'undefined' && CURVE.pts[key]) ? CURVE.pts[key][state.phase] : null;
   return (stored != null) ? stored : knobVal(key);
 }
@@ -23673,9 +23786,18 @@ function readerFleetFor(funding){
   if (funding === state.funding) return fleetNow();
   const ph = state.phase, A = ENVELOPE[state.funding], S = ENVELOPE[funding];
   const rel = function(v, which, y){ const f = (which === 'mass') ? 'M' : 'P'; return (v / A[String(y)][f]) * S[String(y)][f]; };
-  const saved = CURVE.pts, mapped = { mass:{}, power:{} };
-  ['mass','power'].forEach(function(w){
+  const saved = CURVE.pts, mapped = { mass:{}, power:{}, agency:{}, commercial:{} };
+  ['power'].forEach(function(w){
     CURVE_ERAS.forEach(function(y){ const v = saved[w][y]; mapped[w][y] = (v == null) ? null : rel(v, w, y); });
+  });
+  /* STEP 70.6: a placed point on either actor moves the total at that era. Both actors map together, each
+     at its own value (stored, else the reader's scenario default) times the ratio of the two scenarios'
+     totals at that era, so the other scenario's curves keep the reader's shares and scale with the total. */
+  CURVE_ERAS.forEach(function(y){
+    if (!knotStored('agency', y) && !knotStored('commercial', y)){ mapped.agency[y] = null; mapped.commercial[y] = null; return; }
+    const r = S[String(y)].M / A[String(y)].M;
+    mapped.agency[y] = knotValue('agency', state.funding, y) * r;
+    mapped.commercial[y] = knotValue('commercial', state.funding, y) * r;
   });
   CURVE.pts = mapped;
   try { return fleetState(rel(knobVal('mass'), 'mass', ph), rel(knobVal('power'), 'power', ph), ph, null, funding); }
@@ -23747,7 +23869,8 @@ function stripRailExtrapolation(){
       let best = null, bestD = -1;
       CURVE_ERAS.forEach(function(y){
         if (y > ph) return;
-        const base = (y === ph) ? appliedRate(w) : CURVE.pts[w][y];
+        const base = (y === ph) ? appliedRate(w)
+                   : (knotStored('agency', y) || knotStored('commercial', y)) ? knotValue('agency', state.funding, y) + knotValue('commercial', state.funding, y) : null;   // STEP 70.6: a placed total is its two actors' sum
         if (base == null) return;
         const v = own ? base : (base / A[String(y)][fld]) * S[String(y)][fld];
         if (v >= lo - 1e-9 && v <= hi + 1e-9) return;
@@ -24078,23 +24201,24 @@ function massRailKeyTarget(ev, cur){
   if (ev.key === 'End') return MASS_RAIL_MAX;
   return null;
 }
+/* STEP 70.6: THE RAIL MOVES THE TOTAL AT THE ERA IN VIEW. It writes state.mass as the total and
+   setEraRate('mass') carries that total onto both actor curves at that era, each keeping its share,
+   so a rail move and a handle drag are the same kind of edit and neither leaves the other stale. */
+function massRailWrite(){
+  if (typeof CURVE !== 'undefined') setEraRate('mass', Number(state.phase), state.mass);
+}
 function bindMassRailSlider(inputEl){
   inputEl.addEventListener('keydown', function(ev){
-    const next = massRailKeyTarget(ev, state.mass);
+    const next = massRailKeyTarget(ev, appliedRate('mass'));
     if (next == null) return;
     ev.preventDefault();
     state.mass = Math.max(MASS_RAIL_MIN, Math.min(MASS_RAIL_MAX, next));
-    if (typeof CURVE !== 'undefined' && CURVE.pts.mass &&
-        Object.prototype.hasOwnProperty.call(CURVE.pts.mass, Number(state.phase)))
-      CURVE.pts.mass[Number(state.phase)] = null;
+    massRailWrite();
     readerRender();
   });
   inputEl.addEventListener('input', function(){
     const raw = parseFloat(inputEl.value);
-    if (isFinite(raw)) state.mass = massRailFromPct(raw);
-    if (typeof CURVE !== 'undefined' && CURVE.pts.mass &&
-        Object.prototype.hasOwnProperty.call(CURVE.pts.mass, Number(state.phase)))
-      CURVE.pts.mass[Number(state.phase)] = null;
+    if (isFinite(raw)){ state.mass = massRailFromPct(raw); massRailWrite(); }
     readerRender();
   });
 }
@@ -24444,11 +24568,20 @@ function curveDraw(){
   const wrap = document.getElementById('curveWrap');
   if (!cv || !wrap) return null;
   const era = state.phase, E = Number(era);
-  const rate = buildCurve('mass', state.funding, era, knobVal('mass'));
+  /* STEP 70.6: TWO CURVES ON ONE PLOT, ONE TOTAL UNDER THEM. Agency and Commercial are the two tonnage
+     curves the reader sees and drags (t/yr landed by each actor); the toggle picks the one whose
+     handles are live. The fleet layer reads the TOTAL, the fit through the era totals, which equals
+     the two curves' sum at every year. No line is drawn for the total: it is the record below, the
+     readout and the footer. */
+  const which = (state.curveWhich === 'commercial') ? 'commercial' : 'agency';
+  const total = buildCurve('mass', state.funding, era, knobVal('mass'));
+  const rateA = buildCurve('agency', state.funding, era, null);
+  const rateC = buildCurve('commercial', state.funding, era, null);
+  const rateSel = (which === 'agency') ? rateA : rateC;
   const fs = fleetState(knobVal('mass'), knobVal('power'), era, null, state.funding);
   const yrs = [];
   for (let y = CURVE_EPOCH; y <= E; y++) yrs.push(y);
-  const vals = yrs.map(rate);
+  const vals = yrs.map(total), valsA = yrs.map(rateA), valsC = yrs.map(rateC);
   /* STEP 70.3, QUINN'S RULING 2026-09-17: THE VERTICAL SCALE IS THE RAIL'S OWN FIXED LOG AXIS,
      MASS_RAIL_MIN..MASS_RAIL_MAX (10..1,000,000), NOT THE PROGRAMME'S ENVELOPE AND NOT THE
      CURVE'S OWN OUTPUT. The per-scenario floating ceiling this replaces (envHi, the larger of the
@@ -24471,32 +24604,44 @@ function curveDraw(){
      second, independently authored log law that could drift from the rail's own. */
   const hi = MASS_RAIL_MAX;
 
-  /* THE RECORD, written before anything is drawn. */
-  const knots = rate.knots.map(function(k){ return k[0] + ':' + k[1]; }).join(',');
-  cv.dataset.family = rate.family;
+  /* THE RECORD, written before anything is drawn. The unprefixed fields are the TOTAL the fleet reads;
+     the agency* and commercial* fields are the two curves. */
+  const knots = total.knots.map(function(k){ return k[0] + ':' + k[1]; }).join(',');
+  cv.dataset.family = total.family;
   cv.dataset.knots = knots;
-  cv.dataset.knotCount = String(rate.knots.length);
+  cv.dataset.knotCount = String(total.knots.length);
   cv.dataset.era = String(E);
   cv.dataset.eras = curveErasInScope(era).join(',');
-  cv.dataset.cumulative = String(curveCumulative(rate, era));
+  cv.dataset.cumulative = String(curveCumulative(total, era));
   cv.dataset.standing = String(fs.mass);
   cv.dataset.retired = String(fs.retired);
   cv.dataset.years = String(yrs.length);
   cv.dataset.rateAt = yrs.map(function(y, i){ return y + ':' + vals[i]; }).join(',');
   cv.dataset.max = String(hi);
+  cv.dataset.agencyKnots = rateA.knots.map(function(k){ return k[0] + ':' + k[1]; }).join(',');
+  cv.dataset.commercialKnots = rateC.knots.map(function(k){ return k[0] + ':' + k[1]; }).join(',');
+  cv.dataset.agencyRateAt = yrs.map(function(y, i){ return y + ':' + valsA[i]; }).join(',');
+  cv.dataset.commercialRateAt = yrs.map(function(y, i){ return y + ':' + valsC[i]; }).join(',');
+  cv.dataset.agencyCumulative = String(curveCumulative(rateA, era));
+  cv.dataset.commercialCumulative = String(curveCumulative(rateC, era));
+  const Lv = fleetLife();
+  cv.dataset.agencyStanding = String(curveStanding(rateA, era, Lv));
+  cv.dataset.commercialStanding = String(curveStanding(rateC, era, Lv));
+  cv.dataset.curveWhich = which;
 
   const vc = document.getElementById('v_curve');
-  if (vc) vc.textContent = fmtNum(rate(E), rate(E) < 10 ? 1 : 0) + ' t/yr at ' + E;
+  if (vc) vc.textContent = fmtNum(total(E), total(E) < 10 ? 1 : 0) + ' t/yr at ' + E;
   const foot = document.getElementById('curveFoot');
-  if (foot) foot.textContent = 'landed in all ' + fmtNum(curveCumulative(rate, era), 0) +
+  if (foot) foot.textContent = 'landed in all ' + fmtNum(curveCumulative(total, era), 0) +
     ' t, standing ' + fmtNum((__standingMassPainted != null) ? __standingMassPainted : fs.mass, 0) + ' t, aged out ' +
-    fmtNum(Math.max(0, curveCumulative(rate, era) - ((__standingMassPainted != null) ? __standingMassPainted : fs.mass)), 0) + ' t' +   // CLOSE-OUT T1
+    fmtNum(Math.max(0, curveCumulative(total, era) - ((__standingMassPainted != null) ? __standingMassPainted : fs.mass)), 0) + ' t' +   // CLOSE-OUT T1
     (curveResetByPresetSwitch ? ' -- curve reset to the preset' : '');
   curveResetByPresetSwitch = false;
 
-  /* THE HANDLES. One per era in scope, positioned from the same numbers the record carries.
-     A handle at an era the reader is not on would sit on no curve, so the out-of-scope eras get
-     no handle at all rather than a handle on empty space. */
+  /* THE HANDLES. One per era in scope, on the toggled curve only, positioned from the same numbers
+     the record carries. Every handle carries data-which. A handle at an era the reader is not on
+     would sit on no curve, so the out-of-scope eras get no handle at all rather than a handle on
+     empty space. */
   const hbox = document.getElementById('curveHandles');
   if (hbox){
     const W = cv.width, H = cv.height;
@@ -24548,12 +24693,13 @@ function curveDraw(){
       b.type = 'button';
       b.className = 'curvehandle';
       b.dataset.era = String(y);
-      b.dataset.rate = String(rate(y));
+      b.dataset.which = which;
+      b.dataset.rate = String(rateSel(y));
       b.dataset.selected = (Number(y) === Number(era)) ? '1' : '0';
-      b.setAttribute('aria-label', 'buildout landing rate at ' + y + ', ' +
-        fmtNum(rate(y), rate(y) < 10 ? 1 : 0) + ' t per year, arrow keys adjust');
+      b.setAttribute('aria-label', (which === 'agency' ? 'Agency' : 'Commercial') + ' buildout landing rate at ' + y + ', ' +
+        fmtNum(rateSel(y), rateSel(y) < 10 ? 1 : 0) + ' t per year, arrow keys adjust');
       b.style.left = px(y) + 'px';
-      b.style.top = py(rate(y)) + 'px';
+      b.style.top = py(rateSel(y)) + 'px';
       if (!reuse){
         b.addEventListener('pointerdown', curveDragStart);
         b.addEventListener('keydown', curveKeyDown);
@@ -24575,207 +24721,40 @@ function curveDraw(){
     /* THE SHADING IS UNIT-WIDTH COHORT BARS AND NOT A SMOOTH REGION, so the area the reader sees
        is the sum the app prints. A smooth fill under the same curve differs from the cohort sum by
        the midpoint term, which is 5.73 percent at the extreme case, and a picture that disagrees
-       with the number beside it by six percent is a defect a planimeter finds and nobody else. */
-    ctx.fillStyle = 'rgba(110,160,220,0.20)';
+       with the number beside it by six percent is a defect a planimeter finds and nobody else.
+       EACH CURVE SHADES ITS OWN AREA, translucent, in its own colour, so the Agency area is the
+       Agency tonnes landed and the Commercial area is the Commercial tonnes landed. */
     const bw = (E === CURVE_EPOCH) ? (W - CURVE_PAD.l - CURVE_PAD.r)
                                    : (W - CURVE_PAD.l - CURVE_PAD.r) / (E - CURVE_EPOCH + 1);
-    yrs.forEach(function(y, i){
-      const x = (E === CURVE_EPOCH) ? CURVE_PAD.l : px(y) - bw/2;
-      ctx.fillRect(x, py(vals[i]), bw, (H - CURVE_PAD.b) - py(vals[i]));
+    const series = [[valsA, 'rgba(78,201,232,', which === 'agency'],        // --ice, Agency
+                    [valsC, 'rgba(224,165,79,', which === 'commercial']];   // --regolith, Commercial
+    series.forEach(function(sr){
+      ctx.fillStyle = sr[1] + '0.18)';
+      yrs.forEach(function(y, i){
+        const x = (E === CURVE_EPOCH) ? CURVE_PAD.l : px(y) - bw/2;
+        ctx.fillRect(x, py(sr[0][i]), bw, (H - CURVE_PAD.b) - py(sr[0][i]));
+      });
     });
-    ctx.strokeStyle = 'rgba(120,180,255,0.95)'; ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    yrs.forEach(function(y, i){ const X = px(y), Y = py(vals[i]); if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); });
-    ctx.stroke();
-  }
-  /* STEP 69: paints the two new Agency/Commercial curves on this same canvas, additively -- it
-     runs after every stroke and clearRect above and never clears anything itself, so it can only
-     ever add to what this function just drew. */
-  curveDraw2();
-  return cv.dataset;
-}
-
-/* ---- STEP 69: THE AGENCY/COMMERCIAL BUILDOUT CURVES (ruling 4, BLD-01/BLD-02/BLD-11) ----------
-   Two curves, built by the identical buildCurve()/curveKnots()/setEraRate() mechanism the single
-   mass curve above already uses (ruling 6, ruling 7) -- only the default knots differ, per
-   scenario, from BUILDOUT_SPLIT. CURVE.pts.mass above is untouched by any of this: it keeps
-   driving the physical fleet layer exactly as before (BLD-05), so this panel is additive to the
-   render, never a replacement of it.
-
-   THE TOGGLE (#curveToggle) SELECTS WHICH CURVE THE HANDLES BELOW (#curveHandles2) ACT ON. Only
-   the toggled curve gets a handle to drag; the other curve is a painted line with nothing to
-   grab. That IS ruling 4 by construction: CURVE.pts.agency and CURVE.pts.commercial are
-   independent objects, and a curve with no handle cannot be dragged, so dragging one can never
-   write to the other's stored knot.
-
-   THE LINE FOR BOTH IS ALWAYS PAINTED, on a SECOND canvas (#curvePlot2), not a second and third
-   stroke on #curvePlot itself -- a first attempt drew both lines directly on #curvePlot and broke
-   CURVEUI-04 (its call-recorder shadows #curvePlot's own getContext() and assumes every stroke()
-   there belongs to the single mass curve; a second and third stroke got folded into that recorded
-   polyline). Moving to its own canvas removed the interference: "the plot shows both" without
-   touching curveDraw()'s own dataset, handles or drawing at all, on the SAME vertical scale
-   curveDraw() draws on -- STEP 70.3: both now read the one shared MASS_RAIL_MIN/MASS_RAIL_MAX
-   log-axis constant directly, rather than this function reading #curvePlot's live dataset.max, so
-   the two constituents visibly sit inside the total they sum to and the two canvases cannot drift
-   to two different ceilings. */
-function curveDraw2(){
-  const cv = document.getElementById('curvePlot2');
-  const wrap = document.getElementById('curveWrap');
-  if (!cv || !wrap) return null;
-  const era = state.phase, E = Number(era);
-  const which = (state.curveWhich === 'commercial') ? 'commercial' : 'agency';
-  const rateA = buildCurve('agency', state.funding, era, null);
-  const rateC = buildCurve('commercial', state.funding, era, null);
-  const yrs = []; for (let y = CURVE_EPOCH; y <= E; y++) yrs.push(y);
-  const valsA = yrs.map(rateA), valsC = yrs.map(rateC);
-  const hi = MASS_RAIL_MAX;   // STEP 70.3: the fixed rail ceiling, the one shared constant with #curvePlot
-
-  /* THE RECORD. #curvePlot and its dataset are untouched by this function -- everything here is
-     written to #curvePlot2's own dataset instead, on its own canvas, precisely so that a harness
-     temporarily shadowing #curvePlot's getContext() (CURVEUI-04's call-recorder measures the
-     single mass curve's own stroked polyline and would otherwise capture these strokes as if they
-     were part of that one curve) never sees a call from this function at all. */
-  cv.dataset.era = String(E);
-  cv.dataset.max = String(hi);
-  cv.dataset.agencyKnots = rateA.knots.map(function(k){ return k[0] + ':' + k[1]; }).join(',');
-  cv.dataset.commercialKnots = rateC.knots.map(function(k){ return k[0] + ':' + k[1]; }).join(',');
-  cv.dataset.agencyRateAt = yrs.map(function(y, i){ return y + ':' + valsA[i]; }).join(',');
-  cv.dataset.commercialRateAt = yrs.map(function(y, i){ return y + ':' + valsC[i]; }).join(',');
-  cv.dataset.agencyCumulative = String(curveCumulative(rateA, era));
-  cv.dataset.commercialCumulative = String(curveCumulative(rateC, era));
-  const Lv = fleetLife();
-  cv.dataset.agencyStanding = String(curveStanding(rateA, era, Lv));
-  cv.dataset.commercialStanding = String(curveStanding(rateC, era, Lv));
-  cv.dataset.curveWhich = which;
-
-  const ctx = cv.getContext && cv.getContext('2d');
-  if (ctx){
-    const W = cv.width, H = cv.height;
-    const px = function(y){ return CURVE_PAD.l + (E === CURVE_EPOCH ? 0 :
-                    ((y - CURVE_EPOCH) / (E - CURVE_EPOCH)) * (W - CURVE_PAD.l - CURVE_PAD.r)); };
-    const py = function(v){ return H - CURVE_PAD.b - (massRailPct(v) / 100) * (H - CURVE_PAD.t - CURVE_PAD.b); };
-    ctx.clearRect(0, 0, W, H);
-    function strokeSeries(vals, color, dim){
+    series.forEach(function(sr){
       ctx.save();
-      ctx.strokeStyle = color; ctx.lineWidth = dim ? 1 : 2; ctx.globalAlpha = dim ? 0.45 : 0.95;
+      ctx.strokeStyle = sr[1] + '0.95)'; ctx.lineWidth = sr[2] ? 2 : 1; ctx.globalAlpha = sr[2] ? 1 : 0.55;
       ctx.beginPath();
-      yrs.forEach(function(y, i){ const X = px(y), Y = py(vals[i]); if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); });
+      yrs.forEach(function(y, i){ const X = px(y), Y = py(sr[0][i]); if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); });
       ctx.stroke();
       ctx.restore();
-    }
-    strokeSeries(valsA, 'rgba(78,201,232,0.95)', which !== 'agency');       // --ice, Agency
-    strokeSeries(valsC, 'rgba(224,165,79,0.95)', which !== 'commercial');   // --regolith, Commercial
-  }
-
-  /* THE HANDLES. Only the toggled curve's -- see the function header. Rebuilt every render, the
-     same simplicity BLD-02/BLD-11 need and no more: this is a secondary control next to the
-     primary curve's own settle-timer machinery, not a second copy of it. */
-  const hbox2 = document.getElementById('curveHandles2');
-  if (hbox2){
-    hbox2.innerHTML = '';
-    const sx = (cv.clientWidth  > 0) ? cv.clientWidth  / cv.width  : 1;
-    const sy = (cv.clientHeight > 0) ? cv.clientHeight / cv.height : 1;
-    const rate2 = (which === 'agency') ? rateA : rateC;
-    const px2 = function(y){ return (CURVE_PAD.l + (E === CURVE_EPOCH ? 0 :
-                    ((y - CURVE_EPOCH) / (E - CURVE_EPOCH)) * (cv.width - CURVE_PAD.l - CURVE_PAD.r))) * sx; };
-    const py2 = function(v){ return (cv.height - CURVE_PAD.b - (massRailPct(v) / 100) * (cv.height - CURVE_PAD.t - CURVE_PAD.b)) * sy; };
-    curveErasInScope(era).forEach(function(y){
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'curvehandle2 ' + which;
-      b.dataset.era = String(y);
-      b.dataset.which = which;
-      b.dataset.rate = String(rate2(y));
-      b.setAttribute('aria-label', (which === 'agency' ? 'Agency' : 'Commercial') + ' buildout landing rate at ' + y + ', ' +
-        fmtNum(rate2(y), rate2(y) < 10 ? 1 : 0) + ' t per year, arrow keys adjust');
-      b.style.left = px2(y) + 'px';
-      b.style.top = py2(rate2(y)) + 'px';
-      b.addEventListener('pointerdown', curveDragStart2);
-      b.addEventListener('keydown', curveKeyDown2);
-      hbox2.appendChild(b);
     });
   }
   return cv.dataset;
 }
 
-/* THE DRAG, second curve. Simpler than the primary curve's own (no settle timer, no frozen-axis
-   replay): pointerdown captures which handle (era + which curve), pointermove writes straight
-   through setEraRate() and repaints just this layer, pointerup/cancel/blur ends the gesture and
-   runs one full render(). setEraRate() is still the one named mutation a gesture reaches, exactly
-   as the primary curve's own header comment requires. */
-let curveDragEra2 = null, curveDragWhich2 = null, curveDragNode2 = null;
-function curveSetFromGesture2(which, era, v){
-  return setEraRate(which, era, isFinite(v) ? Number(v) : 0);
-}
-function curveDragStart2(ev){
-  const b = ev.currentTarget;
-  curveDragEra2 = Number(b.dataset.era);
-  curveDragWhich2 = b.dataset.which;
-  curveDragNode2 = b;
-  if (b.setPointerCapture && ev.pointerId != null) { try { b.setPointerCapture(ev.pointerId); } catch(e){} }
-  b.addEventListener('pointermove', curveDragMove2);
-  b.addEventListener('pointerup', curveDragEnd2);
-  b.addEventListener('pointercancel', curveDragEnd2);
-  b.addEventListener('blur', curveDragEnd2);
-  if (ev.preventDefault) ev.preventDefault();
-}
-function curveDragMove2(ev){
-  if (curveDragEra2 == null) return;
-  const cv = document.getElementById('curvePlot2');
-  if (!cv) return;
-  const box = cv.getBoundingClientRect();
-  const H = cv.height;
-  const yPix = ((ev.clientY - box.top) / (box.height || H)) * H;
-  const frac = ((H - CURVE_PAD.b) - yPix) / (H - CURVE_PAD.t - CURVE_PAD.b);
-  /* STEP 70.3: massRailFromPct is the rail's own log-inverse (10..1,000,000), not frac * hi --
-     it clamps frac*100 to [0,100] itself, so a pointer above the plot top or below its floor
-     lands on exactly MASS_RAIL_MAX or MASS_RAIL_MIN, never on a value racing past either end. */
-  curveSetFromGesture2(curveDragWhich2, curveDragEra2, massRailFromPct(frac * 100));
-  curveDraw2();
-}
-function curveDragEnd2(ev){
-  const b = (ev && ev.currentTarget) || curveDragNode2;
-  if (b && b.removeEventListener){
-    b.removeEventListener('pointermove', curveDragMove2);
-    b.removeEventListener('pointerup', curveDragEnd2);
-    b.removeEventListener('pointercancel', curveDragEnd2);
-    b.removeEventListener('blur', curveDragEnd2);
-  }
-  const wasDragging = (curveDragEra2 != null);
-  curveDragNode2 = null; curveDragEra2 = null; curveDragWhich2 = null;
-  if (wasDragging) render();
-}
-if (typeof window !== 'undefined' && window.addEventListener)
-  window.addEventListener('blur', function(){ if (curveDragEra2 != null) curveDragEnd2(null); });
-function curveKeyDown2(ev){
-  const era = Number(ev.currentTarget.dataset.era);
-  const which = ev.currentTarget.dataset.which;
-  const cv = document.getElementById('curvePlot2');
-  const hi = (cv && Number(cv.dataset.max)) || 1;
-  const cur = Number(ev.currentTarget.dataset.rate) || 0;
-  const step = hi / 50, big = hi / 10;
-  let v = null;
-  const k = ev.key;
-  if (k === 'ArrowUp' || k === 'ArrowRight' || k === 'Up' || k === 'Right') v = cur + step;
-  else if (k === 'ArrowDown' || k === 'ArrowLeft' || k === 'Down' || k === 'Left') v = cur - step;
-  else if (k === 'PageUp') v = cur + big;
-  else if (k === 'PageDown') v = cur - big;
-  else if (k === 'Home') v = hi;
-  else if (k === 'End') v = 0;
-  else return;
-  if (ev.preventDefault) ev.preventDefault();
-  curveSetFromGesture2(which, era, v);
-  render();
-}
-/* THE TOGGLE'S OWN CLICK HANDLER. Flips state.curveWhich and repaints the second layer only --
-   toggling which curve you are about to drag is not itself a model change, so it does not call
-   render(). */
+/* THE TOGGLE'S OWN CLICK HANDLER. Flips state.curveWhich and repaints the plot only -- toggling
+   which curve you are about to drag is not itself a model change, so it does not call render(). */
 function curveToggleSet(which){
   state.curveWhich = (which === 'commercial') ? 'commercial' : 'agency';
   const ab = document.getElementById('curveToggleAgency'), cb = document.getElementById('curveToggleCommercial');
   if (ab){ ab.setAttribute('aria-pressed', state.curveWhich === 'agency' ? 'true' : 'false'); ab.setAttribute('aria-selected', state.curveWhich === 'agency' ? 'true' : 'false'); }
   if (cb){ cb.setAttribute('aria-pressed', state.curveWhich === 'commercial' ? 'true' : 'false'); cb.setAttribute('aria-selected', state.curveWhich === 'commercial' ? 'true' : 'false'); }
-  curveDraw2();
+  curveDraw();
 }
 if (typeof document !== 'undefined' && document.getElementById('curveToggleAgency')){
   document.getElementById('curveToggleAgency').addEventListener('click', function(){ curveToggleSet('agency'); });
@@ -24808,7 +24787,7 @@ if (typeof document !== 'undefined' && document.getElementById('curveToggleAgenc
    left that ever moves, at pointerdown, mid-drag, or anywhere else, so there is nothing left to
    freeze: massRailPct()/massRailFromPct() read the same two constants (MASS_RAIL_MIN,
    MASS_RAIL_MAX) on every call, drag or no drag. curveDragHi is retired with it. */
-let curveDragEra = null, curveDragNode = null;
+let curveDragEra = null, curveDragNode = null, curveDragWhich = null;
 /* THE RECOMPUTE WAITS OUT THE GESTURE AND THE HANDLE DOES NOT.
    curveDragMove called render() on every pointermove, so every event of a drag rebuilt the hero,
    the comparison strip, the open tab, the plot and the handle row before the next event arrived,
@@ -24896,14 +24875,16 @@ function curveDragPaint(cv, era, v){
    one the reader is standing on: curveKnots() lets a placed point win at the era it is placed on,
    and bindDetentSlider clears the point at the live era when the rail moves, so the two controls
    take turns rather than one of them being dead. */
-function curveSetFromGesture(era, v){
-  return setEraRate('mass', era, isFinite(v) ? Number(v) : 0);
+function curveSetFromGesture(era, v, which){
+  const w = (which === 'commercial' || which === 'agency') ? which : (state.curveWhich === 'commercial' ? 'commercial' : 'agency');
+  return setEraRate(w, era, isFinite(v) ? Number(v) : 0);
 }
 function curveDragStart(ev){
   const b = ev.currentTarget;
   curveDragCancelPending();
   curveDragToken++;
   curveDragEra = Number(b.dataset.era);
+  curveDragWhich = (b.dataset.which === 'commercial' || b.dataset.which === 'agency') ? b.dataset.which : null;
   curveDragNode = b;
   if (b.setPointerCapture && ev.pointerId != null) { try { b.setPointerCapture(ev.pointerId); } catch(e){} }
   b.addEventListener('pointermove', curveDragMove);
@@ -24923,7 +24904,7 @@ function curveDragMove(ev){
   /* STEP 70.3: massRailFromPct is the rail's own log-inverse (10..1,000,000), not frac * hi -- it
      clamps frac*100 to [0,100] itself, so a pointer above the plot top or below its floor lands
      on exactly MASS_RAIL_MAX or MASS_RAIL_MIN (never 0), mirroring the rail's own Home/End keys. */
-  const v = curveSetFromGesture(curveDragEra, massRailFromPct(frac * 100));
+  const v = curveSetFromGesture(curveDragEra, massRailFromPct(frac * 100), curveDragWhich);
   /* THE PICTURE REPAINTS ON EVERY MOVE AND THE MODEL STILL WAITS. curveDraw() redraws the line,
      the shaded area, every handle in scope and the canvas record from the knots setEraRate has
      just accepted, on the SAME fixed log axis every render draws on. It costs one spline
@@ -24951,6 +24932,7 @@ function curveDragEnd(ev){
   const wasDragging = (curveDragEra != null);
   curveDragNode = null;
   curveDragEra = null;
+  curveDragWhich = null;
   curveDragToken++;
   curveDragCancelPending();
   if (wasDragging) render();
@@ -24986,7 +24968,7 @@ function curveKeyDown(ev){
   else if (k === 'End') v = 0;
   else return;
   if (ev.preventDefault) ev.preventDefault();
-  curveSetFromGesture(era, v);
+  curveSetFromGesture(era, v, ev.currentTarget.dataset.which);
   render();
   const again = document.querySelector('.curvehandle[data-era="' + era + '"]');
   if (again && again.focus) again.focus();
