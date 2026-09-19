@@ -8955,8 +8955,10 @@ function nearestIdx(arr,v){ let bi=0,bd=Infinity; for(let i=0;i<arr.length;i++){
    dozen unrelated sweeps and abstractPresetRef's snap-to-reference, none of which this step is
    scoped to touch, and none of which care how the live #k_mass control positions itself.
    CURVE_MAX no longer reads it -- raised separately to MASS_RAIL_MAX on Quinn's follow-up ruling
-   the same day, see CURVE_MAX's own comment below. */
-const MASS_RAIL_MIN = 10, MASS_RAIL_MAX = 1000000;
+   the same day, see CURVE_MAX's own comment below.
+   The floor is 1 t/yr and the ceiling 1,000,000, six decades, so the 1 to 2 t/yr knots the scenario
+   tables carry at 2030 sit on the axis and a drag to the bottom writes exactly 1. */
+const MASS_RAIL_MIN = 1, MASS_RAIL_MAX = 1000000;
 function massRailPct(v){
   const vv = Math.max(MASS_RAIL_MIN, Math.min(MASS_RAIL_MAX, v));
   return Math.max(0, Math.min(100, (Math.log(vv / MASS_RAIL_MIN) / Math.log(MASS_RAIL_MAX / MASS_RAIL_MIN)) * 100));
@@ -9151,7 +9153,15 @@ function setEraRate(which, era, newRate){
   if (CURVE_ERAS.indexOf(y) < 0) throw new Error('setEraRate: ' + era + ' is not an era');
   if (which !== 'mass' && which !== 'power' && which !== 'agency' && which !== 'commercial')
     throw new Error('setEraRate: ' + which + ' is not mass, power, agency or commercial');
-  const v = (!isFinite(newRate)) ? 0 : Math.max(0, Math.min(CURVE_MAX[which], Number(newRate)));
+  let v = (!isFinite(newRate)) ? 0 : Math.max(0, Math.min(CURVE_MAX[which], Number(newRate)));
+  /* THE TOTAL STAYS ON THE AXIS. The two curves sum to the landing rate the headline prints, so at every era
+     their knots sum to at most MASS_RAIL_MAX. When a drag would push the sum over, the DRAGGED curve is the
+     one that yields: it is clamped to the room the other curve leaves, so the sum sits at the ceiling. The
+     other curve's knot is never moved by this write. */
+  if ((which === 'agency' || which === 'commercial') && typeof state !== 'undefined' && BUILDOUT_SPLIT[state.funding]){
+    const room = MASS_RAIL_MAX - knotValue(which === 'agency' ? 'commercial' : 'agency', state.funding, y);
+    v = Math.min(v, Math.max(0, room));
+  }
   /* STEP 70.6: THE TOTAL HAS NO STORE OF ITS OWN. 'mass' moves the total landing rate at this era
      and scales Agency and Commercial together, each keeping its current share of that total. At a
      knot where the two sum to zero there is no current share, so the scenario's approved default
@@ -9247,7 +9257,8 @@ function curveKnots(which, funding, era, liveRate){
      THE LAST GESTURE WINS, AND THAT IS ONE RULE COVERING BOTH CONTROLS. The rail and the handle at
      the selected era are two views of one number, so one of them has to be the authority and the
      answer cannot be "always the same one". A placed control point wins at the era it is placed
-     on, and MOVING THE RAIL CLEARS THE POINT AT THE LIVE ERA, in bindDetentSlider, so the rail
+     on, and MOVING THE RAIL REWRITES THE POINT AT THE LIVE ERA: massRailWrite() sets the rail's value as
+     the total at that era and puts it on both actor knots, each keeping its share, so the rail
      takes the authority back the moment the reader touches it. Either control reaches the model,
      neither silently overrules the other, and there is no state in which a reader is holding a
      control that does nothing.
@@ -9322,6 +9333,8 @@ function buildCurve(which, funding, era, liveRate){
    applies only when neither actor has a stored point at that era, and only when it differs from the
    default total; the two era knots are then scaled together so each actor keeps its default share
    of the live total. A preset evaluates the stored table untouched. */
+/* THE FIT FAMILY FOR A KNOT COUNT: one knot is flat, two are a quadratic, three or more are PCHIP. */
+function curveFamilyFor(n){ return n <= 1 ? 'flat' : (n === 2 ? 'quadratic' : 'pchip'); }
 function buildSplitCurve(which, funding, era, liveRate){
   const E = Number(era);
   /* `state` is absent where this function is evaluated without the page (the headless sidecar), and there is
@@ -9335,11 +9348,22 @@ function buildSplitCurve(which, funding, era, liveRate){
     if (live !== dt){ la = live * d.agency / dt; lc = live * d.commercial / dt; }
   }
   const ka = curveKnots('agency', funding, era, la), kc = curveKnots('commercial', funding, era, lc);
-  const fa = buildCurveFromKnots(ka, era), fc = buildCurveFromKnots(kc, era);
+  const ra = buildCurveFromKnots(ka, era), rc = buildCurveFromKnots(kc, era);
+  /* THE SUM STAYS ON THE AXIS AT EVERY YEAR. setEraRate keeps the two knots at each era summing to at most
+     MASS_RAIL_MAX; between knots two smooth fits can still sum above it, so where they do both are scaled by
+     the same factor and the sum sits at MASS_RAIL_MAX. At and below the ceiling the factor is 1 and each
+     curve is its own fit unchanged. */
+  const axisFit = function(r){
+    const f = function(y){ const a = ra(y), c = rc(y), t = a + c; return (t > MASS_RAIL_MAX) ? r(y) * (MASS_RAIL_MAX / t) : r(y); };
+    f.family = r.family; f.knots = r.knots; f.raw = r.raw; f.era = r.era;
+    return f;
+  };
+  const fa = axisFit(ra), fc = axisFit(rc);
   if (which === 'agency') return fa;
   if (which === 'commercial') return fc;
   const total = function(y){ return fa(y) + fc(y); };
-  total.family = fa.family; total.knots = ka.map(function(k, i){ return [k[0], k[1] + kc[i][1]]; });
+  total.knots = ka.map(function(k, i){ return [k[0], k[1] + kc[i][1]]; });
+  total.family = curveFamilyFor(total.knots.length);
   total.raw = total; total.era = E;
   return total;
 }
@@ -15293,6 +15317,7 @@ function scaledRegimeText(m){
   if (m.sInd < 1 - 1e-9){
     const pct = industrialLimitPct(m), list = _andList(industrialLimitNames(m));
     if (m.industrialLimit === 'regolith'){
+      if (m.Rcap < 0.5) return null;   // a plant moving under half a tonne of regolith a year has no split to describe
       const rO2 = Math.min(m.regolithMetals, m.Rcap), rLeft = Math.max(0, m.Rcap - m.regolithMetals);
       return 'The industrial lines outran the regolith the plant moves and run at ' + pct + '% of request. ' +
         'The oxygen line takes its ' + _b0(rO2) + ' t/yr of regolith first, ' +
@@ -16387,7 +16412,10 @@ function composeDerivation(state, m, v){
          this table carries a resolvable claim (L, op_prop and op_const all do), so the same
          identity-link treatment applies, consistent rather than inventing a second rule. The
          underlying VALUE[k].status field is untouched, since HG1 and TR2 read it directly. */
-      const c=VALUE[k]; value=c.value; unit=c.unit;
+      const c=VALUE[k]; unit=c.unit;
+      /* op_prop is the live figure this call used, max(op_propF / (water x 1000), op_propV), read off v; VALUE.op_prop.value
+         is the retired band's centre. At a state with no finite op_prop (water below the minimum-production threshold) the cell prints op_propV, the floor term of the max(). */
+      value = (k === 'op_prop') ? ((v.op_prop != null && isFinite(v.op_prop)) ? v.op_prop : VALUE.op_propV.value) : c.value;
       grade = (meta.claim && SECTIONS[meta.claim]) ? '[['+meta.claim+']]' : c.status;
     }
     if(meta.claim) addClaims([meta.claim]);
@@ -18317,11 +18345,15 @@ function runAbstractTests(){
           curveKeyDown({ currentTarget: h, key: 'ArrowUp', preventDefault: function(){} });
           const up = rateNow('2040');
           const h2 = document.querySelector('.curvehandle[data-era="2040"]');
-          curveKeyDown({ currentTarget: h2, key: 'End', preventDefault: function(){} });
+          curveKeyDown({ currentTarget: h2, key: 'Home', preventDefault: function(){} });
+          const h3 = document.querySelector('.curvehandle[data-era="2040"]');
+          const home = Number(h3.dataset.rate);   // the keyed curve's own knot; rateNow() reads the two curves' total
+          curveKeyDown({ currentTarget: h3, key: 'End', preventDefault: function(){} });
           const end = rateNow('2040');
-          seen.push('keyboard at 2040: ' + before.toFixed(2) + ' ArrowUp-> ' + up.toFixed(2) + ' End-> ' + end.toFixed(2));
+          seen.push('keyboard at 2040: ' + before.toFixed(2) + ' ArrowUp-> ' + up.toFixed(2) + ' Home-> ' + home.toFixed(2) + ' End-> ' + end.toFixed(2));
           if (!(up > before)) bad.push('ArrowUp on the 2040 handle does not raise the rate: ' + before.toFixed(2) + ' -> ' + up.toFixed(2));
-          if (!(end < up))    bad.push('End on the 2040 handle does not reach the floor: ' + up.toFixed(2) + ' -> ' + end.toFixed(2));
+          if (!(home === MASS_RAIL_MIN)) bad.push('Home on the 2040 handle does not reach the axis floor: ' + up.toFixed(2) + ' -> ' + home.toFixed(2));
+          if (!(end > up && end <= MASS_RAIL_MAX)) bad.push('End on the 2040 handle does not reach the axis end: ' + home.toFixed(2) + ' -> ' + end.toFixed(2));
         }
       }
 
@@ -18357,7 +18389,7 @@ function runAbstractTests(){
     else {
       const saveP = state.phase;
       /* TWO CLOCKS, AND THIS ROW IS THE ONE THAT WATCHES THE SLOWER OF THEM. The curve panel runs
-         on the pointer: curveDragMove calls curveDraw(), so the line, the shaded area, the handle
+         on the pointer: curveDragMove calls curveDraw(), so the line, the handle
          row, #v_curve, #curveFoot and the whole canvas record follow every move. The MODEL PAGE
          runs on the settle: the hero, the standing fleet and every tab wait the gesture out,
          because that recompute is what made the handle hard to hold. This clause's subject is the
@@ -18528,7 +18560,7 @@ function runAbstractTests(){
   }
 
   // ================= CURVEUI-04 =================
-  /* THE HANDLE, THE LINE UNDER IT AND THE SHADED AREA BEHIND IT ARE ONE PICTURE, AND THE RECORD
+  /* THE HANDLE AND THE LINE UNDER IT ARE ONE PICTURE, AND THE RECORD
      BESIDE THEM SAYS WHAT THE PICTURE SAYS. A cold reader dragging the 2055 handle held a dot 79
      px from its own line on a plot 102 px tall, over a shaded area still drawing the previous
      programme, beside a footer still totalling it, and every one of #v_curve, #curveFoot,
@@ -18548,7 +18580,7 @@ function runAbstractTests(){
   {
     const cv = document.getElementById('curvePlot');
     const seen = [], bad = [];
-    if (!cv){ rec('CURVEUI-04','GATE','the dragged handle, the drawn curve, the shaded area and the canvas record are one picture at every pointermove, while the model recompute still waits out the gesture', false,
+    if (!cv){ rec('CURVEUI-04','GATE','the dragged handle, the drawn curve and the canvas record are one picture at every pointermove, while the model recompute still waits out the gesture', false,
                   'EMPTY POPULATION: no #curvePlot element exists in the rendered document'); }
     else {
       const saveP = state.phase;
@@ -18590,13 +18622,6 @@ function runAbstractTests(){
         const path = ps[which === 'commercial' ? 1 : 0];
         const n = nearest(path, pxOf(y, E), function(p){ return p[0]; });
         return (n.item && n.d <= 0.51) ? n.item : null;
-      }
-      function barTopAt(y, E, which){
-        const tint = (which === 'commercial') ? 'rgba(224,165,79,' : 'rgba(78,201,232,';
-        const mine = drawn.bars.filter(function(b){ return b[4].indexOf(tint) === 0; });
-        if (!mine.length) return null;
-        const n = nearest(mine, pxOf(y, E), function(b){ return b[0] + b[2]/2; });
-        return n.item ? n.item[1] : null;
       }
       function handleBackingY(b){
         const sy = Number(cv.dataset.cssScaleY) || 1;
@@ -18677,11 +18702,7 @@ function runAbstractTests(){
             if (Math.abs(hy - v[1]) > 1.0)
               bad.push(at + 'the handle sits ' + (hy - v[1]).toFixed(2) + ' backing px from the drawn curve at its own column, ' +
                        hy.toFixed(2) + ' against ' + v[1].toFixed(2) + ' on a plot ' + (H - CURVE_PAD.t - CURVE_PAD.b) + ' px tall');
-            const bt = barTopAt(y, E, which);
-            if (bt == null) bad.push(at + 'the shaded area has no cohort bar at that year column');
-            else if (Math.abs(bt - v[1]) > 1.0)
-              bad.push(at + 'the shaded area tops out at ' + bt.toFixed(2) + ' against a drawn line at ' + v[1].toFixed(2) +
-                       ', so the area is drawn from a different programme than the line above it');
+            if (drawn.bars.length) bad.push(at + drawn.bars.length + ' filled bars were issued; the plot draws lines only');
             const r = recordedRate(y, which);
             if (!isFinite(r)) bad.push(at + 'the canvas record carries no rate at that year');
             else if (Math.abs(pyOf(r) - v[1]) > 1.0)
@@ -18709,7 +18730,7 @@ function runAbstractTests(){
       state.phase = saveP; curveReset(); applyPreset(PRESETS.artemis); render();
       const want = MOVES * handles;
       rec('CURVEUI-04','GATE',
-          'THE HANDLE, THE LINE UNDER IT, THE SHADED AREA BEHIND IT AND THE CANVAS RECORD ARE ONE PICTURE AT EVERY POINTERMOVE. Every handle the app puts in scope is dragged through a stream of real pointermove events, one of which pushes the knot above the plot ceiling so that a repaint on a recomputed axis would part from a handle placed on the frozen one, and at each one the handle sits on the stroked polyline the canvas was actually issued, the cohort bar at that column tops out on the same line, and dataset.rateAt maps to the same pixel, all read from the drawing rather than from the record beside it; and the model recompute still waits out the gesture, so the hero and the standing fleet beside it hold across the whole stream and move when the settle fires (COUNTER-POPULATION: a settle that owed nothing, or a model page that never moved, fails the clause, so a build that bought the geometry by deleting the 0.5 s deferral cannot pass here)',
+          'THE HANDLE, THE LINE UNDER IT AND THE CANVAS RECORD ARE ONE PICTURE AT EVERY POINTERMOVE. Every handle the app puts in scope is dragged through a stream of real pointermove events, one of which pushes the knot above the plot ceiling so that a repaint on a recomputed axis would part from a handle placed on the frozen one, and at each one the handle sits on the stroked polyline the canvas was actually issued, the cohort bar at that column tops out on the same line, and dataset.rateAt maps to the same pixel, all read from the drawing rather than from the record beside it; and the model recompute still waits out the gesture, so the hero and the standing fleet beside it hold across the whole stream and move when the settle fires (COUNTER-POPULATION: a settle that owed nothing, or a model page that never moved, fails the clause, so a build that bought the geometry by deleting the 0.5 s deferral cannot pass here)',
           handles > 0 && scored === want && bad.length === 0,
           scored !== want ? ('EMPTY OR SHORT POPULATION: ' + scored + ' observations over ' + handles + ' handles, not ' + want + (bad.length ? '; ' + bad[0] : ''))
             : (bad.length ? bad.slice(0,3).join('  ')
@@ -20327,18 +20348,15 @@ function runAbstractTests(){
        matcher, so this row's silence about the names still forbidden is a measurement rather
        than a needle that matches nothing. */
     (function(){
-      const NAME = 'the production row is four cards -- water, an oxygen card carrying total/dedicated/co-product as three named lines, construction, and one metals card carrying aluminium, iron-silicon alloy and silicon as three named lines -- each printing the model’s own tonnage to the precision it prints and a rate unit, silicon printed as a strict-to-relaxed band rather than a picked point, and none of them naming metals produced, the regolith feed or the standing mining plant, at all nine preset and era states (DECOY: the four retired names are run through this row’s own matcher on a constructed row and are required to be caught there)';
-      // Card 1 (Water) and card 3 (Construction) are simple; card 2 (Oxygen) and card 4
-      // (Reactor products) are chain cards carrying named lines. Finding 1's own fix (the honest
-      // dedicated/co-product oxygen split) makes the oxygen card the second chain card rather
-      // than a simple one.
+      const NAME = 'the production row is four cards -- water, oxygen (one figure, the total), construction, and one metals card carrying aluminium, iron-silicon alloy and silicon as three named lines -- each printing the model’s own tonnage to the precision it prints and a rate unit, silicon printed as a strict-to-relaxed band rather than a picked point, and none of them naming metals produced, the regolith feed or the standing mining plant, at all nine preset and era states (DECOY: the four retired names are run through this row’s own matcher on a constructed row and are required to be caught there)';
+      // Water, Oxygen and Construction are simple cards, each one figure; Metals is the one
+      // chain card carrying named lines. The Oxygen card prints the model's total oxygen alone.
       // STEP 70.2, QUINN'S RULING: card/line names shortened -- 'Water produced' -> 'WATER',
       // 'Oxygen produced' -> 'OXYGEN' (now a painted card-level title, like Metals),
       // 'Aluminium'/'Iron-silicon alloy'/'Of which, silicon' -> 'Al'/'Fe-Si'/'Si'. Content,
       // structure and numbers are unchanged; only the strings this matcher checks against moved.
-      const SIMPLE = [{ pos: 0, name: 'WATER', key: 'water' }, { pos: 2, name: 'Construction', key: 'construction' }];
+      const SIMPLE = [{ pos: 0, name: 'WATER', key: 'water' }, { pos: 1, name: 'OXYGEN', key: 'oxygenTotal' }, { pos: 2, name: 'Construction', key: 'construction' }];
       const CHAINS = [
-        { pos: 1, cardName: 'OXYGEN', lines: [['Total', 'oxygenTotal'], ['Dedicated (life support)', 'oxygen'], ['Co-product (metals)', 'coproductO2']] },
         { pos: 3, cardName: 'Metals', lines: [['Al', 'aluminium'], ['Fe-Si', 'alloy'], ['Si', ['siliconLow', 'siliconHigh']]] }
       ];
       const WANT_COUNT = 4;
@@ -20403,7 +20421,7 @@ function runAbstractTests(){
       if (!checked) why.push('EMPTY POPULATION: no card was checked at any state');
       rec('PROD-01','GATE',NAME, why.length===0,
         why.length ? why.slice(0,3).join('  ')
-          : walked + ' states and ' + checked + ' readings, four cards -- water, oxygen (total/dedicated/co-product), construction, metals (aluminium/alloy/silicon) -- every numeral inside the tolerance its own printed precision allows (' +
+          : walked + ' states and ' + checked + ' readings, four cards -- water, oxygen (total), construction, metals (aluminium/alloy/silicon) -- every numeral inside the tolerance its own printed precision allows (' +
             seen.slice(0,3).join(' | ') + '), none of them naming metals produced, the regolith feed or the standing mining plant, and the matcher confirmed against all ' +
             caught + ' retired names on a constructed row [POPULATION: every #outs .out at each of the nine preset and era states, each chain card’s children read as its own rows; it excludes the mass bar and the comparison strip, which carry fleet stocks rather than production rates. The alloy tonnage stood alone on this row at Step 62 under the name electrical silicon-iron and Quinn ruled it back to one line of three, iron-silicon alloy, beside aluminium and silicon; the Scenario tab’s own narrative, which OX-31 holds to the model, continues to carry the same alloy figure alongside the composition and purity caveats a card cannot carry, including that no lunar experiment has weighed a metal mass]');
     })();
@@ -20427,7 +20445,7 @@ function runAbstractTests(){
       const walked = walk9(function(where){
         const m = stateModel();
         const txt = panelText('scenario');
-        const sent = /Together they move[\s\S]*?production row prints\./.exec(txt);
+        const sent = /Together they move[\s\S]*?that line’s oxygen tonnage\./.exec(txt);
         if (!sent){ why.push(where + ': the Scenario tab states no regolith feed at all; the model’s feed across every producing line is ' + m.regolithFeed.toFixed(0) + ' t/yr'); return; }
         const nums = (sent[0].replace(/,/g, '').match(/[0-9]*\.?[0-9]+/g) || []).map(Number);
         if (nums.length < 4){ why.push(where + ': the feed sentence carries ' + nums.length + ' numbers, not the feed, the capacity, the oxygen line’s share and the yield: ' + sent[0]); return; }
@@ -20601,36 +20619,26 @@ function runAbstractTests(){
        the state the allocation was designed around, is retired with the surface that carried
        it. */
     (function(){
-      const NAME = 'the numbers the Scenario tab’s feed sentence prints multiply out to the numeral the oxygen card prints, at the precision the two are printed to, at all nine preset and era states (DECOY: the retired caption’s own arithmetic, the plant’s whole capacity times the oxygen line’s yield, is computed at the same nine cells and required to be wrong at them)';
+      const NAME = 'the numbers the Scenario tab’s feed sentence prints multiply out to the model’s oxygen figure for the oxygen line, at the precision the sentence prints its share to, at all nine preset and era states (DECOY: the retired caption’s own arithmetic, the plant’s whole capacity times the oxygen line’s yield, is computed at the same nine cells and required to be wrong at them)';
       const why = [], seen = [], capDecoy = [];
       const walked = walk9(function(cell){
         const m = stateModel();
         const txt = panelText('scenario');
-        const sent = /Together they move[\s\S]*?production row prints\./.exec(txt);
+        const sent = /Together they move[\s\S]*?that line’s oxygen tonnage\./.exec(txt);
         if (!sent){ why.push(cell + ': the Scenario tab paints no feed sentence for a reader to multiply'); return; }
         if (!/oxygen line/i.test(sent[0])) why.push(cell + ': the feed sentence does not name the line the yield belongs to: ' + sent[0]);
         const raw = sent[0].replace(/,/g, '').match(/[0-9]*\.?[0-9]+/g) || [];
         if (raw.length < 4){ why.push(cell + ': the feed sentence carries ' + raw.length + ' numbers, not the feed, the capacity, the oxygen line’s share and the yield: ' + sent[0]); return; }
         const shareStr = raw[2], yieldStr = raw[3];
-        // The oxygen card is a chain card now (Finding 1's dedicated/co-product split), and
-        // squareRows() never populates .name for a chain card, so it is found by its own
-        // Dedicated line rather than by name(), which can only match a simple card's .oname.
-        const card = squareRows().filter(function(r){ return r.lines && r.lines.some(function(l){ return /dedicated/i.test(l.name); }); })[0];
-        if (!card){ why.push(cell + ': no card in the production row prints an oxygen tonnage for the sentence to close on'); return; }
-        // The feed sentence's own arithmetic (this line's regolith times this line's yield)
-        // closes on the DEDICATED oxygen figure, not the card's Total (which now also carries
-        // the metals-production line's co-product, Finding 1's own fix); the oxygen card is a
-        // chain card, so the dedicated line is read out of its own named .oline.
-        const dedLine = card.lines && card.lines.filter(function(l){ return /dedicated/i.test(l.name); })[0];
-        if (!dedLine){ why.push(cell + ': the oxygen card carries no "Dedicated" line for the sentence to close on'); return; }
-        const oxyStr = dedLine.value.replace(/,/g, '');
+        /* The oxygen card prints the total oxygen alone, so the sentence's own arithmetic (this line's regolith
+           times this line's yield) closes on the model's oxygen figure for the oxygen line, m.oxygen, read
+           straight off the model with the tolerance the sentence's own printed share allows. */
         const dec = function(s){ const p = s.split('.')[1]; return p ? p.length : 0; };
         const readerProduct = parseFloat(shareStr) * parseFloat(yieldStr);
-        const printedOxy = parseFloat(oxyStr);
-        const tol = 0.5 * Math.pow(10, -dec(shareStr)) * parseFloat(yieldStr) + 0.5 * Math.pow(10, -dec(oxyStr)) + 1e-9;
-        seen.push(cell + ' ' + shareStr + ' x ' + yieldStr + ' = ' + readerProduct.toFixed(3) + ' against a printed ' + dedLine.value);
-        if (!(Math.abs(readerProduct - printedOxy) <= tol))
-          why.push(cell + ': the sentence multiplies out to ' + readerProduct.toFixed(3) + ' t/yr against the ' + dedLine.value + ' t/yr the oxygen card’s Dedicated line prints, outside the ' + tol.toFixed(4) + ' the two printed precisions allow');
+        const tol = 0.5 * Math.pow(10, -dec(shareStr)) * parseFloat(yieldStr) + 1e-9;
+        seen.push(cell + ' ' + shareStr + ' x ' + yieldStr + ' = ' + readerProduct.toFixed(3) + ' against the model’s ' + m.oxygen.toFixed(3));
+        if (!(Math.abs(readerProduct - m.oxygen) <= tol))
+          why.push(cell + ': the sentence multiplies out to ' + readerProduct.toFixed(3) + ' t/yr against the model’s ' + m.oxygen.toFixed(3) + ' t/yr for the oxygen line, outside the ' + tol.toFixed(4) + ' the printed share allows');
         const product = m.regolithMetals * CONFIG.yO2.value;
         if (Math.abs(product - m.oxygen) > Math.max(1e-9, Math.abs(m.oxygen) * 1e-9))
           why.push(cell + ': the model’s own share times its own yield is ' + product.toFixed(6) + ' t/yr against an oxygen figure of ' + m.oxygen.toFixed(6) + ', so the identity the sentence rests on does not hold');
@@ -20644,7 +20652,7 @@ function runAbstractTests(){
         why.length ? why.slice(0,3).join('  ')
           : walked + ' preset cells walked, the reader’s own multiplication performed on the painted numerals at each: ' + seen.slice(0,3).join(' | ') +
             ' ... The retired caption overstates the oxygen product at ' + capDecoy.length + ' of the nine, by ' + capDecoy.slice(0,3).join('; ') +
-            ' [POPULATION: the painted text of .panel[data-t="scenario"] and the production row’s oxygen card, at each of the nine states; the colour half of this row is retired at Step 57 with the chip that carried it, and plant utilisation is now painted nowhere and checked by nothing]');
+            ' [POPULATION: the painted text of .panel[data-t="scenario"] and the model’s oxygen figure, at each of the nine states; the colour half of this row is retired at Step 57 with the chip that carried it, and plant utilisation is now painted nowhere and checked by nothing]');
     })();
 
 
@@ -24041,17 +24049,14 @@ function squares(m){
 
      STEP 70.2, QUINN'S RULING: "call the water card WATER and the oxygen card OXYGEN." Water
      is a SIMPLE card (no `lines`), so its own `name` string IS the whole painted label already
-     -- no cardTitle flag needed or applicable there. Oxygen is a `lines`-type card like Metals,
-     so it now carries cardTitle:true too, painting "OXYGEN" as a card-level heading the same
-     way Metals paints "METALS". Both alloy and oxygen cards carry the flag now. */
+     -- no cardTitle flag needed or applicable there. Oxygen is a SIMPLE card too: its own `name`
+     is the label and its one figure is the model's total oxygen, oxygenTotal. Metals is the only
+     `lines`-type card and the only one carrying cardTitle:true. */
   return [
     {name:'WATER',  vid:'h_water',    v:m.water,        unit:'t/yr', accent:'water',
      dp:m.water<1?2:(m.water<10?1:0)},
-    {name:'OXYGEN', accent:'oxygen', cardTitle:true, lines:[
-      {name:'Total',                    vid:'h_oxy',     v:m.oxygenTotal, unit:'t/yr', dp:m.oxygenTotal<10?2:0},
-      {name:'Dedicated (life support)', vid:'h_oxy_ded', v:m.oxygen,      unit:'t/yr', dp:m.oxygen<10?2:0},
-      {name:'Co-product (metals)',      vid:'h_oxy_co',  v:m.coproductO2, unit:'t/yr', dp:m.coproductO2<10?2:0}
-    ]},
+    {name:'OXYGEN', vid:'h_oxy', v:m.oxygenTotal, unit:'t/yr', accent:'oxygen',
+     dp:m.oxygenTotal<10?2:0},
     {name:'Construction',    vid:'h_const',    v:m.construction, unit:'t/yr', accent:'construction',
      dp:m.construction<10?1:0},
     {name:'Metals', accent:'alloy', cardTitle:true, lines:[
@@ -24111,7 +24116,7 @@ function ensureSquares(sq){
    to the shipping app so the nine operating points stay exact notches.
    ============================================================ */
 function syncSliderRange(inputEl, key){
-  /* STEP 70.2 ITEM B: #k_mass is a continuous log rail, 10 to 1,000,000 t/yr, decoupled from
+  /* STEP 70.2 ITEM B: #k_mass is a continuous log rail, 1 to 1,000,000 t/yr, decoupled from
      DETENTS.mass entirely (that array is untouched, for the other consumers named at
      MASS_RAIL_MIN's own comment). The input's raw value is a PERCENTAGE along the log scale
      (massRailPct/massRailFromPct); there is no more "between two notches" case a curve point can
@@ -24174,8 +24179,8 @@ var __readerDrag = false, __eqnsStale = false;
 function readerRender(){ __readerDrag = true; try { render(); } finally { __readerDrag = false; } }
 /* STEP 70.2 ITEM B. #k_mass's own keydown handling, decided (not a Quinn ruling, MASS-05 tests it
    directly): one arrow-key press moves the APPLIED RATE by a factor of 10^0.1 (a tenth of a
-   decade); Page Up/Down move a full decade (x10 / /10); Home/End snap to the rail's own ends, 10
-   and 1,000,000. Fifty arrow presses traverse the full five-decade range. */
+   decade); Page Up/Down move a full decade (x10 / /10); Home/End snap to the rail's own ends, 1
+   and 1,000,000. Sixty arrow presses traverse the full six-decade range. */
 function massRailKeyTarget(ev, cur){
   if (ev.key === 'ArrowUp' || ev.key === 'ArrowRight') return cur * Math.pow(10, 0.1);
   if (ev.key === 'ArrowDown' || ev.key === 'ArrowLeft') return cur / Math.pow(10, 0.1);
@@ -24567,7 +24572,7 @@ function curveDraw(){
   for (let y = CURVE_EPOCH; y <= E; y++) yrs.push(y);
   const vals = yrs.map(total), valsA = yrs.map(rateA), valsC = yrs.map(rateC);
   /* STEP 70.3, QUINN'S RULING 2026-09-17: THE VERTICAL SCALE IS THE RAIL'S OWN FIXED LOG AXIS,
-     MASS_RAIL_MIN..MASS_RAIL_MAX (10..1,000,000), NOT THE PROGRAMME'S ENVELOPE AND NOT THE
+     MASS_RAIL_MIN..MASS_RAIL_MAX (1..1,000,000), NOT THE PROGRAMME'S ENVELOPE AND NOT THE
      CURVE'S OWN OUTPUT. The per-scenario floating ceiling this replaces (envHi, the larger of the
      scenario's envelope over the eras in scope and the curve's own live maximum) is RETIRED here,
      not widened or ported forward.
@@ -24577,12 +24582,12 @@ function curveDraw(){
      world -- dragging back to the top then returned 0.875 t/yr and water read 0.00, and no
      sequence of drags escaped, because every drag was a fraction of a maximum the previous drag
      had set. The only exit was a preset click, a reset signified as one nowhere.
-     A FIXED 10..1,000,000 AXIS HAS NO REACTIVE COMPONENT FOR THAT RUNAWAY TO RUN AWAY IN: nothing
+     A FIXED 1..1,000,000 AXIS HAS NO REACTIVE COMPONENT FOR THAT RUNAWAY TO RUN AWAY IN: nothing
      a reader drags, clicks, or scenario-switches ever moves this ceiling, so it cannot collapse
      toward a drag's own output -- the bug class is impossible by construction, not merely floored.
      Confirmed against the exact scenario that motivated envHi (Agency Led Baseline, era 2030,
      dragging to the bottom of the plot and back): the axis reads MASS_RAIL_MAX before, during and
-     after every drag, and a drag to the bottom of the plot writes MASS_RAIL_MIN (10), never 0 --
+     after every drag, and a drag to the bottom of the plot writes MASS_RAIL_MIN (1), never 0 --
      massRailPct()'s own floor clamp, mirrored by massRailFromPct()'s inverse in curveDragMove
      below, the same functions #k_mass's own rail uses (Step 70.2), reused here rather than a
      second, independently authored log law that could drift from the rail's own. */
@@ -24597,7 +24602,11 @@ function curveDraw(){
   cv.dataset.era = String(E);
   cv.dataset.eras = curveErasInScope(era).join(',');
   cv.dataset.cumulative = String(curveCumulative(total, era));
+  /* dataset.standing is the fleet layer's standing mass (the 11-year cohort window the model reads) and
+     dataset.retired its aged-out mass; identity checks read both. dataset.standingPainted is the figure the
+     footer and the mass bar paint. */
   cv.dataset.standing = String(fs.mass);
+  cv.dataset.standingPainted = String((__standingMassPainted != null) ? __standingMassPainted : fs.mass);
   cv.dataset.retired = String(fs.retired);
   cv.dataset.years = String(yrs.length);
   cv.dataset.rateAt = yrs.map(function(y, i){ return y + ':' + vals[i]; }).join(',');
@@ -24702,23 +24711,8 @@ function curveDraw(){
     ctx.strokeStyle = 'rgba(160,170,190,0.35)';
     ctx.beginPath(); ctx.moveTo(CURVE_PAD.l, CURVE_PAD.t); ctx.lineTo(CURVE_PAD.l, H - CURVE_PAD.b);
     ctx.lineTo(W - CURVE_PAD.r, H - CURVE_PAD.b); ctx.stroke();
-    /* THE SHADING IS UNIT-WIDTH COHORT BARS AND NOT A SMOOTH REGION, so the area the reader sees
-       is the sum the app prints. A smooth fill under the same curve differs from the cohort sum by
-       the midpoint term, which is 5.73 percent at the extreme case, and a picture that disagrees
-       with the number beside it by six percent is a defect a planimeter finds and nobody else.
-       EACH CURVE SHADES ITS OWN AREA, translucent, in its own colour, so the Agency area is the
-       Agency tonnes landed and the Commercial area is the Commercial tonnes landed. */
-    const bw = (E === CURVE_EPOCH) ? (W - CURVE_PAD.l - CURVE_PAD.r)
-                                   : (W - CURVE_PAD.l - CURVE_PAD.r) / (E - CURVE_EPOCH + 1);
     const series = [[valsA, 'rgba(78,201,232,', which === 'agency'],        // --ice, Agency
                     [valsC, 'rgba(224,165,79,', which === 'commercial']];   // --regolith, Commercial
-    series.forEach(function(sr){
-      ctx.fillStyle = sr[1] + '0.18)';
-      yrs.forEach(function(y, i){
-        const x = (E === CURVE_EPOCH) ? CURVE_PAD.l : px(y) - bw/2;
-        ctx.fillRect(x, py(sr[0][i]), bw, (H - CURVE_PAD.b) - py(sr[0][i]));
-      });
-    });
     series.forEach(function(sr){
       ctx.save();
       ctx.strokeStyle = sr[1] + '0.95)'; ctx.lineWidth = sr[2] ? 2 : 1; ctx.globalAlpha = sr[2] ? 1 : 0.55;
@@ -24767,7 +24761,7 @@ if (typeof document !== 'undefined' && document.getElementById('curveToggleAgenc
    the curve's maximum the axis rescaled off its own output: three identical pointermove events at
    ONE screen position gave 10, then 8.75, then 7.66, then 6.70 t/yr. The pointer had not moved.
    curveDragHi, taken once at pointerdown and held for the drag, was the fix for that -- freezing a
-   ceiling that could otherwise move mid-gesture. The fixed 10..1,000,000 log axis has no ceiling
+   ceiling that could otherwise move mid-gesture. The fixed 1..1,000,000 log axis has no ceiling
    left that ever moves, at pointerdown, mid-drag, or anywhere else, so there is nothing left to
    freeze: massRailPct()/massRailFromPct() read the same two constants (MASS_RAIL_MIN,
    MASS_RAIL_MAX) on every call, drag or no drag. curveDragHi is retired with it. */
@@ -24781,7 +24775,7 @@ let curveDragEra = null, curveDragNode = null, curveDragWhich = null;
    DEFERRING render() ALONE WOULD FREEZE THE HANDLE UNDER THE READER'S FINGER, because render()
    is what draws the handle row. That is a worse control than the one this replaces. So the two
    clocks are separate and each is named. THE CURVE PANEL RUNS ON THE POINTER: curveDragMove calls
-   curveDraw(), which repaints the line, the shaded area, every handle in scope, #v_curve,
+   curveDraw(), which repaints the lines, every handle in scope, #v_curve,
    #curveFoot and the whole canvas record on every move, and curveDragPaint then holds the dragged
    handle at the value setEraRate accepted, so a clamped drag shows the reader the clamp. THE
    MODEL PAGE RUNS ON THE SETTLE: the hero, the mass bar, the comparison strip and every tab wait
@@ -24885,12 +24879,12 @@ function curveDragMove(ev){
   const H = cv.height;
   const yPix = ((ev.clientY - box.top) / (box.height || H)) * H;
   const frac = ((H - CURVE_PAD.b) - yPix) / (H - CURVE_PAD.t - CURVE_PAD.b);
-  /* STEP 70.3: massRailFromPct is the rail's own log-inverse (10..1,000,000), not frac * hi -- it
+  /* STEP 70.3: massRailFromPct is the rail's own log-inverse (1..1,000,000), not frac * hi -- it
      clamps frac*100 to [0,100] itself, so a pointer above the plot top or below its floor lands
      on exactly MASS_RAIL_MAX or MASS_RAIL_MIN (never 0), mirroring the rail's own Home/End keys. */
   const v = curveSetFromGesture(curveDragEra, massRailFromPct(frac * 100), curveDragWhich);
   /* THE PICTURE REPAINTS ON EVERY MOVE AND THE MODEL STILL WAITS. curveDraw() redraws the line,
-     the shaded area, every handle in scope and the canvas record from the knots setEraRate has
+     every handle in scope and the canvas record from the knots setEraRate has
      just accepted, on the SAME fixed log axis every render draws on. It costs one spline
      evaluation per year on screen and it does not call model(), so the deferral below still
      defers everything it was installed to defer. Until 2026-09-08 only the dragged handle moved: a cold reader dragging the
@@ -24938,18 +24932,20 @@ if (typeof window !== 'undefined' && window.addEventListener)
    a repair. */
 function curveKeyDown(ev){
   const era = Number(ev.currentTarget.dataset.era);
-  const cv = document.getElementById('curvePlot');
-  const hi = (cv && Number(cv.dataset.max)) || 1;
   const cur = Number(ev.currentTarget.dataset.rate) || 0;
-  const step = hi / 50, big = hi / 10;
+  /* THE STEPS ARE IN AXIS PERCENT, the mapping the drag uses: one arrow is 1.5 percent of the six-decade
+     axis (a factor of 1.23), one page 10 percent (a factor of 3.98). Home and End are the axis ends, the
+     rail's own Home and End. */
+  const STEP_PCT = 1.5, PAGE_PCT = 10;
+  const at = massRailPct(cur);
   let v = null;
   const k = ev.key;
-  if (k === 'ArrowUp' || k === 'ArrowRight' || k === 'Up' || k === 'Right') v = cur + step;
-  else if (k === 'ArrowDown' || k === 'ArrowLeft' || k === 'Down' || k === 'Left') v = cur - step;
-  else if (k === 'PageUp') v = cur + big;
-  else if (k === 'PageDown') v = cur - big;
-  else if (k === 'Home') v = hi;
-  else if (k === 'End') v = 0;
+  if (k === 'ArrowUp' || k === 'ArrowRight' || k === 'Up' || k === 'Right') v = massRailFromPct(at + STEP_PCT);
+  else if (k === 'ArrowDown' || k === 'ArrowLeft' || k === 'Down' || k === 'Left') v = massRailFromPct(at - STEP_PCT);
+  else if (k === 'PageUp') v = massRailFromPct(at + PAGE_PCT);
+  else if (k === 'PageDown') v = massRailFromPct(at - PAGE_PCT);
+  else if (k === 'Home') v = MASS_RAIL_MIN;
+  else if (k === 'End') v = MASS_RAIL_MAX;
   else return;
   if (ev.preventDefault) ev.preventDefault();
   curveSetFromGesture(era, v, ev.currentTarget.dataset.which);
@@ -25609,12 +25605,12 @@ function oxygenScenarioBlocks(m){
      is a sentence now, and it says the two things the retired card's own caption said, the
      feed across every producing line and the capacity it is measured against, plus the one
      the card could not: the share of that feed the oxygen line moves, which multiplied by
-     the yield IS the oxygen tonnage the card row prints. OX-16 and FEED-01 hold this
+     the yield IS that line's oxygen tonnage, the model's m.oxygen. OX-16 and FEED-01 hold this
      sentence to all three. */
   out.push('Water, sintering, the oxygen line, the metals-production line and the in-situ solar fab draw on one shared excavation stream. Together they move ' +
     fmtNum(m.regolithFeed, 0) + ' t/yr of regolith, against a plant able to move ' + fmtNum(m.Rcap, 0) +
     ' t/yr at this state, and ' + fmtT(m.regolithMetals) + ' t/yr of that is the oxygen line’s own share, which at ' +
-    C.yO2.value + ' ' + C.yO2.unit + ' is the oxygen tonnage the production row prints.');
+    C.yO2.value + ' ' + C.yO2.unit + ' is that line’s oxygen tonnage.');
   return out;
 }
 
@@ -26342,7 +26338,7 @@ function paintRegimeCaption(m){
        the point, because the schedule's own reactor entries land only as far as that year's landed mass can carry them (a year
        whose mass falls short of one reactor's 18 t lands a truncated reactor rather than the whole entry), and under learning the
        plants built, change with landed mass. */
-    'Landed mass and standing power are the two axes of this plot, and neither appears in the boundary slope. '+
+    'Landed mass and standing power are the two axes of this plot. '+
     'Standing power is not a control: the yearly fleet buys it with each year\'s landed mass. The Mass landing rate '+
     'moves the point and the line, because the fission share of the standing power the schedule lands, and under learning '+
     'the number of plants built, change with the mass it lands. '+
