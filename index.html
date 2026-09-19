@@ -9311,21 +9311,17 @@ function buildCurve(which, funding, era, liveRate){
     return buildSplitCurve(which, funding, era, liveRate);
   return buildCurveFromKnots(curveKnots(which, funding, era, liveRate), era);
 }
-/* STEP 70.6: ONE PHYSICAL TOTAL, TWO TONNAGE CURVES.
-   The total is the PCHIP fit through the era totals (Agency knot plus Commercial knot at each era),
-   exactly the curve the single mass store used to carry. Each actor's share of that total is
-   interpolated LINEARLY IN YEAR between the knot shares, and an actor's curve is share(y) x total(y).
-   The three properties that follow are the design's reason for existing: each actor's curve passes
-   through its own knots, the two curves sum exactly to the total at every year, and a scenario's
-   preset (no stored point) reproduces the total it always had, bit for bit, because its knot totals
-   are the ENVELOPE figures. Between knots an actor's curve is a share times the total and not a fit
-   of its own; two independent fits summed drift from the total by up to 22.5 t/yr.
-   A KNOT WHOSE TOTAL IS ZERO HAS NO SHARE OF ITS OWN, so the scenario's approved default share at that
-   era anchors the interpolation on either side.
+/* ONE CURVE PER ACTOR, THE TOTAL AS THEIR SUM.
+   Agency and Commercial each carry their own monotone fit through their own knots, built by
+   buildCurveFromKnots. The physical total is the pointwise sum of the two. Each actor's curve
+   passes through its own knots, is smooth where its own knots are, and stays non-decreasing between
+   knots whenever its knots are non-decreasing. Moving one actor's knot leaves the other actor's
+   curve unchanged at every year. The total is exact by construction: agency(y) + commercial(y).
    THE LIVE TOTAL at the era in view: `liveRate` when a caller supplies one, else (for an actor curve)
    the Mass landing rate rail's value when this is the reader's own scenario at the era in view. It
    applies only when neither actor has a stored point at that era, and only when it differs from the
-   default total, so a preset evaluates the stored table untouched. */
+   default total; the two era knots are then scaled together so each actor keeps its default share
+   of the live total. A preset evaluates the stored table untouched. */
 function buildSplitCurve(which, funding, era, liveRate){
   const E = Number(era);
   /* `state` is absent where this function is evaluated without the page (the headless sidecar), and there is
@@ -9339,25 +9335,13 @@ function buildSplitCurve(which, funding, era, liveRate){
     if (live !== dt){ la = live * d.agency / dt; lc = live * d.commercial / dt; }
   }
   const ka = curveKnots('agency', funding, era, la), kc = curveKnots('commercial', funding, era, lc);
-  const tk = ka.map(function(k, i){ return [k[0], k[1] + kc[i][1]]; });
-  const total = buildCurveFromKnots(tk, era);
-  if (which === 'mass') return total;
-  const xs = ka.map(function(k){ return k[0]; });
-  const shareA = ka.map(function(k, i){ return (tk[i][1] > 0) ? k[1] / tk[i][1] : defaultAgencyShare(funding, k[0]); });
-  const share = function(y){
-    if (xs.length === 1) return shareA[0];
-    const yy = Math.max(xs[0], Math.min(xs[xs.length-1], y));
-    let i = 0; while (i < xs.length-2 && yy > xs[i+1]) i++;
-    const t = (yy - xs[i]) / (xs[i+1] - xs[i]);
-    return shareA[i] + t * (shareA[i+1] - shareA[i]);
-  };
-  const rate = function(y){
-    const yy = Math.max(CURVE_EPOCH, Math.min(E, Number(y)));
-    const a = share(yy);
-    return ((which === 'agency') ? a : 1 - a) * total(yy);
-  };
-  rate.family = total.family; rate.knots = (which === 'agency') ? ka : kc; rate.raw = rate; rate.era = E;
-  return rate;
+  const fa = buildCurveFromKnots(ka, era), fc = buildCurveFromKnots(kc, era);
+  if (which === 'agency') return fa;
+  if (which === 'commercial') return fc;
+  const total = function(y){ return fa(y) + fc(y); };
+  total.family = fa.family; total.knots = ka.map(function(k, i){ return [k[0], k[1] + kc[i][1]]; });
+  total.raw = total; total.era = E;
+  return total;
 }
 function knotStored(which, y){ return ((CURVE.pts[which] || {})[y]) != null; }
 /* THE FIT ITSELF: flat, quadratic or monotone PCHIP through a knot list, year held inside [2030, era],
@@ -24570,8 +24554,8 @@ function curveDraw(){
   const era = state.phase, E = Number(era);
   /* STEP 70.6: TWO CURVES ON ONE PLOT, ONE TOTAL UNDER THEM. Agency and Commercial are the two tonnage
      curves the reader sees and drags (t/yr landed by each actor); the toggle picks the one whose
-     handles are live. The fleet layer reads the TOTAL, the fit through the era totals, which equals
-     the two curves' sum at every year. No line is drawn for the total: it is the record below, the
+     handles are live. The fleet layer reads the TOTAL, the pointwise sum of
+     the two curves, each a fit through its own knots. No line is drawn for the total: it is the record below, the
      readout and the footer. */
   const which = (state.curveWhich === 'commercial') ? 'commercial' : 'agency';
   const total = buildCurve('mass', state.funding, era, knobVal('mass'));
