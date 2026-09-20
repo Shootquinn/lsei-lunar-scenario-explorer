@@ -9086,7 +9086,9 @@ const CURVE = { pts: { /* STEP 70.6: `mass` STORES NOTHING NOW AND STAYS AS A KE
    EVERY curve this app carries -- mass, power, agency and commercial -- which is precisely
    "a scenario click resets BOTH curves" without touching a single call site. */
 function curveReset(which){
+  curveResetNoticeShown = false;
   if (which){ CURVE_ERAS.forEach(function(y){ CURVE.pts[which][y]=null; }); return; }
+  railWriteSig = '';
   Object.keys(CURVE.pts).forEach(function(w){ CURVE_ERAS.forEach(function(y){ CURVE.pts[w][y]=null; }); });
 }
 /* Ruled: switching to a different preset clears reader-placed curve points and the footer says
@@ -9094,7 +9096,13 @@ function curveReset(which){
    only where applyPreset() itself decides a switch happened, never inside curveReset() (which
    other callers, decoys and fixtures also use without meaning "tell the reader"), and consumed
    (read once, then cleared) by curveDraw()'s own footer line. */
-let curveResetByPresetSwitch = false;
+let curveResetNoticeShown = false;
+/* STEP 70.9 (F4). The flag is now the state of the footer notice, not a one-render pulse: it is set only when a scenario
+   click or a rail move discarded a point that existed, it stays set through every render, slider and era click, and the
+   next curve edit (setEraRate, curveReset) clears it. */
+/* STEP 70.9 (F3). The curve points the rail's own last write left standing. A rail move that finds exactly these has
+   nothing a reader placed to discard. */
+let railWriteSig = '';
 /* THE LAST PRESET APPLIED, tracked for its own sake rather than reread off matchesPreset(), which
    already means something else (Step 56 remediation 3): it returns false the moment a curve point
    is placed, by design, so the abstract fade can treat a drag as leaving the preset. Re-using it
@@ -9153,6 +9161,7 @@ function setEraRate(which, era, newRate){
   if (CURVE_ERAS.indexOf(y) < 0) throw new Error('setEraRate: ' + era + ' is not an era');
   if (which !== 'mass' && which !== 'power' && which !== 'agency' && which !== 'commercial')
     throw new Error('setEraRate: ' + which + ' is not mass, power, agency or commercial');
+  curveResetNoticeShown = false;   // STEP 70.9 (F4): a curve edit ends the notice
   let v = (!isFinite(newRate)) ? 0 : Math.max(0, Math.min(CURVE_MAX[which], Number(newRate)));
   /* THE TOTAL STAYS ON THE AXIS. The two curves sum to the landing rate the headline prints, so at every era
      their knots sum to at most MASS_RAIL_MAX. When a drag would push the sum over, the DRAGGED curve is the
@@ -9257,9 +9266,10 @@ function curveKnots(which, funding, era, liveRate){
      THE LAST GESTURE WINS, AND THAT IS ONE RULE COVERING BOTH CONTROLS. The rail and the handle at
      the selected era are two views of one number, so one of them has to be the authority and the
      answer cannot be "always the same one". A placed control point wins at the era it is placed
-     on, and MOVING THE RAIL REWRITES THE POINT AT THE LIVE ERA: massRailWrite() sets the rail's value as
-     the total at that era and puts it on both actor knots, each keeping its share, so the rail
-     takes the authority back the moment the reader touches it. Either control reaches the model,
+     on, and MOVING THE RAIL, WHEN A READER-PLACED POINT EXISTS, CLEARS EVERY PLACED POINT ON BOTH CURVES (Step 70.9,
+     massRailWrite()): the rail's value becomes the total at the live era on both actor knots at the preset's own
+     share, exactly as after a scenario click, so the rail takes the authority back the moment the reader touches
+     it. With nothing placed the rail only writes that era's two knots. Either control reaches the model,
      neither silently overrules the other, and there is no state in which a reader is holding a
      control that does nothing.
      THE TWO RULES THIS REPLACES BOTH FAILED, and both failures are recorded because the second was
@@ -10619,7 +10629,11 @@ function withPresetLearning(a, fs, ph, funding){
 function learnPsiNow(own){ const k = own.learn; return k ? Math.pow(Math.max(1, k.Ncum), k.b) : 1; }
 /* psi_y by landing year, from the 2055 cohort list of the reader's own scenario at the reader's Learning rate. */
 function cohortPsiByYear(own){
-  const k = learningMultipliers(own.args, own.fs, '2055', own.args.learnRate != null ? own.args.learnRate : step60Rate);
+  /* STEP 70.9 (F1b). The census runs on the arguments applyLearning() ran it on, the reader's own controls before the fleet solve
+     rewrites power, mass and mix, so a cohort's price is the price the model's own learning (own.learn, learnPsiNow) carries
+     and it follows every control the model does. */
+  const a0 = own.censusArgs || own.args;
+  const k = learningMultipliers(a0, own.fs, '2055', a0.learnRate != null ? a0.learnRate : step60Rate);
   const out = {}; k.cohorts.forEach(function(c){ out[c.y] = c.psi; });
   return out;
 }
@@ -18004,7 +18018,7 @@ function runAbstractTests(){
         if (!cv.dataset.family) bad.push(ph + ' the plot records no family');
         if (n !== wantN) bad.push(ph + ' the plot records ' + n + ' control points where ' + wantN + ' are in scope');
         if (Math.abs(cum - fs.landed) > 1e-6) bad.push(ph + ' the plot records a cumulative of ' + cum + ' against the layer\'s own landed ' + fs.landed);
-        if (Math.abs(Number(cv.dataset.standing) - fs.mass) > 1e-6) bad.push(ph + ' the plot records a standing fleet the layer disagrees with');
+        if (Math.abs(Number(cv.dataset.standingSteady) - fs.mass) > 1e-6) bad.push(ph + ' the plot records a standing fleet the layer disagrees with');   // STEP 70.9: dataset.standing is the painted figure; the layer's own is standingSteady
         /* A HANDLE IS OFFERED AT EVERY ERA IN SCOPE, not at every knot. Dragging the 2040 handle
            at era 2055 is HOW a reader places a control point there, so a plot that drew handles
            only at existing knots would offer no way to add the third one. What must not happen is
@@ -20802,7 +20816,10 @@ function runAbstractTests(){
       const m = stateModel(), fs2 = fleetNow();
       const D = knobVal('landed_cost'), C_hw = C_HW1 * learnPsiNow(scenarioModelArgs(PRESET_OF_FUNDING[state.funding])); // Step 68 pass 2B: the current cohort's learned price
       const outs = (m.water + m.construction + m.oxygenTotal + m.alloy) * 1000 * D;
-      const ins = knobVal('mass') * 1000 * (C_hw + D);
+      // STEP 70.9: ins is the two buildout curves at the era in view, each in t/yr, priced at that vintage's learning price (the investment plot's own basis).
+      const perT = C_HW1 * cohortPsiByYear(scenarioModelArgs(PRESET_OF_FUNDING[state.funding]))[state.phase] + D;
+      const rA = buildCurve('agency', state.funding, state.phase, null)(Number(state.phase)), rC = buildCurve('commercial', state.funding, state.phase, null)(Number(state.phase));
+      const ins = (rA + rC) * 1000 * perT;
       return {outs:outs, ins:ins, total:outs+ins};
     }
     const why = [], seen = []; const decoyFires = [];
@@ -20843,16 +20860,13 @@ function runAbstractTests(){
   })();
 
   // ---- ECON-02 (GATE): total investment and government investment ----
-  // New at Step 57. Government investment reads ENVELOPE.med, the agency program's own funding
-  // track, at this era, and takes the smaller of that and this scenario's own investment; no new
-  // coefficient. The three funding tracks share one landing rate at 2030 (10 t/yr) and diverge:
-  // Agency Led Baseline (med) is that program, so the cap never binds against it; Early Shift to
-  // Mars (low) never lands more than the agency program does, so the cap never binds against it
-  // either; The Commercial Break (high) outruns the agency program at 2040 and 2055, where the
-  // cap binds. That is 7 of 9 states slack and 2 of 9 capped, and this row requires the
-  // population to land exactly that way rather than assuming it.
+  // Step 70.9 (F1). Both figures are the two buildout curves at the era in view, each in t/yr, priced at that vintage's
+  // learning price: total = (Agency + Commercial) x 1000 x (C_hw + D), government = Agency x 1000 x (C_hw + D). The
+  // ENVELOPE.med cap this row used to assert is removed with the block that applied it. The DECOY is the retired
+  // formula (this scenario's own total rate, government capped at ENVELOPE.med): it must disagree with the painted
+  // figures at the states where the two differ, so the population it is judged on is not empty.
   (function(){
-    const NAME = 'total investment (ins: mass landing rate times hardware plus delivery cost) and government investment (the smaller of that and the same figure computed on ENVELOPE.med, the agency program’s own funding track, at this era) are independently recomputed at all nine preset and era states against the painted figures parsed back to numbers, and investment equals government investment exactly where the agency program is never poorer than the scenario’s own rate and is strictly larger elsewhere (DECOY: dropping the min cap is confirmed to disagree with the painted government figure everywhere it binds)';
+    const NAME = 'total investment and government investment are the two buildout curves at the era in view priced at that vintage’s learning price, independently recomputed at all nine preset and era states against the painted figures parsed back to numbers; the note names the Agency curve’s own rate (DECOY: the retired ENVELOPE.med-capped formula is confirmed to disagree with the painted figures where it differs)';
     const elI = document.getElementById('h_invest'), elG = document.getElementById('h_govinvest'), elN = document.getElementById('h_govnote');
     if (!elI || !elG || !elN){
       rec('ECON-02','GATE',NAME,false,'EMPTY POPULATION: '+(!elI?'no #h_invest element':(!elG?'no #h_govinvest element':'no #h_govnote element'))+' exists in the rendered document');
@@ -20868,45 +20882,35 @@ function runAbstractTests(){
     }
     function usdTol(v){ const a = Math.abs(v);
       if (a>=1e9) return 0.006*1e9; if (a>=1e6) return 0.006*1e6; if (a>=1e3) return 0.06*1e3; return 0.6; }
-    const why = [], seen = []; let capBinds = 0, capSlack = 0;
+    const why = [], seen = []; let oldDiffers = 0;
     const walked = walk9(function(where){
-      const fs2 = fleetNow();
-      const D = knobVal('landed_cost'), C_hw = C_HW1 * learnPsiNow(scenarioModelArgs(PRESET_OF_FUNDING[state.funding])); // Step 68 pass 2B: the current cohort's learned price
-      const ins = knobVal('mass') * 1000 * (C_hw + D);
-      const agencyRate = ENVELOPE.med[state.phase].M;
-      const govCap = agencyRate * 1000 * (C_hw + D);
-      const gov = Math.min(govCap, ins);
+      const D = knobVal('landed_cost');
+      const perT = C_HW1 * cohortPsiByYear(scenarioModelArgs(PRESET_OF_FUNDING[state.funding]))[state.phase] + D;
+      const rA = buildCurve('agency', state.funding, state.phase, null)(Number(state.phase)), rC = buildCurve('commercial', state.funding, state.phase, null)(Number(state.phase));
+      const ins = (rA + rC) * 1000 * perT, gov = rA * 1000 * perT;
+      const C_hw1 = C_HW1 * learnPsiNow(scenarioModelArgs(PRESET_OF_FUNDING[state.funding]));
+      const oldIns = knobVal('mass') * 1000 * (C_hw1 + D), oldGov = Math.min(ENVELOPE.med[state.phase].M * 1000 * (C_hw1 + D), oldIns);
       const pI = parseUsd((elI.textContent||'').trim()), pG = parseUsd((elG.textContent||'').trim());
-      seen.push(where+': ins '+(elI.textContent||'')+' gov '+(elG.textContent||'')+' rate '+agencyRate);
+      seen.push(where+': ins '+(elI.textContent||'')+' gov '+(elG.textContent||'')+' rate '+fmtNum(rA,0));
       if (!isFinite(pI) || !(Math.abs(pI - ins) <= usdTol(ins)))
         why.push(where+': the hero prints investment "'+(elI.textContent||'')+'" against an independently computed '+ins.toFixed(0));
       if (!isFinite(pG) || !(Math.abs(pG - gov) <= usdTol(gov)))
         why.push(where+': the hero prints government investment "'+(elG.textContent||'')+'" against an independently computed '+gov.toFixed(0));
-      if (govCap < ins - 1e-6){
-        capBinds++;
-        if (!(Math.abs(pG - ins) > usdTol(ins)*3)) why.push(where+': the cap binds here and the DECOY, dropping it, still agrees with the painted government figure');
-      } else capSlack++;
-      // Ruled: the note names the rate the government figure was ACTUALLY computed on, not
-      // always the agency envelope. Only when the envelope caps it (govCap < ins) does that
-      // note carry the agency's own rate, and it says "envelope" when it does; otherwise it
-      // carries this scenario's own landing rate, the one `ins` (and so `gov`) was computed on.
-      const note = (elN.textContent||'').trim();
-      if (govCap < ins - 1e-6){
-        const wantRate = fmtNum(agencyRate, 0);
-        if (note.indexOf(wantRate) < 0 || !/envelope/i.test(note)) why.push(where+': the cap binds here and the note reads "'+note+'" rather than naming the agency envelope rate, '+wantRate+' t/yr');
-      } else {
-        const wantRate = fmtNum(knobVal('mass'), 0);
-        if (note.indexOf(wantRate) < 0) why.push(where+': the cap is slack here and the note reads "'+note+'" rather than naming the scenario’s own landing rate, '+wantRate+' t/yr, the rate the government figure was actually computed on');
+      if (!(ins - gov > 0) || !(pI - pG > 0)) why.push(where+': the hero implies no commercial investment');
+      const differs = Math.abs(oldIns - ins) > usdTol(ins)*3 || Math.abs(oldGov - gov) > usdTol(gov)*3;
+      if (differs){
+        oldDiffers++;
+        if (Math.abs(pI - oldIns) <= usdTol(ins)*3 && Math.abs(pG - oldGov) <= usdTol(gov)*3) why.push(where+': the DECOY, the retired capped formula, still agrees with the painted figures');
       }
+      const note = (elN.textContent||'').trim();
+      if (note !== 'at '+fmtNum(rA, 0)+' t/yr') why.push(where+': the note reads "'+note+'", want "at '+fmtNum(rA, 0)+' t/yr", the Agency curve’s own rate at the era');
     });
     if (walked !== 9) why.push('EMPTY POPULATION: '+walked+' states walked, not 9');
-    if (!(capBinds > 0)) why.push('EMPTY POPULATION: the cap never binds at any of the nine states, so the DECOY population is empty');
-    if (!(capSlack > 0)) why.push('EMPTY POPULATION: the cap binds at all nine states, so there is no state left where investment and government investment are the same figure');
-    if (capBinds + capSlack !== 9) why.push('the cap-binds and cap-slack counts do not sum to the nine states walked');
+    if (!(oldDiffers > 0)) why.push('EMPTY POPULATION: the retired formula agrees with the curves at all nine states, so the DECOY population is empty');
     applyPreset(PRESETS.artemis); render();
     rec('ECON-02','GATE',NAME, why.length===0,
       why.length ? why.slice(0,3).join('  ')
-        : walked+' states, investment and government investment both agree with an independent computation off ENVELOPE.med at every one, the cap binds at '+capBinds+' of 9 and is slack at '+capSlack+' of 9, and dropping the cap (the DECOY) disagrees with the painted government figure at all '+capBinds+' where it binds: '+seen.slice(0,3).join(' | ')+' ...');
+        : walked+' states, investment and government investment agree with the two buildout curves priced independently at every one, the implied commercial share is positive at every one, and the retired capped formula (the DECOY) disagrees with the painted figures at all '+oldDiffers+' states where it differs: '+seen.slice(0,3).join(' | ')+' ...');
   })();
 
   // ---- LC3 RETIRED AT STEP 68 PASS 2A ----
@@ -20986,7 +20990,7 @@ function runAbstractTests(){
     let ok = true, why = [], n = 0, decoyCaught = 0, cleared = 0, sixArgCaught = 0, phiMMoved = 0;
     const L = VALUE.L.value;
     const savedState = Object.assign({}, state), savedPts = JSON.stringify(CURVE.pts);
-    const savedPid = lastAppliedPresetId, savedSwitch = curveResetByPresetSwitch;
+    const savedPid = lastAppliedPresetId, savedSwitch = curveResetNoticeShown;
     const probe = [];
     try {
       for(const id of ['artemis','contested','commercial']) for(const ph of ['2030','2040','2055']){
@@ -21010,7 +21014,7 @@ function runAbstractTests(){
       Object.assign(state, savedState);
       const p = JSON.parse(savedPts);
       CURVE_ERAS.forEach(function(y){ CURVE.pts.mass[y] = p.mass[y]; CURVE.pts.power[y] = p.power[y]; CURVE.pts.agency[y] = p.agency[y]; CURVE.pts.commercial[y] = p.commercial[y]; });   // STEP 70.6: the fleet reads the two actors, so they are restored too
-      lastAppliedPresetId = savedPid; curveResetByPresetSwitch = savedSwitch;
+      lastAppliedPresetId = savedPid; curveResetNoticeShown = savedSwitch;
     }
     for(const s of probe){
       n++;
@@ -23623,8 +23627,9 @@ function applyPreset(p){
   const thisPresetId = presetIdOf(p);
   const alreadyOnThisPreset = (thisPresetId != null) && (thisPresetId === lastAppliedPresetId);
   if (!alreadyOnThisPreset){
+    const hadPoints = (curvePtsKey() !== '');
     if (typeof curveReset === 'function') curveReset();
-    curveResetByPresetSwitch = true;
+    curveResetNoticeShown = hadPoints;
   }
   lastAppliedPresetId = thisPresetId;
   // Phase is global: a preset changes the active scenario, never the phase.
@@ -23829,6 +23834,7 @@ function scenarioModelArgsInput(id){
 function scenarioModelArgs(id){
   const r = scenarioModelArgsInput(id);
   const fa = fleetArgs(r.args, r.fs, state.phase, r.learn, r.args.funding);
+  r.censusArgs = r.args;   // STEP 70.9 (F1b): the pre-fleet arguments the learning census ran on
   r.args = fa.args; r.powerFleet = fa.powerFleet; r.fabCeiling = fa.args.fabCeiling;
   return r;
 }
@@ -24193,8 +24199,23 @@ function massRailKeyTarget(ev, cur){
 /* STEP 70.6: THE RAIL MOVES THE TOTAL AT THE ERA IN VIEW. It writes state.mass as the total and
    setEraRate('mass') carries that total onto both actor curves at that era, each keeping its share,
    so a rail move and a handle drag are the same kind of edit and neither leaves the other stale. */
+/* STEP 70.9 (F3). THE ONE FUNCTION THE RAIL WRITES THROUGH. RAIL_CLEARS_PLACED_POINTS = true (V1): a rail move that finds a
+   point the reader placed acts like a scenario click on the curves: every placed point on both curves is cleared back to
+   the preset shape, the total at the era in view is set to the rail value at the preset's own Agency/Commercial share,
+   and the footer notice fires because a point existed. false: the pre-70.9 behaviour, placed points stay and both
+   curves scale together at the era in view. A rail move with nothing placed is identical in both. */
+const RAIL_CLEARS_PLACED_POINTS = true;
 function massRailWrite(){
-  if (typeof CURVE !== 'undefined') setEraRate('mass', Number(state.phase), state.mass);
+  if (typeof CURVE === 'undefined') return;
+  const readerPlaced = (curvePtsKey() !== '' && curvePtsKey() !== railWriteSig);
+  if (RAIL_CLEARS_PLACED_POINTS && readerPlaced){
+    curveReset();
+    setEraRate('mass', Number(state.phase), state.mass);
+    curveResetNoticeShown = true;
+  } else {
+    setEraRate('mass', Number(state.phase), state.mass);
+  }
+  railWriteSig = curvePtsKey();
 }
 function bindMassRailSlider(inputEl){
   inputEl.addEventListener('keydown', function(ev){
@@ -24605,8 +24626,14 @@ function curveDraw(){
   /* dataset.standing is the fleet layer's standing mass (the 11-year cohort window the model reads) and
      dataset.retired its aged-out mass; identity checks read both. dataset.standingPainted is the figure the
      footer and the mass bar paint. */
-  cv.dataset.standing = String(fs.mass);
-  cv.dataset.standingPainted = String((__standingMassPainted != null) ? __standingMassPainted : fs.mass);
+  /* STEP 70.9 (F2, F6). The footer's three figures and dataset.standing are one snapshot of the settled model: taken on
+     every draw except the ones a drag move makes, which hold the snapshot the last render took, so during the settle
+     no surface mixes vintages. dataset.standing is the figure the footer and the mass bar paint; the fleet layer's
+     11-year figure is dataset.standingSteady. */
+  if (!(__curveHoldFoot && __footSnap != null))
+    __footSnap = { landed: curveCumulative(total, era), standing: (__standingMassPainted != null) ? __standingMassPainted : fs.mass };
+  cv.dataset.standing = String(__footSnap.standing);
+  cv.dataset.standingSteady = String(fs.mass);
   cv.dataset.retired = String(fs.retired);
   cv.dataset.years = String(yrs.length);
   cv.dataset.rateAt = yrs.map(function(y, i){ return y + ':' + vals[i]; }).join(',');
@@ -24625,11 +24652,10 @@ function curveDraw(){
   const vc = document.getElementById('v_curve');
   if (vc) vc.textContent = fmtNum(total(E), total(E) < 10 ? 1 : 0) + ' t/yr at ' + E;
   const foot = document.getElementById('curveFoot');
-  if (foot) foot.textContent = 'landed in all ' + fmtNum(curveCumulative(total, era), 0) +
-    ' t, standing ' + fmtNum((__standingMassPainted != null) ? __standingMassPainted : fs.mass, 0) + ' t, aged out ' +
-    fmtNum(Math.max(0, curveCumulative(total, era) - ((__standingMassPainted != null) ? __standingMassPainted : fs.mass)), 0) + ' t' +   // CLOSE-OUT T1
-    (curveResetByPresetSwitch ? ' -- curve reset to the preset' : '');
-  curveResetByPresetSwitch = false;
+  if (foot) foot.textContent = 'landed in all ' + fmtNum(__footSnap.landed, 0) +
+    ' t, standing ' + fmtNum(__footSnap.standing, 0) + ' t, aged out ' +
+    fmtNum(Math.max(0, __footSnap.landed - __footSnap.standing), 0) + ' t' +   // CLOSE-OUT T1
+    (curveResetNoticeShown ? ' -- curve reset to the preset' : '');
 
   /* THE HANDLES. One per era in scope, on the toggled curve only, positioned from the same numbers
      the record carries. Every handle carries data-which. A handle at an era the reader is not on
@@ -24895,7 +24921,8 @@ function curveDragMove(ev){
      handle, holding the value setEraRate returned rather than the value the pointer asked for;
      CURVEUI-04 measures the two against each other at every move, so an agreement between them is
      observed rather than assumed. */
-  curveDraw();
+  __curveHoldFoot = true;
+  try { curveDraw(); } finally { __curveHoldFoot = false; }
   curveDragPaint(cv, curveDragEra, v);
   curveDragDefer();
 }
@@ -24957,7 +24984,7 @@ function curveKeyDown(ev){
    reader interaction and a window resize is not one, so without this the handles drift off the
    curve at exactly the moment the reader changes the width. */
 if (typeof window !== 'undefined' && window.addEventListener)
-  window.addEventListener('resize', function(){ try { curveDraw(); } catch(e){} });
+  window.addEventListener('resize', function(){ __curveHoldFoot = (curveDragTimer != null); try { curveDraw(); } catch(e){} __curveHoldFoot = false; });
 function fleetNow(){ return fleetState(knobVal('mass'), knobVal('power'), state.phase, null, state.funding); }
 /* ============================================================
    STEP 60 MATURITY AXIS (Systems/Space Resources/Software/Designer, sub-steps 1-4). Plant
@@ -25092,17 +25119,14 @@ function render(){
      basis that covers water, construction, oxygen and alloy alike since none of the four
      carries any other price in this model, plus what it costs to buy and land the mass that
      makes them, hardware plus freight. TOTAL INVESTMENT is that second term alone.
-     GOVERNMENT INVESTMENT reads ENVELOPE.med, the agency program's own funding track, at this
-     era, and takes the smaller of that program's own spend and this scenario's own; the three
-     funding tracks share one landing rate at 2030 and diverge from there, which is what lets
-     a scenario's own spend exceed the agency program's without a new coefficient. No literal
-     percentage is printed; the agency's own landing rate this era is printed beside it instead,
-     computed live, because the government dollar figure and the agency mass figure move in
+     GOVERNMENT INVESTMENT is the Agency buildout curve's dollars at this era (Step 70.9; the ENVELOPE.med cap
+     it carried before is removed), the same figure the investment plot draws. The Agency curve's own landing rate
+     this era prints beside it, computed live, because the government dollar figure and the agency mass figure move in
      different directions across the buildout and a reader needs both to read either one. Mass
      is bounded away from zero on every rail and D and C_hw are each bounded away from zero on
      their own rails, so this block carries no singularity and no branch for one. Step 68 pass 2A: C_hw is C_HW1, the
      first plant's price. Step 68 pass 2B: the current cohort is priced at C_HW1 * max(1, N_E)^log2(PR). */
-  const D_econ = knobVal('landed_cost'), Chw_econ = C_HW1 * learnPsiNow(ownArgs);
+  const D_econ = knobVal('landed_cost');
   const outsUSD = (m.water + m.construction + m.oxygenTotal + m.alloy) * 1000 * D_econ;
   /* STEP 64, ruling B3. This used to read knobVal('mass'), the rail's own stale index, which
      ignores a placed buildout-curve point exactly the way the pre-Step-59 rail readout did
@@ -25111,22 +25135,20 @@ function render(){
      bar and WATER PRODUCED all already agree on; reading it at the current era is what
      investmentSeries() does for #investPlot, so the hero and the chart a few centimetres above
      it now price the same landing rate. */
-  const massRateNow = fs.rateM(Number(state.phase));
-  const insUSD = massRateNow * 1000 * (Chw_econ + D_econ);
+  /* STEP 70.9 (F1). TOTAL AND GOVERNMENT INVESTMENT ARE THE INVESTMENT PLOT'S OWN ROW AT THE ERA IN VIEW,
+     from investmentSeries(): each actor's buildout curve at that year, priced at that vintage's learning price. The two
+     curves are the one Agency/Commercial split (Step 69, ruling 3), so the hero, the plot and the commercial share
+     between them cannot disagree. The ENVELOPE.med cap this block used to apply is gone. */
+  const invRow = investmentSeries()[Number(state.phase) - CURVE_EPOCH];
+  const insUSD = invRow.invest;
   const totalUSD = outsUSD + insUSD;
-  const agencyRate = ENVELOPE.med[state.phase].M;
-  const govCapUSD = agencyRate * 1000 * (Chw_econ + D_econ);
-  const govBoundByEnvelope = govCapUSD < insUSD;
-  const govUSD = Math.min(govCapUSD, insUSD);
+  const govUSD = invRow.gov;
+  const agencyRateNow = buildCurve('agency', state.funding, state.phase, null)(Number(state.phase));
   document.getElementById('h_econ').textContent = _usd(totalUSD);
   document.getElementById('h_invest').textContent = _usd(insUSD);
   document.getElementById('h_govinvest').textContent = _usd(govUSD);
-  // The rate named here is always the one the government figure was actually computed on: the
-  // agency envelope's own rate only when that envelope is what caps it, labelled as the envelope
-  // rather than as this scenario's landing rate; this scenario's own rate otherwise.
-  document.getElementById('h_govnote').textContent = govBoundByEnvelope
-    ? 'agency envelope ' + fmtNum(agencyRate, 0) + ' t/yr this era'
-    : 'at ' + fmtNum(massRateNow, 0) + ' t/yr';
+  // The rate named here is the one the government figure was computed on: the Agency curve at the era in view.
+  document.getElementById('h_govnote').textContent = 'at ' + fmtNum(agencyRateNow, 0) + ' t/yr';
   /* STEP 52. The 65-word fleet paragraph is deleted. Every figure in it was audited against the
      rest of the screen first. The rail RATE in t/yr and in kWe/yr and the 2030 epoch already
      print on the knob rail and on the era buttons and died with the paragraph. The standing mass
@@ -26116,6 +26138,7 @@ function regimeCellModel(ice, power, mass, fission, applied){
    inputs (the applied arguments, ice, power source, axis bounds, brightness anchor, CONFIG, L and canvas size) are unchanged.
    Every colour is computed by the same expressions from the same regimeCellModel() result, so the painted grid is identical. */
 var __regimePending = false, __regimeLast = null, __regimeCache = null;
+var __curveHoldFoot = false, __footSnap = null;   // STEP 70.9 (F6)
 var __standingMassPainted = null;   // CLOSE-OUT T1: the standing mass this render painted (the fleet's), for the curve plot's own footer
 /* STEP 68 PASS 2E E1: the marker plots the output state (m.mass, m.power); every model() call inside the field is at input power. */
 /* CLOSE-OUT D4: a reader's own drag hands the Regime grid to a trailing task that the next input supersedes, so a drag across
