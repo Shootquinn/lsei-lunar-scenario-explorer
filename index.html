@@ -338,16 +338,6 @@
   .metric .ml2{font-family:var(--mono); font-size:12px; text-transform:uppercase; letter-spacing:.8px; color:var(--muted);}
   .metric .mv{font-family:var(--mono); font-size:20px; font-variant-numeric:tabular-nums; margin-top:4px;}
   .metric .munit{font-family:var(--mono); font-size:11px; color:var(--muted); margin-left:3px;}
-  /* STEP 70.10: the Plant standing card's three product lines, laid out and coloured like the Metals card's lines (.out .oline). */
-  .metric .pline{display:flex; justify-content:space-between; align-items:baseline; margin-top:8px;}
-  .metric .pline:first-child{margin-top:9px;}
-  .metric .pcname{font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-family:var(--mono); margin-top:9px;}
-  .metric .pcname + .pline{margin-top:4px;}
-  .metric .pname{font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-family:var(--mono)}
-  .metric .pvalue{font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:15px; font-weight:600; line-height:1;}
-  .metric .pline.acc-water .pvalue{color:var(--cobalt);}
-  .metric .pline.acc-oxygen .pvalue{color:var(--ice);}
-  .metric .pline.acc-alloy .pvalue{color:var(--crit);}
 
   /* state briefing / derivation provenance chips (own namespace: the rail's
      .chip status pills use a different padding and color scale, so the two
@@ -687,7 +677,8 @@
         <div class="metrics">
           <div class="metric"><div class="ml2">Propellant value</div><div class="mv"><span id="m_prop"></span><span class="munit" id="m_prop_unit">/yr</span></div></div>
           <div class="metric"><div class="ml2">Construction value</div><div class="mv"><span id="m_const"></span><span class="munit">/yr</span></div></div>
-          <div class="metric" title="Plants standing: dedicated oxygen reactors and metal-primary plants, each counted on its own capacity. The lines give the water output, the oxygen output and the metals output (aluminium, iron-silicon alloy, silicon) of the standing plants in t/yr."><div class="ml2">Plant standing</div><div class="mv"><span id="m_plants" data-step60-plantcount></span><div class="plines" id="m_plants_lines"><div class="pline acc-water"><span class="pname">Water</span><span class="pvalue" id="m_plants_water"></span><span class="munit">t/yr</span></div><div class="pline acc-oxygen"><span class="pname">Oxygen</span><span class="pvalue" id="m_plants_oxy"></span><span class="munit">t/yr</span></div><div class="pcname">Metals</div><div class="pline acc-alloy"><span class="pname">Al</span><span class="pvalue" id="m_plants_al"></span><span class="munit">t/yr</span></div><div class="pline acc-alloy"><span class="pname">Fe-Si</span><span class="pvalue" id="m_plants_fesi"></span><span class="munit">t/yr</span></div><div class="pline acc-alloy"><span class="pname">Si</span><span class="pvalue" id="m_plants_si"></span><span class="munit">t/yr</span></div></div></div></div>
+          <div class="metric" title="Standing mass in tons of the ISRU plant at the era in view: the landed mass left after the power system and the in-situ fabs, the mass the standing-mass bar prints as the water plant."><div class="ml2">ISRU PLANT MASS STANDING</div><div class="mv"><span id="m_plants" data-step60-plantcount></span><span class="munit">t</span></div></div>
+
           <div class="metric" id="card_insitu_standing" data-card="insitu-standing"><div class="ml2">In-situ solar standing</div><div class="mv"><span id="m_insitu" data-step68-insitustanding></span><span class="munit">kWe</span> <span class="munit" id="m_insitu_share"></span></div></div>
         </div>
         <div id="m_insitu_gate" class="mgatenote"></div>
@@ -22709,16 +22700,16 @@ function runAbstractTests(){
     const styleText = function(){ let s = ''; Array.prototype.forEach.call(document.querySelectorAll('style'), function(x){ s += x.textContent + '\n'; }); return s; };
 
     // ---- RAIL68-02: the specific-mass, required-rate and delivery-cost cards are gone ----
-    const N02 = 'the Value cards are exactly Propellant value, Construction value, Plant standing and In-situ solar standing; the Specific mass, Rate required for target and Earth delivery cost cards and their elements are absent (DECOY: a constructed Specific mass card is caught by the same label read)';
+    const N02 = 'the Value cards are exactly Propellant value, Construction value, ISRU PLANT MASS STANDING and In-situ solar standing; the Specific mass, Rate required for target and Earth delivery cost cards and their elements are absent (DECOY: a constructed Specific mass card is caught by the same label read)';
     guard('RAIL68-02', N02, function(){
       const why = [];
       ['m_specmass','m_reqrate','m_reqrate_sub','m_deliv'].forEach(function(i){ if (byId(i)) why.push('#' + i + ' is still in the document'); });
       const RETIRED = /^(Specific mass|Rate required for target|Earth delivery cost)$/;
       const cardLabels = function(root){ return Array.prototype.map.call(root.querySelectorAll('.metric .ml2'), function(x){ return (x.textContent||'').trim(); }); };
       cardLabels(document).filter(function(l){ return RETIRED.test(l); }).forEach(function(l){ why.push('a card is labelled "' + l + '"'); });
-      ['m_prop','m_const','m_plants','m_plants_water','m_plants_oxy','m_plants_al','m_plants_fesi','m_plants_si','m_insitu','m_insitu_share'].forEach(function(i){ if (!byId(i)) why.push('#' + i + ' is missing'); });
-      /* STEP 68 PASS 2A: the fourth card is In-situ solar standing; the label reads Plant standing. */
-      const want02 = ['Propellant value','Construction value','Plant standing','In-situ solar standing'];
+      ['m_prop','m_const','m_plants','m_insitu','m_insitu_share'].forEach(function(i){ if (!byId(i)) why.push('#' + i + ' is missing'); });
+      /* STEP 68 PASS 2A: the fourth card is In-situ solar standing; the label reads ISRU PLANT MASS STANDING (Step 70.12). */
+      const want02 = ['Propellant value','Construction value','ISRU PLANT MASS STANDING','In-situ solar standing'];
       const got02 = byId('absValue') ? cardLabels(byId('absValue')) : [];
       if (JSON.stringify(got02) !== JSON.stringify(want02)) why.push('the Value cards read "' + got02.join(', ') + '" against "' + want02.join(', ') + '"');
       const decoy = document.createElement('div');
@@ -24990,19 +24981,15 @@ function step60RenderValueTab(m, fs, args){
     reqText = (100*Math.pow(2,bReq)).toFixed(1)+'%';
     reqSub = '56% default \u00b7 78.8% / 85% / 90% / 95% anchors \u00b7 2.0 negative-learning stress case';
   }
-  document.getElementById('m_plants').textContent = String(standing.total);
-  /* STEP 70.10: the O2 / metal / cumulative sub-line is replaced by the three products in t/yr, each the figure its hero card
-     prints (squares(m): water m.water, oxygen m.oxygenTotal, Metals the three lines Al m.aluminium, Fe-Si m.alloy, Si the
-     siliconLow to siliconHigh band), through the same fmtNum and precision. The three plant counts are
-     records on #m_plants. */
+  /* STEP 70.12: the card is ISRU PLANT MASS STANDING, a mass in t at the era in view: the standing mining plant mass m.mining
+     (M_mining = max(0, M_eff - M_power - mFab)), the water plant segment of the standing-mass bar (#keyM), printed with the same
+     fmtNum and precision. The model resolves one plant mass, the mining plant; it carries no per-product standing plant mass, so
+     no Water, Oxygen or Metals lines. The three plant counts and their total stay as records on #m_plants. */
   (function(){
-    const pd = document.getElementById('m_plants').dataset;
-    pd.nOx = String(standing.nOx); pd.nMetal = String(standing.nMetal); pd.cumulative = String(cumulative.total);
-    const flat = []; squares(m).forEach(function(q){ if (q.lines) q.lines.forEach(function(l){ flat.push(l); }); else flat.push(q); });
-    [['m_plants_water', 'h_water'], ['m_plants_oxy', 'h_oxy'], ['m_plants_al', 'h_al'], ['m_plants_fesi', 'h_alloy'], ['m_plants_si', 'h_si']].forEach(function(pr){
-      const q = flat.filter(function(x){ return x.vid === pr[1]; })[0];
-      document.getElementById(pr[0]).textContent = q.band ? (fmtNum(q.vLow, q.dp) + ' to ' + fmtNum(q.vHigh, q.dp)) : fmtNum(q.v, q.dp);
-    });
+    const el = document.getElementById('m_plants'), mass = Math.max(0, m.mining);
+    el.textContent = fmtNum(mass, mass < 10 ? 1 : 0);
+    el.dataset.count = String(standing.total);
+    el.dataset.nOx = String(standing.nOx); el.dataset.nMetal = String(standing.nMetal); el.dataset.cumulative = String(cumulative.total);
   })();
   /* STEP 68, sub-step 2: the Specific mass and Rate required for target cards are deleted, so specificMass,
      reqText and reqSub are no longer painted. The Learning rate slider mirrors step60Rate. */
