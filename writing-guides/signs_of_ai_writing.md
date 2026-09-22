@@ -235,6 +235,6 @@ These are commonly cited and do not work. Some point the opposite way.
 
 ## Application Notes
 
-**Key diagnostic:** testable engineering claims with evidence win proposals; buzzword claims lose them.
+**Key diagnostic:** testable engineering claims with evidence win proposals; buzzword claims lose them (operational guide A.12.10).
 
 **The dashboard case, 2026-09-06:** a register pass can clear every marker in Categories 1 through 8 and still fail, since the defect was never which words sat beside the numbers, but that words sat there at all. Test: if the prose could be lorem ipsum with no change to the reader's experience, the fix is deletion. This file documents prose tells, not information design.

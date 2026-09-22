@@ -124,6 +124,13 @@
   .envmark{position:absolute; top:50%; width:2px; height:14px; margin-left:-1px;
     background:var(--warn); opacity:.85; transform:translateY(-50%); pointer-events:none; border-radius:1px;}
 
+  /* STEP 71 (Quinn's ruling, 2026-09-21). Water's computed-not-dialled readout: the same 5px
+     track height as the three real range inputs above it, so the row reads as one family, but
+     with no thumb and no pointer cursor, because there is nothing here to drag. */
+  .phibar{width:100%; height:5px; border-radius:99px; background:var(--line); margin:2px 0; overflow:hidden;}
+  .phibar-fill{height:100%; border-radius:99px; background:var(--ice); width:0%;}
+  #v_phiw{color:var(--ice);}
+
   .status{display:flex; flex-direction:column; gap:8px;}
   .chip{display:inline-flex; align-items:center; gap:7px; font-family:var(--mono); font-size:12px;
     padding:5px 9px; border-radius:7px; background:var(--panel2); border:1px solid var(--line); color:var(--muted);}
@@ -525,6 +532,19 @@
         <div class="knob oxy">
           <div class="krow"><span class="klabel">Metals-production split</span><span class="kval" id="v_phim"></span></div>
           <input type="range" class="oxy" id="k_phim">
+        </div>
+
+        <!-- STEP 71 (Quinn's ruling, 2026-09-21). Water is the fourth fraction of the same shared
+             power and plant budget the three splits above draw on, computed rather than dialled:
+             1 - Construction split - Oxygen split - Metals-production split, never negative by
+             construction (see phi_water in model()). Not an <input type="range">, deliberately --
+             this readout has nothing for a reader to drag, only a position to show, so it stays out
+             of every self-check that walks input[type="range"] and cannot be mistaken for a fourth
+             control. The fill width is painted from phi_water on every render(), the same call that
+             paints v_phic/v_phio/v_phim. -->
+        <div class="knob">
+          <div class="krow"><span class="klabel">Water (residual)</span><span class="kval" id="v_phiw"></span></div>
+          <div class="phibar" id="phiwBar" role="img" aria-label="Water's residual share of the shared budget"><div class="phibar-fill" id="phiwBarFill"></div></div>
         </div>
 
       <div class="status">
@@ -1524,7 +1544,7 @@
   },
   "source": "No numbered ledger claim states this figure or its physical basis, and the roughly 0.10 value is this project's own design ruling, representing the fraction of raw landed mass that is consumables, spares, crew support, science payload, and tourism rather than productive plant. The quantity does have a home in the ledger: [[productive-mass-fraction]] carries it, states that this allocation is live at 0.10 and is exactly what that section is about, and records its own state as modeled with no numbered claim behind it. ",
   "status": "CONTROL (design ruling, not a literature figure)",
-  "note": "Advanced-mode exploration control. Step 35: the functional default is now live at 0.10, matching the slider's UI-suggested starting position; opening the Advanced panel with no drag now reproduces the live 0.10 reading, not an inert 0. An explicit drag still overrides to whatever value the slider then reads, including back to 0."
+  "note": "Advanced-mode exploration control. Step 35: the functional default is now live at 0.10, matching the slider's UI-suggested starting position; opening the Advanced panel with no drag now reproduces the live 0.10 reading, not an inert 0. An explicit drag still overrides to whatever value the slider then reads, including back to 0. No reader-reachable preset uses this flat value as its own default any longer, 2026-09-21: PHI_C0_BY_ERA (see phiC0ByEra below) carries the nine scenario-and-era values applyPreset() and the phase handler read instead, on PHI_M_BY_ERA's own precedent. This value is reached only by a caller that omits phi_c0 entirely (model()'s own functional default) or by the Advanced slider before any preset has been clicked."
  },
  "eO2": {
   "value": 50,
@@ -1659,6 +1679,34 @@
   "status": "CONTROL",
   "useLabel": "CONTROL (nine ruled values, one per scenario and era)",
   "note": "phiMetalProd above is the single fallback this table overrides at every preset this build ships with: phiMetalProd.value (0) is reached only by a caller that omits phi_m entirely, which no reader-reachable preset state does. applyPreset(), the phase handler and stripCaps() all index this table the same way."
+ },
+ "phiCByEra": {
+  "value": "0.60 / 0.00 / 0.60 at 2030, 0.75 / 0.75 / 0.60 at 2040, 0.55 / 0.70 / 0.30 at 2055 (Agency Led Baseline / Early Shift to Mars / The Commercial Break)",
+  "unit": "fraction of the shared plant and power budget, one value per scenario and era",
+  "band": {
+   "kind": "NO_BAND",
+   "rule": "NOT-CENTRABLE",
+   "disposition": "STANDS",
+   "reason": "USER ALLOCATION CONTROL, of the same class as phi_o and phiMByEra, not a claim about the Moon. Nine values, a programme-owner allocation ruling of the construction share by scenario and era, not a physical measurement of anything on the Moon. STEP 71 RE-TUNE (Quinn's ruling, 2026-09-21), superseding the 0.80/0.00/0.80, 0.85/0.00/0.85, 0.85 flat values these same nine cells carried a few hours earlier under the model's retired water/construction split (see modelCore()'s own Step 71 comment): those values were solved against (1-phi_c) as water's share of the remainder, and stopped reaching their own water-production targets the moment the split was corrected to phi_water/phi_rem, the true share once phi_o and phi_m have taken theirs."
+  },
+  "source": "None required. A user allocation control of the same class as phi_o and phiMByEra: a programme-owner ruling of what share of the shared plant and power budget the construction line receives, set independently at each of the three named scenarios and each of the three eras, carried in PHI_C_BY_ERA and read as PHI_C_BY_ERA[era][presetId].",
+  "status": "CONTROL",
+  "useLabel": "CONTROL (nine ruled values, one per scenario and era)",
+  "note": "STEP 71 RE-TUNE: solved against water-production targets of 1/10/100 t/yr (Agency Led Baseline), 1/2/10 (Early Shift to Mars) and 1/100/1,000 (The Commercial Break) at 2030/2040/2055, on the corrected split, each cell's exact phi_c snapped to the nearest 0.05 detent this rail offers. Three of nine cells cannot clear their target on this grid and are the documented gap: Agency Led Baseline 2040 (10 t/yr target, 7.43 achieved, -25.67 percent), Early Shift to Mars 2040 (2 t/yr target, 2.45 achieved, +22.73 percent) and Early Shift to Mars 2030 (1 t/yr target, 0.6161 achieved at phi_c's own floor, -38.39 percent, a landed-mass ceiling this scenario's own 2030 envelope sets and phi_c cannot reach past); every other cell lands within 5 percent. Early Shift to Mars no longer sits at phi_c 0.00 through 2040 the way it did under the retired split's own water-primary tuning; at 2030 it still does, which is this cell's own floor. A non-productive-downmass cut at that one 2030 cell would close most of its gap but was declined because it falsifies the shared-2030-envelope commitment PHI_C0_BY_ERA's own uniform row holds (see PHI_C0_BY_ERA's own note). applyPreset(), the phase handler, presetCensus(), abstractPresetRef() and scenarioModelArgsInput() all index this table the same way PHI_M_BY_ERA already established."
+ },
+ "phiC0ByEra": {
+  "value": "0.55 at every 2030 cell; 0.70 / 0.75 / 0.75 at 2040; 0.75 at every 2055 cell (Agency Led Baseline / Early Shift to Mars / The Commercial Break)",
+  "unit": "fraction, one value per scenario and era",
+  "band": {
+   "kind": "NO_BAND",
+   "rule": "NOT-CENTRABLE",
+   "disposition": "STANDS",
+   "reason": "USER ALLOCATION CONTROL, of the same class as phiCByEra and phiMByEra, not a claim about the Moon. Nine values, a programme-owner allocation ruling of the non-productive downmass share by scenario and era, not a physical measurement of anything on the Moon. Quinn's ruling, 2026-09-21, superseding the flat CONFIG.phiC0.value every preset previously read."
+  },
+  "source": "None required. A user allocation control of the same class as phiCByEra and phiMByEra: a programme-owner ruling of what share of each landing's raw mass is non-productive, set independently at each of the three named scenarios and each of the three eras, carried in PHI_C0_BY_ERA and read as PHI_C0_BY_ERA[era][presetId].",
+  "status": "CONTROL",
+  "useLabel": "CONTROL (nine ruled values, one per scenario and era)",
+  "note": "CONFIG.phiC0 above is the flat fallback this table overrides at every preset this build ships with: phiC0.value (0.10) is reached only by a caller that omits phi_c0 entirely (model()'s own functional default) or by the Advanced slider before any preset has been clicked. applyPreset() and the phase handler both index this table the same way PHI_M_BY_ERA already established. STEP 71 (Quinn's ruling, 2026-09-21): unmoved by the same-day construction-split re-tune (see phiCByEra's own note). A per-scenario cut at Early Shift to Mars/2030 was tried and clears that cell's own water target almost exactly, but it would falsify the shared-2030-envelope commitment this table's uniform 0.55 row holds (ENV2030-01/02: the three named scenarios differ at the Prospecting phase in ice grade alone), so that cell is reported as a documented gap instead."
  },
  "eRefine": {
   "value": 0,
@@ -3295,7 +3343,7 @@
    ]
   },
   "water": {
-   "expr": "water = (1 - s_ind * phi_c) * cap",
+   "expr": "water = (1 - s_ind + s_ind * (phi_water / phi_rem)) * cap",
    "claims": [
     "shared-capacity-split"
    ]
@@ -3308,7 +3356,7 @@
    ]
   },
   "construction": {
-   "expr": "construction = s_ind * phi_c * C_full",
+   "expr": "construction = s_ind * (phi_c / phi_rem) * C_full",
    "claims": [
     "shared-capacity-split",
     "water-primary-default"
@@ -3603,6 +3651,18 @@
    "claim": null,
    "kind": "config",
    "claimNote": "A control of the same class as phi_c and phi_o, so no ledger claim is owed: a programme-owner allocation ruling of the metals-production share by scenario and era, not a claim about the Moon. Overrides phiMetalProd's own 0 default at every preset this build ships with."
+  },
+  "phiCByEra": {
+   "label": "construction allocation, ruled per scenario and era",
+   "claim": null,
+   "kind": "config",
+   "claimNote": "A control of the same class as phi_o and phiMByEra, so no ledger claim is owed: a programme-owner allocation ruling of the construction share by scenario and era, not a claim about the Moon. Overrides the flat 0.05 every preset previously carried on PRESETS[id].phi_c, Quinn's ruling of 2026-09-21."
+  },
+  "phiC0ByEra": {
+   "label": "non-productive downmass allocation, ruled per scenario and era",
+   "claim": null,
+   "kind": "config",
+   "claimNote": "A control of the same class as phiCByEra and phiMByEra, so no ledger claim is owed: a programme-owner allocation ruling of the non-productive downmass share by scenario and era, not a claim about the Moon. Overrides CONFIG.phiC0's own flat 0.10 fallback at every preset this build ships with, Quinn's ruling of 2026-09-21."
   },
   "eRefine": {
    "label": "post-reactor alloy separation energy",
@@ -8135,20 +8195,93 @@
 };
 
   /* The three named scenarios. Full canonical names only; the retired two-character
-     handles are gone and nothing here reintroduces them. */
+     handles are gone and nothing here reintroduces them. phi_c is no longer carried here as
+     a flat per-scenario constant: it moved into PHI_C_BY_ERA below, on PHI_M_BY_ERA's own
+     precedent, because the construction split is ruled per scenario AND per era rather than
+     once per scenario. */
   var PRESETS = {
-   "artemis":    {"label": "Agency Led Baseline",  "funding": "med",  "ice": 5, "phi_c": 0.05},
-   "contested":  {"label": "Early Shift to Mars",  "funding": "low",  "ice": 1, "phi_c": 0.05},
-   "commercial": {"label": "The Commercial Break", "funding": "high", "ice": 5, "phi_c": 0.05}
+   "artemis":    {"label": "Agency Led Baseline",  "funding": "med",  "ice": 5},
+   "contested":  {"label": "Early Shift to Mars",  "funding": "low",  "ice": 1},
+   "commercial": {"label": "The Commercial Break", "funding": "high", "ice": 5}
   };
 
   /* The metals-production allocation, set per scenario AND era, approved values. Nine values;
      every reader of this table (applyPreset, the phase handler, stripCaps(), the self-checks)
-     indexes it the same way: PHI_M_BY_ERA[era][presetId]. */
+     indexes it the same way: PHI_M_BY_ERA[era][presetId].
+     STEP 15.1 (2026-09-22): UNCHANGED by the phi_c rail refinement to 0.01. sweep2_results.json
+     held phi_m fixed at every cell while solving phi_c, and every value below is already an exact
+     0.01-grid notch (each is a multiple of 0.05), so re-snapping is a no-op. */
   var PHI_M_BY_ERA = {
    "2030": { "artemis": 0.05, "contested": 0.05, "commercial": 0.05 },
    "2040": { "artemis": 0.15, "contested": 0.10, "commercial": 0.20 },
    "2055": { "artemis": 0.30, "contested": 0.15, "commercial": 0.45 }
+  };
+
+  /* The construction allocation, set per scenario AND era. Nine values, the same shape
+     PHI_M_BY_ERA carries and the same reader convention: PHI_C_BY_ERA[era][presetId].
+     STEP 71 RE-TUNE (Quinn's ruling, 2026-09-21), superseding the 2026-09-21 values these same
+     cells carried a few hours earlier (0.80/0.00/0.80 at 2030, 0.85/0.00/0.85 at 2040, 0.85 flat
+     at 2055): those values were ruled against the RETIRED sequential-draw split, where phi_c
+     alone governed water's share of the remainder and a phi_c of 0.80-0.85 silently
+     oversubscribed whatever phi_o and phi_m had already reserved (see modelCore()'s own Step 71
+     comment on the three-way normalized clamp). Once the split was repaired to divide the
+     remainder in the TRUE proportion phi_water:phi_c rather than (1-phi_c):phi_c, those same
+     phi_c values no longer produced the water tonnages they were tuned against, so every cell
+     is re-solved here against the corrected model and the water-production targets Quinn set
+     for this pass: Agency Led Baseline 1/10/100 t/yr (2030/2040/2055), Early Shift to Mars
+     1/2/10, The Commercial Break 1/100/1,000. Water is a LINEAR function of phi_c at fixed
+     phi_o/phi_m/phi_c0 (cap and phi_rem do not depend on phi_c), so each cell's exact phi_c is
+     phi_rem*(1 - target/cap). STEP 15.1 RE-TUNE (2026-09-22): the rail this snaps to moved from
+     0.05 to 0.01 (DETENTS.phi_c/phi_o above), and all eight reachable cells are re-solved against
+     the finer grid from the exact continuous phi_c the Step 15 background run's surviving output
+     (sweep2_results.json, phiCSolved) already carried. This closes the two cells the 0.05 grid
+     could not clear: Agency Led Baseline 2040 (10 t/yr target, phi_c 0.73, 10.41 achieved, +4.1
+     percent, against 7.43 achieved / -25.7 percent at the old 0.75 notch) and Early Shift to Mars
+     2040 (2 t/yr target, phi_c 0.77, 1.96 achieved, -1.8 percent, against 2.45 achieved / +22.7
+     percent at the old 0.75 notch). Every other reachable cell now lands within 4.2 percent
+     (previously within 13 percent). PHI_C0_BY_ERA and PHI_M_BY_ERA are unchanged: sweep2 solved
+     phi_c holding both fixed at every cell (each cell's phi_c0/phi_m field in sweep2_results.json
+     already equals this table's neighboring tables' own values), and phi_c0 is not on the shared
+     DETENTS rail at all (its own Advanced-panel slider is already a continuous 0.01-step control,
+     never grid-limited the way phi_c/phi_o/phi_m are). Early Shift to Mars 2030 is UNCHANGED and
+     NOT re-solved: it is this cell's OWN floor, not a grid artifact -- sweep2_results.json solves
+     a NEGATIVE phi_c there (-0.56) to hit the 1 t/yr target, below phi_c's own floor of 0, because
+     the cell's cap (0.616 t/yr) sits under the 1 t/yr target at every phi_c from 0 to 1, at fixed
+     phi_o/phi_m/phi_c0. No rail resolution, coarse or fine, reaches past a ceiling the continuous
+     math itself cannot reach. It stays at phi_c 0.00, 0.6161 t/yr achieved against 1 t/yr target,
+     -38.39 percent, this pass's own DOCUMENTED GAP. A non-productive-downmass cut at this one cell
+     (PHI_C0_BY_ERA, to about 0.455) was tried and would clear it almost exactly, but it falsifies
+     the shared-2030-envelope commitment PHI_C0_BY_ERA's own uniform 0.55 row holds (ENV2030-01/02:
+     the three named scenarios differ at the Prospecting phase in ice grade alone), so it was not
+     kept; the buildout curve is fixed and out of scope by the same ruling that keeps this gap
+     open rather than closed by a route this pass declined. See
+     cr_scratch/step15_gapcell_followup.md for the full analysis and cell-by-cell numbers. */
+  var PHI_C_BY_ERA = {
+   "2030": { "artemis": 0.61, "contested": 0.00, "commercial": 0.61 },
+   "2040": { "artemis": 0.73, "contested": 0.77, "commercial": 0.59 },
+   "2055": { "artemis": 0.56, "contested": 0.69, "commercial": 0.29 }
+  };
+
+  /* The non-productive downmass allocation, set per scenario AND era. Nine values,
+     PHI_C0_BY_ERA[era][presetId], read the same way PHI_C_BY_ERA and PHI_M_BY_ERA are:
+     applyPreset() and the phase handler re-derive it from this table on every preset click and
+     every era click, discarding whatever the reader last dragged the Advanced phi_c0 slider to.
+     STEP 71 (Quinn's ruling, 2026-09-21): UNMOVED by the same-day construction-split re-tune.
+     A phi_c0 cut at Early Shift to Mars/2030 alone (to about 0.455) was tried and would clear
+     that cell's own water target almost exactly, but it breaks the three programmes' shared-2030-
+     envelope commitment this table's own uniform 0.55 row exists to hold (ENV2030-01/02: the
+     three named scenarios differ at the Prospecting phase in ice grade and in nothing else,
+     which a per-scenario phi_c0 at 2030 would falsify). The buildout curve and the shared-
+     envelope commitment both outrank a single cell's water target, so this cell is reported as a
+     documented gap on PHI_C_BY_ERA's own note instead of closed here.
+     STEP 15.1 (2026-09-22): UNCHANGED by the phi_c rail refinement to 0.01. This table does not
+     ride DETENTS at all -- its own slider (#k_phic0) is already a continuous 0.01-step control --
+     and sweep2_results.json's per-cell phi_c0 field, held fixed while phi_c was solved, already
+     equals every value below. Nothing here needed re-solving. */
+  var PHI_C0_BY_ERA = {
+   "2030": { "artemis": 0.55, "contested": 0.55, "commercial": 0.55 },
+   "2040": { "artemis": 0.70, "contested": 0.75, "commercial": 0.75 },
+   "2055": { "artemis": 0.75, "contested": 0.75, "commercial": 0.75 }
   };
 
   var KNOB_DATA = {
@@ -8175,6 +8308,8 @@
     EXCLUSIONS: EXCLUSIONS,
     PRESETS: PRESETS,
     PHI_M_BY_ERA: PHI_M_BY_ERA,
+    PHI_C_BY_ERA: PHI_C_BY_ERA,
+    PHI_C0_BY_ERA: PHI_C0_BY_ERA,
     /* The pin is FNV-1a over CONFIG, CLAIMS, VALUE and LANDED_COST, so it moves whenever any
        text inside those objects moves, whether or not a number did. It moves here for exactly
        one cause, stated separately from the value question so that a moved pin is never read as
@@ -8664,7 +8799,33 @@
        to catch). EXT3 caught exactly this: stored 73739193 no longer matched a recompute
        (31eef8a3). 73739193 to the value below, recomputed by pinOfKnobData(KNOB_DATA) on the
        patched file and read off the app's own function rather than typed. */
-    __pin: "31eef8a3"
+    /* PHI_C_BY_ERA / PHI_C0_BY_ERA RE-PIN (Quinn's ruling of 2026-09-21, drift AUTHORISED): phi_c
+       and phi_c0 moved from a single flat default (PRESETS[id].phi_c at 0.05 for all three
+       scenarios; CONFIG.phiC0.value at 0.10) to nine ruled values apiece, one per scenario and
+       era, on PHI_M_BY_ERA's own precedent. Two CONFIG entries were added, phiCByEra and
+       phiC0ByEra, matching phiMByEra's own shape; CONFIG.phiC0's own note gained one sentence
+       pointing at its new override table, the same sentence phiMetalProd already carries pointing
+       at phiMByEra; two matching DERIVATION.coeff rows were added alongside phiMByEra's own. No
+       existing numeric leaf moved: phiMByEra, phiMetalProd and every coefficient this pin already
+       covered are unchanged, and PRESETS[id].phi_c is gone rather than moved, superseded by the
+       new table the same way PHI_M_BY_ERA already superseded a flat default for phi_m. EXT3 caught
+       exactly this: stored 31eef8a3 no longer matched a recompute (418c284b). 418c284b to the
+       value below, recomputed by pinOfKnobData(KNOB_DATA) on the patched file and read off the
+       app's own function rather than typed.
+       STEP 71 RE-PIN (Quinn's ruling of 2026-09-21, drift AUTHORISED, same day as the move above):
+       the four-way normalized shared-pool split (see modelCore()'s own Step 71 comment on
+       phi_c_raw/phi_o_raw/phi_m_raw/phi_scale and phi_rem/shareC/shareW). DERIVATION.equations
+       water and construction moved off the retired (1 - phi_c) and phi_c forms onto phi_water/
+       phi_rem and phi_c/phi_rem, the correction this pin exists to catch; CONFIG.phiCByEra and
+       CONFIG.phiC0ByEra had their own value/note strings re-read against the RE-TUNED nine-cell
+       PHI_C_BY_ERA table this same ruling sets (0.60/0.00/0.60 at 2030, 0.75/0.75/0.60 at 2040,
+       0.55/0.70/0.30 at 2055), replacing the stale 0.80/0.00/0.80, 0.85/0.00/0.85, 0.85-flat
+       values those two CLAIMS entries carried a paragraph ago; PHI_C0_BY_ERA's own nine values are
+       UNCHANGED (a per-cell cut was tried and reverted, see its own KNOB_DATA comment). EXT3 caught
+       exactly this: stored 418c284b no longer matched a recompute (eaa2868a). 418c284b to the
+       value below, recomputed by pinOfKnobData(KNOB_DATA) on the patched file and read off the
+       app's own function rather than typed. */
+    __pin: "eaa2868a"
   };
 
   root.KNOB_DATA = KNOB_DATA;
@@ -8931,13 +9092,30 @@ const DETENTS = {
   ice:   [1,2,5,10,20],
   power: [10,50,100,200,400,1000,2000,5000,10000],
   mass:  [10,75,100,150,500,1000,10000],
-  phi_c: [0,0.05,0.10,0.15,0.20,0.25,0.30,0.35,0.40,0.45,0.50,0.55,0.60,0.65,0.70,0.75,0.80,0.85,0.90,0.95,1.0],
+  /* STEP 15.1 (2026-09-22): refined from the 0.05-step, 21-notch rail to a 0.01-step, 101-notch
+     rail. The 0.05 rail left two of the nine PHI_C_BY_ERA cells (Agency Led Baseline 2040, Early
+     Shift to Mars 2040) unable to land within 13% of their water target: the exact continuous
+     phi_c the water target solves to (sweep2_results.json, the surviving output of the Step 15
+     background run) sits between two 0.05 notches at both cells, and neither neighbor is close
+     enough. Water is linear in phi_c at fixed phi_o/phi_m/phi_c0, so a finer shared rail is a
+     strict improvement everywhere: every cell's nearest-notch error can only shrink, never grow.
+     A per-cell exception (an irregular phi_c rail, or a continuous unsnapped value at just those
+     two cells) was ruled out instead: normalizePhiSplit() indexes phi_c/phi_o/phi_m through this
+     same rail object regardless of which key was dragged, which only produces correct results
+     because DETENTS.phi_c and DETENTS.phi_o are numerically identical index-for-index (see the
+     Step 49 comment just below); an irregular phi_c array would silently corrupt that split for
+     every reader who drags Construction split, not just the two target cells. See
+     cr_scratch/step15_gapcell_followup.md for the full analysis. */
+  phi_c: [0,0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08,0.09,0.1,0.11,0.12,0.13,0.14,0.15,0.16,0.17,0.18,0.19,0.2,0.21,0.22,0.23,0.24,0.25,0.26,0.27,0.28,0.29,0.3,0.31,0.32,0.33,0.34,0.35,0.36,0.37,0.38,0.39,0.4,0.41,0.42,0.43,0.44,0.45,0.46,0.47,0.48,0.49,0.5,0.51,0.52,0.53,0.54,0.55,0.56,0.57,0.58,0.59,0.6,0.61,0.62,0.63,0.64,0.65,0.66,0.67,0.68,0.69,0.7,0.71,0.72,0.73,0.74,0.75,0.76,0.77,0.78,0.79,0.8,0.81,0.82,0.83,0.84,0.85,0.86,0.87,0.88,0.89,0.9,0.91,0.92,0.93,0.94,0.95,0.96,0.97,0.98,0.99,1],
   /* Step 49: the oxygen and alloy allocation shares phi_c's rail exactly, because the two
      fractions draw on one budget and a reader comparing them should not have to convert
      between two scales. The rail is not truncated against what phi_c has taken; model()
      clamps the sum instead, so the slider reaches every notch and the model tells the truth
-     about what it did with the value. */
-  phi_o: [0,0.05,0.10,0.15,0.20,0.25,0.30,0.35,0.40,0.45,0.50,0.55,0.60,0.65,0.70,0.75,0.80,0.85,0.90,0.95,1.0],
+     about what it did with the value. Step 15.1 keeps this identity: both arrays were refined
+     from 0.05 to 0.01 spacing together, so they still carry the identical 101 values in the
+     identical order (normalizePhiSplit() below depends on that, not merely on the comment
+     saying so). */
+  phi_o: [0,0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08,0.09,0.1,0.11,0.12,0.13,0.14,0.15,0.16,0.17,0.18,0.19,0.2,0.21,0.22,0.23,0.24,0.25,0.26,0.27,0.28,0.29,0.3,0.31,0.32,0.33,0.34,0.35,0.36,0.37,0.38,0.39,0.4,0.41,0.42,0.43,0.44,0.45,0.46,0.47,0.48,0.49,0.5,0.51,0.52,0.53,0.54,0.55,0.56,0.57,0.58,0.59,0.6,0.61,0.62,0.63,0.64,0.65,0.66,0.67,0.68,0.69,0.7,0.71,0.72,0.73,0.74,0.75,0.76,0.77,0.78,0.79,0.8,0.81,0.82,0.83,0.84,0.85,0.86,0.87,0.88,0.89,0.9,0.91,0.92,0.93,0.94,0.95,0.96,0.97,0.98,0.99,1],
   // phi_m rides phi_o's own rail object, not a duplicate literal, so a future edit to one notch
   // set cannot silently leave the other stale.
   get phi_m(){ return DETENTS.phi_o; },
@@ -9752,38 +9930,44 @@ function modelCore(a){
      or 1, every line below is the pre-learning model bit for bit (Math.x * 1 === x). model() below supplies it. */
   const __G = (a && a.learnG != null) ? a.learnG : 1;
   const ice = a.ice, power = a.power, mass = a.mass, fission = !!a.fission;
-  const phi = Math.max(0, Math.min(1, a.phi_c || 0));
-  /* THE OXYGEN AND ALLOY ALLOCATION (Step 49, sub-step 2), AS SUB-STEP 4-B2 LEFT IT.
-     Quinn's ruling of 2026-09-03 made water the residual of both fractions. Step 56 sub-step
-     4-B2 superseded that: the oxygen line takes its draw off the two shared budgets before
-     cap is computed, so water is the residual of phi_c alone and phi_o has left that
-     expression. The clamp below still stands and still matters. The two fractions cannot sum
-     past one, so phi_o is clamped against what phi_c leaves, and the CLAMPED value is what
-     the return carries, so a caller reading m.phi_o gets the fraction this call applied.
-     THIS COMMENT ASSERTED THE OPPOSITE UNTIL STEP 56 WAVE 3, AND SO DID THE PUBLISHED
-     EQUATION. It told a caller to compare water against (1 - phi_c - phi_o)*cap, eight lines
-     above the line that computes (1 - phi_c)*cap, and DERIVATION.equations.water.expr carried
-     the same subtraction. A reader who trusted either read 5.26 percent low at all three
-     presets and 10.5 percent low with phi_o off preset. The instrument that found it is
-     tools/relation_gate.js REL-05, which evaluates every published equation against the
-     model at 19 states; nothing in this repository had evaluated one before it existed.
-     Both are repaired in one edit, because either alone leaves the file self-contradicting.
-     The omitted-versus-explicit distinction is the one transDistKm and phi_c0 already follow:
-     an explicit value, including an explicit 0, is used exactly, and an omitted one takes the
-     live coefficient. It is NOT phi_c's `|| 0` pattern, and the difference is deliberate. At
-     phi_o = 0 the model is bit-identical to its pre-branch self at every input, which is the
-     keystone identity this shape was chosen to buy; the nine-cell benchmark is not the guard,
-     because at the ruled default water falls 5.00 percent and the worst cell spends 20.0
-     percent of a 25 percent allowance that exists for a different purpose. */
-  const phi_o = Math.max(0, Math.min(1 - phi,
-                  (a.phi_o != null) ? a.phi_o : CONFIG.phiM.value));
-  /* THE METALS-PRODUCTION ALLOCATION (Step 52 sub-step 3), the same omitted-vs-explicit and
-     clamped-against-what-is-left pattern phi_o already follows, one level further down: the
-     three fractions phi_c, phi_o and phi_m cannot sum past one, so phi_m is clamped against
-     what the other two leave. At phi_m = 0 (CONFIG.phiMetalProd's own default) the metals line
-     produces nothing and draws nothing, which is the keystone identity sub-step 3 is built on. */
-  const phi_m = Math.max(0, Math.min(1 - phi - phi_o,
-                  (a.phi_m != null) ? a.phi_m : CONFIG.phiMetalProd.value));
+  /* STEP 71 (Quinn's ruling, 2026-09-21): THE THREE-WAY NORMALIZED SPLIT, replacing the
+     sequential clamp this block carried through Step 56 and Step 52. The retired form clamped
+     phi_o against what phi_c alone left (1 - phi_c) and then clamped phi_m against what phi_c
+     AND phi_o left (1 - phi_c - phi_o), in that fixed order, so whichever fraction was
+     evaluated LAST inside min() always lost first, silently, to whichever was evaluated
+     first. Because phi_c is resolved before phi_o and phi_m in this function, a reader who
+     dialled phi_c to 0.80-0.85 to reach a construction or water target got exactly that
+     figure, unclamped, while phi_m -- resolved third -- was truncated against whatever phi_c
+     and phi_o had already spent, with no on-screen indication that the configured phi_m
+     (0.30, say) had become 0.10. The draw order inside fabTrial() below (oxygen, then the
+     metals-production line and its industrial descendants, then water and construction on
+     the remainder) was never the problem; the clamp's fixed priority order was, because it
+     did not match that draw order and silently privileged whichever fraction the JavaScript
+     happened to evaluate first.
+     THE FIX IS SYMMETRIC. All three raw fractions are read (omitted-vs-explicit exactly as
+     before: an explicit value, including an explicit 0, is used exactly; an omitted one takes
+     the live coefficient), independently clamped to [0,1], and only THEN, if their sum exceeds
+     1, scaled back by the SAME factor together. No one fraction is privileged over another by
+     evaluation order; a reader who overcommits all three sees all three give ground together,
+     visibly, rather than watching one silently vanish. At a sum of 1 or less nothing scales
+     (phi_scale = 1) and every value here is bit for bit what the retired sequential clamp
+     produced at that same corner, which is the keystone identity this shape was chosen to
+     keep: at phi_o = phi_m = 0 the model is bit-identical to its pre-branch self at every
+     input, exactly as it was under the retired clamp. */
+  const phi_c_raw = Math.max(0, Math.min(1, a.phi_c || 0));
+  const phi_o_raw = Math.max(0, Math.min(1, (a.phi_o != null) ? a.phi_o : CONFIG.phiM.value));
+  const phi_m_raw = Math.max(0, Math.min(1, (a.phi_m != null) ? a.phi_m : CONFIG.phiMetalProd.value));
+  const phi_rawSum = phi_c_raw + phi_o_raw + phi_m_raw;
+  const phi_scale = (phi_rawSum > 1) ? 1 / phi_rawSum : 1;
+  const phi = phi_c_raw * phi_scale;
+  const phi_o = phi_o_raw * phi_scale;
+  const phi_m = phi_m_raw * phi_scale;
+  /* phi_water IS THE FOURTH FRACTION, computed rather than dialled: the visible remainder of
+     the other three, never negative by construction (phi + phi_o + phi_m <= 1 always, after
+     the normalization above), and it is what the water line's own share of the shared pool
+     resolves to below (see phi_rem/shareC where cap and Cfull are split). Reported on the
+     return object as phi_water so the rail can paint it live. */
+  const phi_water = Math.max(0, 1 - phi - phi_o - phi_m);
   // Step 33 wiring, Step 35 defaults. Both thread through the same
   // omitted-vs-explicit distinction (a caller that supplies an explicit
   // value, including explicit 0, always gets exactly that value); what
@@ -10193,16 +10377,43 @@ function modelCore(a){
   const Cthr     = CONFIG.ySinter.value * RcapRem;    // if all remaining plant -> sinter
   const Cfull    = Math.min(Cpower, Cthr);            // sintered product at full allocation
 
-  /* WATER IS THE RESIDUAL OF phi_c ALONE, exactly as it was before the oxygen branch existed.
-     phi_o has left this expression entirely, because the oxygen line has already paid for what
-     it consumes out of the two budgets cap is computed from. It used to appear here as well,
-     which charged water for the whole of the oxygen line's ENTITLEMENT while the line itself
-     consumed only as much of it as its own binding ceiling allowed. */
-  /* STEP 67. Construction scales with the industrial lines (ruling 4), so it takes sInd*phi_c of
-     the remainder and water takes the rest. At sInd = 1 both are the expressions that stood here,
-     bit for bit: (1 - 1*phi) is (1 - phi) and 1*phi is phi in IEEE-754. */
-  const water = (1 - sInd * phi) * cap;                // water is the residual of the scaled phi_c
-  const construction = sInd * phi * Cfull;            // construction at the live phi_c, scaled
+  /* STEP 71 (Quinn's ruling, 2026-09-21): WATER AND CONSTRUCTION SPLIT THE REMAINDER IN THE
+     TRUE PROPORTION phi_water : phi_c, not in (1 - phi_c) : phi_c. The retired formula below,
+     `water = (1 - sInd*phi) * cap`, is only correct at phi_o = phi_m = 0; at any other state it
+     silently credited water with the WHOLE of what phi_o and phi_m had already reserved for
+     themselves, on top of its own true share, because (1 - phi_c) assumes those two are zero.
+     phi_rem is what phi_c and phi_water divide between them once phi_o and phi_m have taken
+     their own shares of the same budget (phi_rem = phi + phi_water = 1 - phi_o - phi_m by the
+     normalization above); shareC is construction's fraction of phi_rem, phi_c / phi_rem. At
+     phi_o = phi_m = 0, phi_rem = 1 and shareC = phi, so this is bit-identical to the retired
+     form at that corner, the same keystone identity the clamp above keeps. Cap and Cfull are
+     UNCHANGED: they still run on powerRem/RcapRem, what the oxygen line and the (possibly
+     scaled) industrial lines actually leave, so the physical guarantee that the five feeds
+     never overdraw the plant (PWR-02, IND-01) is untouched -- what changes is only how the
+     remainder is divided between the two lines that share it. */
+  const phi_rem = phi + phi_water;                    // = 1 - phi_o - phi_m; what water and construction divide
+  const shareC = (phi_rem > 1e-12) ? (phi / phi_rem) : 0;   // construction's true fraction of the remainder
+  /* shareW IS COMPUTED INDEPENDENTLY OF shareC, from phi_water directly, rather than as 1 -
+     shareC. At a state where construction's dial claims nearly the whole remainder (shareC close
+     to 1, phi_water close to 0), 1 - shareC subtracts two nearly-equal ratios and the water this
+     project has been careful to keep well-conditioned everywhere else (the same discipline
+     Wpower/Wthr's own min-of-two-limits pattern already follows) would inherit a cancellation it
+     does not need to: phi_water is already the small, cleanly-subtracted quantity (Math.max(0,
+     1 - phi - phi_o - phi_m) above), so dividing IT by phi_rem is one well-conditioned division,
+     never a subtraction of two ratios near 1. Found live at The Commercial Break / 2055 once
+     Step 71's own normalization saturates the three splits (0.6296/0.0370/0.3333 after scaling):
+     REL-05 (tools/relation_gate.js) read water and its own published relation apart by more than
+     its 1e-6 relative tolerance there, and OX-24's step-by-step recompute, working from the
+     Equations tab's own 4-decimal-rounded phi_c and phi_rem, printed 0.000351 against a painted
+     0.0000 -- both symptoms of the identical cancellation, repaired the same way. */
+  const shareW = (phi_rem > 1e-12) ? (phi_water / phi_rem) : 0;   // water's true fraction of the remainder, computed directly
+  /* STEP 67. Construction scales with the industrial lines (ruling 4): at sInd < 1 it gives up
+     sInd*shareC of the remainder rather than all of shareC, and water takes what construction
+     gives up on top of its own base shareW. At sInd = 1 the (1 - sInd) term vanishes exactly and
+     water = shareW * cap, the well-conditioned form; at phi_o = phi_m = 0 (phi_rem = 1, shareW =
+     1 - phi) this is bit-identical to the form that stood here before Step 71. */
+  const water = ((1 - sInd) + sInd * shareW) * cap;    // water: its own base share, plus whatever construction gives up when scaled
+  const construction = sInd * shareC * Cfull;         // construction at its true share of the remainder, scaled
   const constructionPotential = CONFIG.phiCRef.value * Cfull; // "if reallocated" readout
   /* The feed is GROSSED UP by the capture efficiency. Wthr is (Rcap/rho)*cap100, so cap100 of
      the water content of the regolith processed is what leaves as product; inverting, delivering
@@ -10279,7 +10490,7 @@ function modelCore(a){
      inlined into SW1 as a population-tagging predicate rather than a rendered warning. */
 
   return {
-    ice, power, mass, fission, phi_c:phi,
+    ice, power, mass, fission, phi_c:phi, phi_water, phi_rem, shareC, shareW,
     eEE, rho, Wpower, Wthr, cap, mPwr, mining, Rcap,
     powerRem, RcapRem, powerMetals,
     binding, regime, feasible,
@@ -11573,7 +11784,13 @@ function runTests(fileText){
     const base={ice:5,power:150,mass:1000,fission:true};
     const c0=model({...base,phi_c:0}), c3=model({...base,phi_c:0.3}), c6=model({...base,phi_c:0.6});
     const rises = c0.construction===0 && c3.construction>c0.construction && c6.construction>c3.construction;
-    const linear = Math.abs(c3.construction-0.3*c0.Cfull)<1e-6 && Math.abs(c6.construction-0.6*c0.Cfull)<1e-6;
+    /* STEP 71 (Quinn's ruling, 2026-09-21): construction is phi_c/phi_rem * Cfull, not phi_c *
+       Cfull -- base carries no phi_o override, so all three cells sit at CONFIG.phiM's own 0.05
+       default and phi_rem = 0.95, not 1. c0.phi_rem is read off the model rather than retyped as
+       a literal 0.95, so this row does not go stale a second time the way OX-01's own (1-phi_c)
+       form did. */
+    const phiRem0 = c0.phi_rem;
+    const linear = Math.abs(c3.construction-(0.3/phiRem0)*c0.Cfull)<1e-6 && Math.abs(c6.construction-(0.6/phiRem0)*c0.Cfull)<1e-6;
     const waterFalls = c3.water<c0.water && c6.water<c3.water;
     rec('D3','REVIEW','construction readout tracks live φc (0 at φc=0, rises; water falls)',
         rises && linear && waterFalls,
@@ -13123,19 +13340,38 @@ function runTests(fileText){
     // them, and the invariance half of this row now covers them. sInd/industrialLimit/industrialOverdrawn/
     // pIndReq/rIndReq stay: the oxygen line's own request still feeds the shared industrial pool, so
     // phi_o alone can still move where that pool binds.
+    // STEP 71 (Quinn's ruling, 2026-09-21): phi_water, phi_rem, shareC and shareW join this list.
+    // They are the four-way normalized split's own return fields (see modelCore()), and every one
+    // of them is a function of phi_o (phi_rem = 1 - phi_o - phi_m, phi_water = phi_rem - phi_c,
+    // shareC = phi_c / phi_rem, shareW = phi_water / phi_rem), so a pure phi_o move legitimately
+    // moves all four even with phi_c and phi_m held fixed. Leaving them off this list after Step 71
+    // would make this row red on the repair rather than on a defect.
     const MOVERS = ['phi_o','water','regolith','oxygen','oxygenTotal','regolithMetals','regolithFeed',
                     'Wpower','Wthr','cap','construction','constructionPotential','Cfull',
                     'binding','regime','feasible',
                     'powerRem','RcapRem','powerMetals',
+                    'phi_water','phi_rem','shareC','shareW',
                     'pIndReq','rIndReq','sInd','industrialLimit','industrialOverdrawn'];
     // STEP 68 WAVE 2a: the metals-production line's own MOVERS, phi_m held fixed vs swept, computed
     // by direct measurement (step68/wave2a probe) rather than by carrying the retired
     // phi_o list over unchanged -- the same "computed rather than listed" discipline this row states
     // for itself above.
-    const MOVERS_M = ['phi_m','water','regolith','regolithFeed','alloy','metalProduced','coproductO2',
+    // STEP 71: the same four new fields join the metals-production line's own MOVERS, for the
+    // identical reason (phi_rem, phi_water, shareC and shareW are all functions of phi_m too).
+    // phi_c, phi_o, oxygen, powerMetals and regolithMetals join it as well, and for a different
+    // reason: at phi_c 0.6 (this sweep's own top pc) with phi_o at its own 0.05 default, phi_m
+    // 0 sums to 0.65, but phi_m 0.4 sums to 1.05, past one -- the exact three-way saturation the
+    // proportional normalization above exists to catch, and catching it MEANS phi_c and phi_o
+    // scale back together with phi_m, symmetrically, rather than one of them silently absorbing
+    // the whole of the overdraw the way the retired sequential clamp let phi_c do. A phi_m sweep
+    // that pushes the shared budget past one is expected to move phi_c and phi_o now; that is
+    // Quinn's ruling working, not a leak.
+    const MOVERS_M = ['phi_m','phi_c','phi_o','oxygen','powerMetals','regolithMetals',
+                    'water','regolith','regolithFeed','alloy','metalProduced','coproductO2',
                     'regolithMetalProd','powerMetalProd','oxygenTotal',
                     'Wpower','Wthr','cap','construction','constructionPotential','Cfull',
                     'powerRem','RcapRem',
+                    'phi_water','phi_rem','shareC','shareW',
                     'aluminium','siliconLow','siliconHigh','powerAl','powerSi','kWeFromSilicon',
                     'reqPowerAl','reqAluminium','reqPowerSi','reqSiliconLow','reqSiliconHigh',
                     'reqPowerMetalProd','reqRegolithMetalProd','reqMetalProduced','reqCoproductO2',
@@ -13145,10 +13381,27 @@ function runTests(fileText){
       for (const pc of [0, 0.3, 0.6]){
         pts++;
         const z = model(opPoint(c, {phi_c:pc, phi_o:0}));
-        if (z.water !== (1 - pc) * z.cap) why.push(c.id+' @phi_c'+pc+': water '+z.water+' !== (1-phi_c)*cap '+((1-pc)*z.cap));
+        /* STEP 71: phi_m is omitted above (opPoint's own base carries no phi_m key), so it takes
+           CONFIG.phiMetalProd's flat 0 default at both z and f, not an era table value -- this
+           row's whole subject is phi_o in isolation, held against phi_c alone with phi_m pinned
+           at 0. At phi_o = 0 that leaves phi_rem = 1 and water = (1-phi_c)*cap exactly, the
+           retired form's own bit pattern; compared with a tight relative tolerance rather than
+           === because the new formula reaches that same number through phi_water/phi_rem
+           (Step 71's own cancellation repair) rather than through 1 - phi_c directly, and the
+           two paths need not agree to the last bit to agree in substance. */
+        if (Math.abs(z.water - (1 - pc) * z.cap) > 1e-9 * Math.max(1, Math.abs(z.cap)))
+          why.push(c.id+' @phi_c'+pc+': water '+z.water+' !== (1-phi_c)*cap '+((1-pc)*z.cap));
         if (z.oxygen !== 0) why.push(c.id+' @phi_c'+pc+': oxygen '+z.oxygen+' !== 0 at phi_o = 0');
         const f = model(opPoint(c, {phi_c:pc, phi_o:0.4}));
-        if (f.water !== (1 - pc) * f.cap) why.push(c.id+' @phi_c'+pc+': water '+f.water+' !== (1-phi_c)*cap '+((1-pc)*f.cap));
+        /* STEP 71: at phi_o = 0.4 (phi_m still 0), phi_rem = 0.6 and water's true share of cap is
+           (1 - phi_c/0.6), not (1 - phi_c) -- the retired form assumed phi_o = 0 and this branch
+           deliberately is not, which is the exact silent-oversubscription shape Quinn's ruling
+           names. Recomputed independently here via the same phi_water/phi_rem route model()
+           itself now takes, not via the retired (1 - phi_c) shortcut. */
+        const phiRemF = 1 - 0.4, shareWF = (phiRemF - pc) / phiRemF;
+        const expectedF = (1 - f.sInd + f.sInd * shareWF) * f.cap;
+        if (Math.abs(f.water - expectedF) > 1e-9 * Math.max(1, Math.abs(expectedF)))
+          why.push(c.id+' @phi_c'+pc+': water '+f.water+' !== the phi_o=0.4 share '+expectedF);
         const keys = Object.keys(z);
         const movedK = keys.filter(function(k){ return z[k] !== f[k]; });
         const extra = movedK.filter(function(k){ return MOVERS.indexOf(k) < 0; });
@@ -13683,12 +13936,22 @@ function valueModel(inp){
   return {
     D, L, op_prop, op_const, C_hw, C_hwEff: C_hw, C_hwFirst, preProduction, Chw_breakeven, waterMinTpy,
     cap, Cfull, mass, commercialMass, commercialShare, water_tpy, construction_tpy, binding:m.binding, feasible:m.feasible,
-    /* THE PROPELLANT STREAM IS CHARGED phi_c's RESIDUAL, not both fractions'.
-       Under Step 56 sub-step 4-B2 the oxygen line pays for what it draws out of the two shared
-       budgets before cap is computed, so water is (1 - phi_c) * cap and the share of the plant
-       the propellant stream is charged for is 1 - phi_c. Charging it 1 - phi_c - phi_o as well
-       would bill the oxygen line's draw twice, once in cap and once in the attribution. */
-    phi_c:phi_cEff, phi_o:phi_oEff, waterShare:(1 - phi_cEff),
+    /* STEP 71 (Quinn's ruling, 2026-09-21): waterShare IS water/cap, READ OFF THE MODEL, not
+       retyped as (1 - phi_c). That expression was already the S49-era repair of an earlier
+       version that billed the oxygen line's draw twice; it stopped being correct the day
+       phi_m and Step 71's own normalized split made water's true share of cap a function of
+       phi_o AND phi_m as well as phi_c (water = (1 - s_ind + s_ind*(phi_water/phi_rem)) * cap
+       in model()), and a hand-typed (1 - phi_c) is exactly the SECOND, independently-typed
+       copy of one relation this project's own history keeps finding stale (the footer's
+       retired fleet model is the standing example). Reading m.water / m.cap directly means
+       this field can never fall out of step with model()'s own formula again, whatever that
+       formula becomes next. */
+    /* constructionShare is construction/Cfull for the identical reason waterShare is
+       water/cap: under Step 71's normalized split construction = s_ind * (phi_c/phi_rem) *
+       C_full, not s_ind * phi_c * C_full, so the raw phi_c argument alone is no longer this
+       line's true share of C_full whenever phi_o or phi_m is nonzero. */
+    phi_c:phi_cEff, phi_o:phi_oEff, waterShare:(cap > 0 ? water_tpy / cap : 0),
+    constructionShare:(Cfull > 0 ? construction_tpy / Cfull : 0),
     r_prop, r_const, P_prop, P_const, margin_prop, margin_const, value_prop, value_const,
     Dstar_prop, ranking, massBinds,
     annualFrac, decayBasis:(inp.decayBasis === 'straightLine' ? 'straightLine' : 'decliningBalance'),
@@ -13970,7 +14233,11 @@ function runValueTests(fileText){
     for(const phi of [0.05,0.5,0.9]){
       const v=valueModel(clone(CANON,{phi_c:phi}));
       const rp_attr = (v.waterShare*v.mass*1000)*v.annualFrac/(v.water_tpy*1000);
-      const rc_attr = (phi*v.mass*1000)*v.annualFrac/(v.construction_tpy*1000);
+      /* STEP 71: the attribution multiplier is v.constructionShare (construction/Cfull, read off
+         the model), not the raw phi_c loop variable -- CANON carries a nonzero phi_o (its own
+         CONFIG.phiM default), so construction's true share of Cfull is phi_c/phi_rem, not phi_c
+         alone, the same correction waterShare already carries. */
+      const rc_attr = (v.constructionShare*v.mass*1000)*v.annualFrac/(v.construction_tpy*1000);
       const rp_red  = v.mass*v.annualFrac/v.cap, rc_red = v.mass*v.annualFrac/v.Cfull;
       if(Math.abs(rp_attr-rp_red)>1e-6 || Math.abs(v.r_prop-rp_red)>1e-6){ ok=false; why.push('prop form mismatch @phi'+phi); }
       if(Math.abs(rc_attr-rc_red)>1e-6 || Math.abs(v.r_const-rc_red)>1e-6){ ok=false; why.push('const form mismatch @phi'+phi); }
@@ -14005,9 +14272,17 @@ function runValueTests(fileText){
     // STEP 68 WAVE 2a re-freeze: aluminium and silicon draw off phi_m now (S1, wave 1b), which
     // defaults to CONFIG.phiMetalProd.value = 0 at this cell (no override here), so the Step 63
     // draw this comment names no longer taxes phi_o's own default share -- water reverts to
-    // its pre-Step-63 figure, 50.641419, measured directly (matches the "50.641419 t/yr" this
-    // row's own STEP 49 comment below already names as the pre-Step-63 truth).
-    const waterSame = Math.abs(vs[0].water_tpy-50.641419)<1e-3 && Math.abs(vs[1].water_tpy-50.641419)<1e-3 && Math.abs(vs[2].water_tpy-50.641419)<1e-3;
+    // its pre-Step-63 figure, 50.641419 t/yr under the retired (1 - phi_c) split.
+    // STEP 71 RE-FREEZE (Quinn's ruling, 2026-09-21): water's true share of cap at this cell's
+    // phi_c of 0.5 and phi_o of 0.05 (phi_m 0) is phi_water/phi_rem = 0.45/0.95 = 0.473684, not
+    // (1 - phi_c) = 0.5 -- the exact silent-oversubscription shape this step's own ruling names,
+    // here worth 5.26 percent of cap. 50.641419 * (0.473684/0.5) = 47.976081, measured directly
+    // against the patched file (cap itself, 101.282838, is unmoved: this is a pure split-ratio
+    // repair, not a capacity change). This is also, and not by construction, the SAME figure this
+    // row's own comment already carried before some earlier step re-froze it upward to 50.641419
+    // -- 47.9761 t/yr -- which is this project's own record that the correct split ratio has been
+    // computed correctly here before.
+    const waterSame = Math.abs(vs[0].water_tpy-47.976081)<1e-3 && Math.abs(vs[1].water_tpy-47.976081)<1e-3 && Math.abs(vs[2].water_tpy-47.976081)<1e-3;
     const mProp = vs.map(v=>v.margin_prop), mConst = vs.map(v=>v.margin_const);
     const propMoves  = Math.abs(mProp[0]-mProp[1])>1 && Math.abs(mProp[1]-mProp[2])>1;
     const constMoves = Math.abs(mConst[0]-mConst[1])>1 && Math.abs(mConst[1]-mConst[2])>1;
@@ -14325,16 +14600,22 @@ function runValueTests(fileText){
   // ---- N1 (GATE): DETENTS match the validated coarse rails exactly ----
   // Step 39.5, item 10: phi_c's re-fit to the ruled rail shape, the superset rail at 0.05
   // spacing across the full unit interval. The old five-value literal could never represent
-  // the 0.05 every preset declares; the new 21-value literal does, exactly, and still holds
-  // 0, 0.25, 0.5, 0.75 and 1.0 as exact notches since all four are multiples of 0.05.
+  // the 0.05 every preset declares; the 21-value literal that replaced it did, exactly, and
+  // still held 0, 0.25, 0.5, 0.75 and 1.0 as exact notches since all four are multiples of 0.05.
+  // STEP 15.1 (2026-09-22): re-fit again, 0.05 spacing to 0.01, 21 notches to 101, to close the
+  // two water-target gaps the 0.05 grid could not reach (Agency Led Baseline 2040, Early Shift
+  // to Mars 2040 -- see PHI_C_BY_ERA's own note and cr_scratch/step15_gapcell_followup.md). The
+  // 101-value literal still holds 0, 0.25, 0.5, 0.75 and 1.0 as exact notches, all multiples of
+  // 0.01, and every 0.05-multiple value PHI_M_BY_ERA carries is still an exact notch too.
   {
     const eq=(a,b)=>a.length===b.length && a.every((x,i)=>x===b[i]);
+    const PHI_RAIL_101 = Array.from({length:101}, (_, i) => i / 100);
     const okI=eq(DETENTS.ice,[1,2,5,10,20]), okP=eq(DETENTS.power,[10,50,100,200,400,1000,2000,5000,10000]),
           okM=eq(DETENTS.mass,[10,75,100,150,500,1000,10000]),
-          okC=eq(DETENTS.phi_c,[0,0.05,0.10,0.15,0.20,0.25,0.30,0.35,0.40,0.45,0.50,0.55,0.60,0.65,0.70,0.75,0.80,0.85,0.90,0.95,1.0]);
+          okC=eq(DETENTS.phi_c,PHI_RAIL_101);
     const pass=okI&&okP&&okM&&okC;
     rec('N1','GATE','DETENTS are the validated notch sets (ice/power/mass/phi_c)', pass,
-        pass?'ice[1,2,5,10,20] power[10,50,100,200,400,1000,2000,5000,10000] mass[10,75,100,150,500,1000,10000] phi_c[0,0.05,0.10,...,1.0], 21 notches':`ice=${okI} power=${okP} mass=${okM} phi=${okC}`);
+        pass?'ice[1,2,5,10,20] power[10,50,100,200,400,1000,2000,5000,10000] mass[10,75,100,150,500,1000,10000] phi_c[0,0.01,0.02,...,1.0], 101 notches':`ice=${okI} power=${okP} mass=${okM} phi=${okC}`);
   }
 
 
@@ -14540,7 +14821,7 @@ function runValueTests(fileText){
        EXT2 fails on an undeclared key by design, and it did, which is the gate working: the
        migration could not land quietly. */
     const required = ['CONFIG','VALUE','VALUE_TRACE','LANDED_COST','C_HW','SLUGS','CLAIMS','SECTIONS','BLURB_PENDING','BLURB','DERIVATION','FFIS_LANDMARKS',
-                      'LEDGER','LEDGER_JOIN','COUNTER_JOIN','REFERENCES','SECTION_REFS','HANDLES','HANDLES_ADJUDICATED','HANDLES_UNRESOLVED','EXCLUSIONS','PRESETS','PHI_M_BY_ERA','BINDING_SCOPE','__pin'];
+                      'LEDGER','LEDGER_JOIN','COUNTER_JOIN','REFERENCES','SECTION_REFS','HANDLES','HANDLES_ADJUDICATED','HANDLES_UNRESOLVED','EXCLUSIONS','PRESETS','PHI_M_BY_ERA','PHI_C_BY_ERA','PHI_C0_BY_ERA','BINDING_SCOPE','__pin'];
     for(const k of required){ if(KD[k]==null){ pass=false; why.push('missing top-level key '+k); } }
     for(const k of topKeys){ if(required.indexOf(k)<0){ pass=false; why.push('undeclared top-level key '+k+', which nothing checks'); } }
     const nested = [['BLURB.ice fragments',KD.BLURB&&KD.BLURB.ice],['VALUE.op_prop',KD.VALUE&&KD.VALUE.op_prop],
@@ -14925,7 +15206,12 @@ function runValueTests(fileText){
         pts++;
         const v = valueModel(clone(CANON, {phi_c:pc, phi_o:po}));
         const m = model({ice:CANON.ice, power:CANON.power, mass:CANON.mass, fission:CANON.fission, phi_c:pc, phi_o:po});
-        const wantShare = 1 - m.phi_c;   // draw-first: the oxygen line already paid, inside cap
+        /* STEP 71 (Quinn's ruling, 2026-09-21): the model's own residual is m.shareW
+           (phi_water/phi_rem), not 1 - m.phi_c -- that expression assumed phi_o and phi_m were
+           both 0, which this row's whole subject (sweeping phi_o against phi_c) deliberately is
+           not. Read off the model rather than retyped, exactly the discipline this row's own
+           comment above already states for itself. */
+        const wantShare = m.shareW;   // the model's own true residual share, including phi_m's own draw
         if (m.phi_o !== po) clamped++;
         if (Math.abs(v.waterShare - wantShare) > 1e-12) why.push('@phi_c'+pc+' phi_o'+po+': the value layer charges the propellant stream a share of '+v.waterShare+' where the model’s own residual is '+wantShare);
         if (v.water_tpy > 0){
@@ -15338,7 +15624,7 @@ function presetCensus(){
     var p=PRESETS[id], e=ENVELOPE[p.funding][era];
     var fs=scenFleet(p.funding, era); /* STEP 67 PASS 7: the preset fleet, never the reader's curve points */
     var m=model(withPresetLearning({ice:p.ice, power:fs.power, mass:fs.mass, fission:e.fission,
-                 funding:p.funding, phase:era, phi_c:p.phi_c, phi_m:PHI_M_BY_ERA[era][id]}, fs, era)); /* STEP 67 PASS 5: at the preset's own metals-production split; the census ran at phi_m 0, which no preset runs, and painted headroom 1.8 to 23.9 where the presets read 1.9 to 45.8 */
+                 funding:p.funding, phase:era, phi_c:PHI_C_BY_ERA[era][id], phi_m:PHI_M_BY_ERA[era][id]}, fs, era)); /* STEP 67 PASS 5: at the preset's own metals-production split; the census ran at phi_m 0, which no preset runs, and painted headroom 1.8 to 23.9 where the presets read 1.9 to 45.8 */
     /* The water peak on the POWER rail at this cell. Power buys water until the power
        system's own landed mass crowds out the mining plant; past that point a kilowatt
        added costs water. Which side of the peak a preset opens on is a measurement and it
@@ -15442,6 +15728,8 @@ const BLURB = KNOB_DATA.BLURB;
    cannot compute is a figure only one of the two harnesses can ever check. */
 const PRESETS = KNOB_DATA.PRESETS;
 const PHI_M_BY_ERA = KNOB_DATA.PHI_M_BY_ERA;
+const PHI_C_BY_ERA = KNOB_DATA.PHI_C_BY_ERA;
+const PHI_C0_BY_ERA = KNOB_DATA.PHI_C0_BY_ERA;
 
 /* selection: numeric bands read from modelOut (raw values); base key
    from state.funding/phase; regime from modelOut.binding. Total, gap-free. */
@@ -15491,7 +15779,7 @@ function staleRender(m, live){
      basis the sentence below names, evaluated on the live coefficients. */
   const prefleet = function(kWe){
     return model({ice:P.ice, power:kWe, mass:e.M, fission:e.fission,
-                  funding:P.funding, phase:'2040', phi_c:P.phi_c}).water;
+                  funding:P.funding, phase:'2040', phi_c:PHI_C_BY_ERA['2040'].artemis}).water;
   };
   const wRetired = prefleet(45), wDirective = prefleet(e.P);
   live.push({field:'power', value:e.P,        claim:'envelope-agency-pilot', flagged:true});
@@ -15750,7 +16038,7 @@ function runBlurbTests(fileText){
     const why=[];
     const e=envelope('med','2040'), P=PRESETS.artemis;
     const prefleet=(kWe)=>model({ice:P.ice, power:kWe, mass:e.M, fission:e.fission,
-                                 funding:P.funding, phase:'2040', phi_c:P.phi_c}).water;
+                                 funding:P.funding, phase:'2040', phi_c:PHI_C_BY_ERA['2040'].artemis}).water;
     const liveWater=cb.live.find(x=>x.field==='water'&&!x.flagged);
     const livePower=cb.live.find(x=>x.field==='power'&&!x.flagged);
     const flaggedW=cb.live.find(x=>x.field==='water'&&x.flagged===true);
@@ -15853,7 +16141,9 @@ function runBlurbTests(fileText){
       }
       for(const id of cb.claims){ if(!SECTIONS[id]||!SECTIONS[id].source){ ok=false; why.push(`dangling ${id}`); } }
     };
-    // envelope-driven pass: 5 ice x 3 funding x 3 phase x 2 fission x 5 phi_c
+    // envelope-driven pass: 5 ice x 3 funding x 3 phase x 2 fission x the full DETENTS.phi_c rail
+    // (already stale at "5 phi_c" before Step 15.1's 21-to-101 refit -- it walks DETENTS.phi_c
+    // live, so read the count off the loop rather than a number retyped here)
     for(const ice of DETENTS.ice) for(const f of fundings) for(const ph of phases) for(const fis of [true,false]) for(const p of DETENTS.phi_c){
       const e=envelope(f,ph);
       const mo=model({ice, power:e.P, mass:e.M, fission:fis, phi_c:p, funding:f, phase:ph});
@@ -16437,12 +16727,12 @@ function composeDerivation(state, m, v){
        numerator carries inSituUnbuilt too. It read 201,823.0 against a pool of 590.0 at The Commercial
        Break 2055 at the top Oxygen-split detent. */
     {text:'s_ind = min(1, max(0, power - inSituUnbuilt - P_metals) / industrial power request, max(0, R_cap - R_metals) / industrial regolith request) = min(1, '+_dnum(Math.max(0,m.power-(m.inSituUnbuilt||0)-m.powerMetals))+' / '+_dnum(m.pIndReq)+', '+_dnum(Math.max(0,m.Rcap-m.regolithMetals))+' / '+_dnum(m.rIndReq)+') = '+_dnum(LV('sInd',m.sInd,'model'))+'; the metals-production line, aluminium and silicon refining, construction and the fab run at this fraction of their request'},
-    {text:'water = (1 - s_ind * phi_c) * cap = (1 - '+_dnum(m.sInd)+' * '+_dnum(m.phi_c)+') * '+_dnum(m.cap)+' = '+_dnum(LV('water',m.water,'model'))+' t/yr'}
+    {text:'water = (1 - s_ind + s_ind * (phi_water / phi_rem)) * cap = (1 - '+_dnum(m.sInd)+' + '+_dnum(m.sInd)+' * ('+_dnum(m.phi_water)+' / '+_dnum(m.phi_rem)+')) * '+_dnum(m.cap)+' = '+_dnum(LV('water',m.water,'model'))+' t/yr; phi_rem = 1 - phi_o - phi_m = 1 - '+_dnum(m.phi_o)+' - '+_dnum(m.phi_m)+' = '+_dnum(LV('phi_rem',m.phi_rem,'model'))+', the share construction and water divide; phi_water = phi_rem - phi_c = '+_dnum(LV('phi_water',m.phi_water,'model'))+', water\'s own base share of it'}
   ];
   const constructionSteps = [
     {text:'e_sinter = '+_dnum(CONFIG.eSinter.value)+' MJ/kg = '+_dnum(eSinKWhT)+' kWh/t product'},
     {text:'C_full = min(power_rem * H * duty / (e_sinter * 1000 / 3.6), Y_sinter * R_cap_rem) = min('+_dnum(m.powerRem)+' * '+_dn(CONFIG.H.value,0)+' * '+_dnum(CONFIG.duty.value)+' / '+_dnum(eSinKWhT)+', '+_dnum(CONFIG.ySinter.value)+' * '+_dnum(m.RcapRem)+') = '+_dnum(LV('Cfull',m.Cfull,'model'))+' t/yr'},
-    {text:'construction = s_ind * phi_c * C_full = '+_dnum(m.sInd)+' * '+_dnum(m.phi_c)+' * '+_dnum(m.Cfull)+' = '+_dnum(LV('construction',m.construction,'model'))+' t/yr'}
+    {text:'construction = s_ind * (phi_c / phi_rem) * C_full = '+_dnum(m.sInd)+' * ('+_dnum(m.phi_c)+' / '+_dnum(m.phi_rem)+') * '+_dnum(m.Cfull)+' = '+_dnum(LV('construction',m.construction,'model'))+' t/yr; phi_rem = 1 - phi_o - phi_m, the share construction and water divide ('+_dnum(m.phi_rem)+')'}
   ];
   /* THE OXYGEN BLOCK. Dedicated oxygen, life support only (Quinn's ruling, 2026-09-15, Step 68
      Wave 1b): this line taps no alloy of its own, so eRefine (the post-reactor alloy separation
@@ -17037,7 +17327,9 @@ function abstractPresetRef(p){
   const env = envelope(p.funding, state.phase);
   return {
     ice:         DETENTS.ice[nearestIdx(DETENTS.ice, p.ice)],
-    phi_c:       DETENTS.phi_c[nearestIdx(DETENTS.phi_c, p.phi_c)],
+    // phi_c carries an era dimension ice does not (PHI_C_BY_ERA), so its reference is the
+    // table's own entry for this preset at the CURRENT era, not a flat per-scenario constant.
+    phi_c:       DETENTS.phi_c[nearestIdx(DETENTS.phi_c, PHI_C_BY_ERA[state.phase][presetIdOf(p)])],
     power:       DETENTS.power[nearestIdx(DETENTS.power, env.P)],
     mass:        DETENTS.mass[nearestIdx(DETENTS.mass, env.M)],
     /* Step 68 pass 2A: the three controls Restore covers, at the preset's own era defaults. */
@@ -17046,15 +17338,18 @@ function abstractPresetRef(p){
     fabProd:     FAB_RATE_ERA_DEFAULT[state.phase],
     funding:     p.funding,
     fission:     env.fission,
-    /* The five Advanced controls' preset references. None of them varies by preset or by era,
-       because none of the three presets sets any of them: their reference IS the coefficient's
-       own live value, which is what makes a drag off it a deviation. */
+    /* The Advanced controls' preset references. phi_o is the one of them that does not vary by
+       preset or by era, because no preset sets it: its reference IS the coefficient's own live
+       value, which is what makes a drag off it a deviation. */
     phi_o:       DETENTS.phi_o[nearestIdx(DETENTS.phi_o, CONFIG.phiM.value)],
     // phi_m carries an era dimension phi_o does not (PHI_M_BY_ERA), so its reference is the
     // table's own entry for this preset at the CURRENT era, not a flat coefficient.
     phi_m:       DETENTS.phi_m[nearestIdx(DETENTS.phi_m, PHI_M_BY_ERA[state.phase][presetIdOf(p)])],
     mix:         MIX_ERA_DEFAULT[state.phase],
-    phiC0Ovr:    CONFIG.phiC0.value,
+    // phiC0Ovr carries the same era-and-scenario-indexed intent phi_c and phi_m do
+    // (PHI_C0_BY_ERA), so its reference is the table's own entry for this preset at the
+    // CURRENT era, not a flat coefficient.
+    phiC0Ovr:    PHI_C0_BY_ERA[state.phase][presetIdOf(p)],
     solOvr:      1000*CONFIG.fSol.value,
     fisOvr:      1000*CONFIG.fFis.value,
     /* No preset places a control point on the buildout curve, and applyPreset() clears the ones
@@ -17088,13 +17383,13 @@ function abstractKnobDeviation(key, cur, ref){
   if (ABSTRACT_CATEGORICAL[key]) return cur === ref ? 0 : 1;
   /* The zero guard. A preset value of zero makes the ratio undefined, which is why the
      branch exists: without it a zero-referenced preset would divide by zero rather than
-     read as full deviation. It is no longer the shipped state of any preset: Step 39.5 gave
-     the phi_c rail an exact 0.05 notch, so all three presets now snap to 0.05, not to zero,
-     and this branch is a dormant safety net for a hypothetical future zero-referenced preset
-     rather than a fact about the three shipped today. Any nonzero dial off a zero reference
-     is still full deviation. ABST-10 records that the rejected rail-band alternative now
-     diverges from this guard at the reachable notches at or below rampLo, which the old
-     five-notch rail had none of; the divergence is no longer only theoretical. */
+     read as full deviation. It is live for two of the nine shipped preset-era cells: the
+     2026-09-21 PHI_C_BY_ERA ruling puts Early Shift to Mars at phi_c 0.00 for 2030 and 2040,
+     while the other seven cells read 0.80 or 0.85, so the branch is load-bearing at those two
+     and a dormant safety net for the rest. Any nonzero dial off a zero reference is still full
+     deviation. ABST-10 records that the rejected rail-band alternative diverges from this guard
+     at the reachable notches at or below rampLo, which the old five-notch rail had none of; the
+     divergence is no longer only theoretical. */
   if (ref === 0) return cur === 0 ? 0 : 1;
   return Math.abs(cur - ref) / Math.abs(ref);
 }
@@ -17380,11 +17675,13 @@ function runAbstractTests(){
         if (fabAt7) state.fabProd = FAB_RATE_ERA_DEFAULT[ph];
         state.mix = MIX_ERA_DEFAULT[ph];   // Step 68 pass 2B: the era handler sets the era's mix default
         snapToEnvelope(true);
-        state.phi_c = nearestIdx(DETENTS.phi_c, PRESETS[id].phi_c);
+        state.phi_c = nearestIdx(DETENTS.phi_c, PHI_C_BY_ERA[ph][id]);
         // phi_m carries an era dimension phi_c does not have to (PHI_M_BY_ERA), so an era move
         // re-derives it too, the same as the real era handler; the fade still holds at 0 because
         // state and the reference are both re-derived from the same table at the same era.
         state.phi_m = nearestIdx(DETENTS.phi_m, PHI_M_BY_ERA[ph][id]);
+        // phi_c0 carries the same era dimension (PHI_C0_BY_ERA), re-derived the same way.
+        state.phiC0Ovr = PHI_C0_BY_ERA[ph][id];
         const r = abstractUpdate();
         seen.push(id+' at '+ph+' fade '+r.fade.toFixed(3));
         if (r.fade !== 0) bad.push(id+' at '+ph+' faded to '+r.fade);
@@ -17392,7 +17689,7 @@ function runAbstractTests(){
     });
     rec('ABST-07','GATE','moving the era with a preset active holds the abstract, which is the ruled behaviour',
         bad.length===0, bad.length ? bad.join('; ') :
-        'ruled: era re-derives phi_c and phi_m from their own tables, and every sentence is still true at all three eras because state and the reference move together. '+seen.join(', '));
+        'ruled: era re-derives phi_c, phi_m and phi_c0 from their own tables, and every sentence is still true at all three eras because state and the reference move together. '+seen.join(', '));
   })();
 
   // ABST-08: the installed prose is fixed, with its own measured properties intact.
@@ -17441,16 +17738,21 @@ function runAbstractTests(){
   // The rail-band formula is computed here and nowhere else in the file, so the
   // production path carries one branch while the measurement behind the ruling
   // stays checkable.
-  // Step 39.5, item 10 re-fit (the ruling; build brief item 10). Once the
-  // phi_c rail represents 0.05 exactly, all three presets snap to 0.05, never to 0, so the
-  // zero-guard branch of abstractKnobDeviation never fires for a shipped preset; it survives
-  // as a dormant safety net for a hypothetical future zero-referenced preset, not as a
-  // load-bearing behavior of today's three. The old comment above this block, and the
-  // shipped-vs-alternative comparison below it, both said the two formulas "agree across
-  // reachable detents, not in general," naming the exact failure mode as hypothetical: "a
-  // rail carrying a detent within rampLo of a zero preset would separate them." The 21-notch
-  // rail now puts three real notches there, 0.05, 0.10 and 0.15, and this gate is re-fit to
-  // show that predicted divergence rather than assert an agreement that no longer holds.
+  // Step 39.5, item 10 re-fit (the ruling; build brief item 10), and re-fit again at the
+  // 2026-09-21 PHI_C_BY_ERA ruling. The guard was dormant for every shipped preset while phi_c
+  // read a single 0.05 for all three; PHI_C_BY_ERA now puts Early Shift to Mars at phi_c 0.00
+  // for 2030 and 2040, so the zero-guard branch of abstractKnobDeviation is live behavior at
+  // those two of the nine preset-era cells and stays dormant at the other seven. The old
+  // comment above this block, and the shipped-vs-alternative comparison below it, both said the
+  // two formulas "agree across reachable detents, not in general," naming the exact failure
+  // mode as hypothetical: "a rail carrying a detent within rampLo of a zero preset would
+  // separate them." STEP 15.1 (2026-09-22): the rail moved from 21 notches at 0.05 spacing to 101
+  // at 0.01; where it once put three real notches at or below rampLo (0.05, 0.10, 0.15) it now
+  // puts fifteen (0.01 through 0.15). The `expected` set below is read off the live rail rather
+  // than retyped, so the count needs no maintenance here -- named for a reader checking the math,
+  // not because the assertion depends on it. The 21-notch rail put three real notches there, and
+  // this gate measures that predicted divergence rather than assert an agreement that never held
+  // at every notch.
   (function(){
     const bad = [], rail = DETENTS.phi_c, span = rail[rail.length-1] - rail[0];
     const railBand = function(v){ return v === 0 ? 0 : (span === 0 ? 1 : Math.abs(v) / Math.abs(span)); };
@@ -17466,12 +17768,17 @@ function runAbstractTests(){
     const expected = rail.filter(function(v){ return v>0 && v<=ABSTRACT_FADE_RULING.rampLo; });
     const gotExpected = mismatches.length===expected.length && mismatches.every(function(v,i){ return v===expected[i]; });
     if (!gotExpected) bad.push('mismatch set '+JSON.stringify(mismatches)+' does not equal the predicted band '+JSON.stringify(expected));
-    const presetZero = ids.filter(function(id){
-      return DETENTS.phi_c[nearestIdx(DETENTS.phi_c, PRESETS[id].phi_c)] === 0; });
-    rec('ABST-10','GATE','the zero guard is a dormant safety net, no longer load-bearing for any shipped preset, and it diverges from the rejected alternative exactly where predicted',
-        bad.length===0 && presetZero.length===0,
+    // The zero-cell census, walked over all nine preset-era cells rather than the three presets:
+    // PHI_C_BY_ERA carries an era dimension DETENTS.phi_c alone does not, so a preset can read
+    // zero at one era and nonzero at another.
+    const cellIsZero = [];
+    ids.forEach(function(id){ ['2030','2040','2055'].forEach(function(ph){
+      if (DETENTS.phi_c[nearestIdx(DETENTS.phi_c, PHI_C_BY_ERA[ph][id])] === 0) cellIsZero.push(PRESETS[id].label+' '+ph);
+    }); });
+    rec('ABST-10','GATE','the zero guard is live wherever a shipped preset-era cell reads phi_c 0.00 and dormant elsewhere, and it diverges from the rejected rail-band alternative exactly where predicted',
+        bad.length===0,
         bad.length ? bad.join('; ') :
-        presetZero.length+' of 3 presets snap the construction share to exactly zero (all three now resolve to 0.05), so the guard never fires on a shipped preset today. '+
+        cellIsZero.length+' of 9 preset-era cells read the construction share at exactly zero ('+cellIsZero.join(', ')+'), where the guard is load-bearing; the remaining 6 read 0.80 or 0.85, where it never fires. '+
         'Across '+rail.length+' reachable detents, the shipped full-deviation guard and the rejected rail-band alternative diverge at exactly '+
         JSON.stringify(expected)+', the nonzero notches at or below rampLo ('+ABSTRACT_FADE_RULING.rampLo+') where a full-deviation response and a proportional one must disagree by construction, and agree at every other detent.');
   })();
@@ -19131,7 +19438,7 @@ function runAbstractTests(){
       if (r[0].indexOf('ice') === 0){
         others.forEach(function(id){
           const s = SCEN[id], fsD = scenFleet(s.funding, state.phase), e = envelope(s.funding, state.phase);
-          const d = model({ice:knobVal('ice'), power:fsD.power, mass:fsD.mass, fission:e.fission, phi_c:PRESETS[id].phi_c,
+          const d = model({ice:knobVal('ice'), power:fsD.power, mass:fsD.mass, fission:e.fission, phi_c:PHI_C_BY_ERA[state.phase][id],
                            phi_o:knobVal('phi_o'), phi_m:PHI_M_BY_ERA[state.phase][id]}).water;
           if (d !== o[id]) decoy++;
         });
@@ -21078,15 +21385,29 @@ function runAbstractTests(){
     /* IND-01: power and regolith balance never exceeded, over a population that must overdraw. */
     {
       const why = []; let n = 0, over = 0, fabOver = 0, decoyRed = 0;
+      /* STEP 71 (Quinn's ruling, 2026-09-21): pm 0.9/0.95 join the sweep, and po gains a low point
+         (0.05) alongside its existing high ones. Under the retired sequential clamp, a high po
+         alone squeezed phi_m toward its own floor as a side effect (phi_m was clamped against
+         whatever po and pc left, last), so this population's po sweep reached sInd < 1 without
+         ever setting phi_m explicitly. Under the three-way NORMALIZED clamp a high po no longer
+         does that: po, pc and phi_m all give ground together in proportion, so phi_m stays near
+         its own era default at every po this sweep tries and the industrial pool is never
+         squeezed as hard as it used to be by po alone -- and a HIGH po now actively competes
+         phi_m back down via the same normalization, which is the opposite of what this row needs.
+         phi_m 0.9/0.95 paired with a LOW po (0.05, leaving phi_m the greater part of the shared
+         budget rather than splitting it three ways at the top) is what reaches sInd < 1 with the
+         fab running too, confirmed by direct sweep against the corrected model
+         (cr_scratch/step71_retune/find_scaled_real2.js): commercial/2055 at po 0.05, pc 0, pm 0.95,
+         fab on reaches sInd 0.9493 with reqPowerFab 156.16. */
       ['artemis','contested','commercial'].forEach(function(p){ ['2040','2055'].forEach(function(ph){
-        [0.6, 0.75, 0.95, 1.0].forEach(function(po){ [0, 0.05].forEach(function(pc){ [false, true].forEach(function(fab){
-          setTo(p, ph, po, pc, fab);
+        [0.05, 0.6, 0.75, 0.95, 1.0].forEach(function(po){ [0, 0.05].forEach(function(pc){ [null, 0.9, 0.95].forEach(function(pm){ [false, true].forEach(function(fab){
+          setTo(p, ph, po, pc, fab, pm);
           const m = model(argsNow()); n++;
           if (m.sInd < 1 - 1e-9){ over++; if (m.reqPowerFab > 0) fabOver++;
             if (!inBudget(powerUsed(m, true), m.power)) decoyRed++; }
-          if (!inBudget(powerUsed(m, false), m.power)) why.push(p+'/'+ph+' phi_o '+po+' phi_c '+pc+(fab?' fab':'')+': lines, water and construction draw '+powerUsed(m,false).toFixed(3)+' kWe against '+m.power.toFixed(3));
-          if (!inBudget(regUsed(m), m.Rcap)) why.push(p+'/'+ph+' phi_o '+po+' phi_c '+pc+(fab?' fab':'')+': feeds draw '+regUsed(m).toFixed(3)+' t/yr of regolith against '+m.Rcap.toFixed(3));
-        }); }); });
+          if (!inBudget(powerUsed(m, false), m.power)) why.push(p+'/'+ph+' phi_o '+po+' phi_c '+pc+' phi_m '+(pm==null?'era-default':pm)+(fab?' fab':'')+': lines, water and construction draw '+powerUsed(m,false).toFixed(3)+' kWe against '+m.power.toFixed(3));
+          if (!inBudget(regUsed(m), m.Rcap)) why.push(p+'/'+ph+' phi_o '+po+' phi_c '+pc+' phi_m '+(pm==null?'era-default':pm)+(fab?' fab':'')+': feeds draw '+regUsed(m).toFixed(3)+' t/yr of regolith against '+m.Rcap.toFixed(3));
+        }); }); }); });
       }); });
       if (!over) why.push('EMPTY POPULATION: no sampled state scaled the industrial lines, so the balance was never tested where it binds');
       if (!fabOver) why.push('EMPTY POPULATION: no scaled state had the fab running');
@@ -23133,7 +23454,7 @@ const LEDGER_TOKENS = {
     const E = PRESETS.contested, A = PRESETS.artemis, C = PRESETS.commercial, w = {};
     ['contested','artemis','commercial'].forEach(function(id){
       const p = PRESETS[id], e = ENVELOPE[p.funding]['2030'], fs = scenFleet(p.funding, '2030');
-      w[id] = model(withPresetLearning({ice:p.ice, power:fs.power, mass:fs.mass, fission:e.fission, phi_c:p.phi_c,
+      w[id] = model(withPresetLearning({ice:p.ice, power:fs.power, mass:fs.mass, fission:e.fission, phi_c:PHI_C_BY_ERA['2030'][id],
                      phi_o:snapVal('phi_o', CONFIG.phiM.value), phi_m:PHI_M_BY_ERA['2030'][id]}, fs, '2030', p.funding)).water;
     });
     const r = w.artemis > 0 ? w.contested / w.artemis : NaN;
@@ -23563,7 +23884,10 @@ function applyPreset(p){
   lastAppliedPresetId = thisPresetId;
   // Phase is global: a preset changes the active scenario, never the phase.
   state.funding=p.funding;
-  state.ice=snapIdx('ice',p.ice); state.phi_c=snapIdx('phi_c',p.phi_c);
+  // Construction is era-indexed as well as scenario-indexed (PHI_C_BY_ERA): a preset click
+  // re-derives it from the table at the CURRENT era (state.phase is already correct here; a
+  // preset click never changes the era), the same table PHI_M_BY_ERA already set this precedent for.
+  state.ice=snapIdx('ice',p.ice); state.phi_c=snapIdx('phi_c', PHI_C_BY_ERA[state.phase][thisPresetId]);
   /* ALL FIVE ADVANCED CONTROLS RIDE THE ACTIVE PRESET. Before Step 56 sub-step 4-B3 only mix
      did, and the other four survived a preset click untouched, so clicking the scenario you were
      already on left you somewhere the preset never puts you while the chip said otherwise. */
@@ -23574,7 +23898,10 @@ function applyPreset(p){
   // the table at the CURRENT era (state.phase is already correct here; a preset click never
   // changes the era), discarding whatever the reader last dragged the Advanced slider to.
   state.phi_m = snapIdx('phi_m', PHI_M_BY_ERA[state.phase][thisPresetId]);
-  state.phiC0Ovr=null;
+  // Non-productive downmass carries the same era-and-scenario-indexed intent phi_c and phi_m
+  // do (PHI_C0_BY_ERA), so a preset click re-derives it from the table too, discarding whatever
+  // the reader last dragged the Advanced phi_c0 slider to.
+  state.phiC0Ovr=PHI_C0_BY_ERA[state.phase][thisPresetId];
   state.solOvr=1000*CONFIG.fSol.value;
   state.fisOvr=1000*CONFIG.fFis.value;
   /* STEP 68 PASS 2A (Quinn's ruling of 2026-09-14): a preset click and Restore set Earth delivery cost to the era
@@ -23600,13 +23927,13 @@ function applyPreset(p){
 function matchesPreset(p){
   const env=envelope(p.funding,state.phase);
   return state.funding===p.funding
-      && state.ice===snapIdx('ice',p.ice) && state.phi_c===snapIdx('phi_c',p.phi_c)
+      && state.ice===snapIdx('ice',p.ice) && state.phi_c===snapIdx('phi_c', PHI_C_BY_ERA[state.phase][presetIdOf(p)])
       && state.power===snapIdx('power',env.P) && state.mass===env.M   // STEP 70.2 ITEM B: mass is a continuous value now, compared directly against the envelope's own number
       && state.fission===env.fission
       && state.phi_o===snapIdx('phi_o', CONFIG.phiM.value)
       && state.phi_m===snapIdx('phi_m', PHI_M_BY_ERA[state.phase][presetIdOf(p)])
       && state.mix===MIX_ERA_DEFAULT[state.phase]
-      && state.phiC0Ovr===null
+      && state.phiC0Ovr===PHI_C0_BY_ERA[state.phase][presetIdOf(p)]
       && state.solOvr===1000*CONFIG.fSol.value
       && state.fisOvr===1000*CONFIG.fFis.value
       /* THE DRAWN CURVE JOINS THE DEFINITION AT STEP 56 REMEDIATION 3. A control point the reader
@@ -23743,7 +24070,7 @@ function scenarioModelArgsInput(id){
   const args = {
     ice: own ? knobVal('ice') : s.ice, power: fs.power, mass: fs.mass,
     fission: fission, funding: s.funding, phase: ph,
-    phi_c: own ? knobVal('phi_c') : p.phi_c, phi_o: knobVal('phi_o'),
+    phi_c: own ? knobVal('phi_c') : PHI_C_BY_ERA[ph][id], phi_o: knobVal('phi_o'),
     /* STEP 70, ITEM 3 (Quinn's ruling of 2026-09-16): `mix: state.mix` STOOD HERE AND IS RETIRED.
        This object is what applyLearning() reads on the next line, one line before fleetArgs() overwrites
        `mix` with the fleet's own Fv/P, so the requested share never reached the physics and only ever
@@ -23752,7 +24079,7 @@ function scenarioModelArgsInput(id){
        reading the realised Fv/P it always read. */
     phi_m: own ? knobVal('phi_m') : PHI_M_BY_ERA[ph][id],
     fSolOvr: state.solOvr/1000, fFisOvr: state.fisOvr/1000,
-    phi_c0: (state.phiC0Ovr!=null?state.phiC0Ovr:CONFIG.phiC0.value),
+    phi_c0: own ? (state.phiC0Ovr!=null?state.phiC0Ovr:CONFIG.phiC0.value) : PHI_C0_BY_ERA[ph][id],
     fabProd: state.fabProd, insituReq: insitu, fabCeiling: fabCeil, insitu: insitu };
   /* STEP 68 PASS 2B: the learning at the reader's Learning rate, on this scenario's own cohorts. */
   const learn = applyLearning(args, fs, ph, step60Rate);
@@ -23874,7 +24201,7 @@ function updateTrack(m){
     if (allShare){
       const ownOf = function(id){
         const o = (SCEN[id].funding === state.funding);
-        return { ice: iceOf(id), phi_c: o ? knobVal('phi_c') : PRESETS[id].phi_c, phi_m: o ? knobVal('phi_m') : PHI_M_BY_ERA[state.phase][id],
+        return { ice: iceOf(id), phi_c: o ? knobVal('phi_c') : PHI_C_BY_ERA[state.phase][id], phi_m: o ? knobVal('phi_m') : PHI_M_BY_ERA[state.phase][id],
                  insitu: insituShareApplied({fSolOvr: state.solOvr/1000, fabProd: state.fabProd}, fabCeiling(state.phase, SCEN[id].funding)) };
       };
       const own = {}; ids2.forEach(function(id){ own[id] = ownOf(id); });
@@ -24194,6 +24521,13 @@ function bindDetentSlider(inputEl, key){
       else if (raw < pos - 1e-9 && near > v + 1e-9) idx = floorIdx(arr, v);
     }
     state[key] = Math.max(0, Math.min(capMax, isFinite(idx) ? idx : 0));
+    /* STEP 71 (Quinn's ruling, 2026-09-21): the dragged slider keeps its new value; if the other
+       two's combined current value would now push the three past 1, they scale back together.
+       Fires only for the three shared-budget splits, and only from a genuine drag on one of
+       their own DOM elements -- never from a preset click, an era click, or any other
+       programmatic write to state.phi_c/phi_o/phi_m, exactly the population reduceFabProdToSiliconCeiling()
+       below is already scoped to. */
+    if (key === 'phi_c' || key === 'phi_o' || key === 'phi_m') normalizePhiSplit(key);
     /* THE RAIL TAKES BACK THE AUTHORITY IT SHARES WITH THE PLOT. The buildout handle at the era
        the reader is standing on and this rail are two views of one number. A placed control point
        wins at that era, which is what makes the handle live; without this line it would go on
@@ -24211,6 +24545,36 @@ function bindDetentSlider(inputEl, key){
     if (key === 'phi_m') reduceFabProdToSiliconCeiling();
     readerRender();
   });
+}
+/* STEP 71 (Quinn's ruling, 2026-09-21). THE THREE-WAY SLIDER NORMALIZATION, the UI-side twin of
+   the proportional clamp model() now applies internally (see phi_c_raw/phi_o_raw/phi_m_raw and
+   phi_scale in modelCore()). Before this, dragging Construction split up while Oxygen split and
+   Metals-production split stayed put relied entirely on model()'s own clamp to keep the three
+   from summing past one, and that clamp is invisible on the rail: the THREE SLIDERS THEMSELVES
+   kept showing whatever raw detent the reader had left them at, so a reader who dragged
+   Construction split to 0.85 with Metals-production split still sitting at 0.30 saw both sliders
+   painted at the values they read, while the model quietly ran a smaller phi_m underneath both
+   of them with nothing on the rail to say so -- the stale-display half of the bug the clamp
+   inside model() alone does not fix, because model() only ever sees the three numbers a caller
+   hands it, never the sliders that produced them.
+   THE FIX moves the same proportional idea onto the rail: whichever of the three sliders the
+   reader just moved keeps its new value untouched, and if the other two's CURRENT combined value
+   would now push the total over 1, they are scaled back together, in proportion to each other,
+   snapped to the nearest detent each already rides (phi_c, phi_o and phi_m all ride the identical
+   101-value DETENTS.phi_o rail, Step 49's own precedent, refined from 21 values at Step 15.1).
+   Water's own readout is painted straight
+   off model()'s own phi_water on every render(), never re-derived here, so it can never fall out
+   of step with whichever of the three sliders last moved. */
+function normalizePhiSplit(draggedKey){
+  const rail = DETENTS.phi_o;
+  const OTHERS = ['phi_c','phi_o','phi_m'].filter(function(k){ return k !== draggedKey; });
+  const draggedVal = rail[state[draggedKey]];
+  const otherVals = OTHERS.map(function(k){ return rail[state[k]]; });
+  const otherSum = otherVals[0] + otherVals[1];
+  const room = Math.max(0, 1 - draggedVal);
+  if (otherSum <= room + 1e-9) return;   // already fits inside the room the dragged slider left; nothing to give back
+  const scale = (otherSum > 1e-12) ? (room / otherSum) : 0;
+  OTHERS.forEach(function(k, i){ state[k] = nearestIdx(rail, otherVals[i] * scale); });
 }
 /* The one indirect write path to `state` in the file is bindDetentSlider's
    computed-key assignment, and it is bounded only by this literal array. With
@@ -24237,7 +24601,18 @@ Object.entries(PRESETS).forEach(([id,p])=>{
    was gated on a reachability verification rather than on a reading: 900 states
    and 10,800 transitions were explored with the control already excluded, and
    both directions came back empty. No funding value is reachable that no preset
-   sets, and no preset value is stranded by the deletion. */
+   sets, and no preset value is stranded by the deletion.
+   STEP 15.1 NOTE (2026-09-22): those two counts are a point-in-time record of the control
+   surface as it stood on 2026-08-23, the day funding was deleted from DETENT_KEYS. They have not
+   been re-verified since, including through Step 71's phi_o/phi_m detent additions and this
+   step's own phi_c/phi_o/phi_m rail refit from 21 to 101 values, and are not expected to still
+   read 900/10,800 against the surface DETENT_KEYS covers today. The INVARIANT this record backs
+   -- funding is reachable from no other control, and no preset's own funding value is stranded --
+   does not depend on phi_c/phi_o/phi_m's cardinality: funding was never one of the three
+   shared-budget sliders and carries no detent rail of its own, so a phi_c/phi_o/phi_m notch count
+   change cannot move it either way. Re-deriving the exact current state/transition counts is a
+   standalone reachability sweep this step did not re-run; the throw() guard just below enforces
+   the invariant structurally regardless, so nothing here is load-bearing on the stale numbers. */
 
 document.getElementById('phase').addEventListener('click', e=>{
   const b=e.target.closest('button'); if(!b) return;
@@ -24262,10 +24637,13 @@ document.getElementById('phase').addEventListener('click', e=>{
   if (state.fissionPrefSet && currentEnv().fission) state.fission = state.fissionPref;
   // the phi_c tick recomputes on a phase change too, not only a preset change
   const named = activePreset() || PRESET_OF_FUNDING[state.funding];
-  state.phi_c = snapIdx('phi_c', PRESETS[named].phi_c);
+  state.phi_c = snapIdx('phi_c', PHI_C_BY_ERA[state.phase][named]);
   // phi_m carries the same era-indexed intent phi_c does (PHI_M_BY_ERA), so an era click
   // re-derives it too, discarding whatever the reader last dragged the Advanced slider to.
   state.phi_m = snapIdx('phi_m', PHI_M_BY_ERA[state.phase][named]);
+  // phi_c0 carries the same era-indexed intent phi_c and phi_m do (PHI_C0_BY_ERA), so an era
+  // click re-derives it too, discarding whatever the reader last dragged the Advanced slider to.
+  state.phiC0Ovr = PHI_C0_BY_ERA[state.phase][named];
   state.mix = MIX_ERA_DEFAULT[state.phase];
   Array.prototype.forEach.call(e.currentTarget.children, c=>c.setAttribute('aria-pressed', c===b?'true':'false'));
   render();
@@ -24364,7 +24742,7 @@ function oneDetentGiveBack(cIdx, oIdx, mIdx, maxIdx){
    oneDetentGiveBack(), STEP 70.4), until the live fabBinding stops reading 'silicon' (FAB-01: the
    ceiling cleared, onto 'request', 'power' or 'regolith') or the shared budget is exhausted (phi_o
    and phi_c both driven to their floor, FAB-03/GB-03). phi_c, phi_o and phi_m all ride the identical
-   21-value rail (Step 49's own comment on DETENTS.phi_o), so one rail's values serve all three and
+   101-value rail (Step 49's own comment on DETENTS.phi_o, refined from 21 values at Step 15.1), so one rail's values serve all three and
    the loop is bounded at its length -- a stalled loop cannot spin. Leaves phi_c/phi_o/phi_m
    untouched, by construction, whenever fabBinding is not already 'silicon' at entry (FAB-05). */
 function autoCoupleFabToSilicon(){
@@ -25019,11 +25397,26 @@ function render(){
   document.getElementById('v_phio').textContent = knobText('phi_o');
   syncSliderRange(document.getElementById('k_phim'), 'phi_m');
   document.getElementById('v_phim').textContent = knobText('phi_m');
+  /* STEP 71 (Quinn's ruling, 2026-09-21). Water's readout is read off m.phi_water, the model's
+     OWN computed fourth fraction, never re-derived here from the three slider readouts: a
+     second computation of the same number is exactly the drift this project has been bitten by
+     before (the footer's own retired fleet model is the standing example). Painted on every
+     render(), the same call that repaints v_phic/v_phio/v_phim, so a drag on any of the three
+     real sliders -- including one the normalization above scaled back -- leaves all four
+     readouts consistent with each other and with what model() actually applied; there is no
+     path through render() that repaints the three and skips the fourth. */
+  document.getElementById('v_phiw').textContent = m.phi_water.toFixed(2);
+  document.getElementById('phiwBarFill').style.width = (Math.max(0, Math.min(1, m.phi_water))*100).toFixed(1)+'%';
   document.getElementById('v_solovr').textContent=fmtOvr(state.solOvr);
   document.getElementById('v_fisovr').textContent=fmtOvr(state.fisOvr);
 
   const phiC0Applied = (state.phiC0Ovr!=null?state.phiC0Ovr:CONFIG.phiC0.value);
   document.getElementById('v_phic0').textContent = phiC0Applied.toFixed(2);
+  // PHI_C0_BY_ERA (2026-09-21) makes this control preset-and-era-specific rather than a flat
+  // constant, so the thumb has to repaint on every render the same way k_phic/k_phio/k_phim
+  // already do above; before this the state value never moved off the slider's own markup
+  // default, so painting only the text readout and never the thumb was never visibly wrong.
+  document.getElementById('k_phic0').value = phiC0Applied;
 
   /* IN-SITU SOLAR RATE: the fab-productivity rail paints its value only (Step 68, sub-step 7). */
   document.getElementById('v_fabprod').textContent = state.fabProd.toFixed(2) + ' kWe/(yr·t)';
@@ -26465,12 +26858,23 @@ function renderNotesPanel(m){
   const _rateM = appliedRate('mass'), _rateP = appliedRate('power');
   /* STEP 67 PASS 5. The ceilings sentence handed water what the construction and oxygen shares leave,
      with no metals-production split, and said the figure reads lower than either ceiling where the
-     smaller ceiling is 0.00 and water equals it. The tail follows the state. */
+     smaller ceiling is 0.00 and water equals it. The tail follows the state.
+     STEP 71 (Quinn's ruling, 2026-09-21): a SECOND zero case joins the first. cap itself can be
+     comfortably positive while water is exactly 0.00 -- construction's true share of the
+     remainder, phi_c/phi_rem, can saturate to exactly 1 under the three-way normalized clamp
+     (whenever phi_c, phi_o and phi_m together are dialed past one, all three scale back to sum
+     to exactly one, and phi_water, the fourth fraction, lands on exactly 0). "Reads lower than
+     either ceiling" is true in that state but misleading: it describes a close, partial shortfall
+     and this is total. Checked with the same 0.005 t/yr floor the cap branch above already uses,
+     so a state that rounds to 0.00 on the hero is described the same way regardless of which
+     ceiling produced the zero. */
   const _ceilTail = !(m.cap >= 0.005)
     ? ', so the figure above reads '+esc(_bw(m.water))+' t/yr.'
-    : (m.water < m.cap * (1 - 1e-9)
-        ? ', which is why the figure above reads lower than either ceiling and lower than a workbook that carries only one of them.'
-        : ', and with no construction split taken the figure above equals the smaller ceiling.');
+    : (!(m.water >= 0.005)
+        ? ', so the figure above reads '+esc(_bw(m.water))+' t/yr.'
+        : (m.water < m.cap * (1 - 1e-9)
+            ? ', which is why the figure above reads lower than either ceiling and lower than a workbook that carries only one of them.'
+            : ', and with no construction split taken the figure above equals the smaller ceiling.'));
 
   let h='<p class="q">Where this result comes from. This page is written for the state you have dialed, and it changes when you change a knob.</p>';
 
@@ -27355,6 +27759,22 @@ function overrideTrackCheck(){
   const origModel = model;
   const mapped = {}, unmapped = [], disagreements = [];
   riskKeys.forEach(function(k){ mapped[k] = 0; });
+  /* PART A TABLED-DEFAULT EXEMPTION (2026-09-21). phiC0Ovr joined phi_m's own precedent at the
+     PHI_C0_BY_ERA ruling: "untouched" now means "at this cell's own ruled table value," which is
+     never the flat CONFIG.phiC0.value fallback model() defaults to when the argument is omitted
+     entirely -- exactly the shape CONFIG.phiMetalProd's own reason field already documents for
+     phi_m, which never entered this row's population because it carries no Ovr-suffixed state
+     key. Substituting the table value for the deleted argument was tried and withdrawn on
+     measurement: `captured` binds to the FIRST model() call render() makes, and the fleet/learning
+     layer prices standing cohorts from earlier eras through model() before the active cell's own
+     call ever runs, so `captured` can legitimately hold a PRIOR era's cohort arguments carrying
+     that era's own table value, not the era under test. A flat-default override never exposed this
+     because every era read the identical 0.10; an era-tabled one can and does. Reaching the right
+     call takes tracing applyLearning()/fleetArgs()'s own call graph, not a value substitution here,
+     so a tabled key is scored on PART A's mapping check alone (a real regression like the
+     composeDerivation typo still reds it) and withheld from the present-vs-absent comparison until
+     that tracing is done. */
+  const TABLED_OVERRIDES = { phiC0Ovr: true };
   CELLPAIRS.forEach(function(pair){
     applyPreset(PRESETS[pair[0]]);
     state.phase = pair[1];
@@ -27408,6 +27828,7 @@ function overrideTrackCheck(){
         return;
       }
       mapped[k]++;
+      if (TABLED_OVERRIDES[k]) return;   // see PART A TABLED-DEFAULT EXEMPTION above
       const withOvr = Object.assign({}, captured);
       const withoutOvr = Object.assign({}, captured);
       delete withoutOvr[argName];
