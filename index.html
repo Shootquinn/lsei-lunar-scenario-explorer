@@ -24641,6 +24641,12 @@ document.getElementById('phase').addEventListener('click', e=>{
   // phi_m carries the same era-indexed intent phi_c does (PHI_M_BY_ERA), so an era click
   // re-derives it too, discarding whatever the reader last dragged the Advanced slider to.
   state.phi_m = snapIdx('phi_m', PHI_M_BY_ERA[state.phase][named]);
+  // STEP 15.3 FIX (F2): phi_o has no era table of its own (no PHI_O_BY_ERA) -- applyPreset() and
+  // matchesPreset() both define its at-preset value as the flat CONFIG.phiM.value constant, snapped
+  // to the rail. An era click was resetting phi_c and phi_m to their era intent while leaving a
+  // dragged phi_o stranded, so the four displayed fractions could sum past 1 with no renormalization.
+  // Reset phi_o here the same way, to the same constant applyPreset()/matchesPreset() already use.
+  state.phi_o = snapIdx('phi_o', CONFIG.phiM.value);
   // phi_c0 carries the same era-indexed intent phi_c and phi_m do (PHI_C0_BY_ERA), so an era
   // click re-derives it too, discarding whatever the reader last dragged the Advanced slider to.
   state.phiC0Ovr = PHI_C0_BY_ERA[state.phase][named];
