@@ -154,6 +154,19 @@
   .curvehandle[data-which="agency"]{background:rgba(78,201,232,.95)}
   .curvehandle[data-which="commercial"]{background:rgba(224,165,79,.95)}
   .curvehandle:focus{outline:2px solid rgba(120,180,255,.9);outline-offset:2px}
+  /* STEP 17: the phi/product curve panel's OWN handle class, deliberately not .curvehandle -- every
+     self-check row that counts or selects '.curvehandle' (CURVE-01, CURVEUI-01..04) queries the
+     document globally, unscoped to #curveHandles, so a handle sharing that class anywhere else in
+     the document would be double-counted against the mass curve's own population. Same geometry,
+     same interaction, one shared canvas's worth of colors instead of two. */
+  .phicurvehandle{position:absolute;width:11px;height:11px;margin:-6px 0 0 -6px;padding:0;
+      border:1px solid rgba(255,255,255,.85);border-radius:50%;background:rgba(120,180,255,.95);
+      cursor:ns-resize;pointer-events:auto;touch-action:none}
+  .phicurvehandle[data-which="phi_c0"]{background:rgba(224,165,79,.95)}
+  .phicurvehandle[data-which="phi_c"]{background:rgba(78,201,232,.95)}
+  .phicurvehandle[data-which="phi_o"]{background:rgba(120,200,140,.95)}
+  .phicurvehandle[data-which="phi_m"]{background:rgba(200,120,220,.95)}
+  .phicurvehandle:focus{outline:2px solid rgba(120,180,255,.9);outline-offset:2px}
   /* STEP 69: the Agency/Commercial toggle. */
   .curvetoggle{display:flex;gap:6px;margin-top:4px}
   .curvetogglebtn{font:inherit;font-size:11px;padding:2px 8px;border-radius:10px;
@@ -599,7 +612,15 @@
           <input type="range" class="ovr" id="k_phic0" min="0" max="0.75" step="0.01" value="0.10">
         </div>
         <div class="advnote">Advanced sliders apply to this session only. Adjusting them does not alter baseline model values.</div>
-      </div>
+
+      <!-- STEP 17: the buildout curve, the investment panel and the new phi/product curve panel
+           all move inside #advPanel here (Quinn's ruling, Gameplan Step 17: "moves into Advanced
+           mode... out of the main reader-facing panel"), rather than standing as the two siblings
+           that used to follow #advPanel's own closing tag. openAdvanced() already gates whatever
+           lives inside #advPanel and needed no new toggle logic to gate these three -- see its own
+           STEP 17 comment on the one new thing this move required: a forced redraw on open, since
+           a hidden ancestor reports 0 for clientWidth/clientHeight and these three panels compute
+           their own CSS-pixel scale from it. -->
 
       <!-- THE BUILDOUT CURVE (Step 56 sub-step 1). It sits below the slider panel, per the
            ruling. THE CANVAS IS THE VIEW AND NEVER THE RECORD: every number this plot draws is
@@ -636,6 +657,31 @@
           <canvas id="investPlot" width="300" height="120"></canvas>
         </div>
         <div class="curvefoot"><span style="color:var(--ice)">Agency</span> / <span style="color:var(--regolith)">Commercial</span> / <span style="opacity:.75">Combined</span></div>
+      </div>
+
+      <!-- THE PHI/PRODUCT CURVE PANEL (Step 17). Four per-year allocation-share curves plotted
+           together on one shared canvas, with a toggle selecting which one the handles drag (same
+           interaction pattern #curveToggle above already uses), plus a fifth, non-interactive line
+           for the derived product total (water + construction + total oxygen + alloy). Log scale
+           is not needed on the phi axis itself -- phi is already bounded [0,1] -- but the product
+           line shares this canvas on massRailPct()'s own log law, painted dashed and always full
+           weight since it is drawn, never dragged. See phiCurveDraw() for the rendering and
+           phiCurveDragStart()/Move()/End()/phiCurveKeyDown() for the drag, all built on the
+           identical machinery curveDraw()/curveDragStart() etc. already use above. -->
+      <div class="curvewrap" id="phiCurveWrap">
+        <div class="krow"><span class="klabel">Allocation curves, per year</span><span class="kval" id="v_phicurve"></span></div>
+        <div class="curvetoggle" id="phiCurveToggle" role="tablist" aria-label="Which allocation curve the handles drag">
+          <button type="button" class="curvetogglebtn" data-which="phi_c0" role="tab" aria-selected="false" aria-pressed="false" aria-label="Non-productive downmass curve">Downmass</button>
+          <button type="button" class="curvetogglebtn" data-which="phi_c" role="tab" aria-selected="true" aria-pressed="true" aria-label="Construction split curve">Construction</button>
+          <button type="button" class="curvetogglebtn" data-which="phi_o" role="tab" aria-selected="false" aria-pressed="false" aria-label="Oxygen split curve">Oxygen</button>
+          <button type="button" class="curvetogglebtn" data-which="phi_m" role="tab" aria-selected="false" aria-pressed="false" aria-label="Metals-production split curve">Metals</button>
+        </div>
+        <div class="curvebox">
+          <canvas id="phiCurvePlot" width="300" height="120"></canvas>
+          <div class="curvehandles" id="phiCurveHandles"></div>
+        </div>
+        <div class="curvefoot" id="phiCurveFoot"><span style="color:var(--regolith)">Downmass</span> / <span style="color:var(--ice)">Construction</span> / <span style="color:#78c88c">Oxygen</span> / <span style="color:#c878dc">Metals</span> / <span style="opacity:.75">Total product (dashed, drawn only)</span></div>
+      </div>
       </div>
     </aside>
 
@@ -1667,7 +1713,7 @@
   "note": "Clamped against phi_c and phi_o exactly as phi_o is clamped against phi_c: the three cannot sum past one. It runs first and pays for what it uses, the same draw-first discipline phi_o's own line follows, so raising it never charges the water or construction lines for capacity it does not actually consume."
  },
  "phiMByEra": {
-  "value": "0.05 at every 2030 cell; 0.15 / 0.10 / 0.20 at 2040; 0.30 / 0.15 / 0.45 at 2055 (Agency Led Baseline / Early Shift to Mars / The Commercial Break)",
+  "value": "0.00 at every 2030 cell; 0.06 / 0.06 / 0.01 at 2040; 0.01 / 0.02 / 0.01 at 2055 (Agency Led Baseline / Early Shift to Mars / The Commercial Break)",
   "unit": "fraction of the shared plant and power budget, one value per scenario and era",
   "band": {
    "kind": "NO_BAND",
@@ -1675,38 +1721,52 @@
    "disposition": "STANDS",
    "reason": "USER ALLOCATION CONTROL, of the same class as phi_c and phi_o, not a claim about the Moon. Nine values, a programme-owner allocation ruling of the metals-production share by scenario and era, not a physical measurement of anything on the Moon."
   },
-  "source": "None required. A user allocation control of the same class as phi_c and phi_o: a programme-owner ruling of what share of the shared plant and power budget the metals-production line receives, set independently at each of the three named scenarios and each of the three eras, carried in PHI_M_BY_ERA and read as PHI_M_BY_ERA[era][presetId].",
+  "source": "None required. A user allocation control of the same class as phi_c and phi_o: a programme-owner ruling of what share of the shared plant and power budget the metals-production line receives, set independently at each of the three named scenarios and each of the three eras, carried in PHI_M_BY_ERA. STEP 17: no longer read as a flat PHI_M_BY_ERA[era][presetId] lookup outside the preset-application API -- these nine values are now the default knots of a per-year draggable curve (phi_m, 2030-2055, PCHIP-fit the buildout curve's own way), and every reader of this table (the preset API and the phiDefaultAt() helper alike) reads the curve's own value at that year, which equals this table exactly at the three anchor years by construction and interpolates smoothly between them where a reader has placed no point of their own.",
   "status": "CONTROL",
   "useLabel": "CONTROL (nine ruled values, one per scenario and era)",
-  "note": "phiMetalProd above is the single fallback this table overrides at every preset this build ships with: phiMetalProd.value (0) is reached only by a caller that omits phi_m entirely, which no reader-reachable preset state does. applyPreset(), the phase handler and stripCaps() all index this table the same way."
+  "note": "phiMetalProd above is the single fallback this table overrides at every preset this build ships with: phiMetalProd.value (0) is reached only by a caller that omits phi_m entirely, which no reader-reachable preset state does. applyPreset(), the phase handler and stripCaps() all index this table the same way. STEP 15.6 (2026-09-22, Quinn's ruling): REPLACED by the Step 15 optimizer's O2-minimal split, independently re-verified live against this app's own render path before being written in: phi_m is 0 at every 2030 cell and small everywhere phi_m alone is enough to clear the 2.6 t/yr dedicated-oxygen life-support floor, which is every reachable 2040/2055 cell. Superseded values were 0.05 at every 2030 cell; 0.15/0.10/0.20 at 2040; 0.30/0.15/0.45 at 2055."
  },
  "phiCByEra": {
-  "value": "0.60 / 0.00 / 0.60 at 2030, 0.75 / 0.75 / 0.60 at 2040, 0.55 / 0.70 / 0.30 at 2055 (Agency Led Baseline / Early Shift to Mars / The Commercial Break)",
+  "value": "0.25 / 0.25 / 0.25 at 2030, 0.92 / 0.92 / 0.97 at 2040, 0.97 / 0.95 / 0.97 at 2055 (Agency Led Baseline / Early Shift to Mars / The Commercial Break)",
   "unit": "fraction of the shared plant and power budget, one value per scenario and era",
   "band": {
    "kind": "NO_BAND",
    "rule": "NOT-CENTRABLE",
    "disposition": "STANDS",
-   "reason": "USER ALLOCATION CONTROL, of the same class as phi_o and phiMByEra, not a claim about the Moon. Nine values, a programme-owner allocation ruling of the construction share by scenario and era, not a physical measurement of anything on the Moon. STEP 71 RE-TUNE (Quinn's ruling, 2026-09-21), superseding the 0.80/0.00/0.80, 0.85/0.00/0.85, 0.85 flat values these same nine cells carried a few hours earlier under the model's retired water/construction split (see modelCore()'s own Step 71 comment): those values were solved against (1-phi_c) as water's share of the remainder, and stopped reaching their own water-production targets the moment the split was corrected to phi_water/phi_rem, the true share once phi_o and phi_m have taken theirs."
+   "reason": "USER ALLOCATION CONTROL, of the same class as phi_o and phiMByEra, not a claim about the Moon. Nine values, a programme-owner allocation ruling of the construction share by scenario and era, not a physical measurement of anything on the Moon. STEP 71 RE-TUNE (Quinn's ruling, 2026-09-21), superseding the 0.80/0.00/0.80, 0.85/0.00/0.85, 0.85 flat values these same nine cells carried a few hours earlier under the model's retired water/construction split (see modelCore()'s own Step 71 comment): those values were solved against (1-phi_c) as water's share of the remainder, and stopped reaching their own water-production targets the moment the split was corrected to phi_water/phi_rem, the true share once phi_o and phi_m have taken theirs. STEP 15.6 RE-TUNE (Quinn's ruling, 2026-09-22), superseding the STEP 71 RE-TUNE's own 0.61/0.00/0.61, 0.73/0.77/0.59, 0.56/0.69/0.29 values: the Step 15 optimizer solved a different objective, minimum phi_c0/maximum construction subject to the water tolerance rather than a fixed water target, and phi_c0 moving (see phiC0ByEra below) opened room construction now uses at every cell. STEP 17 (Quinn's ruling, 2026-09-22): the 2030 cell dropped again, to a flat 0.25 across all three scenarios (from 0.91/0.54/0.91), as the new phi_c curve's own first-shape 2030 anchor -- a rough starting point for the curve to ramp up from, not a re-solved water target; 2040 and 2055 are unmoved."
   },
-  "source": "None required. A user allocation control of the same class as phi_o and phiMByEra: a programme-owner ruling of what share of the shared plant and power budget the construction line receives, set independently at each of the three named scenarios and each of the three eras, carried in PHI_C_BY_ERA and read as PHI_C_BY_ERA[era][presetId].",
+  "source": "None required. A user allocation control of the same class as phi_o and phiMByEra: a programme-owner ruling of what share of the shared plant and power budget the construction line receives, set independently at each of the three named scenarios and each of the three eras, carried in PHI_C_BY_ERA. STEP 17: no longer read as a flat PHI_C_BY_ERA[era][presetId] lookup outside the preset-application API -- these nine values are now the default knots of a per-year draggable curve (phi_c, 2030-2055, PCHIP-fit the buildout curve's own way), and every reader of this table reads the curve's own value at that year, which equals this table exactly at the three anchor years by construction.",
   "status": "CONTROL",
   "useLabel": "CONTROL (nine ruled values, one per scenario and era)",
-  "note": "STEP 71 RE-TUNE: solved against water-production targets of 1/10/100 t/yr (Agency Led Baseline), 1/2/10 (Early Shift to Mars) and 1/100/1,000 (The Commercial Break) at 2030/2040/2055, on the corrected split, each cell's exact phi_c snapped to the nearest 0.05 detent this rail offers. Three of nine cells cannot clear their target on this grid and are the documented gap: Agency Led Baseline 2040 (10 t/yr target, 7.43 achieved, -25.67 percent), Early Shift to Mars 2040 (2 t/yr target, 2.45 achieved, +22.73 percent) and Early Shift to Mars 2030 (1 t/yr target, 0.6161 achieved at phi_c's own floor, -38.39 percent, a landed-mass ceiling this scenario's own 2030 envelope sets and phi_c cannot reach past); every other cell lands within 5 percent. Early Shift to Mars no longer sits at phi_c 0.00 through 2040 the way it did under the retired split's own water-primary tuning; at 2030 it still does, which is this cell's own floor. A non-productive-downmass cut at that one 2030 cell would close most of its gap but was declined because it falsifies the shared-2030-envelope commitment PHI_C0_BY_ERA's own uniform row holds (see PHI_C0_BY_ERA's own note). applyPreset(), the phase handler, presetCensus(), abstractPresetRef() and scenarioModelArgsInput() all index this table the same way PHI_M_BY_ERA already established."
+  "note": "STEP 15.6 (2026-09-22, Quinn's ruling): an optimizer re-solved every cell for minimum non-productive downmass and maximum construction, subject to the water tolerance (+-5%) and, where jointly reachable, the 2.6 t/yr dedicated-oxygen floor, closing all three cells the STEP 71 RE-TUNE below left as a documented gap: Agency Led Baseline 2040 now lands water at +3.7% (was -25.67%), Early Shift to Mars 2040 at +4.1% (was +22.73%), and Early Shift to Mars 2030 -- the cell that sat at phi_c's own floor of 0.00, -38.39% against target -- now reaches 1.01 t/yr (+0.8%) at phi_c 0.54, phi_c0 0.00. Independently re-verified live against this app's own render path (real preset/era clicks and slider input events, not a bare function call). STEP 71 RE-TUNE (superseded numbers, kept for the record): solved against water-production targets of 1/10/100 t/yr (Agency Led Baseline), 1/2/10 (Early Shift to Mars) and 1/100/1,000 (The Commercial Break) at 2030/2040/2055, each cell's exact phi_c snapped to the nearest 0.05 detent that rail offered; three of nine cells could not clear their target on that grid (Agency Led Baseline 2040 -25.67%, Early Shift to Mars 2040 +22.73%, Early Shift to Mars 2030 -38.39% at phi_c's own floor). applyPreset(), the phase handler, presetCensus(), abstractPresetRef() and scenarioModelArgsInput() all index this table the same way PHI_M_BY_ERA already established."
  },
  "phiC0ByEra": {
-  "value": "0.55 at every 2030 cell; 0.70 / 0.75 / 0.75 at 2040; 0.75 at every 2055 cell (Agency Led Baseline / Early Shift to Mars / The Commercial Break)",
+  "value": "0.00 at every 2030 cell; 0.19 / 0.02 / 0.00 at 2040; 0.00 / 0.02 / 0.44 at 2055 (Agency Led Baseline / Early Shift to Mars / The Commercial Break)",
   "unit": "fraction, one value per scenario and era",
   "band": {
    "kind": "NO_BAND",
    "rule": "NOT-CENTRABLE",
    "disposition": "STANDS",
-   "reason": "USER ALLOCATION CONTROL, of the same class as phiCByEra and phiMByEra, not a claim about the Moon. Nine values, a programme-owner allocation ruling of the non-productive downmass share by scenario and era, not a physical measurement of anything on the Moon. Quinn's ruling, 2026-09-21, superseding the flat CONFIG.phiC0.value every preset previously read."
+   "reason": "USER ALLOCATION CONTROL, of the same class as phiCByEra and phiMByEra, not a claim about the Moon. Nine values, a programme-owner allocation ruling of the non-productive downmass share by scenario and era, not a physical measurement of anything on the Moon. Quinn's ruling, 2026-09-21, superseding the flat CONFIG.phiC0.value every preset previously read. STEP 15.6 (Quinn's ruling, 2026-09-22) superseded the uniform-0.55/0.70-0.75/0.75 values this ruling first set with the Step 15 optimizer's minimum-phi_c0 table."
   },
-  "source": "None required. A user allocation control of the same class as phiCByEra and phiMByEra: a programme-owner ruling of what share of each landing's raw mass is non-productive, set independently at each of the three named scenarios and each of the three eras, carried in PHI_C0_BY_ERA and read as PHI_C0_BY_ERA[era][presetId].",
+  "source": "None required. A user allocation control of the same class as phiCByEra and phiMByEra: a programme-owner ruling of what share of each landing's raw mass is non-productive, set independently at each of the three named scenarios and each of the three eras, carried in PHI_C0_BY_ERA. STEP 17: no longer read as a flat PHI_C0_BY_ERA[era][presetId] lookup outside the preset-application API -- these nine values are now the default knots of a per-year draggable curve (phi_c0, 2030-2055, ceilinged at 0.75 to match its own Advanced-panel slider), and every reader of this table reads the curve's own value at that year, which equals this table exactly at the three anchor years by construction.",
   "status": "CONTROL",
   "useLabel": "CONTROL (nine ruled values, one per scenario and era)",
-  "note": "CONFIG.phiC0 above is the flat fallback this table overrides at every preset this build ships with: phiC0.value (0.10) is reached only by a caller that omits phi_c0 entirely (model()'s own functional default) or by the Advanced slider before any preset has been clicked. applyPreset() and the phase handler both index this table the same way PHI_M_BY_ERA already established. STEP 71 (Quinn's ruling, 2026-09-21): unmoved by the same-day construction-split re-tune (see phiCByEra's own note). A per-scenario cut at Early Shift to Mars/2030 was tried and clears that cell's own water target almost exactly, but it would falsify the shared-2030-envelope commitment this table's uniform 0.55 row holds (ENV2030-01/02: the three named scenarios differ at the Prospecting phase in ice grade alone), so that cell is reported as a documented gap instead."
+  "note": "CONFIG.phiC0 above is the flat fallback this table overrides at every preset this build ships with: phiC0.value (0.10) is reached only by a caller that omits phi_c0 entirely (model()'s own functional default) or by the Advanced slider before any preset has been clicked. applyPreset() and the phase handler both index this table the same way PHI_M_BY_ERA already established. STEP 15.6 (2026-09-22, Quinn's ruling): REPLACED by an optimizer's minimum-phi_c0 table, closing the Early Shift to Mars/2030 documented gap the STEP 71 entry below left open: phi_c0 falls to exactly 0.00 at every 2030 cell (the shared-2030-envelope commitment still holds -- phi_c0 is still uniform across the three 2030 scenarios, now at 0.00 rather than 0.55, and ice grade is still the only thing that differs between them at that era, ENV2030-01/02 unaffected), and construction now uses the headroom the lower phi_c0 opens at six of the nine cells. Independently re-verified live against this app's own render path, including the phi_c0=0 edge case at all 5 of the cells that hit it, rendering cleanly with no divide-by-zero or NaN. STEP 71 (superseded, kept for the record): unmoved by the same-day construction-split re-tune. A per-scenario cut at Early Shift to Mars/2030 was tried and cleared that cell's own water target almost exactly, but was declined at the time because it broke the shared-2030-envelope commitment the old uniform 0.55 row held (ENV2030-01/02: the three named scenarios differ at the Prospecting phase in ice grade alone); the Step 15.6 table above closes that same gap by cutting phi_c0 uniformly across all three 2030 cells instead, which does not break that commitment."
+ },
+ "phiOByEra": {
+  "value": "0.00 at every one of the nine cells (Agency Led Baseline / Early Shift to Mars / The Commercial Break, 2030 / 2040 / 2055)",
+  "unit": "fraction of the shared plant and power budget, one value per scenario and era",
+  "band": {
+   "kind": "NO_BAND",
+   "rule": "NOT-CENTRABLE",
+   "disposition": "STANDS",
+   "reason": "USER ALLOCATION CONTROL, of the same class as phiCByEra and phiMByEra, not a claim about the Moon. Nine values, a programme-owner allocation ruling of the dedicated-oxygen share by scenario and era, not a physical measurement of anything on the Moon. Quinn's ruling, 2026-09-22 (Step 15.6), superseding the flat CONFIG.phiM.value every preset previously read for phi_o's at-preset value."
+  },
+  "source": "None required. A user allocation control of the same class as phiCByEra and phiMByEra: a programme-owner ruling of what share of the shared plant and power budget the dedicated-oxygen line receives, set independently at each of the three named scenarios and each of the three eras, carried in PHI_O_BY_ERA. STEP 17: no longer read as a flat PHI_O_BY_ERA[era][presetId] lookup outside the preset-application API -- these nine values are now the default knots of a per-year draggable curve (phi_o, 2030-2055, PCHIP-fit the buildout curve's own way), and every reader of this table reads the curve's own value at that year, which equals this table exactly at the three anchor years by construction.",
+  "status": "CONTROL",
+  "useLabel": "CONTROL (nine ruled values, one per scenario and era, all zero)",
+  "note": "CONFIG.phiM.value (0.05) is the flat fallback this table overrides at every preset this build ships with, the same relationship phiMetalProd holds to phiMByEra: CONFIG.phiM.value is reached only by a caller that omits phi_o entirely (model()'s own functional default), which applyPreset(), matchesPreset() and the era-click handler no longer do. An optimizer's 9-cell table found phi_o = 0.00 the O2-minimal choice at every reachable cell -- life-support oxygen routes through the metals-production co-product line (PHI_M_BY_ERA) instead, matching the earlier defaults proposal's own finding that the co-product route is more construction-efficient than dedicated oxygen. Independently re-verified live against this app's own render path."
  },
  "eRefine": {
   "value": 0,
@@ -3663,6 +3723,12 @@
    "claim": null,
    "kind": "config",
    "claimNote": "A control of the same class as phiCByEra and phiMByEra, so no ledger claim is owed: a programme-owner allocation ruling of the non-productive downmass share by scenario and era, not a claim about the Moon. Overrides CONFIG.phiC0's own flat 0.10 fallback at every preset this build ships with, Quinn's ruling of 2026-09-21."
+  },
+  "phiOByEra": {
+   "label": "dedicated-oxygen allocation, ruled per scenario and era",
+   "claim": null,
+   "kind": "config",
+   "claimNote": "A control of the same class as phiCByEra and phiMByEra, so no ledger claim is owed: a programme-owner allocation ruling of the dedicated-oxygen share by scenario and era, not a claim about the Moon. Overrides the flat CONFIG.phiM.value fallback (0.05) every preset previously read for phi_o, Quinn's ruling of 2026-09-22 (Step 15.6); all nine ruled values are 0.00, life-support oxygen routing through the metals-production co-product line (phiMByEra) instead."
   },
   "eRefine": {
    "label": "post-reactor alloy separation energy",
@@ -7829,7 +7895,8 @@
   "poston-2020",
   "oleson-2022",
   "isaacman-2026",
-  "power-mass-justification-2026"
+  "power-mass-justification-2026",
+  "nasa-directive-2025"
  ],
  "solar-mass-allocation": [
   "colozza-2020",
@@ -7871,7 +7938,6 @@
  ],
  "sintering-specific-energy": [
   "metzger-autry-2023",
-  "nasa-directive-2025",
   "watts-moon-challenge-2024",
   "just-2020",
   "effinger-2020",
@@ -8210,11 +8276,21 @@
      indexes it the same way: PHI_M_BY_ERA[era][presetId].
      STEP 15.1 (2026-09-22): UNCHANGED by the phi_c rail refinement to 0.01. sweep2_results.json
      held phi_m fixed at every cell while solving phi_c, and every value below is already an exact
-     0.01-grid notch (each is a multiple of 0.05), so re-snapping is a no-op. */
+     0.01-grid notch (each is a multiple of 0.05), so re-snapping is a no-op.
+     STEP 15.6 (2026-09-22, Quinn's ruling): REPLACED by the Step 15 optimizer's minimum-phi_c0/
+     maximum-construction table (cr_scratch/step15_optimizer_results.md), independently re-verified
+     live against this app's own render path before being written in (cr_scratch/
+     step15_5_live_verification.md — real preset click, era click and slider input events, not a
+     bare function call). This table now carries the O2-minimal split: phi_m is 0 everywhere it does
+     not have to clear the 2.6 t/yr dedicated-oxygen life-support floor on its own (see
+     PHI_O_BY_ERA, held at 0 everywhere), and a small nonzero share only at the six 2040/2055 cells
+     where some phi_m is needed to clear that floor. Superseded values were 0.05 at every 2030 cell;
+     0.15/0.10/0.20 at 2040; 0.30/0.15/0.45 at 2055 (Agency Led Baseline/Early Shift to Mars/The
+     Commercial Break). */
   var PHI_M_BY_ERA = {
-   "2030": { "artemis": 0.05, "contested": 0.05, "commercial": 0.05 },
-   "2040": { "artemis": 0.15, "contested": 0.10, "commercial": 0.20 },
-   "2055": { "artemis": 0.30, "contested": 0.15, "commercial": 0.45 }
+   "2030": { "artemis": 0.00, "contested": 0.00, "commercial": 0.00 },
+   "2040": { "artemis": 0.06, "contested": 0.06, "commercial": 0.01 },
+   "2055": { "artemis": 0.01, "contested": 0.02, "commercial": 0.01 }
   };
 
   /* The construction allocation, set per scenario AND era. Nine values, the same shape
@@ -8255,11 +8331,30 @@
      the three named scenarios differ at the Prospecting phase in ice grade alone), so it was not
      kept; the buildout curve is fixed and out of scope by the same ruling that keeps this gap
      open rather than closed by a route this pass declined. See
-     cr_scratch/step15_gapcell_followup.md for the full analysis and cell-by-cell numbers. */
+     cr_scratch/step15_gapcell_followup.md for the full analysis and cell-by-cell numbers.
+     STEP 15.6 (2026-09-22, Quinn's ruling): REPLACED, closing the Early Shift to Mars 2030
+     DOCUMENTED GAP above rather than leaving it open. The Step 15 optimizer (cr_scratch/
+     step15_optimizer_results.md) re-solved every cell against the same corrected model for a
+     different objective — minimum non-productive downmass (phi_c0) and maximum construction,
+     subject to the water target (+-5%) and, where jointly reachable, the 2.6 t/yr dedicated-
+     oxygen floor — rather than this pass's own fixed water targets, and phi_c0 moving at six of
+     the nine cells (see PHI_C0_BY_ERA below) opened headroom construction now uses: e.g. Early
+     Shift to Mars 2030 clears 1.01 t/yr water (+0.8%) at phi_c 0.54, phi_c0 0.00, closing the
+     -38.39 percent gap this comment used to document. Independently re-verified live against this
+     app's own render path (real preset/era clicks and slider input events, not a bare function
+     call) before being written in: cr_scratch/step15_5_live_verification.md. Superseded values
+     were 0.61/0.00/0.61 at 2030, 0.73/0.77/0.59 at 2040, 0.56/0.69/0.29 at 2055 (Agency Led
+     Baseline/Early Shift to Mars/The Commercial Break). */
+  /* STEP 17 (Quinn's stated first use of the new curve, 2026-09-22): the 2030 knot drops to a flat
+     0.25 across all three scenarios -- down from 0.91/0.54/0.91 -- so the phi_c curve ramps up
+     into the unchanged 2040/2055 values below rather than opening on them. A rough first shape,
+     not a re-solved table: the water-production targets these 2030 cells were tuned against
+     (Step 15/15.6, this table's own history above) no longer hold at 0.25 and are not re-solved
+     here. 2040 and 2055 are untouched. */
   var PHI_C_BY_ERA = {
-   "2030": { "artemis": 0.61, "contested": 0.00, "commercial": 0.61 },
-   "2040": { "artemis": 0.73, "contested": 0.77, "commercial": 0.59 },
-   "2055": { "artemis": 0.56, "contested": 0.69, "commercial": 0.29 }
+   "2030": { "artemis": 0.25, "contested": 0.25, "commercial": 0.25 },
+   "2040": { "artemis": 0.92, "contested": 0.92, "commercial": 0.97 },
+   "2055": { "artemis": 0.97, "contested": 0.95, "commercial": 0.97 }
   };
 
   /* The non-productive downmass allocation, set per scenario AND era. Nine values,
@@ -8277,11 +8372,55 @@
      STEP 15.1 (2026-09-22): UNCHANGED by the phi_c rail refinement to 0.01. This table does not
      ride DETENTS at all -- its own slider (#k_phic0) is already a continuous 0.01-step control --
      and sweep2_results.json's per-cell phi_c0 field, held fixed while phi_c was solved, already
-     equals every value below. Nothing here needed re-solving. */
+     equals every value below. Nothing here needed re-solving.
+     STEP 15.6 (2026-09-22, Quinn's ruling): REPLACED. The Step 15 optimizer (cr_scratch/
+     step15_optimizer_results.md) minimizes phi_c0 itself rather than holding it fixed while
+     solving phi_c for a pre-chosen water target: it scans phi_c0 upward from 0.00 and stops at the
+     first value where the water tolerance (+-5%) and, where jointly reachable, the 2.6 t/yr
+     dedicated-oxygen floor both hold. Result: phi_c0 falls to exactly 0.00 at five of the nine
+     cells (every 2030 cell, The Commercial Break 2040, Agency Led Baseline 2055) and drops at
+     every other cell but The Commercial Break 2055, which is rail-bound near its old value (0.44
+     against 0.46) rather than choice-bound -- see the optimizer report's own comparison table.
+     This also closes the shared-2030-envelope non-productive-standing figure to exactly 0 t at all
+     three 2030 cells, superseding the flat uniform-0.55 row this comment used to hold up as the
+     shared-envelope commitment (ENV2030-01/02 is unaffected: phi_c0 is still shared and uniform
+     across the three 2030 scenarios, now at 0.00 instead of 0.55, and ice grade is still the only
+     thing that differs between them at that era). Independently re-verified live against this
+     app's own render path (real preset/era clicks and slider input events, not a bare function
+     call), including the phi_c0=0 edge case at all 5 of those cells rendering cleanly with no
+     divide-by-zero or NaN: cr_scratch/step15_5_live_verification.md. Superseded values were 0.55
+     at every 2030 cell; 0.70/0.75/0.75 at 2040; 0.75 at every 2055 cell (Agency Led Baseline/Early
+     Shift to Mars/The Commercial Break). */
   var PHI_C0_BY_ERA = {
-   "2030": { "artemis": 0.55, "contested": 0.55, "commercial": 0.55 },
-   "2040": { "artemis": 0.70, "contested": 0.75, "commercial": 0.75 },
-   "2055": { "artemis": 0.75, "contested": 0.75, "commercial": 0.75 }
+   "2030": { "artemis": 0.00, "contested": 0.00, "commercial": 0.00 },
+   "2040": { "artemis": 0.19, "contested": 0.02, "commercial": 0.00 },
+   "2055": { "artemis": 0.00, "contested": 0.02, "commercial": 0.44 }
+  };
+
+  /* The dedicated-oxygen allocation, set per scenario AND era. Nine values, the same shape
+     PHI_M_BY_ERA/PHI_C_BY_ERA/PHI_C0_BY_ERA carry and the same reader convention:
+     PHI_O_BY_ERA[era][presetId]. STEP 15.6 (2026-09-22, Quinn's ruling): NEW TABLE. phi_o
+     previously had no era table of its own -- applyPreset(), matchesPreset() and the phase
+     handler all read the flat CONFIG.phiM.value constant (0.05) as phi_o's at-preset value,
+     the same constant model() still falls back to when a caller omits phi_o entirely. The Step 15
+     optimizer's 9-cell table (cr_scratch/step15_optimizer_results.md) puts phi_o at exactly 0.00
+     in every one of the nine cells -- the O2-minimal split it found routes life-support oxygen
+     through the metals-production co-product line (PHI_M_BY_ERA) rather than the dedicated
+     oxygen line at every reachable cell, matching F1 v2's own finding that the MRE co-product
+     route is more construction-efficient than dedicated oxygen. A flat CONFIG.phiM.value = 0
+     would have reproduced these nine cells with one fewer table, but was not taken: CONFIG.phiM
+     is read as the phi_o fallback in many places outside these three preset-and-era call sites
+     (opPoint()/OX-01's own gate walk, the anchor and margin checks, the boot-time initial state,
+     stripCaps()), and this table's whole scope is the three read sites Step 15.3 named -- a table
+     confines the Step 15.6 change to exactly those three sites and leaves CONFIG.phiM.value (0.05)
+     standing everywhere else untouched, which a global constant edit would not have done. It also
+     keeps phi_o era-and-scenario-indexed on the same footing as the three tables beside it, so a
+     future ruling that wants phi_o != 0 at one cell is one table edit rather than a new
+     architecture. */
+  var PHI_O_BY_ERA = {
+   "2030": { "artemis": 0.00, "contested": 0.00, "commercial": 0.00 },
+   "2040": { "artemis": 0.00, "contested": 0.00, "commercial": 0.00 },
+   "2055": { "artemis": 0.00, "contested": 0.00, "commercial": 0.00 }
   };
 
   var KNOB_DATA = {
@@ -8310,6 +8449,7 @@
     PHI_M_BY_ERA: PHI_M_BY_ERA,
     PHI_C_BY_ERA: PHI_C_BY_ERA,
     PHI_C0_BY_ERA: PHI_C0_BY_ERA,
+    PHI_O_BY_ERA: PHI_O_BY_ERA,
     /* The pin is FNV-1a over CONFIG, CLAIMS, VALUE and LANDED_COST, so it moves whenever any
        text inside those objects moves, whether or not a number did. It moves here for exactly
        one cause, stated separately from the value question so that a moved pin is never read as
@@ -8824,8 +8964,39 @@
        UNCHANGED (a per-cell cut was tried and reverted, see its own KNOB_DATA comment). EXT3 caught
        exactly this: stored 418c284b no longer matched a recompute (eaa2868a). 418c284b to the
        value below, recomputed by pinOfKnobData(KNOB_DATA) on the patched file and read off the
-       app's own function rather than typed. */
-    __pin: "eaa2868a"
+       app's own function rather than typed.
+       STEP 15.6 RE-PIN (Quinn's ruling of 2026-09-22, drift AUTHORISED): PHI_C_BY_ERA, PHI_M_BY_ERA
+       and PHI_C0_BY_ERA moved to the Step 15 optimizer's nine ruled values apiece, and a fourth
+       table, PHI_O_BY_ERA, was added on the same three tables' own precedent, replacing the flat
+       CONFIG.phiM.value phi_o read at its three preset/era call sites. None of those four tables is
+       itself inside CONFIG (PHI_C_BY_ERA/PHI_M_BY_ERA/PHI_C0_BY_ERA/PHI_O_BY_ERA are their own
+       KNOB_DATA top-level keys, outside pinOfKnobData's six-object hash), so moving their values
+       alone would not move this pin; what moves it is that CONFIG.phiMByEra/phiCByEra/phiC0ByEra
+       each carry their own "value" and "note" fields restating those numbers in prose for the
+       Definitions tab, a new CONFIG.phiOByEra entry was added in the same shape, and matching
+       DERIVATION.coeff rows were added/edited alongside phiMByEra's own -- all CONFIG/DERIVATION
+       edits, both inside this pin's hash. EXT3 caught exactly this: stored eaa2868a no longer
+       matched a recompute (f8449d37). eaa2868a to the value below, recomputed by
+       pinOfKnobData(KNOB_DATA) on the patched file and read off the app's own function rather than
+       typed.
+       STEP 17 RE-PIN, SYSTEMS ENGINEER CLOSE-OUT (2026-09-22): the four per-year allocation curves
+       (phi_c0/phi_c/phi_o/phi_m) replaced a flat PHI_*_BY_ERA[era][presetId] lookup with a curve
+       evaluated at the live year, equal to the flat table at each anchor year by construction (see
+       curveKnots()'s isPhiCurve branch and phiDefaultAt(), both cited from this pin's own CONFIG
+       entries below). None of that mechanism change moves this pin by itself -- the four tables stay
+       outside pinOfKnobData's six-object hash exactly as Step 15.6 noted above -- what moves it is
+       that CONFIG.phiCByEra/phiMByEra/phiC0ByEra/phiOByEra each had their "source" field rewritten
+       to state the new curve-read mechanism honestly instead of the retired flat-lookup description
+       (each now reads "STEP 17: no longer read as a flat PHI_X_BY_ERA[era][presetId] lookup outside
+       the preset-application API -- these nine values are now the default knots of a per-year
+       draggable curve..."), and CONFIG.phiCByEra's own "reason" field gained a dated sentence
+       recording Quinn's first-use-case default change, the 2030 cell dropping to a flat 0.25 across
+       all three scenarios (from 0.91/0.54/0.91) as the new curve's own starting shape to ramp up
+       from, not a re-solved water target -- both CONFIG edits, inside this pin's hash. EXT3 caught
+       exactly this: stored f8449d37 no longer matched a recompute (02138b8c). f8449d37 to the value
+       below, recomputed by pinOfKnobData(KNOB_DATA) on the patched file and read off the app's own
+       function rather than typed. */
+    __pin: "02138b8c"
   };
 
   root.KNOB_DATA = KNOB_DATA;
@@ -9235,7 +9406,12 @@ const CURVE_MAX = { mass: MASS_RAIL_MAX,
                        inside it, and a reader dragging either handle past a scenario's own
                        numbers is bounded the same way the single mass curve always was. */
                     agency: MASS_RAIL_MAX,
-                    commercial: MASS_RAIL_MAX };
+                    commercial: MASS_RAIL_MAX,
+                    /* STEP 17: the four per-year allocation-share curves. phi_c0's own ceiling
+                       matches its Advanced-panel slider (#k_phic0, max 0.75), never 1 -- the
+                       other three are bounded fractions of the shared budget and share the
+                       generic [0,1] ceiling every other phi rail already uses. */
+                    phi_c0: 0.75, phi_c: 1, phi_o: 1, phi_m: 1 };
 const CURVE = { pts: { /* STEP 70.6: `mass` STORES NOTHING NOW AND STAYS AS A KEY. The total landing rate
                           has no store of its own: it is the sum of the two curves below, and
                           setEraRate('mass') writes those. The key remains, always null, so a caller that
@@ -9253,7 +9429,15 @@ const CURVE = { pts: { /* STEP 70.6: `mass` STORES NOTHING NOW AND STAYS AS A KE
                           (ruling 3) and the input to the per-cohort capital-source tag (BLD-06) and the
                           commercial-only capital charge (BLD-07/08). */
                        agency: {2030:null, 2040:null, 2055:null},
-                       commercial: {2030:null, 2040:null, 2055:null} } };
+                       commercial: {2030:null, 2040:null, 2055:null},
+                       /* STEP 17: the four per-year allocation-share curves, the same blank-knot
+                          shape every other curve above carries. Seeded from PHI_C0_BY_ERA/
+                          PHI_C_BY_ERA/PHI_O_BY_ERA/PHI_M_BY_ERA the same way agency/commercial are
+                          seeded from BUILDOUT_SPLIT -- see curveKnots()'s isPhiCurve branch. */
+                       phi_c0: {2030:null, 2040:null, 2055:null},
+                       phi_c:  {2030:null, 2040:null, 2055:null},
+                       phi_o:  {2030:null, 2040:null, 2055:null},
+                       phi_m:  {2030:null, 2040:null, 2055:null} } };
 /* STEP 69, RULING 5: curveReset(which) is now second-curve-aware. Called with an explicit curve
    name it clears only that one (used nowhere in this build yet, but proves the parameterized
    signature BLD-11 gates); called with no argument, exactly as every existing call site in this
@@ -9278,6 +9462,18 @@ let railWriteSig = '';
    applied was this same one," independent of anything dragged since. */
 let lastAppliedPresetId = null;
 function presetIdOf(p){ for (const id in PRESETS) if (PRESETS[id] === p) return id; return null; }
+/* STEP 17: the funding-tier-to-presetId inverse, read off PRESETS rather than off the APP-LAYER's
+   PRESET_OF_FUNDING constant (CR38-REGION-B, outside every CORE island): MODEL-CORE code
+   (curveKnots()'s own isPhiCurve branch, below) cannot reference PRESET_OF_FUNDING -- the sidecar
+   evals MODEL-CORE/VALUE-CORE/BLURB-CORE/DERIVATION-CORE/LEDGER-CORE in one shared scope that
+   never includes CR38-REGION-B, and a MODEL-CORE function that closed over PRESET_OF_FUNDING would
+   throw there the first time a phi curve's default knot was sampled (presetCensus() ->
+   phiDefaultAt() -> buildCurve() -> curveKnots(), measured: ReferenceError, confirmed by running
+   the sidecar against this change before this fix). PRESETS is already an accepted MODEL-CORE
+   dependency (presetIdOf() above reads it the same way), and each of the three funding tiers maps
+   to exactly one preset id, so the reverse lookup is unambiguous, identical in content to
+   PRESET_OF_FUNDING, and never drifts from PRESETS itself since it is derived from it fresh. */
+function fundingPresetId(funding){ for (const id in PRESETS) if (PRESETS[id].funding === funding) return id; return null; }
 /* THE DRAWN CONTROL POINTS AS ONE COMPARABLE VALUE, empty when the reader has placed none.
    B3's subject is a control the deviation machinery is blind to, and Step 56 sub-step 1 added a
    sixth such control with the largest effect of the six: at Agency Led Baseline 2055, one drag of
@@ -9297,8 +9493,12 @@ function curvePtsKey(){
   /* STEP 69: agency and commercial join mass and power here, so a reader-placed point on either
      new curve is caught by the identical "off preset" machinery a mass/power point already was --
      matchesPreset()'s state.curvePts==='' check and abstractCurrent()'s fade both read this key,
-     and neither is the mechanism this step is scoped to change, so both simply see more curves. */
-  ['mass','power','agency','commercial'].forEach(function(w){
+     and neither is the mechanism this step is scoped to change, so both simply see more curves.
+     STEP 17: phi_c0/phi_c/phi_o/phi_m join the same list, retiring the direct
+     state.phi_c===PHI_C_BY_ERA[...]-style snapshot comparison matchesPreset() used to make for
+     these four -- "at preset" for a curve-backed quantity is "no reader-placed point on it",
+     exactly the same predicate mass/power/agency/commercial already use, not a second one. */
+  ['mass','power','agency','commercial','phi_c0','phi_c','phi_o','phi_m'].forEach(function(w){
     /* STEP 69 ROBUSTNESS: `|| {}` guards the same pre-existing external CURVE.pts-narrowing idiom
        curveKnots() now guards (step67_se_gridwalk.js's CTX_EXPR), reached from here because
        learningMultipliersCounts() folds this key into its memo cache key. */
@@ -9326,8 +9526,13 @@ function curvePoints(){ return { mass: Object.assign({}, CURVE.pts.mass),
 function setEraRate(which, era, newRate){
   const y = Number(era);
   if (CURVE_ERAS.indexOf(y) < 0) throw new Error('setEraRate: ' + era + ' is not an era');
-  if (which !== 'mass' && which !== 'power' && which !== 'agency' && which !== 'commercial')
-    throw new Error('setEraRate: ' + which + ' is not mass, power, agency or commercial');
+  /* STEP 17: the whitelist is a membership test against CURVE_MAX's own keys rather than an
+     enumerated ||-chain -- eight draggable names deep (mass/power/agency/commercial plus the four
+     phi curves), a ninth (the product-curve identifier, never draggable, see productCurve()) must
+     never be added to it, and a membership test against the app's own curve registry cannot admit
+     one by a copy-paste mistake the way a literal string list could. */
+  if (!CURVE_MAX.hasOwnProperty(which))
+    throw new Error('setEraRate: ' + which + ' is not a curve this app carries');
   let v = (!isFinite(newRate)) ? 0 : Math.max(0, Math.min(CURVE_MAX[which], Number(newRate)));
   /* THE TOTAL STAYS ON THE AXIS. The two curves sum to the landing rate the headline prints, so at every era
      their knots sum to at most MASS_RAIL_MAX. When a drag would push the sum over, the DRAGGED curve is the
@@ -9416,11 +9621,21 @@ function curveKnots(which, funding, era, liveRate){
      scenario, so ruling 6/7's path-independence and no-scenario-literal-branching properties
      (BLD-12, BLD-13) are untouched: funding is still used only as a table lookup key. */
   const isSplitCurve = (which === 'agency' || which === 'commercial');
+  /* STEP 17: the third quantity family. Structurally identical to isSplitCurve above -- a
+     dictionary keyed [era][presetId] rather than [funding][era][field] -- so it reads
+     fundingPresetId(funding) to find its own row the same way BUILDOUT_SPLIT is read straight
+     off `funding`. fundingPresetId(), not the APP-LAYER's PRESET_OF_FUNDING, because curveKnots()
+     is MODEL-CORE and PRESET_OF_FUNDING lives outside every CORE island (see fundingPresetId()'s
+     own comment). */
+  const isPhiCurve = (which === 'phi_c0' || which === 'phi_c' || which === 'phi_o' || which === 'phi_m');
+  const PHI_TABLE_OF = { phi_c0: PHI_C0_BY_ERA, phi_c: PHI_C_BY_ERA, phi_o: PHI_O_BY_ERA, phi_m: PHI_M_BY_ERA };
   const hasEnv = isSplitCurve ? (funding != null && !!BUILDOUT_SPLIT[funding])
+               : isPhiCurve   ? (funding != null && fundingPresetId(funding) != null)
                               : (funding != null && !!ENVELOPE[funding]);
   function envAt(y){
     if (!hasEnv) return (liveRate != null) ? liveRate : 0;
     if (isSplitCurve) return BUILDOUT_SPLIT[funding][String(y)][which];
+    if (isPhiCurve) return PHI_TABLE_OF[which][String(y)][fundingPresetId(funding)];
     const fld = (which === 'mass') ? 'M' : 'P';
     return ENVELOPE[funding][String(y)][fld];
   }
@@ -9496,7 +9711,30 @@ function pchipSlopes(xs, ys){
 function buildCurve(which, funding, era, liveRate){
   if ((which === 'mass' || which === 'agency' || which === 'commercial') && funding != null && BUILDOUT_SPLIT[funding])
     return buildSplitCurve(which, funding, era, liveRate);
-  return buildCurveFromKnots(curveKnots(which, funding, era, liveRate), era);
+  /* STEP 17: the four phi curves carry a defensive ceiling clamp (CURVE_MAX[which], 0.75 for
+     phi_c0 and 1 for the other three) on top of PCHIP/quadratic/flat's own non-overshoot
+     property -- every other curve through this branch (power; mass with no funding tier) is
+     unaffected, Infinity being no ceiling at all. */
+  const isPhiCurve = (which === 'phi_c0' || which === 'phi_c' || which === 'phi_o' || which === 'phi_m');
+  const ceil = isPhiCurve ? CURVE_MAX[which] : Infinity;
+  return buildCurveFromKnots(curveKnots(which, funding, era, liveRate), era, ceil);
+}
+/* STEP 17, FIX (B): ONE HELPER, FOUR CALL SITES RETIRED. presetCensus(), _presetWaterAt(),
+   staleRender() and the Evidence Ledger's LEDGER_TOKENS/LEDGER_CELL_OF all used to read
+   PHI_C_BY_ERA[era][presetId] (and the phi_o/phi_m/phi_c0 siblings) directly, bypassing the
+   preset-application API entirely -- a table lookup baked into blurb/Notes text rather than a
+   value read off the app's own live curve machinery. Once the four tables are a curve's own
+   default knots (curveKnots()'s isPhiCurve branch, above), PHI_X_BY_ERA[era][presetId] is, by
+   construction, exactly what that scenario's OWN unmoved curve evaluates to at that anchor year:
+   buildCurveFromKnots()/PCHIP/quadratic/flat all interpolate EXACTLY through their own knots, not
+   merely near them, so this substitution is bit-identical to the read it replaces at every one of
+   the 9 preset-era cells that exist today, and it stays correct if a reader ever places a curve
+   point that a table read alone could never see. `null` for liveRate: none of these four call
+   sites are describing the reader's own live state, only a named preset's, so the curve's default
+   knot is read untouched, exactly parallel to `funding, era, null` at scenFleet()'s own blank-knot
+   probe above. */
+function phiDefaultAt(which, presetId, era){
+  return buildCurve(which, PRESETS[presetId].funding, era, null)(Number(era));
 }
 /* ONE CURVE PER ACTOR, THE TOTAL AS THEIR SUM.
    Agency and Commercial each carry their own monotone fit through their own knots, built by
@@ -9546,9 +9784,13 @@ function buildSplitCurve(which, funding, era, liveRate){
 function knotStored(which, y){ return ((CURVE.pts[which] || {})[y]) != null; }
 /* THE FIT ITSELF: flat, quadratic or monotone PCHIP through a knot list, year held inside [2030, era],
    rate held at or above zero. */
-function buildCurveFromKnots(ks, era){
+function buildCurveFromKnots(ks, era, ceil){
   const xs = ks.map(function(k){ return k[0]; }), ys = ks.map(function(k){ return k[1]; });
   const E = Number(era);
+  /* STEP 17: an optional ceiling, defaulting to no ceiling at all so every pre-existing caller
+     (mass, power, agency, commercial -- none of which pass a third argument) is unchanged bit for
+     bit. Only buildCurve()'s phi-curve branch supplies one. */
+  const CEIL = (ceil != null) ? ceil : Infinity;
   let family, rateRaw;
   if (xs.length === 1){
     family = 'flat';
@@ -9574,7 +9816,7 @@ function buildCurveFromKnots(ks, era){
      over an empty population. */
   function rate(y){
     const yy = Math.max(CURVE_EPOCH, Math.min(E, Number(y)));
-    return Math.max(0, rateRaw(yy));
+    return Math.max(0, Math.min(CEIL, rateRaw(yy)));
   }
   rate.family = family; rate.knots = ks; rate.raw = rateRaw; rate.era = E;
   return rate;
@@ -10979,11 +11221,20 @@ function fleetArgs(a, fs, era, k, funding){
   __fleetStates.add(b.mass + '|' + b.power);
   return {args:b, powerFleet:pf};
 }
-/* The yearly by-type fleet (R5.4), memoised on (arguments, era, landing curve, funding, service life). Returns the era's
-   standing state, its type split and the landing record by year. */
+/* The yearly by-type fleet (R5.4), memoised on (arguments, era, landing curve, funding, service life,
+   the four phi curves). Returns the era's standing state, its type split and the landing record by year.
+   STEP 17 SE CLOSE-OUT (2026-09-22): the phi curves joined this fix's inputs -- powerFleetSolve()'s loop
+   now reads phi_c0/phi_c/phi_o/phi_m off CURVE.pts every year (see its own STEP 17 comment) -- but this
+   key did not, so a reader's drag on the new phi-curve panel changed CURVE.pts, and phiCurveDraw()'s own
+   handle/readout repainted immediately, while the actual model output stayed on the pre-drag cached
+   result forever after (live-verified: h_const/h_water identical before and after a drag once a state
+   had already been rendered once). The mass/power/agency/commercial curves never had this gap because
+   their live values are already folded into rates0 above; the four phi curves needed the same treatment,
+   not a parallel mechanism. */
 function powerFleet(a, fs, era, k, funding){
   const E0 = Number(era), rates0 = []; for (let y = CURVE_EPOCH; y <= E0; y++) rates0.push(fs.rateM(y));
-  const key = JSON.stringify(a) + '|' + E0 + '|' + rates0.join(',') + '|' + funding + '|' + fleetLife() + '|' + R5.L_FIS + '|' + R5.FLOOR_FIS + '|' + configSig();
+  const phiPts0 = JSON.stringify([CURVE.pts.phi_c0, CURVE.pts.phi_c, CURVE.pts.phi_o, CURVE.pts.phi_m]);
+  const key = JSON.stringify(a) + '|' + E0 + '|' + rates0.join(',') + '|' + funding + '|' + fleetLife() + '|' + R5.L_FIS + '|' + R5.FLOOR_FIS + '|' + configSig() + '|' + phiPts0;
   const hit = __fleetMemo.get(key); if (hit) return hit;
   const out = powerFleetSolve(a, fs, era, k, funding);
   if (__fleetMemo.size > 2000) __fleetMemo.clear();
@@ -11102,9 +11353,19 @@ function powerFleetSolve(a, fs, era, k, funding){
      remainder T_frac buys solar at the year's blended price before the plant/solar split runs on what is left. Nothing
      carries forward: call B's backlogReactors is retired. "if you add 40 kWe you get that in solar. if they add 140 they
      get 1 reactor plus solar." */
-  const phiC0 = (a.phi_c0 != null) ? Math.max(0, Math.min(1, a.phi_c0)) : 0.10;   // [1] CLOSE-OUT S3: non-productive downmass comes off each landing first (modelCore's own default)
+  /* STEP 17: phi_c0/phi_c/phi_o/phi_m become per-year curves rather than one constant held for
+     every year of the run. Each curve is built once here, outside the loop (the same place `cF`/
+     `cS`/`trans` are already built once), seeded from this call's own `a.phi_*` as the live rate
+     at the era in view -- a caller that never touches Advanced mode's phi-curve panel gets back
+     exactly the flat-table value it always did, because curveKnots() falls back to
+     PHI_*_BY_ERA[era][presetId] at every year no point is placed on. */
+  const phi_c0Curve = buildCurve('phi_c0', funding, era, (a.phi_c0 != null) ? a.phi_c0 : null);
+  const phi_cCurve  = buildCurve('phi_c',  funding, era, (a.phi_c  != null) ? a.phi_c  : null);
+  const phi_oCurve  = buildCurve('phi_o',  funding, era, (a.phi_o  != null) ? a.phi_o  : null);
+  const phi_mCurve  = buildCurve('phi_m',  funding, era, (a.phi_m  != null) ? a.phi_m  : null);
   for (let y = CURVE_EPOCH; y <= E; y++){
-    const r = Math.max(0, fs.rateM(y)), rEff = r * (1 - phiC0), bucket = (y < 2040) ? '2030' : (y < 2055 ? '2040' : '2055');
+    const phiC0y = Math.max(0, Math.min(0.75, phi_c0Curve(y)));   // [1] CLOSE-OUT S3: non-productive downmass comes off each landing first (modelCore's own default); defensive re-clamp, buildCurveFromKnots already ceilings phi_c0 at CURVE_MAX.phi_c0
+    const r = Math.max(0, fs.rateM(y)), rEff = r * (1 - phiC0y), bucket = (y < 2040) ? '2030' : (y < 2055 ? '2040' : '2055');
     /* STEP 70b: THE RATE IS THIS YEAR'S, NOT THIS BUCKET'S, AND THE FLOOR GATES IT. The reader's own dial
        still governs the era being viewed; every other year takes the log-linear interpolation of the three
        anchors. A year under the maturity floor contributes no in-situ share, which is also what keeps a rate
@@ -11161,9 +11422,13 @@ function powerFleetSolve(a, fs, era, k, funding){
       const ifab = (fp > 0) ? iN / fp : 0, fabT = IfabS + ifab;                                              // [kWe yr/(kWe/(yr t))] = fab tonnes x L
       const fpStand = (Iv > 0 && fabT > 0) ? Iv / fabT : fp;                                                 // [kWe/(yr t)] survivors' harmonic rate
       return { sN: sN, iN: iN, ifab: ifab, F: Fv, S: Sv, I: Iv, P: P, M: M, fp: fp, fpStand: fpStand, T: T,
+        /* STEP 17: this year's own phi_c/phi_o/phi_m/phi_c0 replace whatever `a` held -- the one-line
+           fix that closes the constant-leak gap: every earlier year's args object no longer inherits
+           the caller's single flat lookup, it carries this year's own curve sample instead. */
         args: Object.assign({}, a, { power: P, mass: M, fission: (Fv > 0), mix: (P > 0 ? Fv / P : 0), insituReq: sh, insitu: sh,
-          fabCeiling: Math.max(sh, share), fabProd: fp, fabProdStand: fpStand, fabLedgerRequest: true, learnG: Gy }) };
-    }; })(fp, share, cSol, fNew, Fs, Ss, Is, Ms, IfabS, Gy, r, Rp, Tfrac, rEff, phiC0);
+          fabCeiling: Math.max(sh, share), fabProd: fp, fabProdStand: fpStand, fabLedgerRequest: true, learnG: Gy,
+          phi_c: phi_cCurve(y), phi_o: phi_oCurve(y), phi_m: phi_mCurve(y), phi_c0: phiC0 }) };
+    }; })(fp, share, cSol, fNew, Fs, Ss, Is, Ms, IfabS, Gy, r, Rp, Tfrac, rEff, phiC0y);
     const gOf = (function(st){ return function(lam){ const m = modelCore(st(lam).args); return { g: m.Wthr - m.Wpower, s: Math.abs(m.Wthr) + Math.abs(m.Wpower) }; }; })(stateAt);
     /* CLOSE-OUT W2 (Quinn 2026-09-15, "aim at the most water"): the kink is the water maximum only while W_power is
        non-decreasing in lambda, which R7.3.3 assumed. Where the fab runs short of silicon the array it cannot build carries no
@@ -11180,9 +11445,16 @@ function powerFleetSolve(a, fs, era, k, funding){
       if (wA > wK + 1e-12 * Math.max(1, Math.abs(wK))) kk = { lam: lamA, g: gOf(lamA).g, n: kk.n + 69, edge: 'water argmax' };
     }
     const st = stateAt(kk.lam);
+    /* STEP 17 (product curve): this year's settled state, run through modelCore() once more and
+       summed the app's own three-times-repeated way (objectiveR6's sibling helper,
+       productTonnage() -- water + construction + oxygenTotal + alloy). One extra modelCore() call
+       per year, additive to what kinkLambda's own bisection already spends; nothing else in this
+       loop reads it, so no existing figure moves. */
+    const __mProd = modelCore(st.args);
     rec.push({ y: y, r: r, rEff: rEff, Tfrac: Tfrac, lam: kk.lam, edge: kk.edge, gAt: kk.g, nEval: kk.n, reactors: fNew / REACTOR_KWE, reactorsScheduled: nSched,
       reactorsWanted: wanted, reactorsBacklog: backlogReactors, floorNeed: floorNeed, share: share,
-      F: fNew, S: st.sN, I: st.iN, Ifab: st.ifab, mF: mFnew, mS: st.sN * cS, mI: (isFinite(cI) ? st.iN * cI : 0), Mp: Rp - (st.T - Tfrac), Rp: Rp, cI: cI, fp: fp });
+      F: fNew, S: st.sN, I: st.iN, Ifab: st.ifab, mF: mFnew, mS: st.sN * cS, mI: (isFinite(cI) ? st.iN * cI : 0), Mp: Rp - (st.T - Tfrac), Rp: Rp, cI: cI, fp: fp,
+      product: productTonnage(__mProd) });
     last = st;
   }
   const le = rec[rec.length - 1];
@@ -14820,8 +15092,10 @@ function runValueTests(fileText){
     /* The nine keys the evidence migration added are declared here rather than discovered.
        EXT2 fails on an undeclared key by design, and it did, which is the gate working: the
        migration could not land quietly. */
+    // STEP 15.6: PHI_O_BY_ERA declared here alongside PHI_M_BY_ERA/PHI_C_BY_ERA/PHI_C0_BY_ERA,
+    // the same table shape added at the same top level for the same reason.
     const required = ['CONFIG','VALUE','VALUE_TRACE','LANDED_COST','C_HW','SLUGS','CLAIMS','SECTIONS','BLURB_PENDING','BLURB','DERIVATION','FFIS_LANDMARKS',
-                      'LEDGER','LEDGER_JOIN','COUNTER_JOIN','REFERENCES','SECTION_REFS','HANDLES','HANDLES_ADJUDICATED','HANDLES_UNRESOLVED','EXCLUSIONS','PRESETS','PHI_M_BY_ERA','PHI_C_BY_ERA','PHI_C0_BY_ERA','BINDING_SCOPE','__pin'];
+                      'LEDGER','LEDGER_JOIN','COUNTER_JOIN','REFERENCES','SECTION_REFS','HANDLES','HANDLES_ADJUDICATED','HANDLES_UNRESOLVED','EXCLUSIONS','PRESETS','PHI_M_BY_ERA','PHI_C_BY_ERA','PHI_C0_BY_ERA','PHI_O_BY_ERA','BINDING_SCOPE','__pin'];
     for(const k of required){ if(KD[k]==null){ pass=false; why.push('missing top-level key '+k); } }
     for(const k of topKeys){ if(required.indexOf(k)<0){ pass=false; why.push('undeclared top-level key '+k+', which nothing checks'); } }
     const nested = [['BLURB.ice fragments',KD.BLURB&&KD.BLURB.ice],['VALUE.op_prop',KD.VALUE&&KD.VALUE.op_prop],
@@ -15598,7 +15872,10 @@ function _presetWaterAt(presetId, phase){
      in the ratio below, and a handle at 5 t/yr painted "85 times Agency Led Baseline" against 1.8 at the
      presets. */
   const fs=scenFleet(p.funding, phase);
-  return model(withPresetLearning({ice:p.ice, power:fs.power, mass:fs.mass, fission:e.fission, phi_c:0, phi_m:PHI_M_BY_ERA[phase][presetId]}, fs, phase, p.funding)).water;
+  /* STEP 17, FIX (B): phi_m read through phiDefaultAt() -- this scenario's own unmoved phi_m
+     curve sampled at this anchor year -- rather than PHI_M_BY_ERA[phase][presetId] directly, bit
+     identical by construction (curveKnots() seeds the curve's knots from this exact table). */
+  return model(withPresetLearning({ice:p.ice, power:fs.power, mass:fs.mass, fission:e.fission, phi_c:0, phi_m:phiDefaultAt('phi_m', presetId, phase)}, fs, phase, p.funding)).water;
 }
 function _presetRatio(a, b, phase){
   if(!phase) throw new Error('a comparative ratio needs the phase it is comparing at');
@@ -15623,8 +15900,11 @@ function presetCensus(){
   IDS.forEach(function(id){ ERAS.forEach(function(era){
     var p=PRESETS[id], e=ENVELOPE[p.funding][era];
     var fs=scenFleet(p.funding, era); /* STEP 67 PASS 7: the preset fleet, never the reader's curve points */
+    /* STEP 17, FIX (B): phi_c/phi_m read through phiDefaultAt() -- each scenario's own unmoved
+       curve sampled at this anchor year -- rather than PHI_C_BY_ERA/PHI_M_BY_ERA[era][id]
+       directly, bit identical by construction. */
     var m=model(withPresetLearning({ice:p.ice, power:fs.power, mass:fs.mass, fission:e.fission,
-                 funding:p.funding, phase:era, phi_c:PHI_C_BY_ERA[era][id], phi_m:PHI_M_BY_ERA[era][id]}, fs, era)); /* STEP 67 PASS 5: at the preset's own metals-production split; the census ran at phi_m 0, which no preset runs, and painted headroom 1.8 to 23.9 where the presets read 1.9 to 45.8 */
+                 funding:p.funding, phase:era, phi_c:phiDefaultAt('phi_c', id, era), phi_m:phiDefaultAt('phi_m', id, era)}, fs, era)); /* STEP 67 PASS 5: at the preset's own metals-production split; the census ran at phi_m 0, which no preset runs, and painted headroom 1.8 to 23.9 where the presets read 1.9 to 45.8 */
     /* The water peak on the POWER rail at this cell. Power buys water until the power
        system's own landed mass crowds out the mining plant; past that point a kilowatt
        added costs water. Which side of the peak a preset opens on is a measurement and it
@@ -15730,6 +16010,7 @@ const PRESETS = KNOB_DATA.PRESETS;
 const PHI_M_BY_ERA = KNOB_DATA.PHI_M_BY_ERA;
 const PHI_C_BY_ERA = KNOB_DATA.PHI_C_BY_ERA;
 const PHI_C0_BY_ERA = KNOB_DATA.PHI_C0_BY_ERA;
+const PHI_O_BY_ERA = KNOB_DATA.PHI_O_BY_ERA;
 
 /* selection: numeric bands read from modelOut (raw values); base key
    from state.funding/phase; regime from modelOut.binding. Total, gap-free. */
@@ -15777,9 +16058,12 @@ function staleRender(m, live){
   const P = PRESETS.artemis, e = ENVELOPE[P.funding]['2040'];
   /* THE PRE-FLEET BASIS THE TWO RECORDS ARE ON: one year of this cell's own landing, which is the
      basis the sentence below names, evaluated on the live coefficients. */
+  /* STEP 17, FIX (B): phi_c read through phiDefaultAt() rather than PHI_C_BY_ERA['2040'].artemis
+     directly, bit identical by construction (Agency Led Baseline's own unmoved phi_c curve
+     sampled at 2040, one of its own three anchor knots). */
   const prefleet = function(kWe){
     return model({ice:P.ice, power:kWe, mass:e.M, fission:e.fission,
-                  funding:P.funding, phase:'2040', phi_c:PHI_C_BY_ERA['2040'].artemis}).water;
+                  funding:P.funding, phase:'2040', phi_c:phiDefaultAt('phi_c', 'artemis', '2040')}).water;
   };
   const wRetired = prefleet(45), wDirective = prefleet(e.P);
   live.push({field:'power', value:e.P,        claim:'envelope-agency-pilot', flagged:true});
@@ -16037,8 +16321,10 @@ function runBlurbTests(fileText){
     const t=cb.text;
     const why=[];
     const e=envelope('med','2040'), P=PRESETS.artemis;
+    // STEP 17, FIX (B): re-pointed at phiDefaultAt() in lockstep with staleRender()'s own call site,
+    // so the two independent copies of this read cannot diverge from each other.
     const prefleet=(kWe)=>model({ice:P.ice, power:kWe, mass:e.M, fission:e.fission,
-                                 funding:P.funding, phase:'2040', phi_c:PHI_C_BY_ERA['2040'].artemis}).water;
+                                 funding:P.funding, phase:'2040', phi_c:phiDefaultAt('phi_c', 'artemis', '2040')}).water;
     const liveWater=cb.live.find(x=>x.field==='water'&&!x.flagged);
     const livePower=cb.live.find(x=>x.field==='power'&&!x.flagged);
     const flaggedW=cb.live.find(x=>x.field==='water'&&x.flagged===true);
@@ -17310,10 +17596,30 @@ const ABSTRACTS = {
    than trusting this comment. If the two ever diverge the fade follows
    matchesPreset and this list is what changes, because a second definition of
    being at preset would be a copy and a copy drifts from the thing it copied. */
+/* STEP 17: phi_c/phi_o/phi_m/phiC0Ovr are retired from this list, in lockstep with matchesPreset()
+   dropping its own direct state.phi_c===TABLE[...]-shaped comparisons for the same four (see
+   matchesPreset()'s own STEP 17 comment) -- the law stated two paragraphs up ("if the two ever
+   diverge the fade follows matchesPreset and this list is what changes") applies here exactly as
+   written. curvePts stays: it already covers a reader-placed point on any of the app's curves,
+   the four new phi curves among them (curvePtsKey()'s own STEP 17 extension), so a drag inside
+   the Advanced-mode phi-curve panel still fades the abstract; a drag on the classic Construction/
+   Oxygen/Metals-production/Non-productive-downmass sliders (which write state.phi_c/phi_o/phi_m/
+   phiC0Ovr directly and never touch a curve point) no longer does, matching matchesPreset()'s own
+   new definition of being at preset. */
+/* STEP 17 SE CLOSE-OUT (2026-09-22): phi_c/phi_o/phi_m/phiC0Ovr rejoin this set alongside
+   curvePts, undoing the half of Fix (A) that dropped them. matchesPreset() restored its own
+   direct state.phi_c/phi_o/phi_m/phiC0Ovr comparisons (its own STEP 17 SE CLOSE-OUT comment,
+   on mass's precedent: a quantity whose classic slider does not write a curve point needs a
+   direct check alongside curvePtsKey(), or a slider drag registers nowhere). ABST-12's own law
+   ("the fade follows matchesPreset, and this list is what changes") makes this the required
+   other half: abstractPresetRef()/abstractCurrent() already compute all four (never removed,
+   only unused), so declaring them here is the whole of the fix -- the fade now fires on a
+   classic-slider drag exactly when the pill does, closing the ABST-09 disagreement a
+   pill-only fix would otherwise open. */
 const ABSTRACT_DEPS = {
-  artemis:    ['ice','power','mass','phi_c','funding','fission','phi_o','phi_m','mix','phiC0Ovr','solOvr','fisOvr','curvePts','landed_cost','learnRate','fabProd'],
-  contested:  ['ice','power','mass','phi_c','funding','fission','phi_o','phi_m','mix','phiC0Ovr','solOvr','fisOvr','curvePts','landed_cost','learnRate','fabProd'],
-  commercial: ['ice','power','mass','phi_c','funding','fission','phi_o','phi_m','mix','phiC0Ovr','solOvr','fisOvr','curvePts','landed_cost','learnRate','fabProd']
+  artemis:    ['ice','power','mass','funding','fission','mix','solOvr','fisOvr','curvePts','landed_cost','learnRate','fabProd','phi_c','phi_o','phi_m','phiC0Ovr'],
+  contested:  ['ice','power','mass','funding','fission','mix','solOvr','fisOvr','curvePts','landed_cost','learnRate','fabProd','phi_c','phi_o','phi_m','phiC0Ovr'],
+  commercial: ['ice','power','mass','funding','fission','mix','solOvr','fisOvr','curvePts','landed_cost','learnRate','fabProd','phi_c','phi_o','phi_m','phiC0Ovr']
 };
 /* curvePts is categorical because a placed control point is not a position on a rail: there is no
    fifteen percent of a knot existing. Its preset reference is the empty string, which is the state
@@ -17338,10 +17644,14 @@ function abstractPresetRef(p){
     fabProd:     FAB_RATE_ERA_DEFAULT[state.phase],
     funding:     p.funding,
     fission:     env.fission,
-    /* The Advanced controls' preset references. phi_o is the one of them that does not vary by
-       preset or by era, because no preset sets it: its reference IS the coefficient's own live
-       value, which is what makes a drag off it a deviation. */
-    phi_o:       DETENTS.phi_o[nearestIdx(DETENTS.phi_o, CONFIG.phiM.value)],
+    /* The Advanced controls' preset references. STEP 15.6: phi_o now carries the same
+       era-and-scenario-indexed intent phi_c, phi_m and phi_c0 do (PHI_O_BY_ERA), so its
+       reference is the table's own entry for this preset at the CURRENT era, not the flat
+       coefficient value it used to be defined against (matching applyPreset()'s own move: this
+       function must stay in lockstep with applyPreset()/matchesPreset() or the abstract-fade
+       reports deviation at a freshly clicked preset, a defect of exactly the kind Step 15.3's F2
+       fix was written to catch). */
+    phi_o:       DETENTS.phi_o[nearestIdx(DETENTS.phi_o, PHI_O_BY_ERA[state.phase][presetIdOf(p)])],
     // phi_m carries an era dimension phi_o does not (PHI_M_BY_ERA), so its reference is the
     // table's own entry for this preset at the CURRENT era, not a flat coefficient.
     phi_m:       DETENTS.phi_m[nearestIdx(DETENTS.phi_m, PHI_M_BY_ERA[state.phase][presetIdOf(p)])],
@@ -17383,13 +17693,17 @@ function abstractKnobDeviation(key, cur, ref){
   if (ABSTRACT_CATEGORICAL[key]) return cur === ref ? 0 : 1;
   /* The zero guard. A preset value of zero makes the ratio undefined, which is why the
      branch exists: without it a zero-referenced preset would divide by zero rather than
-     read as full deviation. It is live for two of the nine shipped preset-era cells: the
-     2026-09-21 PHI_C_BY_ERA ruling puts Early Shift to Mars at phi_c 0.00 for 2030 and 2040,
-     while the other seven cells read 0.80 or 0.85, so the branch is load-bearing at those two
-     and a dormant safety net for the rest. Any nonzero dial off a zero reference is still full
-     deviation. ABST-10 records that the rejected rail-band alternative diverges from this guard
-     at the reachable notches at or below rampLo, which the old five-notch rail had none of; the
-     divergence is no longer only theoretical. */
+     read as full deviation. STEP 15.6 (2026-09-22): no PHI_C_BY_ERA cell reads 0.00 any more
+     (the Step 15 optimizer table runs 0.54 to 0.97, see PHI_C_BY_ERA's own note), so the phi_c
+     branch this comment used to describe as load-bearing at two cells is now a dormant safety
+     net for all nine. The branch is live elsewhere instead: phi_c0 hits exactly 0.00 at five of
+     the nine cells under PHI_C0_BY_ERA (every 2030 cell, The Commercial Break 2040, Agency Led
+     Baseline 2055), and phi_o is 0.00 at all nine under the new PHI_O_BY_ERA, so both of those
+     controls' preset references pass through this guard far more often than phi_c's own now
+     does. Any nonzero dial off a zero reference is still full deviation. ABST-10 records that the
+     rejected rail-band alternative diverges from this guard at the reachable notches at or below
+     rampLo, which the old five-notch rail had none of; the divergence is no longer only
+     theoretical. */
   if (ref === 0) return cur === 0 ? 0 : 1;
   return Math.abs(cur - ref) / Math.abs(ref);
 }
@@ -17771,14 +18085,22 @@ function runAbstractTests(){
     // The zero-cell census, walked over all nine preset-era cells rather than the three presets:
     // PHI_C_BY_ERA carries an era dimension DETENTS.phi_c alone does not, so a preset can read
     // zero at one era and nonzero at another.
+    // STEP 17: read through phiDefaultAt() -- the curve's own value at this anchor year -- rather
+    // than PHI_C_BY_ERA[ph][id] directly, bit identical at the three anchor years by construction,
+    // and correct if a reader ever places a curve point a raw table read could never see.
     const cellIsZero = [];
     ids.forEach(function(id){ ['2030','2040','2055'].forEach(function(ph){
-      if (DETENTS.phi_c[nearestIdx(DETENTS.phi_c, PHI_C_BY_ERA[ph][id])] === 0) cellIsZero.push(PRESETS[id].label+' '+ph);
+      if (DETENTS.phi_c[nearestIdx(DETENTS.phi_c, phiDefaultAt('phi_c', id, ph))] === 0) cellIsZero.push(PRESETS[id].label+' '+ph);
     }); });
+    // STEP 15.6 (2026-09-22): the message below is read off cellIsZero.length live rather than a
+    // retyped count, the same discipline the `expected` rail set above already follows -- the Step
+    // 15 optimizer table (PHI_C_BY_ERA) can move which, or how many, of the nine cells read phi_c
+    // 0.00 without this message going stale the way a hardcoded "the remaining 6 read 0.80 or
+    // 0.85" literal would (that was true of the STEP 71 table; it is not true of this one).
     rec('ABST-10','GATE','the zero guard is live wherever a shipped preset-era cell reads phi_c 0.00 and dormant elsewhere, and it diverges from the rejected rail-band alternative exactly where predicted',
         bad.length===0,
         bad.length ? bad.join('; ') :
-        cellIsZero.length+' of 9 preset-era cells read the construction share at exactly zero ('+cellIsZero.join(', ')+'), where the guard is load-bearing; the remaining 6 read 0.80 or 0.85, where it never fires. '+
+        cellIsZero.length+' of 9 preset-era cells read the construction share at exactly zero'+(cellIsZero.length?' ('+cellIsZero.join(', ')+')':'')+', where the guard is load-bearing; the remaining '+(9-cellIsZero.length)+' read a nonzero phi_c, where it never fires. '+
         'Across '+rail.length+' reachable detents, the shipped full-deviation guard and the rejected rail-band alternative diverge at exactly '+
         JSON.stringify(expected)+', the nonzero notches at or below rampLo ('+ABSTRACT_FADE_RULING.rampLo+') where a full-deviation response and a proportional one must disagree by construction, and agree at every other detent.');
   })();
@@ -23239,12 +23561,27 @@ function runAbstractTests(){
         const MOVES = [
           ['Ice grade', function(){ fire68(byId('k_ice'), state.ice === 0 ? 1 : 0); }],
           ['Mass landing rate', function(){ fire68(byId('k_mass'), state.mass === 0 ? 1 : 0); }],
-          ['Construction split', function(){ fire68(byId('k_phic'), state.phi_c === 0 ? 1 : 0); }],
-          ['Oxygen split', function(){ fire68(byId('k_phio'), state.phi_o === 0 ? 1 : 0); }],
-          ['Metals-production split', function(){ fire68(byId('k_phim'), state.phi_m === 0 ? 1 : 0); }],
+          /* STEP 17: matchesPreset() no longer compares state.phi_c/phi_o/phi_m directly (fix A);
+             it reads curvePtsKey() instead, which is blind to the classic sliders' own state.phi_c/
+             phi_o/phi_m writes (bindDetentSlider never touches CURVE.pts for these three keys) and
+             live only to a placed curve point. A fire68() on #k_phic/#k_phio/#k_phim would therefore
+             no longer leave the preset by this row's own new definition, so these three MOVES
+             become direct writes to the curve's live-era knot instead, the same carve-out mass
+             already needed when it went continuous at Step 70.2. Fixed off-preset values: phi_c's
+             nine PHI_C_BY_ERA cells run 0.54-0.97, so 0.10 is off every one of them; phi_o/phi_m's
+             own cells run 0.00-0.06, so 0.50 is off every one of them. */
+          ['Construction split', function(){ setEraRate('phi_c', state.phase, 0.10); render(); }],
+          ['Oxygen split', function(){ setEraRate('phi_o', state.phase, 0.50); render(); }],
+          ['Metals-production split', function(){ setEraRate('phi_m', state.phase, 0.50); render(); }],
           ['Solar kg/kWe', function(){ fire68(byId('k_solovr'), 20); }],
           ['Fission kg/kWe', function(){ fire68(byId('k_fisovr'), 300); }],
-          ['Non-productive downmass', function(){ fire68(byId('k_phic0'), 0.5); }],
+          /* STEP 17: phi_c0 joins phi_c/phi_o/phi_m's own carve-out above, for the identical
+             reason -- matchesPreset() no longer compares state.phiC0Ovr directly (fix A), and
+             #k_phic0's own input listener never places a curve point, only writes state.phiC0Ovr,
+             so a fire68() here would no longer leave the preset by this row's own new definition.
+             PHI_C0_BY_ERA's nine cells run 0.00-0.44, so 0.60 is off every one of them (within
+             CURVE_MAX.phi_c0's own 0.75 ceiling). */
+          ['Non-productive downmass', function(){ setEraRate('phi_c0', state.phase, 0.60); render(); }],
           /* STEP 68 PASS 2A: Restore covers the two Value controls and the In-situ solar rate. */
           ['Earth delivery cost', function(){ fire68(byId('k_landedcost'), state.landed_cost === 0 ? 1 : 0); }],
           /* STEP 68 FABSEG, ITEM 2: fires an index off LEARN_PRESET_INDEX (now 2, 0.85) so the move actually leaves the preset. */
@@ -23440,8 +23777,10 @@ function ledgerCell(slug){
   if (!t) throw new Error('ledger token names a cell the register does not carry: ' + slug);
   const p = PRESETS[t[0]], e = ENVELOPE[p.funding][t[1]];
   const fs = scenFleet(p.funding, t[1]); /* STEP 67 PASS 7: the preset fleet, never the reader's curve points */
-  /* STEP 67 PASS 5: phi_c stays 0 as the ledger declares; phi_m is the preset's own, since a capacity at phi_m 0 printed 2,068 t/yr where Agency Led Baseline 2055 caps water at 1,409. */
-  const m = model(withPresetLearning({ice:p.ice, power:fs.power, mass:fs.mass, fission:e.fission, phi_c:0, phi_m:PHI_M_BY_ERA[t[1]][t[0]]}, fs, t[1], p.funding));
+  /* STEP 67 PASS 5: phi_c stays 0 as the ledger declares; phi_m is the preset's own, since a capacity at phi_m 0 printed 2,068 t/yr where Agency Led Baseline 2055 caps water at 1,409.
+     STEP 17, FIX (B): phi_m read through phiDefaultAt() rather than PHI_M_BY_ERA[t[1]][t[0]]
+     directly, bit identical by construction. */
+  const m = model(withPresetLearning({ice:p.ice, power:fs.power, mass:fs.mass, fission:e.fission, phi_c:0, phi_m:phiDefaultAt('phi_m', t[0], t[1])}, fs, t[1], p.funding));
   _LEDGER_CELL_CACHE[slug] = { m:m, fs:fs, env:e, label:p.label, era:t[1] };
   return _LEDGER_CELL_CACHE[slug];
 }
@@ -23454,8 +23793,14 @@ const LEDGER_TOKENS = {
     const E = PRESETS.contested, A = PRESETS.artemis, C = PRESETS.commercial, w = {};
     ['contested','artemis','commercial'].forEach(function(id){
       const p = PRESETS[id], e = ENVELOPE[p.funding]['2030'], fs = scenFleet(p.funding, '2030');
-      w[id] = model(withPresetLearning({ice:p.ice, power:fs.power, mass:fs.mass, fission:e.fission, phi_c:PHI_C_BY_ERA['2030'][id],
-                     phi_o:snapVal('phi_o', CONFIG.phiM.value), phi_m:PHI_M_BY_ERA['2030'][id]}, fs, '2030', p.funding)).water;
+      // STEP 15.6: phi_o read at this cell's own PHI_O_BY_ERA entry, not the flat CONFIG.phiM.value
+      // constant -- this function claims "at each programme's preset settings" and the live preset
+      // no longer sits at the flat constant, so using it here would print a water figure the app's
+      // own preset state does not actually produce.
+      // STEP 17, FIX (B): all three read through phiDefaultAt() rather than PHI_C_BY_ERA/
+      // PHI_O_BY_ERA/PHI_M_BY_ERA['2030'][id] directly, bit identical by construction.
+      w[id] = model(withPresetLearning({ice:p.ice, power:fs.power, mass:fs.mass, fission:e.fission, phi_c:phiDefaultAt('phi_c', id, '2030'),
+                     phi_o:snapVal('phi_o', phiDefaultAt('phi_o', id, '2030')), phi_m:phiDefaultAt('phi_m', id, '2030')}, fs, '2030', p.funding)).water;
     });
     const r = w.artemis > 0 ? w.contested / w.artemis : NaN;
     const same = Math.abs(w.artemis - w.commercial) <= Math.max(1e-6, w.artemis * 1e-6);
@@ -23768,6 +24113,19 @@ function openAdvanced(open){
   document.getElementById('advPanel').hidden=!open;
   document.getElementById('advToggle').setAttribute('aria-expanded', String(open));
   applyTabGating();
+  /* STEP 17: the three curve panels (buildout, investment, and the new phi/product panel) now
+     live inside #advPanel, which render() paints on every interaction regardless of whether the
+     panel is hidden. curveDraw()/investDraw()/phiCurveDraw() each read cv.clientWidth/clientHeight
+     to convert backing-store pixels to CSS pixels (see curveDraw()'s own comment on sx/sy), and a
+     hidden ancestor reports 0 for both, so the LAST render before this open() call painted the
+     handles at the unscaled 1:1 fallback. Repainting once here, after hidden goes false and the
+     element has real layout, is the one-line fix: every render after this one is already correct
+     because the panel is visible when it runs. */
+  if (open){
+    try { curveDraw(); } catch(e){}
+    try { investDraw(); } catch(e){}
+    try { phiCurveDraw(); } catch(e){}
+  }
 }
 
 
@@ -23839,7 +24197,11 @@ let state = { ice:snapIdx('ice',5), power:0, mass:MASS_RAIL_MIN, phi_c:0, phi_o:
                  -- a pure UI selector, never reset by curveReset()/applyPreset() (like state.phase,
                  a preset click changes the active programme, never which curve the reader is
                  pointed at). */
-              curveWhich:'agency' };/* THE DRAWN CURVE JOINS `state` AS A READ-ONLY DERIVED KEY. It is NON-ENUMERABLE on purpose:
+              curveWhich:'agency',
+              /* STEP 17: which of the four phi curves the Advanced-mode phi-curve panel's toggle
+                 currently has live -- a pure UI selector on the same footing as curveWhich, never
+                 reset by curveReset()/applyPreset(). */
+              phiCurveWhich:'phi_c' };/* THE DRAWN CURVE JOINS `state` AS A READ-ONLY DERIVED KEY. It is NON-ENUMERABLE on purpose:
    runAbstractTests() snapshots the state with JSON.parse(JSON.stringify(state)) and restores it
    with Object.keys(save).forEach, and viewFingerprint() stringifies the same object, so an
    enumerable derived key would be copied into a snapshot that then tried to write it back through
@@ -23892,7 +24254,11 @@ function applyPreset(p){
      did, and the other four survived a preset click untouched, so clicking the scenario you were
      already on left you somewhere the preset never puts you while the chip said otherwise. */
   state.mix=MIX_ERA_DEFAULT[state.phase];
-  state.phi_o=snapIdx('phi_o', CONFIG.phiM.value);
+  // STEP 15.6: phi_o is era-indexed as well as scenario-indexed now too (PHI_O_BY_ERA), on
+  // PHI_M_BY_ERA's own precedent, replacing the flat CONFIG.phiM.value constant (0.05) a preset
+  // click used to re-derive it from. CONFIG.phiM.value itself is untouched and still stands as
+  // phi_o's functional-default fallback everywhere a caller omits phi_o entirely.
+  state.phi_o=snapIdx('phi_o', PHI_O_BY_ERA[state.phase][thisPresetId]);
   // The metals-production allocation is era-indexed as well as scenario-indexed (PHI_M_BY_ERA),
   // so it follows phi_c's own precedent rather than phi_o's: a preset click re-derives it from
   // the table at the CURRENT era (state.phase is already correct here; a preset click never
@@ -23927,20 +24293,42 @@ function applyPreset(p){
 function matchesPreset(p){
   const env=envelope(p.funding,state.phase);
   return state.funding===p.funding
-      && state.ice===snapIdx('ice',p.ice) && state.phi_c===snapIdx('phi_c', PHI_C_BY_ERA[state.phase][presetIdOf(p)])
+      && state.ice===snapIdx('ice',p.ice)
       && state.power===snapIdx('power',env.P) && state.mass===env.M   // STEP 70.2 ITEM B: mass is a continuous value now, compared directly against the envelope's own number
       && state.fission===env.fission
-      && state.phi_o===snapIdx('phi_o', CONFIG.phiM.value)
-      && state.phi_m===snapIdx('phi_m', PHI_M_BY_ERA[state.phase][presetIdOf(p)])
       && state.mix===MIX_ERA_DEFAULT[state.phase]
-      && state.phiC0Ovr===PHI_C0_BY_ERA[state.phase][presetIdOf(p)]
       && state.solOvr===1000*CONFIG.fSol.value
       && state.fisOvr===1000*CONFIG.fFis.value
       /* THE DRAWN CURVE JOINS THE DEFINITION AT STEP 56 REMEDIATION 3. A control point the reader
          placed is a knob, and until this clause the app did not know it: one drag moved the
          headline 54 percent with the scenario's pill still lit and its name still in the Scenario
-         tab's first sentence. `state.curvePts` is empty exactly when no point has been placed. */
+         tab's first sentence. `state.curvePts` is empty exactly when no point has been placed.
+         STEP 17: phi_c/phi_o/phi_m/phi_c0 join mass/power/agency/commercial on this same
+         curvePtsKey()-backed check (mechanism 2), catching a placed point on the new phi-curve
+         panel exactly the way one on the mass curve already was. */
       && state.curvePts===''
+      /* STEP 17 SE CLOSE-OUT (2026-09-22): mass's own line three rows up
+         (state.mass===env.M) proves curvePtsKey() alone is not sufficient for a quantity whose
+         classic rail slider does not write a curve point -- bindMassRailSlider clears
+         CURVE.pts.mass at the live era on a drag rather than setting it (the rail, not a point,
+         becomes authoritative there), so mass keeps a DIRECT value comparison alongside the curve
+         check, and without it a mass-slider drag would read as still-at-preset. The four classic
+         phi sliders (#k_phic/#k_phio/#k_phim/#k_phic0) are in the identical position --
+         bindDetentSlider never writes CURVE.pts for phi_c/phi_o/phi_m at all (confirmed at its own
+         STEP 17 comment, RAIL68-10) and #k_phic0's listener only ever writes state.phiC0Ovr -- so
+         dropping their direct comparisons rather than keeping them alongside curvePtsKey(), the
+         way mass does, left a real gap: a reader who drags only the classic sliders (never opens
+         the Advanced curve panel) moved the model with the "at preset" pill still lit and Restore
+         still disabled. Restored, on mass's own precedent, as an AND alongside curvePtsKey()
+         rather than replacing it: a placed curve point still fails this clause on its own (the
+         classic state.<key> is untouched by a curve drag, exactly as it was before), and a
+         classic-slider drag now also fails it (state.<key> no longer matches this era's table
+         value), so either affordance registers as off-preset, matching mass's own two-check shape
+         rather than the zero-check gap Fix (A) otherwise left standing for phi. */
+      && state.phi_c===snapIdx('phi_c', PHI_C_BY_ERA[state.phase][presetIdOf(p)])
+      && state.phi_o===snapIdx('phi_o', PHI_O_BY_ERA[state.phase][presetIdOf(p)])
+      && state.phi_m===snapIdx('phi_m', PHI_M_BY_ERA[state.phase][presetIdOf(p)])
+      && state.phiC0Ovr===PHI_C0_BY_ERA[state.phase][presetIdOf(p)]
       /* STEP 68 PASS 2A: Restore covers Earth delivery cost, the Learning rate and the In-situ solar rate. */
       && state.landed_cost===snapIdx('landed_cost', LANDED_COST.eraDefault[state.phase])
       && state.learnRate===LEARN_PRESET_INDEX
@@ -24199,9 +24587,11 @@ function updateTrack(m){
     if (sharedCause.length) parts.push((allShare ? '' : 'Not yet distinguishable at this era: ') + sharedCause.join('; ') + ' read the same water figure, because they share ' + (allShare ? 'that envelope' : 'the same funding envelope') + ' and the same ice grade.');
     if (sameOnly.length) parts.push(sameOnly.join('; ') + ' read the same water figure at this era.');
     if (allShare){
+      /* STEP 17, FIX (B): the not-own branch reads through phiDefaultAt() rather than
+         PHI_C_BY_ERA/PHI_M_BY_ERA[state.phase][id] directly, bit identical by construction. */
       const ownOf = function(id){
         const o = (SCEN[id].funding === state.funding);
-        return { ice: iceOf(id), phi_c: o ? knobVal('phi_c') : PHI_C_BY_ERA[state.phase][id], phi_m: o ? knobVal('phi_m') : PHI_M_BY_ERA[state.phase][id],
+        return { ice: iceOf(id), phi_c: o ? knobVal('phi_c') : phiDefaultAt('phi_c', id, state.phase), phi_m: o ? knobVal('phi_m') : phiDefaultAt('phi_m', id, state.phase),
                  insitu: insituShareApplied({fSolOvr: state.solOvr/1000, fabProd: state.fabProd}, fabCeiling(state.phase, SCEN[id].funding)) };
       };
       const own = {}; ids2.forEach(function(id){ own[id] = ownOf(id); });
@@ -24641,12 +25031,14 @@ document.getElementById('phase').addEventListener('click', e=>{
   // phi_m carries the same era-indexed intent phi_c does (PHI_M_BY_ERA), so an era click
   // re-derives it too, discarding whatever the reader last dragged the Advanced slider to.
   state.phi_m = snapIdx('phi_m', PHI_M_BY_ERA[state.phase][named]);
-  // STEP 15.3 FIX (F2): phi_o has no era table of its own (no PHI_O_BY_ERA) -- applyPreset() and
-  // matchesPreset() both define its at-preset value as the flat CONFIG.phiM.value constant, snapped
-  // to the rail. An era click was resetting phi_c and phi_m to their era intent while leaving a
-  // dragged phi_o stranded, so the four displayed fractions could sum past 1 with no renormalization.
-  // Reset phi_o here the same way, to the same constant applyPreset()/matchesPreset() already use.
-  state.phi_o = snapIdx('phi_o', CONFIG.phiM.value);
+  // STEP 15.3 FIX (F2): an era click was resetting phi_c and phi_m to their era intent while
+  // leaving a dragged phi_o stranded, so the four displayed fractions could sum past 1 with no
+  // renormalization. Reset phi_o here the same way applyPreset()/matchesPreset() do.
+  // STEP 15.6: phi_o now carries the same era-and-scenario-indexed intent phi_c, phi_m and
+  // phi_c0 do (PHI_O_BY_ERA, new table), replacing the flat CONFIG.phiM.value constant this F2
+  // fix originally reset it to; applyPreset() and matchesPreset() were moved onto the same table
+  // in the same pass, so all three still agree.
+  state.phi_o = snapIdx('phi_o', PHI_O_BY_ERA[state.phase][named]);
   // phi_c0 carries the same era-indexed intent phi_c and phi_m do (PHI_C0_BY_ERA), so an era
   // click re-derives it too, discarding whatever the reader last dragged the Advanced slider to.
   state.phiC0Ovr = PHI_C0_BY_ERA[state.phase][named];
@@ -25310,7 +25702,295 @@ function curveKeyDown(ev){
    reader interaction and a window resize is not one, so without this the handles drift off the
    curve at exactly the moment the reader changes the width. */
 if (typeof window !== 'undefined' && window.addEventListener)
-  window.addEventListener('resize', function(){ __curveHoldFoot = (curveDragTimer != null); try { curveDraw(); } catch(e){} __curveHoldFoot = false; });
+  window.addEventListener('resize', function(){ __curveHoldFoot = (curveDragTimer != null); try { curveDraw(); } catch(e){} __curveHoldFoot = false; try { phiCurveDraw(); } catch(e){} });
+
+/* ============================================================
+   STEP 17: THE PHI/PRODUCT CURVE PANEL. One shared canvas (#phiCurvePlot), five series: the four
+   per-year allocation-share curves (phi_c0/phi_c/phi_o/phi_m) drawn and draggable exactly the way
+   curveDraw()/curveDragStart()/curveDragMove()/curveDragEnd()/curveKeyDown() above already draw
+   and drag the mass/agency/commercial curves -- same CURVE_PAD-shaped margin discipline, same
+   backing-store-to-CSS-pixel scale read off the element's own box, same handle-reuse-under-a-live-
+   drag rule, same 500 ms settle between the pointer and the model. The one new mechanism is the
+   vertical law: phi is already [0,1], so it maps to the shared 0-100% pixel band LINEARLY
+   (phiPct/phiFromPct) rather than through massRailPct()'s log law, while the fifth series,
+   productCurve, keeps the log law the mass curve already uses (reusing massRailPct/
+   MASS_RAIL_MIN/MASS_RAIL_MAX rather than a second range, per the design spec section 4) --
+   two vertical laws sharing one canvas, exactly the "dual y-axis" shape py() was already written
+   as value -> percentage -> pixel to support. productCurve is drawn, never dragged (see
+   productTonnage()/powerFleetSolve()'s own STEP 17 comment on why): a heavier dashed stroke,
+   always full weight, no toggle button and no handle, the same relationship the existing mass
+   curve's own "god curve" (Agency+Commercial sum, drawn on the Investment panel) already has to
+   its two draggable constituents. */
+const PHI_CURVE_PAD = { l: 26, r: 26, t: 8, b: 16 };
+const PHI_Y_LABEL = 'Allocation share, φ (linear)', PRODUCT_Y_LABEL = 'Total product, t/yr (log)';
+const PHI_CURVE_NAMES = ['phi_c0', 'phi_c', 'phi_o', 'phi_m'];
+const PHI_CURVE_LABEL = { phi_c0: 'Non-productive downmass curve', phi_c: 'Construction split curve',
+                          phi_o: 'Oxygen split curve', phi_m: 'Metals-production split curve' };
+function phiPct(v){ return Math.max(0, Math.min(100, v * 100)); }
+function phiFromPct(pct){ return Math.max(0, Math.min(1, pct / 100)); }
+function plotAxisLabelRight(cv, ctx, pad, yText){
+  const W = cv.width, H = cv.height;
+  ctx.save();
+  ctx.fillStyle = 'rgba(160,170,190,0.9)'; ctx.font = '9px sans-serif'; ctx.textAlign = 'center';
+  ctx.translate(W - 9, pad.t + (H - pad.t - pad.b) / 2); ctx.rotate(Math.PI / 2);
+  ctx.fillText(yText, 0, 0, H - 12);
+  ctx.restore();
+}
+/* THE PRODUCT CURVE'S OWN DATA SOURCE: powerFleetSolve()'s per-year record, now carrying a
+   `product` field (water + construction + oxygenTotal + alloy, productTonnage()'s own formula)
+   captured once per year inside the loop. scenarioModelArgs() already runs this solve for every
+   render (fleetArgs()/powerFleet()'s own memo keeps a second call here cheap), so this reads the
+   same result render() itself reads rather than re-solving. */
+function productCurveSeries(){
+  const own = scenarioModelArgs(PRESET_OF_FUNDING[state.funding]);
+  return (own.powerFleet && own.powerFleet.years) ? own.powerFleet.years : [];
+}
+function phiCurveDraw(){
+  const cv = document.getElementById('phiCurvePlot');
+  const wrap = document.getElementById('phiCurveWrap');
+  if (!cv || !wrap) return null;
+  const era = state.phase, E = Number(era);
+  const which = (PHI_CURVE_NAMES.indexOf(state.phiCurveWhich) >= 0) ? state.phiCurveWhich : 'phi_c';
+  /* Each curve is seeded with the reader's own live value at the era in view, the same pattern
+     curveDraw() feeds buildCurve('mass', ..., knobVal('mass')) -- a reader who only ever drags the
+     classic Construction/Oxygen/Metals-production/Non-productive-downmass sliders sees that same
+     live number painted here, at this era, with no need to touch this panel at all. */
+  const curves = {
+    phi_c0: buildCurve('phi_c0', state.funding, era, (state.phiC0Ovr != null) ? state.phiC0Ovr : CONFIG.phiC0.value),
+    phi_c:  buildCurve('phi_c',  state.funding, era, knobVal('phi_c')),
+    phi_o:  buildCurve('phi_o',  state.funding, era, knobVal('phi_o')),
+    phi_m:  buildCurve('phi_m',  state.funding, era, knobVal('phi_m'))
+  };
+  const yrs = [];
+  for (let y = CURVE_EPOCH; y <= E; y++) yrs.push(y);
+  const vals = {};
+  PHI_CURVE_NAMES.forEach(function(w){ vals[w] = yrs.map(curves[w]); });
+  const prodRows = productCurveSeries();
+  const prodVals = yrs.map(function(y){ const r = prodRows[y - CURVE_EPOCH]; return (r && isFinite(r.product)) ? r.product : 0; });
+
+  /* THE RECORD, written before anything is drawn -- the same discipline curveDraw()/investDraw() keep. */
+  cv.dataset.era = String(E);
+  cv.dataset.eras = curveErasInScope(era).join(',');
+  cv.dataset.years = String(yrs.length);
+  cv.dataset.curveWhich = which;
+  cv.dataset.xLabel = PLOT_X_LABEL; cv.dataset.yLabel = PHI_Y_LABEL; cv.dataset.yLabel2 = PRODUCT_Y_LABEL;
+  PHI_CURVE_NAMES.forEach(function(w){
+    cv.dataset[w + 'Knots'] = curves[w].knots.map(function(k){ return k[0] + ':' + k[1]; }).join(',');
+    cv.dataset[w + 'Family'] = curves[w].family;
+    cv.dataset[w + 'RateAt'] = yrs.map(function(y, i){ return y + ':' + vals[w][i]; }).join(',');
+  });
+  cv.dataset.productAt = yrs.map(function(y, i){ return y + ':' + prodVals[i]; }).join(',');
+
+  const vc = document.getElementById('v_phicurve');
+  if (vc) vc.textContent = fmtNum(curves[which](E) * 100, 1) + '% at ' + E;
+
+  const hbox = document.getElementById('phiCurveHandles');
+  if (hbox){
+    const W = cv.width, H = cv.height;
+    const sx = (cv.clientWidth  > 0) ? cv.clientWidth  / W : 1;
+    const sy = (cv.clientHeight > 0) ? cv.clientHeight / H : 1;
+    cv.dataset.cssScaleX = String(sx); cv.dataset.cssScaleY = String(sy);
+    const px = function(y){ return (PHI_CURVE_PAD.l + (E === CURVE_EPOCH ? 0 :
+                    ((y - CURVE_EPOCH) / (E - CURVE_EPOCH)) * (W - PHI_CURVE_PAD.l - PHI_CURVE_PAD.r))) * sx; };
+    const py = function(v){ return (H - PHI_CURVE_PAD.b - (phiPct(v) / 100) * (H - PHI_CURVE_PAD.t - PHI_CURVE_PAD.b)) * sy; };
+    const wanted = curveErasInScope(era);
+    const have = hbox.querySelectorAll('.phicurvehandle');
+    let reuse = (phiCurveDragEra != null) && have.length === wanted.length;
+    if (reuse) for (let i = 0; i < wanted.length; i++)
+      if (Number(have[i].dataset.era) !== Number(wanted[i])) { reuse = false; break; }
+    if (!reuse) hbox.innerHTML = '';
+    wanted.forEach(function(y, i){
+      const b = reuse ? have[i] : document.createElement('button');
+      const v = curves[which](y);
+      b.type = 'button';
+      b.className = 'phicurvehandle';
+      b.dataset.era = String(y);
+      b.dataset.which = which;
+      b.dataset.rate = String(v);
+      b.dataset.selected = (Number(y) === Number(era)) ? '1' : '0';
+      b.setAttribute('aria-label', PHI_CURVE_LABEL[which] + ' at ' + y + ', ' + fmtNum(v * 100, 1) + ' percent, arrow keys adjust');
+      b.style.left = px(y) + 'px';
+      b.style.top = py(v) + 'px';
+      if (!reuse){
+        b.addEventListener('pointerdown', phiCurveDragStart);
+        b.addEventListener('keydown', phiCurveKeyDown);
+        hbox.appendChild(b);
+      }
+    });
+  }
+
+  const ctx = cv.getContext && cv.getContext('2d');
+  if (ctx){
+    const W = cv.width, H = cv.height;
+    const px = function(y){ return PHI_CURVE_PAD.l + (E === CURVE_EPOCH ? 0 :
+                    ((y - CURVE_EPOCH) / (E - CURVE_EPOCH)) * (W - PHI_CURVE_PAD.l - PHI_CURVE_PAD.r)); };
+    const pyPhi = function(v){ return H - PHI_CURVE_PAD.b - (phiPct(v) / 100) * (H - PHI_CURVE_PAD.t - PHI_CURVE_PAD.b); };
+    const pyProduct = function(v){ return H - PHI_CURVE_PAD.b - (massRailPct(v) / 100) * (H - PHI_CURVE_PAD.t - PHI_CURVE_PAD.b); };
+    ctx.clearRect(0, 0, W, H);
+    ctx.strokeStyle = 'rgba(160,170,190,0.35)';
+    ctx.beginPath(); ctx.moveTo(PHI_CURVE_PAD.l, PHI_CURVE_PAD.t); ctx.lineTo(PHI_CURVE_PAD.l, H - PHI_CURVE_PAD.b);
+    ctx.lineTo(W - PHI_CURVE_PAD.r, H - PHI_CURVE_PAD.b); ctx.stroke();
+    plotAxisLabels(cv, ctx, PHI_CURVE_PAD, PHI_Y_LABEL);
+    plotAxisLabelRight(cv, ctx, PHI_CURVE_PAD, PRODUCT_Y_LABEL);
+    /* Colors reused from the app's own palette so a reader who has learned "pin = in-situ fabs,
+       alloy = metals" elsewhere in the UI meets the same colors here (design spec section 4):
+       phi_c0 --regolith, phi_c --ice, phi_o a fourth accent, phi_m --alloy-family. */
+    const series = [
+      ['phi_c0', 'rgba(224,165,79,',  which === 'phi_c0'],
+      ['phi_c',  'rgba(78,201,232,',  which === 'phi_c'],
+      ['phi_o',  'rgba(120,200,140,', which === 'phi_o'],
+      ['phi_m',  'rgba(200,120,220,', which === 'phi_m']
+    ];
+    series.forEach(function(sr){
+      ctx.save();
+      ctx.strokeStyle = sr[1] + '0.95)'; ctx.lineWidth = sr[2] ? 2 : 1; ctx.globalAlpha = sr[2] ? 1 : 0.55;
+      ctx.beginPath();
+      yrs.forEach(function(y, i){ const X = px(y), Y = pyPhi(vals[sr[0]][i]); if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); });
+      ctx.stroke();
+      ctx.restore();
+    });
+    ctx.save();
+    ctx.setLineDash([4,3]);
+    ctx.strokeStyle = 'rgba(230,230,235,0.9)'; ctx.lineWidth = 2; ctx.globalAlpha = 1;
+    ctx.beginPath();
+    yrs.forEach(function(y, i){ const X = px(y), Y = pyProduct(prodVals[i]); if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); });
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+  }
+  return cv.dataset;
+}
+function phiCurveToggleSet(which){
+  if (PHI_CURVE_NAMES.indexOf(which) < 0) which = 'phi_c';
+  state.phiCurveWhich = which;
+  const toggle = document.getElementById('phiCurveToggle');
+  if (toggle) Array.prototype.forEach.call(toggle.querySelectorAll('.curvetogglebtn'), function(b){
+    const on = (b.dataset.which === which);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    b.setAttribute('aria-selected', on ? 'true' : 'false');
+  });
+  phiCurveDraw();
+}
+if (typeof document !== 'undefined' && document.getElementById('phiCurveToggle')){
+  Array.prototype.forEach.call(document.getElementById('phiCurveToggle').querySelectorAll('.curvetogglebtn'), function(b){
+    b.addEventListener('click', function(){ phiCurveToggleSet(b.dataset.which); });
+  });
+}
+/* THE DRAG, the same shape curveDragStart()/curveDragMove()/curveDragEnd() carry above: pointerdown
+   on a handle, pointermove maps the pointer's y back to a share through phiFromPct() (the linear
+   inverse of phiPct(), curveDragMove()'s massRailFromPct() counterpart), and the only things that
+   reach the model are setEraRate() and render(). */
+let phiCurveDragEra = null, phiCurveDragNode = null, phiCurveDragWhich = null;
+const PHI_CURVE_DRAG_SETTLE = 500;
+let phiCurveDragTimer = null, phiCurveDragToken = 0;
+function phiCurveDragMayRecompute(token, era){
+  return token === phiCurveDragToken && phiCurveDragEra != null && Number(phiCurveDragEra) === Number(era);
+}
+function phiCurveDragCancelPending(){
+  if (phiCurveDragTimer != null){
+    if (typeof clearTimeout === 'function') clearTimeout(phiCurveDragTimer);
+    phiCurveDragTimer = null;
+  }
+}
+function phiCurveDragSettleNow(){
+  const owed = (phiCurveDragTimer != null);
+  phiCurveDragCancelPending();
+  if (owed) render();
+  return owed;
+}
+function phiCurveDragDefer(){
+  phiCurveDragCancelPending();
+  if (typeof setTimeout !== 'function'){ render(); return; }
+  const token = phiCurveDragToken, era = phiCurveDragEra;
+  phiCurveDragTimer = setTimeout(function(){
+    phiCurveDragTimer = null;
+    if (!phiCurveDragMayRecompute(token, era)) return;
+    render();
+  }, PHI_CURVE_DRAG_SETTLE);
+}
+function phiCurveDragPaint(cv, era, v, which){
+  const H = cv.height;
+  const sy = Number(cv.dataset.cssScaleY) || 1;
+  const b = document.querySelector('#phiCurveHandles .phicurvehandle[data-era="' + era + '"]');
+  if (b){
+    b.dataset.rate = String(v);
+    if (b.style) b.style.top = ((H - PHI_CURVE_PAD.b - (phiPct(v) / 100) * (H - PHI_CURVE_PAD.t - PHI_CURVE_PAD.b)) * sy) + 'px';
+    if (b.setAttribute) b.setAttribute('aria-label', PHI_CURVE_LABEL[which] + ' at ' + era + ', ' + fmtNum(v * 100, 1) + ' percent, arrow keys adjust');
+  }
+  const vc = document.getElementById('v_phicurve');
+  if (vc && Number(state.phase) === Number(era)) vc.textContent = fmtNum(v * 100, 1) + '% at ' + Number(state.phase);
+}
+function phiCurveSetFromGesture(era, v, which){
+  const w = (PHI_CURVE_NAMES.indexOf(which) >= 0) ? which : state.phiCurveWhich;
+  return setEraRate(w, era, isFinite(v) ? Number(v) : 0);
+}
+function phiCurveDragStart(ev){
+  const b = ev.currentTarget;
+  phiCurveDragCancelPending();
+  phiCurveDragToken++;
+  phiCurveDragEra = Number(b.dataset.era);
+  phiCurveDragWhich = (PHI_CURVE_NAMES.indexOf(b.dataset.which) >= 0) ? b.dataset.which : null;
+  phiCurveDragNode = b;
+  if (b.setPointerCapture && ev.pointerId != null) { try { b.setPointerCapture(ev.pointerId); } catch(e){} }
+  b.addEventListener('pointermove', phiCurveDragMove);
+  b.addEventListener('pointerup', phiCurveDragEnd);
+  b.addEventListener('pointercancel', phiCurveDragEnd);
+  b.addEventListener('blur', phiCurveDragEnd);
+  if (ev.preventDefault) ev.preventDefault();
+}
+function phiCurveDragMove(ev){
+  if (phiCurveDragEra == null) return;
+  const cv = document.getElementById('phiCurvePlot');
+  if (!cv) return;
+  const box = cv.getBoundingClientRect();
+  const H = cv.height;
+  const yPix = ((ev.clientY - box.top) / (box.height || H)) * H;
+  const frac = ((H - PHI_CURVE_PAD.b) - yPix) / (H - PHI_CURVE_PAD.t - PHI_CURVE_PAD.b);
+  const v = phiCurveSetFromGesture(phiCurveDragEra, phiFromPct(frac * 100), phiCurveDragWhich);
+  phiCurveDraw();
+  phiCurveDragPaint(cv, phiCurveDragEra, v, phiCurveDragWhich || state.phiCurveWhich);
+  phiCurveDragDefer();
+}
+function phiCurveDragEnd(ev){
+  const b = (ev && ev.currentTarget) || phiCurveDragNode;
+  if (b && b.removeEventListener){
+    b.removeEventListener('pointermove', phiCurveDragMove);
+    b.removeEventListener('pointerup', phiCurveDragEnd);
+    b.removeEventListener('pointercancel', phiCurveDragEnd);
+    b.removeEventListener('blur', phiCurveDragEnd);
+  }
+  const wasDragging = (phiCurveDragEra != null);
+  phiCurveDragNode = null;
+  phiCurveDragEra = null;
+  phiCurveDragWhich = null;
+  phiCurveDragToken++;
+  phiCurveDragCancelPending();
+  if (wasDragging) render();
+}
+if (typeof window !== 'undefined' && window.addEventListener)
+  window.addEventListener('blur', function(){ if (phiCurveDragEra != null) phiCurveDragEnd(null); });
+function phiCurveKeyDown(ev){
+  const era = Number(ev.currentTarget.dataset.era);
+  const which = (PHI_CURVE_NAMES.indexOf(ev.currentTarget.dataset.which) >= 0) ? ev.currentTarget.dataset.which : state.phiCurveWhich;
+  const cur = Number(ev.currentTarget.dataset.rate) || 0;
+  const STEP_PCT = 1.5, PAGE_PCT = 10;
+  const at = phiPct(cur);
+  let v = null;
+  const k = ev.key;
+  if (k === 'ArrowUp' || k === 'ArrowRight' || k === 'Up' || k === 'Right') v = phiFromPct(at + STEP_PCT);
+  else if (k === 'ArrowDown' || k === 'ArrowLeft' || k === 'Down' || k === 'Left') v = phiFromPct(at - STEP_PCT);
+  else if (k === 'PageUp') v = phiFromPct(at + PAGE_PCT);
+  else if (k === 'PageDown') v = phiFromPct(at - PAGE_PCT);
+  else if (k === 'Home') v = 0;
+  else if (k === 'End') v = CURVE_MAX[which];
+  else return;
+  if (ev.preventDefault) ev.preventDefault();
+  phiCurveSetFromGesture(era, v, which);
+  render();
+  const again = document.querySelector('#phiCurveHandles .phicurvehandle[data-era="' + era + '"]');
+  if (again && again.focus) again.focus();
+}
+
 function fleetNow(){ return fleetState(knobVal('mass'), knobVal('power'), state.phase, null, state.funding); }
 /* ============================================================
    STEP 60 MATURITY AXIS (Systems/Space Resources/Software/Designer, sub-steps 1-4). Plant
@@ -25616,6 +26296,7 @@ function render(){
   drawField(m, fs.mass, fs.power);
   curveDraw();
   investDraw();
+  phiCurveDraw();
   paintRegimeCaption(m);
   runAfterRender();
 }
@@ -26033,7 +26714,9 @@ function scenLine(){
          cells, 139 percent high at 2040 and 51 percent high at 2055, in all three scenarios, on
          every screen, under the words "computed at load". */
       const fs=scenFleet(p.funding, ph);
-      return fmtT(model(withPresetLearning({ice:p.ice, power:fs.power, mass:fs.mass, fission:e.fission, phi_c:0, phi_m:PHI_M_BY_ERA[ph][id]}, fs, ph, p.funding)).water);
+      /* STEP 17, FIX (B): phi_m read through phiDefaultAt() rather than PHI_M_BY_ERA[ph][id]
+         directly, bit identical by construction. */
+      return fmtT(model(withPresetLearning({ice:p.ice, power:fs.power, mass:fs.mass, fission:e.fission, phi_c:0, phi_m:phiDefaultAt('phi_m', id, ph)}, fs, ph, p.funding)).water);
     });
     return p.label+' '+cells.join('/')+' t/yr';
   }).join(', ');
@@ -26109,7 +26792,9 @@ function buildRefBody(){
          one power cell, before and after. Being right by accident is repaired with the other
          three rather than left standing on the accident. */
       const fs=scenFleet(p.funding, ph);
-      scen.push(model(withPresetLearning({ice:p.ice, power:fs.power, mass:fs.mass, fission:e.fission, phi_c:0, phi_m:(PHI_M_BY_ERA[ph]||{})[id]}, fs, ph, p.funding))); } }
+      /* STEP 17, FIX (B): phi_m read through phiDefaultAt() rather than (PHI_M_BY_ERA[ph]||{})[id]
+         directly, bit identical by construction at every era this table actually carries. */
+      scen.push(model(withPresetLearning({ice:p.ice, power:fs.power, mass:fs.mass, fission:e.fission, phi_c:0, phi_m:phiDefaultAt('phi_m', id, ph)}, fs, ph, p.funding))); } }
   const nScen=scen.length, nPow=scen.filter(mm=>mm.binding==='power').length, nBal=scen.filter(mm=>mm.binding==='balanced').length;   // STEP 68 PASS 2E E4 RELATIONS
   /* THE VALUE COLUMN IS THE VALUE IN PLAY, AND IT WAS THE PINNED VALUE UNTIL STEP 56 WAVE 3.
      This table is rebuilt by renderEqnsTab() at every state, and it printed CONFIG's own
