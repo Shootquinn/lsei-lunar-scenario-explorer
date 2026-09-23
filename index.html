@@ -8292,10 +8292,16 @@
      where some phi_m is needed to clear that floor. Superseded values were 0.05 at every 2030 cell;
      0.15/0.10/0.20 at 2040; 0.30/0.15/0.45 at 2055 (Agency Led Baseline/Early Shift to Mars/The
      Commercial Break). */
+  /* STEP 17.16 (Quinn's ruling, 2026-09-23): REPLACED. Flat uniform default, all nine cells,
+     0.15 -- a visibility/intuition pass, not a re-tune: Quinn wants per-cell variation stripped
+     out so curve shapes and outputs read cleanly against his own abductive reasoning before
+     further per-cell retuning (Step 17.12's findings, the 2030 water-floor overshoot) resumes.
+     Superseded values were 0/0/0 at 2030, 0.06/0.06/0.01 at 2040, 0.01/0.02/0.01 at 2055
+     (Agency Led Baseline/Early Shift to Mars/The Commercial Break). */
   var PHI_M_BY_ERA = {
-   "2030": { "artemis": 0.00, "contested": 0.00, "commercial": 0.00 },
-   "2040": { "artemis": 0.06, "contested": 0.06, "commercial": 0.01 },
-   "2055": { "artemis": 0.01, "contested": 0.02, "commercial": 0.01 }
+   "2030": { "artemis": 0.15, "contested": 0.15, "commercial": 0.15 },
+   "2040": { "artemis": 0.15, "contested": 0.15, "commercial": 0.15 },
+   "2055": { "artemis": 0.15, "contested": 0.15, "commercial": 0.15 }
   };
 
   /* The construction allocation, set per scenario AND era. Nine values, the same shape
@@ -8356,10 +8362,14 @@
      not a re-solved table: the water-production targets these 2030 cells were tuned against
      (Step 15/15.6, this table's own history above) no longer hold at 0.25 and are not re-solved
      here. 2040 and 2055 are untouched. */
+  /* STEP 17.16 (Quinn's ruling, 2026-09-23): REPLACED. Flat uniform default, all nine cells,
+     0.50 -- same visibility/intuition pass as PHI_M_BY_ERA above, not a re-tune. Superseded
+     values were 0.25 flat at 2030; 0.92/0.92/0.97 at 2040; 0.97/0.95/0.97 at 2055 (Agency Led
+     Baseline/Early Shift to Mars/The Commercial Break). */
   var PHI_C_BY_ERA = {
-   "2030": { "artemis": 0.25, "contested": 0.25, "commercial": 0.25 },
-   "2040": { "artemis": 0.92, "contested": 0.92, "commercial": 0.97 },
-   "2055": { "artemis": 0.97, "contested": 0.95, "commercial": 0.97 }
+   "2030": { "artemis": 0.50, "contested": 0.50, "commercial": 0.50 },
+   "2040": { "artemis": 0.50, "contested": 0.50, "commercial": 0.50 },
+   "2055": { "artemis": 0.50, "contested": 0.50, "commercial": 0.50 }
   };
 
   /* The non-productive downmass allocation, set per scenario AND era. Nine values,
@@ -8396,10 +8406,14 @@
      divide-by-zero or NaN: cr_scratch/step15_5_live_verification.md. Superseded values were 0.55
      at every 2030 cell; 0.70/0.75/0.75 at 2040; 0.75 at every 2055 cell (Agency Led Baseline/Early
      Shift to Mars/The Commercial Break). */
+  /* STEP 17.16 (Quinn's ruling, 2026-09-23): REPLACED. Flat uniform default, all nine cells,
+     0.50 -- same visibility/intuition pass as PHI_M_BY_ERA/PHI_C_BY_ERA above, not a re-tune.
+     Superseded values were 0/0/0 at 2030, 0.19/0.02/0.00 at 2040, 0.00/0.02/0.44 at 2055
+     (Agency Led Baseline/Early Shift to Mars/The Commercial Break). */
   var PHI_C0_BY_ERA = {
-   "2030": { "artemis": 0.00, "contested": 0.00, "commercial": 0.00 },
-   "2040": { "artemis": 0.19, "contested": 0.02, "commercial": 0.00 },
-   "2055": { "artemis": 0.00, "contested": 0.02, "commercial": 0.44 }
+   "2030": { "artemis": 0.50, "contested": 0.50, "commercial": 0.50 },
+   "2040": { "artemis": 0.50, "contested": 0.50, "commercial": 0.50 },
+   "2055": { "artemis": 0.50, "contested": 0.50, "commercial": 0.50 }
   };
 
   /* The dedicated-oxygen allocation, set per scenario AND era. Nine values, the same shape
@@ -8422,10 +8436,13 @@
      keeps phi_o era-and-scenario-indexed on the same footing as the three tables beside it, so a
      future ruling that wants phi_o != 0 at one cell is one table edit rather than a new
      architecture. */
+  /* STEP 17.16 (Quinn's ruling, 2026-09-23): REPLACED. Flat uniform default, all nine cells,
+     0.15 -- same visibility/intuition pass as PHI_M_BY_ERA/PHI_C_BY_ERA/PHI_C0_BY_ERA above,
+     not a re-tune. Superseded values were 0.00 flat at every cell across all three eras. */
   var PHI_O_BY_ERA = {
-   "2030": { "artemis": 0.00, "contested": 0.00, "commercial": 0.00 },
-   "2040": { "artemis": 0.00, "contested": 0.00, "commercial": 0.00 },
-   "2055": { "artemis": 0.00, "contested": 0.00, "commercial": 0.00 }
+   "2030": { "artemis": 0.15, "contested": 0.15, "commercial": 0.15 },
+   "2040": { "artemis": 0.15, "contested": 0.15, "commercial": 0.15 },
+   "2055": { "artemis": 0.15, "contested": 0.15, "commercial": 0.15 }
   };
 
   var KNOB_DATA = {
