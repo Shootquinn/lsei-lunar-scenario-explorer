@@ -9330,6 +9330,19 @@ function railLogPos(arr,v){
   const i = floorIdx(arr,v);
   return i + Math.log(v/arr[i]) / Math.log(arr[i+1]/arr[i]);
 }
+/* STEP 17.6: railLogPos()'s own ratio arr[i+1]/arr[i] divides by zero the instant arr[0] is 0,
+   which DETENTS.phi_c/phi_o/phi_m all are (a linear 0..1 rail, not a log one like mass/power) --
+   a curve point dragged toward the low end of Construction/Oxygen/Metals-production would hand
+   Math.log(v/0) to the thumb position. The three phi rails are evenly spaced (0.01 per notch),
+   so their own position between two notches is the plain linear fraction, not a log one; this is
+   that rail's own counterpart to railLogPos(), used only where the rail itself is linear. */
+function railLinPos(arr,v){
+  if(!(v > arr[0])) return 0;
+  const last = arr.length-1;
+  if(v >= arr[last]) return last;
+  const i = floorIdx(arr,v);
+  return i + (v - arr[i]) / (arr[i+1] - arr[i]);
+}
 function snapVal(key,v){ return DETENTS[key][nearestIdx(DETENTS[key],v)]; }
 const clamp01 = x => Math.max(0, Math.min(1, x));
 
@@ -9391,6 +9404,15 @@ function fleetK(era, L){ return fleetStanding(function(){ return 1; }, era, L); 
    ------------------------------------------------------------------ */
 const CURVE_ERAS = [2030, 2040, 2055];
 const CURVE_EPOCH = 2030;
+/* STEP 17.7 (Quinn's ruling, 2026-09-22): the site is chosen for its water, so the model should
+   not let a configured scenario land at literally 0 t/yr except at a failure rate this project has
+   no basis to predict; Early Shift to Mars is the low-water scenario, never the zero-water one.
+   Water floor by ERA, not by scenario -- the same shape phi_c0/phi_c/phi_o/phi_m already use
+   (buildCurveFromKnots()/PCHIP through three anchors), fed Quinn's own three figures rather than a
+   value this project invented: 0.1 t/yr at 2030 (a pathfinding-prototype worst case), 1.0 t/yr at
+   2040, 10.0 t/yr at 2055, scaling up with the buildout. Read by powerFleetSolve()'s own per-year
+   loop, see its STEP 17.7 comment there. */
+const WATER_FLOOR_KNOTS = [[2030, 0.1], [2040, 1.0], [2055, 10.0]];
 /* STEP 70.2 ITEM B, RAISED ON QUINN'S RULING 2026-09-17: CURVE_MAX.mass (and agency/commercial
    with it) now matches #k_mass's own new ceiling, MASS_RAIL_MAX, rather than the old
    DETENTS.mass[last] (10,000). Both controls governing the same landed-mass quantity now share
@@ -11363,8 +11385,35 @@ function powerFleetSolve(a, fs, era, k, funding){
   const phi_cCurve  = buildCurve('phi_c',  funding, era, (a.phi_c  != null) ? a.phi_c  : null);
   const phi_oCurve  = buildCurve('phi_o',  funding, era, (a.phi_o  != null) ? a.phi_o  : null);
   const phi_mCurve  = buildCurve('phi_m',  funding, era, (a.phi_m  != null) ? a.phi_m  : null);
+  /* STEP 17.7: the water floor, one curve, built the identical way the four phi curves just above
+     are, off WATER_FLOOR_KNOTS (module scope, declared beside CURVE_EPOCH) rather than a per-
+     scenario table -- Quinn's ruling names it era-keyed, not scenario-specific, so every one of
+     the three actors reads the same floor curve. */
+  const waterFloorCurve = buildCurveFromKnots(WATER_FLOOR_KNOTS, era);
   for (let y = CURVE_EPOCH; y <= E; y++){
     const phiC0y = Math.max(0, Math.min(0.75, phi_c0Curve(y)));   // [1] CLOSE-OUT S3: non-productive downmass comes off each landing first (modelCore's own default); defensive re-clamp, buildCurveFromKnots already ceilings phi_c0 at CURVE_MAX.phi_c0
+    /* STEP 17.7 (chrome test step17_5 finding 1): phi_c/phi_o/phi_m are each fit through their own
+       three knots independently (design spec S1). All nine scenario/era cells hold sum <= 1 AT the
+       three knot years by construction (Step 15.1-15.6 tuning), but an interpolated year between
+       knots can still overshoot: at Agency Led Baseline, phi_c is already rising toward its 2055
+       knot while phi_m has not yet fallen to its own, so 2044-2052 read a raw sum above 1 (peak
+       1.0096 at 2048), which pushes the water residual negative before it is even added.
+       modelCore()'s own STEP 71 phi_scale (line 10216) already keeps the water figure itself safe --
+       it never actually goes negative on screen -- but it does that by silently rescaling whatever
+       phi_c/phi_o/phi_m it is handed, so an interpolation overshoot here would otherwise reach
+       modelCore() as an over-budget split and get quietly shrunk there instead of being corrected at
+       its source. Renormalize here, before the split ever reaches args, with the same uniform
+       proportional law modelCore() already uses for the same problem (scale all three back together
+       by the one factor that makes them fit) rather than normalizePhiSplit()'s dragged-key-preserving
+       law, which has no "dragged" key to preserve at a year nobody dragged. At every knot year this
+       is a no-op: phiSplitSumY <= 1 there already (report finding 1), so phiSplitScaleY === 1 and
+       phi_cY/phi_oY/phi_mY equal phi_cCurve(y)/phi_oCurve(y)/phi_mCurve(y) bit for bit. */
+    const phi_cRawY = Math.max(0, Math.min(1, phi_cCurve(y)));
+    const phi_oRawY = Math.max(0, Math.min(1, phi_oCurve(y)));
+    const phi_mRawY = Math.max(0, Math.min(1, phi_mCurve(y)));
+    const phiSplitSumY = phi_cRawY + phi_oRawY + phi_mRawY;
+    const phiSplitScaleY = (phiSplitSumY > 1) ? 1 / phiSplitSumY : 1;
+    const phi_cY = phi_cRawY * phiSplitScaleY, phi_oY = phi_oRawY * phiSplitScaleY, phi_mY = phi_mRawY * phiSplitScaleY;
     const r = Math.max(0, fs.rateM(y)), rEff = r * (1 - phiC0y), bucket = (y < 2040) ? '2030' : (y < 2055 ? '2040' : '2055');
     /* STEP 70b: THE RATE IS THIS YEAR'S, NOT THIS BUCKET'S, AND THE FLOOR GATES IT. The reader's own dial
        still governs the era being viewed; every other year takes the log-linear interpolation of the three
@@ -11415,7 +11464,7 @@ function powerFleetSolve(a, fs, era, k, funding){
     const fNew = landedReactors * REACTOR_KWE;                                                                // [kWe], whole reactors only
     const mFnew = fNew * cF, Tfrac = Math.max(0, reactorTonnes - mFnew), Rp = Math.max(0, rEff - mFnew - Tfrac);   // [t] Tfrac buys solar this year (R1)
     const cSol = (share > 0) ? (isFinite(cI) ? (1 - share) * cS + share * cI : Infinity) : cS;              // [t/kWe] blended new solar
-    stateAt = (function(fp, share, cSol, fNew, Fs, Ss, Is, Ms, IfabS, Gy, r, Rp, Tfrac, rEff, phiC0){ return function(lam){
+    stateAt = (function(fp, share, cSol, fNew, Fs, Ss, Is, Ms, IfabS, Gy, r, Rp, Tfrac, rEff, phiC0, phi_cN, phi_oN, phi_mN){ return function(lam){
       const T = Tfrac + lam * Rp, kS = isFinite(cSol) ? T / cSol : 0, sN = (1 - share) * kS, iN = share * kS;
       const Fv = Fs + fNew, Sv = Ss + sN, Iv = Is + iN, P = Fv + Sv + Iv, M = (phiC0 < 1 - 1e-12) ? (Ms + rEff) / (1 - phiC0) : Ms + r, sol = Sv + Iv;   // CLOSE-OUT S3: Ms and rEff are effective tonnes, so massEff = M (1 - phi_c0) is hardware + plant
       const sh = (sol > 1e-9 * (Fv + sol)) ? Iv / sol : 0;
@@ -11424,11 +11473,15 @@ function powerFleetSolve(a, fs, era, k, funding){
       return { sN: sN, iN: iN, ifab: ifab, F: Fv, S: Sv, I: Iv, P: P, M: M, fp: fp, fpStand: fpStand, T: T,
         /* STEP 17: this year's own phi_c/phi_o/phi_m/phi_c0 replace whatever `a` held -- the one-line
            fix that closes the constant-leak gap: every earlier year's args object no longer inherits
-           the caller's single flat lookup, it carries this year's own curve sample instead. */
+           the caller's single flat lookup, it carries this year's own curve sample instead.
+           STEP 17.7: that curve sample is phi_cN/phi_oN/phi_mN, the sum-clamped-<=1 values computed
+           once above (phi_cY/phi_oY/phi_mY), not a fresh, unclamped phi_cCurve(y)/phi_oCurve(y)/
+           phi_mCurve(y) call here -- calling the curves again at this point would silently undo the
+           renormalization done above and hand modelCore() the raw, possibly over-budget split. */
         args: Object.assign({}, a, { power: P, mass: M, fission: (Fv > 0), mix: (P > 0 ? Fv / P : 0), insituReq: sh, insitu: sh,
           fabCeiling: Math.max(sh, share), fabProd: fp, fabProdStand: fpStand, fabLedgerRequest: true, learnG: Gy,
-          phi_c: phi_cCurve(y), phi_o: phi_oCurve(y), phi_m: phi_mCurve(y), phi_c0: phiC0 }) };
-    }; })(fp, share, cSol, fNew, Fs, Ss, Is, Ms, IfabS, Gy, r, Rp, Tfrac, rEff, phiC0y);
+          phi_c: phi_cN, phi_o: phi_oN, phi_m: phi_mN, phi_c0: phiC0 }) };
+    }; })(fp, share, cSol, fNew, Fs, Ss, Is, Ms, IfabS, Gy, r, Rp, Tfrac, rEff, phiC0y, phi_cY, phi_oY, phi_mY);
     const gOf = (function(st){ return function(lam){ const m = modelCore(st(lam).args); return { g: m.Wthr - m.Wpower, s: Math.abs(m.Wthr) + Math.abs(m.Wpower) }; }; })(stateAt);
     /* CLOSE-OUT W2 (Quinn 2026-09-15, "aim at the most water"): the kink is the water maximum only while W_power is
        non-decreasing in lambda, which R7.3.3 assumed. Where the fab runs short of silicon the array it cannot build carries no
@@ -11450,7 +11503,41 @@ function powerFleetSolve(a, fs, era, k, funding){
        productTonnage() -- water + construction + oxygenTotal + alloy). One extra modelCore() call
        per year, additive to what kinkLambda's own bisection already spends; nothing else in this
        loop reads it, so no existing figure moves. */
-    const __mProd = modelCore(st.args);
+    let __mProd = modelCore(st.args);
+    /* STEP 17.7 (Quinn's ruling, 2026-09-22): the water floor. kk.lam (hence P, M and every
+       ledger figure in this year's rec.push below) is already settled above and does not depend
+       on phi_c: water(phi_c) = ((1-sInd) + sInd*shareW)*cap with shareW = (phi_rem-phi_c)/phi_rem
+       (modelCore()'s own STEP 71 comment, line 10637), and neither cap, sInd nor phi_rem is a
+       function of phi_c -- oxygen and metals-production draw against the plant ahead of the
+       water/construction split (same comment, "oxygen, then the metals-production line... then
+       water and construction on the remainder"), and phi_c0/phi_o/phi_m/P/M are already fixed by
+       the time this line runs. So water is exactly affine in phi_c alone, and the year's
+       water-maximizing lam (the argmax branch just above, when it fires) does not move if phi_c
+       changes afterward: shareW(phi_c) is a positive scalar multiplying cap(lam), so it cannot
+       change which lam maximizes cap(lam). That means phi_c can be patched here, after kk.lam is
+       already chosen, with no re-solve. Two REAL modelCore() points, not an assumed slope: __mProd
+       at this year's curve-given phi_c, and mZero at phi_c forced to 0 (phi_o/phi_m/phi_c0
+       untouched -- the floor is water's own remainder claim, not a fourth dial on the other two,
+       same as normalizePhiSplit() never touches the slider a reader didn't drag). */
+    const waterFloorY = Math.max(0, waterFloorCurve(y));
+    if (__mProd.water < waterFloorY - 1e-9) {
+      const mZero = modelCore(Object.assign({}, st.args, { phi_c: 0 }));
+      if (mZero.water >= waterFloorY - 1e-9) {
+        const denom = mZero.water - __mProd.water;
+        const t = (denom > 1e-9) ? Math.max(0, Math.min(1, (waterFloorY - __mProd.water) / denom)) : 1;
+        const phi_cFloored = st.args.phi_c * (1 - t);   // t=0: no change; t=1: phi_c -> 0 (mZero's own point)
+        st.args = Object.assign({}, st.args, { phi_c: phi_cFloored });
+        __mProd = modelCore(st.args);
+        if (__mProd.water < waterFloorY - 1e-6 && phi_cFloored > 1e-9) {
+          // affine relation held to floating point in every state this pass measured (see
+          // step17_7_engineer_fix.md); this is a defensive fallback only, never observed to fire.
+          st.args = Object.assign({}, st.args, { phi_c: 0 });
+          __mProd = mZero;
+        }
+      }
+      // else: even phi_c = 0 (all of this year's remainder to water) cannot reach the floor without
+      // moving phi_o/phi_m, which this fix does not do -- the year keeps its best achievable water.
+    }
     rec.push({ y: y, r: r, rEff: rEff, Tfrac: Tfrac, lam: kk.lam, edge: kk.edge, gAt: kk.g, nEval: kk.n, reactors: fNew / REACTOR_KWE, reactorsScheduled: nSched,
       reactorsWanted: wanted, reactorsBacklog: backlogReactors, floorNeed: floorNeed, share: share,
       F: fNew, S: st.sN, I: st.iN, Ifab: st.ifab, mF: mFnew, mS: st.sN * cS, mI: (isFinite(cI) ? st.iN * cI : 0), Mp: Rp - (st.T - Tfrac), Rp: Rp, cI: cI, fp: fp,
@@ -24161,6 +24248,15 @@ function appliedRate(key){
      point on either actor, the Mass landing rate rail, or a preset default. */
   if (key === 'mass' && typeof CURVE !== 'undefined' && typeof buildCurve === 'function')
     return buildCurve('mass', state.funding, state.phase, state.mass)(Number(state.phase));
+  /* STEP 17.6: phi_c0 carries its applied value in state.phiC0Ovr, never a DETENTS-indexed
+     state[key] the way every other appliedRate() key does -- the generic knobVal(key) fallback
+     below reads DETENTS.phi_c0[state.phi_c0], and neither exists, which throws. Same shape as
+     the generic branch (a placed curve point wins, else the classic control's own value), just
+     with phi_c0's own classic-control field named explicitly. */
+  if (key === 'phi_c0'){
+    const storedC0 = (typeof CURVE !== 'undefined' && CURVE.pts.phi_c0) ? CURVE.pts.phi_c0[state.phase] : null;
+    return (storedC0 != null) ? storedC0 : (state.phiC0Ovr != null ? state.phiC0Ovr : CONFIG.phiC0.value);
+  }
   const stored = (typeof CURVE !== 'undefined' && CURVE.pts[key]) ? CURVE.pts[key][state.phase] : null;
   return (stored != null) ? stored : knobVal(key);
 }
@@ -24801,16 +24897,24 @@ function syncSliderRange(inputEl, key){
      -- the closest honest position on a discrete control, not a pixel-exact one, and it moves
      no model input: state[key] is untouched and stays the value bindDetentSlider's own input
      listener reads and writes. */
-  const curvePoint = (key==='power' || key==='mass') && typeof CURVE !== 'undefined' && CURVE.pts[key]
+  /* STEP 17.6: phi_c/phi_o/phi_m join power/mass here -- a reader-placed point on the phi-curve
+     panel (Bug A) needs the identical live-sync treatment the mass buildout curve already gets,
+     so the classic Construction/Oxygen/Metals-production sliders never paint a value the model
+     has stopped running. */
+  const isPhiCurveKey = (key === 'phi_c' || key === 'phi_o' || key === 'phi_m');
+  const curvePoint = (key==='power' || key==='mass' || isPhiCurveKey) && typeof CURVE !== 'undefined' && CURVE.pts[key]
     ? CURVE.pts[key][state.phase] : null;
   /* STEP 67 PASS 8, CARRIED FORWARD A (decided 2026-09-14). The notch at or below put the thumb on 1,000 under
      a 2,000 t/yr label. A curve value between notches now sets step="any" and the thumb at railLogPos(), its
      log position between the two notches; dataset.curveVal and dataset.railPos let bindDetentSlider resolve
      a keyboard step, a browser's fractional increment or a drag back onto a notch. A value on a notch keeps
-     step 1 and that notch. CURVE-09 holds it. */
+     step 1 and that notch. CURVE-09 holds it.
+     STEP 17.6: the phi rails are linear (0.01 per notch from 0), not log-spaced like power/mass, so
+     they take railLinPos() here rather than railLogPos() -- railLogPos()'s own ratio divides by
+     zero the instant a rail's first notch is 0, which every phi rail's is. */
   delete inputEl.dataset.curveVal; delete inputEl.dataset.railPos;
   if (curvePoint != null && DETENTS[key].every(function(d){ return Math.abs(d - curvePoint) > 1e-9; })){
-    const pos = railLogPos(DETENTS[key], curvePoint);
+    const pos = isPhiCurveKey ? railLinPos(DETENTS[key], curvePoint) : railLogPos(DETENTS[key], curvePoint);
     inputEl.step = 'any';
     inputEl.dataset.curveVal = String(curvePoint);
     inputEl.dataset.railPos = String(pos);
@@ -26077,26 +26181,38 @@ function render(){
   ['ice','mass'].forEach(k=>{ syncSliderRange(document.getElementById('k_'+k), k);   // STEP 68 PASS 2E E2: no power rail
     document.getElementById('v_'+k).textContent = (k==='ice') ? knobText(k) : effectiveRateText(k); });
 
+  /* STEP 17.6 (Bug A). knobText('phi_c') painted the classic slider's own raw detent, which goes
+     stale silently the instant a phi-curve handle places a point at the live era: the curve knot
+     wins inside the model (scenarioModelArgs()/fleetArgs() already read it, see productAt's own
+     STEP 17 comment on powerFleetSolve()), but the slider readout kept printing the old detent,
+     so a reader could see "0.97" beside a model actually running 0.60 -- the exact "displayed
+     splits sum to 1.37" defect. effectiveRateText('phi_c') is the identical function mass/ice
+     already use one paragraph up: a placed curve point wins, the classic slider otherwise, so
+     this readout can never disagree with what render()'s own `m` above was built from. */
   syncSliderRange(document.getElementById('k_phic'), 'phi_c');
-  document.getElementById('v_phic').textContent = knobText('phi_c');
+  document.getElementById('v_phic').textContent = effectiveRateText('phi_c');
   syncSliderRange(document.getElementById('k_phio'), 'phi_o');
-  document.getElementById('v_phio').textContent = knobText('phi_o');
+  document.getElementById('v_phio').textContent = effectiveRateText('phi_o');
   syncSliderRange(document.getElementById('k_phim'), 'phi_m');
-  document.getElementById('v_phim').textContent = knobText('phi_m');
+  document.getElementById('v_phim').textContent = effectiveRateText('phi_m');
   /* STEP 71 (Quinn's ruling, 2026-09-21). Water's readout is read off m.phi_water, the model's
      OWN computed fourth fraction, never re-derived here from the three slider readouts: a
      second computation of the same number is exactly the drift this project has been bitten by
      before (the footer's own retired fleet model is the standing example). Painted on every
      render(), the same call that repaints v_phic/v_phio/v_phim, so a drag on any of the three
-     real sliders -- including one the normalization above scaled back -- leaves all four
-     readouts consistent with each other and with what model() actually applied; there is no
-     path through render() that repaints the three and skips the fourth. */
+     real sliders -- or a placed point on the phi-curve panel (STEP 17.6: v_phic/v_phio/v_phim
+     now read appliedRate()'s curve-aware value above, the same law) -- leaves all four readouts
+     consistent with each other and with what model() actually applied; there is no path through
+     render() that repaints the three and skips the fourth. */
   document.getElementById('v_phiw').textContent = m.phi_water.toFixed(2);
   document.getElementById('phiwBarFill').style.width = (Math.max(0, Math.min(1, m.phi_water))*100).toFixed(1)+'%';
   document.getElementById('v_solovr').textContent=fmtOvr(state.solOvr);
   document.getElementById('v_fisovr').textContent=fmtOvr(state.fisOvr);
 
-  const phiC0Applied = (state.phiC0Ovr!=null?state.phiC0Ovr:CONFIG.phiC0.value);
+  /* STEP 17.6 (Bug A): phi_c0 joins phi_c/phi_o/phi_m above -- appliedRate('phi_c0') returns a
+     placed curve point when one exists at the live era, state.phiC0Ovr otherwise, exactly the
+     shape the three shared-budget sliders now use. */
+  const phiC0Applied = appliedRate('phi_c0');
   document.getElementById('v_phic0').textContent = phiC0Applied.toFixed(2);
   // PHI_C0_BY_ERA (2026-09-21) makes this control preset-and-era-specific rather than a flat
   // constant, so the thumb has to repaint on every render the same way k_phic/k_phio/k_phim
