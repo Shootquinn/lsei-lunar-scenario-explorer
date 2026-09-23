@@ -162,7 +162,8 @@
   .phicurvehandle{position:absolute;width:11px;height:11px;margin:-6px 0 0 -6px;padding:0;
       border:1px solid rgba(255,255,255,.85);border-radius:50%;background:rgba(120,180,255,.95);
       cursor:ns-resize;pointer-events:auto;touch-action:none}
-  .phicurvehandle[data-which="phi_c0"]{background:rgba(224,165,79,.95)}
+  /* STEP 17.9: the phi_c0 handle color rule is retired along with the phi_c0 curve itself --
+     no handle carries data-which="phi_c0" any more (see phiCurveWrap's own STEP 17.9 comment). */
   .phicurvehandle[data-which="phi_c"]{background:rgba(78,201,232,.95)}
   .phicurvehandle[data-which="phi_o"]{background:rgba(120,200,140,.95)}
   .phicurvehandle[data-which="phi_m"]{background:rgba(200,120,220,.95)}
@@ -659,19 +660,23 @@
         <div class="curvefoot"><span style="color:var(--ice)">Agency</span> / <span style="color:var(--regolith)">Commercial</span> / <span style="opacity:.75">Combined</span></div>
       </div>
 
-      <!-- THE PHI/PRODUCT CURVE PANEL (Step 17). Four per-year allocation-share curves plotted
-           together on one shared canvas, with a toggle selecting which one the handles drag (same
-           interaction pattern #curveToggle above already uses), plus a fifth, non-interactive line
-           for the derived product total (water + construction + total oxygen + alloy). Log scale
-           is not needed on the phi axis itself -- phi is already bounded [0,1] -- but the product
-           line shares this canvas on massRailPct()'s own log law, painted dashed and always full
-           weight since it is drawn, never dragged. See phiCurveDraw() for the rendering and
+      <!-- THE PHI/PRODUCT CURVE PANEL (Step 17; phi_c0 retired from it at Step 17.9, Quinn's
+           ruling). Three per-year allocation-share curves plotted together on one shared canvas,
+           with a toggle selecting which one the handles drag (same interaction pattern
+           #curveToggle above already uses), plus two non-interactive lines: water (the derived
+           residual, phi_c0's own old slot in the toggle row and the legend, now read-only) and the
+           product total (water + construction + total oxygen + alloy). phi_c0 is not one of the
+           draggable curves here -- it is redundant on this panel, already controlled by its own
+           #k_phic0 slider (below) and by the landing-rate buildout curve. Log scale is not needed
+           on the phi axis itself -- phi is already bounded [0,1], and water shares that same linear
+           law since it is a share too -- but the product line shares this canvas on
+           massRailPct()'s own log law, painted dashed and always full weight since it is drawn,
+           never dragged. See phiCurveDraw() for the rendering and
            phiCurveDragStart()/Move()/End()/phiCurveKeyDown() for the drag, all built on the
            identical machinery curveDraw()/curveDragStart() etc. already use above. -->
       <div class="curvewrap" id="phiCurveWrap">
         <div class="krow"><span class="klabel">Allocation curves, per year</span><span class="kval" id="v_phicurve"></span></div>
         <div class="curvetoggle" id="phiCurveToggle" role="tablist" aria-label="Which allocation curve the handles drag">
-          <button type="button" class="curvetogglebtn" data-which="phi_c0" role="tab" aria-selected="false" aria-pressed="false" aria-label="Non-productive downmass curve">Downmass</button>
           <button type="button" class="curvetogglebtn" data-which="phi_c" role="tab" aria-selected="true" aria-pressed="true" aria-label="Construction split curve">Construction</button>
           <button type="button" class="curvetogglebtn" data-which="phi_o" role="tab" aria-selected="false" aria-pressed="false" aria-label="Oxygen split curve">Oxygen</button>
           <button type="button" class="curvetogglebtn" data-which="phi_m" role="tab" aria-selected="false" aria-pressed="false" aria-label="Metals-production split curve">Metals</button>
@@ -680,7 +685,7 @@
           <canvas id="phiCurvePlot" width="300" height="120"></canvas>
           <div class="curvehandles" id="phiCurveHandles"></div>
         </div>
-        <div class="curvefoot" id="phiCurveFoot"><span style="color:var(--regolith)">Downmass</span> / <span style="color:var(--ice)">Construction</span> / <span style="color:#78c88c">Oxygen</span> / <span style="color:#c878dc">Metals</span> / <span style="opacity:.75">Total product (dashed, drawn only)</span></div>
+        <div class="curvefoot" id="phiCurveFoot"><span style="color:var(--ice)">Construction</span> / <span style="color:#78c88c">Oxygen</span> / <span style="color:#c878dc">Metals-production</span> / <span style="color:var(--cobalt)">Water (derived, drawn only)</span> / <span style="opacity:.75">Total product (dashed, drawn only)</span></div>
       </div>
       </div>
     </aside>
@@ -9429,11 +9434,14 @@ const CURVE_MAX = { mass: MASS_RAIL_MAX,
                        numbers is bounded the same way the single mass curve always was. */
                     agency: MASS_RAIL_MAX,
                     commercial: MASS_RAIL_MAX,
-                    /* STEP 17: the four per-year allocation-share curves. phi_c0's own ceiling
-                       matches its Advanced-panel slider (#k_phic0, max 0.75), never 1 -- the
-                       other three are bounded fractions of the shared budget and share the
-                       generic [0,1] ceiling every other phi rail already uses. */
-                    phi_c0: 0.75, phi_c: 1, phi_o: 1, phi_m: 1 };
+                    /* STEP 17: the three per-year allocation-share curves that remain draggable.
+                       Each is a bounded fraction of the shared budget and shares the generic [0,1]
+                       ceiling every other phi rail already uses. STEP 17.9 (Quinn's ruling): phi_c0
+                       is retired from this curve mechanism entirely -- it is not one of the
+                       draggable per-year curves any more, so it carries no CURVE_MAX entry; its own
+                       ceiling lives only on its classic slider (#k_phic0, max 0.75), exactly as it
+                       did before Step 17. */
+                    phi_c: 1, phi_o: 1, phi_m: 1 };
 const CURVE = { pts: { /* STEP 70.6: `mass` STORES NOTHING NOW AND STAYS AS A KEY. The total landing rate
                           has no store of its own: it is the sum of the two curves below, and
                           setEraRate('mass') writes those. The key remains, always null, so a caller that
@@ -9452,11 +9460,13 @@ const CURVE = { pts: { /* STEP 70.6: `mass` STORES NOTHING NOW AND STAYS AS A KE
                           commercial-only capital charge (BLD-07/08). */
                        agency: {2030:null, 2040:null, 2055:null},
                        commercial: {2030:null, 2040:null, 2055:null},
-                       /* STEP 17: the four per-year allocation-share curves, the same blank-knot
-                          shape every other curve above carries. Seeded from PHI_C0_BY_ERA/
+                       /* STEP 17: the three per-year allocation-share curves that remain draggable,
+                          the same blank-knot shape every other curve above carries. Seeded from
                           PHI_C_BY_ERA/PHI_O_BY_ERA/PHI_M_BY_ERA the same way agency/commercial are
-                          seeded from BUILDOUT_SPLIT -- see curveKnots()'s isPhiCurve branch. */
-                       phi_c0: {2030:null, 2040:null, 2055:null},
+                          seeded from BUILDOUT_SPLIT -- see curveKnots()'s isPhiCurve branch.
+                          STEP 17.9 (Quinn's ruling): phi_c0 carries no key here any more -- it is
+                          retired from the curve mechanism entirely and reverts to a flat per-era
+                          constant read off PHI_C0_BY_ERA, exactly as it worked before Step 17. */
                        phi_c:  {2030:null, 2040:null, 2055:null},
                        phi_o:  {2030:null, 2040:null, 2055:null},
                        phi_m:  {2030:null, 2040:null, 2055:null} } };
@@ -9516,11 +9526,14 @@ function curvePtsKey(){
      new curve is caught by the identical "off preset" machinery a mass/power point already was --
      matchesPreset()'s state.curvePts==='' check and abstractCurrent()'s fade both read this key,
      and neither is the mechanism this step is scoped to change, so both simply see more curves.
-     STEP 17: phi_c0/phi_c/phi_o/phi_m join the same list, retiring the direct
+     STEP 17: phi_c/phi_o/phi_m join the same list, retiring the direct
      state.phi_c===PHI_C_BY_ERA[...]-style snapshot comparison matchesPreset() used to make for
-     these four -- "at preset" for a curve-backed quantity is "no reader-placed point on it",
-     exactly the same predicate mass/power/agency/commercial already use, not a second one. */
-  ['mass','power','agency','commercial','phi_c0','phi_c','phi_o','phi_m'].forEach(function(w){
+     these three -- "at preset" for a curve-backed quantity is "no reader-placed point on it",
+     exactly the same predicate mass/power/agency/commercial already use, not a second one.
+     STEP 17.9 (Quinn's ruling): phi_c0 never joined this list on a lasting basis -- it is retired
+     from the curve mechanism entirely and stays on its pre-Step-17 direct-comparison shape
+     (matchesPreset()'s own state.phiC0Ovr===PHI_C0_BY_ERA[...] check, untouched by this list). */
+  ['mass','power','agency','commercial','phi_c','phi_o','phi_m'].forEach(function(w){
     /* STEP 69 ROBUSTNESS: `|| {}` guards the same pre-existing external CURVE.pts-narrowing idiom
        curveKnots() now guards (step67_se_gridwalk.js's CTX_EXPR), reached from here because
        learningMultipliersCounts() folds this key into its memo cache key. */
@@ -9549,10 +9562,12 @@ function setEraRate(which, era, newRate){
   const y = Number(era);
   if (CURVE_ERAS.indexOf(y) < 0) throw new Error('setEraRate: ' + era + ' is not an era');
   /* STEP 17: the whitelist is a membership test against CURVE_MAX's own keys rather than an
-     enumerated ||-chain -- eight draggable names deep (mass/power/agency/commercial plus the four
-     phi curves), a ninth (the product-curve identifier, never draggable, see productCurve()) must
-     never be added to it, and a membership test against the app's own curve registry cannot admit
-     one by a copy-paste mistake the way a literal string list could. */
+     enumerated ||-chain -- seven draggable names deep (mass/power/agency/commercial plus the three
+     phi curves phi_c/phi_o/phi_m; STEP 17.9, Quinn's ruling: phi_c0 is retired from this mechanism
+     and carries no CURVE_MAX entry, so calling this with 'phi_c0' now correctly throws, matching
+     its pre-Step-17 shape), an eighth (the product-curve identifier, never draggable, see
+     productCurve()) must never be added to it, and a membership test against the app's own curve
+     registry cannot admit one by a copy-paste mistake the way a literal string list could. */
   if (!CURVE_MAX.hasOwnProperty(which))
     throw new Error('setEraRate: ' + which + ' is not a curve this app carries');
   let v = (!isFinite(newRate)) ? 0 : Math.max(0, Math.min(CURVE_MAX[which], Number(newRate)));
@@ -9649,8 +9664,12 @@ function curveKnots(which, funding, era, liveRate){
      off `funding`. fundingPresetId(), not the APP-LAYER's PRESET_OF_FUNDING, because curveKnots()
      is MODEL-CORE and PRESET_OF_FUNDING lives outside every CORE island (see fundingPresetId()'s
      own comment). */
-  const isPhiCurve = (which === 'phi_c0' || which === 'phi_c' || which === 'phi_o' || which === 'phi_m');
-  const PHI_TABLE_OF = { phi_c0: PHI_C0_BY_ERA, phi_c: PHI_C_BY_ERA, phi_o: PHI_O_BY_ERA, phi_m: PHI_M_BY_ERA };
+  /* STEP 17.9 (Quinn's ruling): phi_c0 is retired from this branch -- it is no longer one of the
+     draggable per-year curves, so curveKnots()/buildCurve() must never be asked to fit a curve for
+     it (setEraRate('phi_c0', ...) already throws upstream; this membership test is what a caller
+     bypassing that guard would hit next, and it correctly no longer admits 'phi_c0'). */
+  const isPhiCurve = (which === 'phi_c' || which === 'phi_o' || which === 'phi_m');
+  const PHI_TABLE_OF = { phi_c: PHI_C_BY_ERA, phi_o: PHI_O_BY_ERA, phi_m: PHI_M_BY_ERA };
   const hasEnv = isSplitCurve ? (funding != null && !!BUILDOUT_SPLIT[funding])
                : isPhiCurve   ? (funding != null && fundingPresetId(funding) != null)
                               : (funding != null && !!ENVELOPE[funding]);
@@ -9733,11 +9752,12 @@ function pchipSlopes(xs, ys){
 function buildCurve(which, funding, era, liveRate){
   if ((which === 'mass' || which === 'agency' || which === 'commercial') && funding != null && BUILDOUT_SPLIT[funding])
     return buildSplitCurve(which, funding, era, liveRate);
-  /* STEP 17: the four phi curves carry a defensive ceiling clamp (CURVE_MAX[which], 0.75 for
-     phi_c0 and 1 for the other three) on top of PCHIP/quadratic/flat's own non-overshoot
-     property -- every other curve through this branch (power; mass with no funding tier) is
-     unaffected, Infinity being no ceiling at all. */
-  const isPhiCurve = (which === 'phi_c0' || which === 'phi_c' || which === 'phi_o' || which === 'phi_m');
+  /* STEP 17: the three phi curves carry a defensive ceiling clamp (CURVE_MAX[which], 1 for each)
+     on top of PCHIP/quadratic/flat's own non-overshoot property -- every other curve through this
+     branch (power; mass with no funding tier) is unaffected, Infinity being no ceiling at all.
+     STEP 17.9 (Quinn's ruling): phi_c0 is retired from this branch -- it carries no curve, so it
+     is never asked to build one; its own 0.75 ceiling lives only on its classic slider now. */
+  const isPhiCurve = (which === 'phi_c' || which === 'phi_o' || which === 'phi_m');
   const ceil = isPhiCurve ? CURVE_MAX[which] : Infinity;
   return buildCurveFromKnots(curveKnots(which, funding, era, liveRate), era, ceil);
 }
@@ -11246,16 +11266,19 @@ function fleetArgs(a, fs, era, k, funding){
 /* The yearly by-type fleet (R5.4), memoised on (arguments, era, landing curve, funding, service life,
    the four phi curves). Returns the era's standing state, its type split and the landing record by year.
    STEP 17 SE CLOSE-OUT (2026-09-22): the phi curves joined this fix's inputs -- powerFleetSolve()'s loop
-   now reads phi_c0/phi_c/phi_o/phi_m off CURVE.pts every year (see its own STEP 17 comment) -- but this
+   now reads phi_c/phi_o/phi_m off CURVE.pts every year (see its own STEP 17 comment) -- but this
    key did not, so a reader's drag on the new phi-curve panel changed CURVE.pts, and phiCurveDraw()'s own
    handle/readout repainted immediately, while the actual model output stayed on the pre-drag cached
    result forever after (live-verified: h_const/h_water identical before and after a drag once a state
    had already been rendered once). The mass/power/agency/commercial curves never had this gap because
-   their live values are already folded into rates0 above; the four phi curves needed the same treatment,
-   not a parallel mechanism. */
+   their live values are already folded into rates0 above; the three phi curves needed the same treatment,
+   not a parallel mechanism.
+   STEP 17.9 (Quinn's ruling): CURVE.pts.phi_c0 is dropped from this key -- phi_c0 carries no curve any
+   more (no CURVE.pts.phi_c0 key exists), so including it here would read undefined at every call, a
+   dangling reference to a mechanism that no longer applies to this quantity. */
 function powerFleet(a, fs, era, k, funding){
   const E0 = Number(era), rates0 = []; for (let y = CURVE_EPOCH; y <= E0; y++) rates0.push(fs.rateM(y));
-  const phiPts0 = JSON.stringify([CURVE.pts.phi_c0, CURVE.pts.phi_c, CURVE.pts.phi_o, CURVE.pts.phi_m]);
+  const phiPts0 = JSON.stringify([CURVE.pts.phi_c, CURVE.pts.phi_o, CURVE.pts.phi_m]);
   const key = JSON.stringify(a) + '|' + E0 + '|' + rates0.join(',') + '|' + funding + '|' + fleetLife() + '|' + R5.L_FIS + '|' + R5.FLOOR_FIS + '|' + configSig() + '|' + phiPts0;
   const hit = __fleetMemo.get(key); if (hit) return hit;
   const out = powerFleetSolve(a, fs, era, k, funding);
@@ -11375,13 +11398,18 @@ function powerFleetSolve(a, fs, era, k, funding){
      remainder T_frac buys solar at the year's blended price before the plant/solar split runs on what is left. Nothing
      carries forward: call B's backlogReactors is retired. "if you add 40 kWe you get that in solar. if they add 140 they
      get 1 reactor plus solar." */
-  /* STEP 17: phi_c0/phi_c/phi_o/phi_m become per-year curves rather than one constant held for
+  /* STEP 17: phi_c/phi_o/phi_m become per-year curves rather than one constant held for
      every year of the run. Each curve is built once here, outside the loop (the same place `cF`/
      `cS`/`trans` are already built once), seeded from this call's own `a.phi_*` as the live rate
      at the era in view -- a caller that never touches Advanced mode's phi-curve panel gets back
      exactly the flat-table value it always did, because curveKnots() falls back to
-     PHI_*_BY_ERA[era][presetId] at every year no point is placed on. */
-  const phi_c0Curve = buildCurve('phi_c0', funding, era, (a.phi_c0 != null) ? a.phi_c0 : null);
+     PHI_*_BY_ERA[era][presetId] at every year no point is placed on.
+     STEP 17.9 (Quinn's ruling, 2026-09-23): phi_c0 is retired from this curve mechanism -- it is
+     not one of the draggable per-year curves any more (redundant there: it is already controlled
+     by its own #k_phic0 slider and by the landing-rate buildout curve). It reverts to exactly its
+     pre-Step-17 shape: one flat constant, read once here, held for the whole run, never resampled
+     per year. */
+  const phiC0 = (a.phi_c0 != null) ? Math.max(0, Math.min(1, a.phi_c0)) : 0.10;
   const phi_cCurve  = buildCurve('phi_c',  funding, era, (a.phi_c  != null) ? a.phi_c  : null);
   const phi_oCurve  = buildCurve('phi_o',  funding, era, (a.phi_o  != null) ? a.phi_o  : null);
   const phi_mCurve  = buildCurve('phi_m',  funding, era, (a.phi_m  != null) ? a.phi_m  : null);
@@ -11391,7 +11419,10 @@ function powerFleetSolve(a, fs, era, k, funding){
      the three actors reads the same floor curve. */
   const waterFloorCurve = buildCurveFromKnots(WATER_FLOOR_KNOTS, era);
   for (let y = CURVE_EPOCH; y <= E; y++){
-    const phiC0y = Math.max(0, Math.min(0.75, phi_c0Curve(y)));   // [1] CLOSE-OUT S3: non-productive downmass comes off each landing first (modelCore's own default); defensive re-clamp, buildCurveFromKnots already ceilings phi_c0 at CURVE_MAX.phi_c0
+    /* STEP 17.9: phi_c0 is no longer sampled per year here -- phiC0 above is the flat constant for
+       the whole run, exactly as it was before Step 17 (CLOSE-OUT S3's own non-productive-downmass-
+       comes-off-each-landing-first rule still applies; it is just applied with one number for
+       every year again, not a per-year curve sample). */
     /* STEP 17.7 (chrome test step17_5 finding 1): phi_c/phi_o/phi_m are each fit through their own
        three knots independently (design spec S1). All nine scenario/era cells hold sum <= 1 AT the
        three knot years by construction (Step 15.1-15.6 tuning), but an interpolated year between
@@ -11414,7 +11445,7 @@ function powerFleetSolve(a, fs, era, k, funding){
     const phiSplitSumY = phi_cRawY + phi_oRawY + phi_mRawY;
     const phiSplitScaleY = (phiSplitSumY > 1) ? 1 / phiSplitSumY : 1;
     const phi_cY = phi_cRawY * phiSplitScaleY, phi_oY = phi_oRawY * phiSplitScaleY, phi_mY = phi_mRawY * phiSplitScaleY;
-    const r = Math.max(0, fs.rateM(y)), rEff = r * (1 - phiC0y), bucket = (y < 2040) ? '2030' : (y < 2055 ? '2040' : '2055');
+    const r = Math.max(0, fs.rateM(y)), rEff = r * (1 - phiC0), bucket = (y < 2040) ? '2030' : (y < 2055 ? '2040' : '2055');
     /* STEP 70b: THE RATE IS THIS YEAR'S, NOT THIS BUCKET'S, AND THE FLOOR GATES IT. The reader's own dial
        still governs the era being viewed; every other year takes the log-linear interpolation of the three
        anchors. A year under the maturity floor contributes no in-situ share, which is also what keeps a rate
@@ -11471,17 +11502,22 @@ function powerFleetSolve(a, fs, era, k, funding){
       const ifab = (fp > 0) ? iN / fp : 0, fabT = IfabS + ifab;                                              // [kWe yr/(kWe/(yr t))] = fab tonnes x L
       const fpStand = (Iv > 0 && fabT > 0) ? Iv / fabT : fp;                                                 // [kWe/(yr t)] survivors' harmonic rate
       return { sN: sN, iN: iN, ifab: ifab, F: Fv, S: Sv, I: Iv, P: P, M: M, fp: fp, fpStand: fpStand, T: T,
-        /* STEP 17: this year's own phi_c/phi_o/phi_m/phi_c0 replace whatever `a` held -- the one-line
+        /* STEP 17: this year's own phi_c/phi_o/phi_m replace whatever `a` held -- the one-line
            fix that closes the constant-leak gap: every earlier year's args object no longer inherits
            the caller's single flat lookup, it carries this year's own curve sample instead.
            STEP 17.7: that curve sample is phi_cN/phi_oN/phi_mN, the sum-clamped-<=1 values computed
            once above (phi_cY/phi_oY/phi_mY), not a fresh, unclamped phi_cCurve(y)/phi_oCurve(y)/
            phi_mCurve(y) call here -- calling the curves again at this point would silently undo the
-           renormalization done above and hand modelCore() the raw, possibly over-budget split. */
+           renormalization done above and hand modelCore() the raw, possibly over-budget split.
+           STEP 17.9: phi_c0 is NOT one of these per-year samples -- phiC0 is the flat constant
+           computed once above the loop (identical to every other year), exactly as it was before
+           Step 17. Writing it into args here is a no-op override of the same value `a.phi_c0`
+           already carried, kept explicit so this line still names every key modelCore() reads a
+           split from. */
         args: Object.assign({}, a, { power: P, mass: M, fission: (Fv > 0), mix: (P > 0 ? Fv / P : 0), insituReq: sh, insitu: sh,
           fabCeiling: Math.max(sh, share), fabProd: fp, fabProdStand: fpStand, fabLedgerRequest: true, learnG: Gy,
           phi_c: phi_cN, phi_o: phi_oN, phi_m: phi_mN, phi_c0: phiC0 }) };
-    }; })(fp, share, cSol, fNew, Fs, Ss, Is, Ms, IfabS, Gy, r, Rp, Tfrac, rEff, phiC0y, phi_cY, phi_oY, phi_mY);
+    }; })(fp, share, cSol, fNew, Fs, Ss, Is, Ms, IfabS, Gy, r, Rp, Tfrac, rEff, phiC0, phi_cY, phi_oY, phi_mY);
     const gOf = (function(st){ return function(lam){ const m = modelCore(st(lam).args); return { g: m.Wthr - m.Wpower, s: Math.abs(m.Wthr) + Math.abs(m.Wpower) }; }; })(stateAt);
     /* CLOSE-OUT W2 (Quinn 2026-09-15, "aim at the most water"): the kink is the water maximum only while W_power is
        non-decreasing in lambda, which R7.3.3 assumed. Where the fab runs short of silicon the array it cannot build carries no
@@ -11502,7 +11538,11 @@ function powerFleetSolve(a, fs, era, k, funding){
        summed the app's own three-times-repeated way (objectiveR6's sibling helper,
        productTonnage() -- water + construction + oxygenTotal + alloy). One extra modelCore() call
        per year, additive to what kinkLambda's own bisection already spends; nothing else in this
-       loop reads it, so no existing figure moves. */
+       loop reads it, so no existing figure moves.
+       STEP 17.9: this same __mProd also carries phi_water, modelCore()'s own computed fourth
+       fraction (Math.max(0, 1 - phi_c - phi_o - phi_m), STEP 71's own formula) -- captured into
+       rec.push() below for the phi-curve panel's new read-only water line, reused rather than
+       recomputed, per Quinn's own instruction. */
     let __mProd = modelCore(st.args);
     /* STEP 17.7 (Quinn's ruling, 2026-09-22): the water floor. kk.lam (hence P, M and every
        ledger figure in this year's rec.push below) is already settled above and does not depend
@@ -11541,7 +11581,7 @@ function powerFleetSolve(a, fs, era, k, funding){
     rec.push({ y: y, r: r, rEff: rEff, Tfrac: Tfrac, lam: kk.lam, edge: kk.edge, gAt: kk.g, nEval: kk.n, reactors: fNew / REACTOR_KWE, reactorsScheduled: nSched,
       reactorsWanted: wanted, reactorsBacklog: backlogReactors, floorNeed: floorNeed, share: share,
       F: fNew, S: st.sN, I: st.iN, Ifab: st.ifab, mF: mFnew, mS: st.sN * cS, mI: (isFinite(cI) ? st.iN * cI : 0), Mp: Rp - (st.T - Tfrac), Rp: Rp, cI: cI, fp: fp,
-      product: productTonnage(__mProd) });
+      product: productTonnage(__mProd), phi_water: __mProd.phi_water });
     last = st;
   }
   const le = rec[rec.length - 1];
@@ -23662,13 +23702,16 @@ function runAbstractTests(){
           ['Metals-production split', function(){ setEraRate('phi_m', state.phase, 0.50); render(); }],
           ['Solar kg/kWe', function(){ fire68(byId('k_solovr'), 20); }],
           ['Fission kg/kWe', function(){ fire68(byId('k_fisovr'), 300); }],
-          /* STEP 17: phi_c0 joins phi_c/phi_o/phi_m's own carve-out above, for the identical
-             reason -- matchesPreset() no longer compares state.phiC0Ovr directly (fix A), and
-             #k_phic0's own input listener never places a curve point, only writes state.phiC0Ovr,
-             so a fire68() here would no longer leave the preset by this row's own new definition.
-             PHI_C0_BY_ERA's nine cells run 0.00-0.44, so 0.60 is off every one of them (within
-             CURVE_MAX.phi_c0's own 0.75 ceiling). */
-          ['Non-productive downmass', function(){ setEraRate('phi_c0', state.phase, 0.60); render(); }],
+          /* STEP 17.9 (Quinn's ruling): phi_c0 is retired from the curve mechanism entirely, so
+             this MOVES entry reverts to the pre-Step-17 shape every other classic slider in this
+             array already uses (fire68() on the slider itself) rather than the Step 17
+             setEraRate('phi_c0', ...) call it briefly carried -- matchesPreset() restored its
+             direct state.phiC0Ovr comparison at the Step 17 SE close-out, and that comparison is
+             now the ONLY thing #k_phic0 leaves the preset through; setEraRate('phi_c0', ...) would
+             throw now that CURVE_MAX carries no phi_c0 key (setEraRate()'s own STEP 17 whitelist).
+             PHI_C0_BY_ERA's nine cells run 0.00-0.44, so 0.60 is off every one of them, the same
+             off-preset value this row always used. */
+          ['Non-productive downmass', function(){ fire68(byId('k_phic0'), 0.60); }],
           /* STEP 68 PASS 2A: Restore covers the two Value controls and the In-situ solar rate. */
           ['Earth delivery cost', function(){ fire68(byId('k_landedcost'), state.landed_cost === 0 ? 1 : 0); }],
           /* STEP 68 FABSEG, ITEM 2: fires an index off LEARN_PRESET_INDEX (now 2, 0.85) so the move actually leaves the preset. */
@@ -24248,14 +24291,16 @@ function appliedRate(key){
      point on either actor, the Mass landing rate rail, or a preset default. */
   if (key === 'mass' && typeof CURVE !== 'undefined' && typeof buildCurve === 'function')
     return buildCurve('mass', state.funding, state.phase, state.mass)(Number(state.phase));
-  /* STEP 17.6: phi_c0 carries its applied value in state.phiC0Ovr, never a DETENTS-indexed
-     state[key] the way every other appliedRate() key does -- the generic knobVal(key) fallback
-     below reads DETENTS.phi_c0[state.phi_c0], and neither exists, which throws. Same shape as
-     the generic branch (a placed curve point wins, else the classic control's own value), just
-     with phi_c0's own classic-control field named explicitly. */
+  /* STEP 17.6, TRIMMED AT 17.9: phi_c0 carries its applied value in state.phiC0Ovr, never a
+     DETENTS-indexed state[key] the way every other appliedRate() key does -- the generic
+     knobVal(key) fallback below reads DETENTS.phi_c0[state.phi_c0], and neither exists, which
+     throws, so phi_c0 still needs its own branch here. STEP 17.9 (Quinn's ruling): phi_c0 is no
+     longer one of the curve-backed quantities -- the CURVE.pts.phi_c0 lookup Step 17.6 added here
+     is removed rather than left inert, since CURVE.pts carries no phi_c0 key at all any more; this
+     returns exactly what #k_phic0's own listener writes, the same as before Step 17 ever touched
+     it. */
   if (key === 'phi_c0'){
-    const storedC0 = (typeof CURVE !== 'undefined' && CURVE.pts.phi_c0) ? CURVE.pts.phi_c0[state.phase] : null;
-    return (storedC0 != null) ? storedC0 : (state.phiC0Ovr != null ? state.phiC0Ovr : CONFIG.phiC0.value);
+    return (state.phiC0Ovr != null) ? state.phiC0Ovr : CONFIG.phiC0.value;
   }
   const stored = (typeof CURVE !== 'undefined' && CURVE.pts[key]) ? CURVE.pts[key][state.phase] : null;
   return (stored != null) ? stored : knobVal(key);
@@ -24399,9 +24444,11 @@ function matchesPreset(p){
          placed is a knob, and until this clause the app did not know it: one drag moved the
          headline 54 percent with the scenario's pill still lit and its name still in the Scenario
          tab's first sentence. `state.curvePts` is empty exactly when no point has been placed.
-         STEP 17: phi_c/phi_o/phi_m/phi_c0 join mass/power/agency/commercial on this same
+         STEP 17: phi_c/phi_o/phi_m join mass/power/agency/commercial on this same
          curvePtsKey()-backed check (mechanism 2), catching a placed point on the new phi-curve
-         panel exactly the way one on the mass curve already was. */
+         panel exactly the way one on the mass curve already was. STEP 17.9 (Quinn's ruling): phi_c0
+         is retired from this mechanism -- it carries no curve any more, so it is caught only by the
+         direct state.phiC0Ovr comparison a few lines down, exactly as it was before Step 17. */
       && state.curvePts===''
       /* STEP 17 SE CLOSE-OUT (2026-09-22): mass's own line three rows up
          (state.mass===env.M) proves curvePtsKey() alone is not sufficient for a quantity whose
@@ -25809,26 +25856,32 @@ if (typeof window !== 'undefined' && window.addEventListener)
   window.addEventListener('resize', function(){ __curveHoldFoot = (curveDragTimer != null); try { curveDraw(); } catch(e){} __curveHoldFoot = false; try { phiCurveDraw(); } catch(e){} });
 
 /* ============================================================
-   STEP 17: THE PHI/PRODUCT CURVE PANEL. One shared canvas (#phiCurvePlot), five series: the four
-   per-year allocation-share curves (phi_c0/phi_c/phi_o/phi_m) drawn and draggable exactly the way
+   STEP 17: THE PHI/PRODUCT CURVE PANEL. One shared canvas (#phiCurvePlot). STEP 17.9 (Quinn's
+   ruling, 2026-09-23): phi_c0 is retired from this panel -- it is not one of the draggable
+   per-year curves any more (redundant here: it already has its own #k_phic0 slider and the
+   landing-rate buildout curve). Five series remain, composition changed: three per-year
+   allocation-share curves (phi_c/phi_o/phi_m) drawn and draggable exactly the way
    curveDraw()/curveDragStart()/curveDragMove()/curveDragEnd()/curveKeyDown() above already draw
    and drag the mass/agency/commercial curves -- same CURVE_PAD-shaped margin discipline, same
    backing-store-to-CSS-pixel scale read off the element's own box, same handle-reuse-under-a-live-
-   drag rule, same 500 ms settle between the pointer and the model. The one new mechanism is the
-   vertical law: phi is already [0,1], so it maps to the shared 0-100% pixel band LINEARLY
-   (phiPct/phiFromPct) rather than through massRailPct()'s log law, while the fifth series,
-   productCurve, keeps the log law the mass curve already uses (reusing massRailPct/
-   MASS_RAIL_MIN/MASS_RAIL_MAX rather than a second range, per the design spec section 4) --
-   two vertical laws sharing one canvas, exactly the "dual y-axis" shape py() was already written
-   as value -> percentage -> pixel to support. productCurve is drawn, never dragged (see
-   productTonnage()/powerFleetSolve()'s own STEP 17 comment on why): a heavier dashed stroke,
-   always full weight, no toggle button and no handle, the same relationship the existing mass
-   curve's own "god curve" (Agency+Commercial sum, drawn on the Investment panel) already has to
-   its two draggable constituents. */
+   drag rule, same 500 ms settle between the pointer and the model -- plus two non-interactive
+   lines: water (phi_water, the derived remainder, sitting in phi_c0's old slot on this plot, never
+   fit, never dragged, exactly the design spec's own "phi_water is never fit, never dragged" rule)
+   and the total product. The one new mechanism is the vertical law: phi is already [0,1] and water
+   is a share too, so both map to the shared 0-100% pixel band LINEARLY (phiPct/phiFromPct) rather
+   than through massRailPct()'s log law, while productCurve keeps the log law the mass curve
+   already uses (reusing massRailPct/MASS_RAIL_MIN/MASS_RAIL_MAX rather than a second range, per
+   the design spec section 4) -- two vertical laws sharing one canvas, exactly the "dual y-axis"
+   shape py() was already written as value -> percentage -> pixel to support. Water and
+   productCurve are both drawn, never dragged (see productTonnage()/powerFleetSolve()'s own STEP 17
+   comment on why productCurve is derived-only; water is derived-only for the identical reason, one
+   degree of freedom short of an invertible drag): no toggle button and no handle for either, the
+   same relationship the existing mass curve's own "god curve" (Agency+Commercial sum, drawn on the
+   Investment panel) already has to its two draggable constituents. */
 const PHI_CURVE_PAD = { l: 26, r: 26, t: 8, b: 16 };
 const PHI_Y_LABEL = 'Allocation share, φ (linear)', PRODUCT_Y_LABEL = 'Total product, t/yr (log)';
-const PHI_CURVE_NAMES = ['phi_c0', 'phi_c', 'phi_o', 'phi_m'];
-const PHI_CURVE_LABEL = { phi_c0: 'Non-productive downmass curve', phi_c: 'Construction split curve',
+const PHI_CURVE_NAMES = ['phi_c', 'phi_o', 'phi_m'];
+const PHI_CURVE_LABEL = { phi_c: 'Construction split curve',
                           phi_o: 'Oxygen split curve', phi_m: 'Metals-production split curve' };
 function phiPct(v){ return Math.max(0, Math.min(100, v * 100)); }
 function phiFromPct(pct){ return Math.max(0, Math.min(1, pct / 100)); }
@@ -25857,10 +25910,11 @@ function phiCurveDraw(){
   const which = (PHI_CURVE_NAMES.indexOf(state.phiCurveWhich) >= 0) ? state.phiCurveWhich : 'phi_c';
   /* Each curve is seeded with the reader's own live value at the era in view, the same pattern
      curveDraw() feeds buildCurve('mass', ..., knobVal('mass')) -- a reader who only ever drags the
-     classic Construction/Oxygen/Metals-production/Non-productive-downmass sliders sees that same
-     live number painted here, at this era, with no need to touch this panel at all. */
+     classic Construction/Oxygen/Metals-production sliders sees that same live number painted here,
+     at this era, with no need to touch this panel at all. STEP 17.9 (Quinn's ruling): phi_c0 is
+     dropped from this object -- it is retired from the curve mechanism, so it is never sampled
+     here; its own live value stays visible only on its own classic slider (#k_phic0). */
   const curves = {
-    phi_c0: buildCurve('phi_c0', state.funding, era, (state.phiC0Ovr != null) ? state.phiC0Ovr : CONFIG.phiC0.value),
     phi_c:  buildCurve('phi_c',  state.funding, era, knobVal('phi_c')),
     phi_o:  buildCurve('phi_o',  state.funding, era, knobVal('phi_o')),
     phi_m:  buildCurve('phi_m',  state.funding, era, knobVal('phi_m'))
@@ -25871,6 +25925,13 @@ function phiCurveDraw(){
   PHI_CURVE_NAMES.forEach(function(w){ vals[w] = yrs.map(curves[w]); });
   const prodRows = productCurveSeries();
   const prodVals = yrs.map(function(y){ const r = prodRows[y - CURVE_EPOCH]; return (r && isFinite(r.product)) ? r.product : 0; });
+  /* STEP 17.9 (Quinn's ruling): water fills phi_c0's old slot on this plot, but as a derived,
+     read-only fourth line rather than a draggable curve -- phi_water(y) = max(0, 1 - phi_c(y) -
+     phi_o(y) - phi_m(y)), reused from powerFleetSolve()'s own per-year record (its STEP 17.9
+     comment) rather than recomputed here, the same reuse-not-recompute discipline prodVals above
+     already follows for the product total. Same rows (prodRows) as prodVals -- one solve, two
+     series read off it. */
+  const waterVals = yrs.map(function(y){ const r = prodRows[y - CURVE_EPOCH]; return (r && isFinite(r.phi_water)) ? r.phi_water : 0; });
 
   /* THE RECORD, written before anything is drawn -- the same discipline curveDraw()/investDraw() keep. */
   cv.dataset.era = String(E);
@@ -25884,6 +25945,10 @@ function phiCurveDraw(){
     cv.dataset[w + 'RateAt'] = yrs.map(function(y, i){ return y + ':' + vals[w][i]; }).join(',');
   });
   cv.dataset.productAt = yrs.map(function(y, i){ return y + ':' + prodVals[i]; }).join(',');
+  /* STEP 17.9: the water line's own record, THE CANVAS IS THE VIEW discipline extended to the new
+     read-only series -- a harness with a no-op 2D context reads this the same way it reads every
+     other *RateAt dataset field above. */
+  cv.dataset.phi_waterRateAt = yrs.map(function(y, i){ return y + ':' + waterVals[i]; }).join(',');
 
   const vc = document.getElementById('v_phicurve');
   if (vc) vc.textContent = fmtNum(curves[which](E) * 100, 1) + '% at ' + E;
@@ -25938,9 +26003,10 @@ function phiCurveDraw(){
     plotAxisLabelRight(cv, ctx, PHI_CURVE_PAD, PRODUCT_Y_LABEL);
     /* Colors reused from the app's own palette so a reader who has learned "pin = in-situ fabs,
        alloy = metals" elsewhere in the UI meets the same colors here (design spec section 4):
-       phi_c0 --regolith, phi_c --ice, phi_o a fourth accent, phi_m --alloy-family. */
+       phi_c --ice, phi_o a fourth accent, phi_m --alloy-family. STEP 17.9 (Quinn's ruling): phi_c0
+       is dropped from this series list -- it is retired from the curve mechanism, so it is never
+       drawn here at all any more. */
     const series = [
-      ['phi_c0', 'rgba(224,165,79,',  which === 'phi_c0'],
       ['phi_c',  'rgba(78,201,232,',  which === 'phi_c'],
       ['phi_o',  'rgba(120,200,140,', which === 'phi_o'],
       ['phi_m',  'rgba(200,120,220,', which === 'phi_m']
@@ -25953,6 +26019,18 @@ function phiCurveDraw(){
       ctx.stroke();
       ctx.restore();
     });
+    /* STEP 17.9: water, phi_c0's old slot, drawn read-only in the app's own water color (--cobalt,
+       #3d7fd6 dark theme, matching the mass bar/hero tile accent design spec section 4 points to)
+       on the same linear pyPhi law the three draggable shares use -- it is a share too, never a
+       tonnage, so it does not belong on productCurve's log law below. Solid, always full weight
+       (never dimmed the way an off-toggle draggable curve is), no handle, no toggle button: it can
+       never be "the currently active" series because it is never draggable at all. */
+    ctx.save();
+    ctx.strokeStyle = 'rgba(61,127,214,0.9)'; ctx.lineWidth = 1.5; ctx.globalAlpha = 0.9;
+    ctx.beginPath();
+    yrs.forEach(function(y, i){ const X = px(y), Y = pyPhi(waterVals[i]); if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); });
+    ctx.stroke();
+    ctx.restore();
     ctx.save();
     ctx.setLineDash([4,3]);
     ctx.strokeStyle = 'rgba(230,230,235,0.9)'; ctx.lineWidth = 2; ctx.globalAlpha = 1;
