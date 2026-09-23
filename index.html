@@ -10877,6 +10877,45 @@ function step66Plants(oxygen_t, metal_t){
   return { nOx: nOx, nMetal: nMetal, total: nOx + nMetal, oxygen: ox, metal: met };
 }
 
+/* ENGINEER STEP 72 (2026-09-23, PROPOSED EXTENSION -- NOT A QUINN RULING, PENDING HIS OR A DOMAIN
+   REVIEWER'S SIGN-OFF): water and construction carried ZERO weight in learningMultipliersCounts()'s
+   F(n) below -- landing more water-mining or sintering plant capacity built no cumulative units
+   toward the fleet-wide learning discount, confirmed live in cr_scratch/step17_13_wrightslaw_trace.md
+   (shifting phi from construction into water leaves N_cum/H_learn/C_hw bit-identical to baseline).
+   NO SOURCE IN THIS CORPUS STATES A MODULAR PLANT-UNIT CAPACITY FOR A WATER-EXTRACTION PLANT OR A
+   SINTERING/CONSTRUCTION PLANT AT THE SAME DESIGN-POINT BASIS Schreiner 2016 gives the dedicated
+   oxygen reactor (5,000 kg O2/yr, STEP60_UNIT_CAPACITY_KG_O2_YR) or Guerrero-Gonzalez and Zabel 2023
+   gives the metal-primary plant (25 t metal/yr, STEP66_METAL_UNIT_T_YR above). Candidates checked
+   and rejected, not silently skipped: LUWEX 2026 (Kiewiet et al.), the only integrated
+   extract-capture-liquefy DEMONSTRATION this corpus holds, runs at 2.06-7.76 g/h, about 0.05-0.19
+   kg/day -- four to five orders of magnitude below a plant design point, and the paper's own framing
+   calls it a demonstration, not a sized module meant to multiply by N. Kornuta et al. 2019 Table 20
+   (p.117) carries four OTHER studies' oxygen-ISRU plant annual throughputs (Blair 2002 245,000 kg/yr
+   nuclear, Charania 2007 57,600 kg/yr, Spudis 2011 30,000 kg/yr solar, Lavoie 2016 140,000 kg/yr
+   solar) -- none is water-specific, none is used anywhere else live in this app, and importing one
+   now, for this purpose alone, is a fresh citation call this engineer will not make unilaterally.
+   Kleinhenz and Paz 2020's polar water case study sizes a bespoke end-to-end mine+tanker+propellant
+   -plant architecture to ONE fixed production target (10 t O2 over 225 days), not a per-unit module
+   meant to multiply by N the way a reactor or an MRE plant is.
+   THE PLACEHOLDER BELOW IS THEREFORE STATUS ASSUMPTION, in this file's own vocabulary (badge legend,
+   renderEqnsTab): DERIVED arithmetic on already-live, already-sourced CONFIG coefficients, reusing
+   the SAME regolith-throughput identity the model already runs for the metals line at full
+   allocation (MthrFullT = yMetal * RcapT, line 10432, and Cthr = ySinter * RcapRem, line 10661, and
+   Wthr = (RcapRem/rho)*cap100, line 10646) evaluated at ONE metals-plant-equivalent's own regolith
+   throughput instead of the fleet's RcapRem. This is exactly the transfer this app's own reference
+   text already names and flags at [[throughput-limited]]: "reading one coefficient across the water,
+   construction, oxygen and alloy branches stays an assumption that nothing in the record bounds."
+   ONE metals-plant-equivalent (Guerrero-Gonzalez and Zabel 2023, the SAME plant STEP66 anchors)
+   processes STEP66_METAL_UNIT_T_YR / yMetal = 25 / (yO2*rMetal) t regolith/yr; that regolith
+   throughput run through the model's own water and construction yield identities gives the two
+   figures below. NEEDS QUINN'S OR A DOMAIN REVIEWER'S SIGN-OFF before being treated as a real
+   design figure -- report this gap plainly rather than let it pass as sourced. */
+const STEP72_METAL_EQUIV_REGOLITH_T_YR = STEP66_METAL_UNIT_T_YR / (CONFIG.yO2.value * CONFIG.rMetal.value); // ASSUMPTION: t regolith/yr one metals-plant-equivalent unit processes
+const STEP72_CONSTRUCTION_UNIT_T_YR = STEP72_METAL_EQUIV_REGOLITH_T_YR * CONFIG.ySinter.value; // ASSUMPTION: t sintered product/yr per plant-equivalent unit (ySinter, t product/t feed, is not ice-grade dependent)
+function step72WaterUnitTYr(ice){ // ASSUMPTION: t water/yr per plant-equivalent unit; ice-grade dependent because Wthr's own rho=100/ice identity is (unlike ySinter's), so this is a function, not a fixed constant
+  return (ice > 0) ? STEP72_METAL_EQUIV_REGOLITH_T_YR * (ice / 100) * CONFIG.captureEff.value : 0;
+}
+
 /* ============================================================
    STEP 68 PASS 2B: THE VINTAGE MULTIPLIERS (spec Revision 2 B.1, B.3, B.6).
    Cohorts y = 2030..E land r_y = rateM(y) [t] and p_y = rateP(y) [kWe]; a cohort stands while E - y < L [yr].
@@ -11021,8 +11060,20 @@ function learningMultipliersCounts(a0, f, era, PR){
     const __Sy70 = (__cS70 > 0) ? Math.max(0, __mEff70 - __Fy * __cF70) / __cS70 : 0;          // [kWe]
     const __den70 = __Fy + __Sy70;                                                             // [kWe]
     const __mixY = (__den70 > 0) ? Math.max(0, Math.min(1, __Fy / __den70)) : 0;               // [1]
-    const ca = Object.assign({}, a, {power:c.cP, mass:c.cM, phi_c:0, mix:__mixY});
-    const F = function(n){ const G = (sR + c.r > 0) ? (sRphi + c.r * phi(n)) / (sR + c.r) : 1; const m = model(Object.assign({}, ca, {learnG:G})); return (m.oxygen > 0 ? Math.max(1, m.oxygen * 1000 / STEP60_UNIT_CAPACITY_KG_O2_YR) : 0) + (m.metalProduced > 0 ? Math.max(1, m.metalProduced / STEP66_METAL_UNIT_T_YR) : 0); };
+    /* ENGINEER STEP 72: `phi_c:0` retired from this line. Before this step F(n) read only
+       m.oxygen/m.metalProduced, so forcing construction to zero on the counting-only `ca` object
+       was inert for the count itself (oxygen and metals draw off the shared budget BEFORE phi_c is
+       applied -- see cr_scratch/step17_13_wrightslaw_trace.md section 1) -- it only changed what
+       m.water/m.construction the counting model() call would have shown, which nothing read. Now
+       that F(n) reads m.water and m.construction too, forcing phi_c:0 would count every cohort as
+       if the reader had dialled 100% of the water/construction remainder into water, regardless of
+       the reader's actual phi_c -- exactly the "what oxygen+metals COULD have produced" framing this
+       object no longer represents, now that all four lines count. ca now inherits phi_c from `a`
+       unchanged, the same already-clamped state phi_o and phi_m were set from two lines above
+       (line 10932-10933), so all four splits the census counts are read the state clamps them,
+       consistently. */
+    const ca = Object.assign({}, a, {power:c.cP, mass:c.cM, mix:__mixY});
+    const F = function(n){ const G = (sR + c.r > 0) ? (sRphi + c.r * phi(n)) / (sR + c.r) : 1; const m = model(Object.assign({}, ca, {learnG:G})); return (m.oxygen > 0 ? Math.max(1, m.oxygen * 1000 / STEP60_UNIT_CAPACITY_KG_O2_YR) : 0) + (m.metalProduced > 0 ? Math.max(1, m.metalProduced / STEP66_METAL_UNIT_T_YR) : 0) + (m.water > 0 ? Math.max(1, m.water / step72WaterUnitTYr(ca.ice)) : 0) + (m.construction > 0 ? Math.max(1, m.construction / STEP72_CONSTRUCTION_UNIT_T_YR) : 0); };
     let n, it = 0;
     if (b === 0){ n = Math.max(Nprev, F(Nprev)); }
     else if (b < 0){ n = Nprev; for (;;){ const nx = F(n); it++; if (nx <= n * (1 + 1e-12) || it > 2000){ if (nx > n) n = nx; break; } n = nx; } }
