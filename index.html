@@ -18971,8 +18971,10 @@ function runAbstractTests(){
         const sx = CSSW / W, sy = CSSH / H;
         Array.prototype.forEach.call(document.querySelectorAll('.curvehandle'), function(b){
           const y = Number(b.dataset.era), v = Number(b.dataset.rate);
-          const bx = CURVE_PAD.l + (E === CURVE_EPOCH ? 0 :
-                     ((y - CURVE_EPOCH) / (E - CURVE_EPOCH)) * (W - CURVE_PAD.l - CURVE_PAD.r));
+          /* STEP 17.15: the fixed [2030, 2055] x domain curveDraw() now paints on at every era, not
+             [2030, E] -- independently recomputed here rather than read off the app, per this row's
+             own discipline. */
+          const bx = CURVE_PAD.l + ((y - CURVE_EPOCH) / (2055 - CURVE_EPOCH)) * (W - CURVE_PAD.l - CURVE_PAD.r);
           /* STEP 70.3: the fixed log axis, massRailPct(v) against MASS_RAIL_MIN/MASS_RAIL_MAX --
              not (v / hi) against a locally-derived hi, which is curveDraw()'s own retired law. */
           const by = H - CURVE_PAD.b - (massRailPct(v) / 100) * (H - CURVE_PAD.t - CURVE_PAD.b);
@@ -19375,8 +19377,11 @@ function runAbstractTests(){
       };
       function recordOn(){ cv.getContext = function(){ return REC; }; }
       function recordOff(){ delete cv.getContext; }
-      function pxOf(y, E){ return CURVE_PAD.l + (Number(E) === CURVE_EPOCH ? 0 :
-                             ((Number(y) - CURVE_EPOCH) / (Number(E) - CURVE_EPOCH)) * (W - CURVE_PAD.l - CURVE_PAD.r)); }
+      /* STEP 17.15: the fixed [2030, 2055] x domain curveDraw() now paints on at every era, not
+         [2030, E] -- the E parameter is kept (every call site still passes it) so this diff stays
+         one line, but it no longer enters the arithmetic. */
+      function pxOf(y, E){ return CURVE_PAD.l +
+                             ((Number(y) - CURVE_EPOCH) / (2055 - CURVE_EPOCH)) * (W - CURVE_PAD.l - CURVE_PAD.r); }
       /* STEP 70.3: the fixed log axis, massRailPct(v) against MASS_RAIL_MIN/MASS_RAIL_MAX -- not
          (v / hi) against a locally-derived hi, which is curveDraw()'s own retired law. */
       function pyOf(v){ return H - CURVE_PAD.b - (massRailPct(v) / 100) * (H - CURVE_PAD.t - CURVE_PAD.b); }
@@ -19385,7 +19390,11 @@ function runAbstractTests(){
         for (let i = 0; i < list.length; i++){ const d = Math.abs(get(list[i]) - want); if (d < bd){ bd = d; best = list[i]; } }
         return { item: best, d: bd };
       }
-      function curvePaths(E){ return drawn.paths.filter(function(p){ return p.length === Number(E) - CURVE_EPOCH + 1; }); }
+      /* STEP 17.15: every curve polyline curveDraw() strokes now spans the full [2030, 2055] domain
+         regardless of era -- CURVE_ERAS[CURVE_ERAS.length-1] - CURVE_EPOCH + 1 points, not
+         E - CURVE_EPOCH + 1. E is kept as the parameter (every call site still passes it, and the
+         population/argument-space comments below still name it) but no longer sizes the filter. */
+      function curvePaths(E){ return drawn.paths.filter(function(p){ return p.length === CURVE_ERAS[CURVE_ERAS.length-1] - CURVE_EPOCH + 1; }); }
       function vertexAt(y, E, which){
         const ps = curvePaths(E);
         if (ps.length !== 2) return null;
@@ -25509,9 +25518,25 @@ function curveDraw(){
   const rateC = buildCurve('commercial', state.funding, era, null);
   const rateSel = (which === 'agency') ? rateA : rateC;
   const fs = fleetState(knobVal('mass'), knobVal('power'), era, null, state.funding);
+  /* STEP 17.15 (Quinn's ruling, 2026-09-23): THE DRAWN LINE COVERS THE WHOLE PROGRAMME, 2030-2055,
+     AT EVERY ERA TAB. Before this step yrs stopped at E, so era 2030 painted one point and no line
+     at all, and every other era painted only [2030, era] rescaled to fill the plot -- a different
+     axis at every tab for the same programme, and the axis itself did the clipping: a point past E
+     had nowhere on the canvas to land even if one had been computed. Up to the era in view the two
+     curves are rateA/rateC above, the same ones the fleet reads (a reader's own placed point
+     included); past it, where the fleet does not evaluate, the extension reads the scenario's own
+     2055 curves, the identical "past the view, read the 2055 table" rule investmentSeries() already
+     carries for the god curve (Step 69/70) -- reused here rather than a second law invented for
+     this plot. total/rateA/rateC themselves stay era-scoped, unchanged: dataset.knots,
+     dataset.cumulative, the handle values and v_curve all keep reading the actual programme to
+     date, never a projection. */
+  const rateAFull = buildCurve('agency', state.funding, '2055', null);
+  const rateCFull = buildCurve('commercial', state.funding, '2055', null);
   const yrs = [];
-  for (let y = CURVE_EPOCH; y <= E; y++) yrs.push(y);
-  const vals = yrs.map(total), valsA = yrs.map(rateA), valsC = yrs.map(rateC);
+  for (let y = CURVE_EPOCH; y <= 2055; y++) yrs.push(y);
+  const valsA = yrs.map(function(y){ return (y <= E) ? rateA(y) : rateAFull(y); });
+  const valsC = yrs.map(function(y){ return (y <= E) ? rateC(y) : rateCFull(y); });
+  const vals = yrs.map(function(y, i){ return valsA[i] + valsC[i]; });
   /* STEP 70.3, QUINN'S RULING 2026-09-17: THE VERTICAL SCALE IS THE RAIL'S OWN FIXED LOG AXIS,
      MASS_RAIL_MIN..MASS_RAIL_MAX (1..1,000,000), NOT THE PROGRAMME'S ENVELOPE AND NOT THE
      CURVE'S OWN OUTPUT. The per-scenario floating ceiling this replaces (envHi, the larger of the
@@ -25608,8 +25633,11 @@ function curveDraw(){
     const sy = (cv.clientHeight > 0) ? cv.clientHeight / H : 1;
     cv.dataset.cssScaleX = String(sx);
     cv.dataset.cssScaleY = String(sy);
-    const px = function(y){ return (CURVE_PAD.l + (E === CURVE_EPOCH ? 0 :
-                    ((y - CURVE_EPOCH) / (E - CURVE_EPOCH)) * (W - CURVE_PAD.l - CURVE_PAD.r))) * sx; };
+    /* STEP 17.15: the x axis is the fixed [2030, 2055] domain the whole line now draws on, not
+       [2030, E] -- a handle placed with the era-relative law would sit off the curve's own column
+       the instant the line beside it stopped being rescaled to the era in view. */
+    const px = function(y){ return (CURVE_PAD.l +
+                    ((y - CURVE_EPOCH) / (2055 - CURVE_EPOCH)) * (W - CURVE_PAD.l - CURVE_PAD.r)) * sx; };
     const py = function(v){ return (H - CURVE_PAD.b - (massRailPct(v) / 100) * (H - CURVE_PAD.t - CURVE_PAD.b)) * sy; };
     /* THE ROW IS REBUILT, EXCEPT UNDER A LIVE DRAG, WHERE IT IS MOVED IN PLACE. A pointer that
        has captured a handle loses the capture the moment that element leaves the document, and
@@ -25649,8 +25677,8 @@ function curveDraw(){
   const ctx = cv.getContext && cv.getContext('2d');
   if (ctx){
     const W = cv.width, H = cv.height;
-    const px = function(y){ return CURVE_PAD.l + (E === CURVE_EPOCH ? 0 :
-                    ((y - CURVE_EPOCH) / (E - CURVE_EPOCH)) * (W - CURVE_PAD.l - CURVE_PAD.r)); };
+    const px = function(y){ return CURVE_PAD.l +
+                    ((y - CURVE_EPOCH) / (2055 - CURVE_EPOCH)) * (W - CURVE_PAD.l - CURVE_PAD.r); };
     const py = function(v){ return H - CURVE_PAD.b - (massRailPct(v) / 100) * (H - CURVE_PAD.t - CURVE_PAD.b); };
     ctx.clearRect(0, 0, W, H);
     ctx.strokeStyle = 'rgba(160,170,190,0.35)';
@@ -25970,19 +25998,45 @@ function phiCurveDraw(){
     phi_o:  buildCurve('phi_o',  state.funding, era, knobVal('phi_o')),
     phi_m:  buildCurve('phi_m',  state.funding, era, knobVal('phi_m'))
   };
+  /* STEP 17.15 (Quinn's ruling, 2026-09-23): the phi-panel side of the same fix curveDraw() carries
+     -- up to the era in view each share is the live curve above (a reader's own placed point, or
+     the live classic slider, included); past it the extension reads the scenario's own 2055 curves,
+     the same buildCurve(..., '2055', null) law investmentSeries()/curveDraw() already use, so the
+     whole 2030-2055 shape is on screen at every era tab rather than only [2030, era]. */
+  const curvesFull = {
+    phi_c:  buildCurve('phi_c',  state.funding, '2055', null),
+    phi_o:  buildCurve('phi_o',  state.funding, '2055', null),
+    phi_m:  buildCurve('phi_m',  state.funding, '2055', null)
+  };
   const yrs = [];
-  for (let y = CURVE_EPOCH; y <= E; y++) yrs.push(y);
+  for (let y = CURVE_EPOCH; y <= 2055; y++) yrs.push(y);
   const vals = {};
-  PHI_CURVE_NAMES.forEach(function(w){ vals[w] = yrs.map(curves[w]); });
+  PHI_CURVE_NAMES.forEach(function(w){
+    vals[w] = yrs.map(function(y){ return (y <= E) ? curves[w](y) : curvesFull[w](y); });
+  });
   const prodRows = productCurveSeries();
-  const prodVals = yrs.map(function(y){ const r = prodRows[y - CURVE_EPOCH]; return (r && isFinite(r.product)) ? r.product : 0; });
+  /* STEP 17.15: the product (god) curve is a model OUTPUT, read off powerFleetSolve()'s own per-year
+     loop, which only runs [2030, E] -- there is no envelope table to extend it from the way the
+     three dialled shares and the buildout curves have, so its own drawn segment stays [2030, E]
+     rather than painting a false run to zero past it. yrsView is that segment; yrs (full range)
+     stays the x domain the axis, the three phi curves, water and every handle are placed against. */
+  const yrsView = yrs.filter(function(y){ return y <= E; });
+  const prodVals = yrsView.map(function(y){ const r = prodRows[y - CURVE_EPOCH]; return (r && isFinite(r.product)) ? r.product : 0; });
   /* STEP 17.9 (Quinn's ruling): water fills phi_c0's old slot on this plot, but as a derived,
      read-only fourth line rather than a draggable curve -- phi_water(y) = max(0, 1 - phi_c(y) -
      phi_o(y) - phi_m(y)), reused from powerFleetSolve()'s own per-year record (its STEP 17.9
      comment) rather than recomputed here, the same reuse-not-recompute discipline prodVals above
      already follows for the product total. Same rows (prodRows) as prodVals -- one solve, two
-     series read off it. */
-  const waterVals = yrs.map(function(y){ const r = prodRows[y - CURVE_EPOCH]; return (r && isFinite(r.phi_water)) ? r.phi_water : 0; });
+     series read off it.
+     STEP 17.15: past the era in view there is no model row to read (powerFleetSolve()'s own loop
+     bound, same as prodVals'), so the extension applies the SAME formula this comment states to the
+     full-range phi curves above (curvesFull) rather than leaving the line absent or false-flat --
+     it is a derived share both inside and outside the view, and the formula does not change at the
+     boundary, only its inputs do. */
+  const waterVals = yrs.map(function(y){
+    if (y <= E){ const r = prodRows[y - CURVE_EPOCH]; return (r && isFinite(r.phi_water)) ? r.phi_water : 0; }
+    return Math.max(0, 1 - curvesFull.phi_c(y) - curvesFull.phi_o(y) - curvesFull.phi_m(y));
+  });
 
   /* THE RECORD, written before anything is drawn -- the same discipline curveDraw()/investDraw() keep. */
   cv.dataset.era = String(E);
@@ -25995,7 +26049,7 @@ function phiCurveDraw(){
     cv.dataset[w + 'Family'] = curves[w].family;
     cv.dataset[w + 'RateAt'] = yrs.map(function(y, i){ return y + ':' + vals[w][i]; }).join(',');
   });
-  cv.dataset.productAt = yrs.map(function(y, i){ return y + ':' + prodVals[i]; }).join(',');
+  cv.dataset.productAt = yrsView.map(function(y, i){ return y + ':' + prodVals[i]; }).join(',');
   /* STEP 17.9: the water line's own record, THE CANVAS IS THE VIEW discipline extended to the new
      read-only series -- a harness with a no-op 2D context reads this the same way it reads every
      other *RateAt dataset field above. */
@@ -26010,8 +26064,10 @@ function phiCurveDraw(){
     const sx = (cv.clientWidth  > 0) ? cv.clientWidth  / W : 1;
     const sy = (cv.clientHeight > 0) ? cv.clientHeight / H : 1;
     cv.dataset.cssScaleX = String(sx); cv.dataset.cssScaleY = String(sy);
-    const px = function(y){ return (PHI_CURVE_PAD.l + (E === CURVE_EPOCH ? 0 :
-                    ((y - CURVE_EPOCH) / (E - CURVE_EPOCH)) * (W - PHI_CURVE_PAD.l - PHI_CURVE_PAD.r))) * sx; };
+    /* STEP 17.15: fixed [2030, 2055] x domain, matching curveDraw()'s own fix -- the line beside
+       these handles is no longer rescaled to [2030, E], so neither is the handle placed on it. */
+    const px = function(y){ return (PHI_CURVE_PAD.l +
+                    ((y - CURVE_EPOCH) / (2055 - CURVE_EPOCH)) * (W - PHI_CURVE_PAD.l - PHI_CURVE_PAD.r)) * sx; };
     const py = function(v){ return (H - PHI_CURVE_PAD.b - (phiPct(v) / 100) * (H - PHI_CURVE_PAD.t - PHI_CURVE_PAD.b)) * sy; };
     const wanted = curveErasInScope(era);
     const have = hbox.querySelectorAll('.phicurvehandle');
@@ -26042,8 +26098,8 @@ function phiCurveDraw(){
   const ctx = cv.getContext && cv.getContext('2d');
   if (ctx){
     const W = cv.width, H = cv.height;
-    const px = function(y){ return PHI_CURVE_PAD.l + (E === CURVE_EPOCH ? 0 :
-                    ((y - CURVE_EPOCH) / (E - CURVE_EPOCH)) * (W - PHI_CURVE_PAD.l - PHI_CURVE_PAD.r)); };
+    const px = function(y){ return PHI_CURVE_PAD.l +
+                    ((y - CURVE_EPOCH) / (2055 - CURVE_EPOCH)) * (W - PHI_CURVE_PAD.l - PHI_CURVE_PAD.r); };
     const pyPhi = function(v){ return H - PHI_CURVE_PAD.b - (phiPct(v) / 100) * (H - PHI_CURVE_PAD.t - PHI_CURVE_PAD.b); };
     const pyProduct = function(v){ return H - PHI_CURVE_PAD.b - (massRailPct(v) / 100) * (H - PHI_CURVE_PAD.t - PHI_CURVE_PAD.b); };
     ctx.clearRect(0, 0, W, H);
@@ -26086,7 +26142,9 @@ function phiCurveDraw(){
     ctx.setLineDash([4,3]);
     ctx.strokeStyle = 'rgba(230,230,235,0.9)'; ctx.lineWidth = 2; ctx.globalAlpha = 1;
     ctx.beginPath();
-    yrs.forEach(function(y, i){ const X = px(y), Y = pyProduct(prodVals[i]); if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); });
+    /* STEP 17.15: yrsView, not yrs -- prodVals has no entry past the era in view (see its own
+       comment above), so this is the one series on this plot that still stops at E. */
+    yrsView.forEach(function(y, i){ const X = px(y), Y = pyProduct(prodVals[i]); if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); });
     ctx.stroke();
     ctx.setLineDash([]);
     ctx.restore();
