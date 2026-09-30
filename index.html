@@ -3472,7 +3472,7 @@
    ]
   },
   "Mfull": {
-   "expr": "M_full = min(power * H * dutyM / (eMetalWholePlant * 1000 + eRefine), yO2 * rMetal * R_cap)",
+   "expr": "M_full = min((power - inSituUnbuilt) * H * dutyM / (eMetalWholePlant * 1000 + eRefine), yO2 * rMetal * R_cap)",
    "claims": [
     "min-of-two-limits",
     "binding-regime-labels",
@@ -9017,8 +9017,27 @@
        from, not a re-solved water target -- both CONFIG edits, inside this pin's hash. EXT3 caught
        exactly this: stored f8449d37 no longer matched a recompute (02138b8c). f8449d37 to the value
        below, recomputed by pinOfKnobData(KNOB_DATA) on the patched file and read off the app's own
-       function rather than typed. */
-    __pin: "02138b8c"
+       function rather than typed.
+       STEP 18 RE-PIN, THE ENGINEER (2026-09-29): DERIVATION.equations.Mfull's own published
+       expression was stale against the live model -- it carried no uFleet power-penalty term
+       while Opower's own published expression already carries one explicitly ("O_power =
+       (power - inSituUnbuilt) * H * dutyM / e(oxygen)"), and the Systems Engineer's independent
+       adversarial sweep (cr_scratch/step18_systems_engineer_review.md) found three reachable
+       fabBinding==='silicon' states (uFleet>0) where the two published formulas disagree with the
+       live model's own Mfull by 26%-75% relative. Fixed by mirroring Opower's own form exactly:
+       "M_full = min(power * H * dutyM / (...), ...)" to "M_full = min((power - inSituUnbuilt) * H
+       * dutyM / (...), ...)" -- the throughput-ceiling term is untouched, because it carries no
+       power dependence in either published relation. Verified against the same three states
+       (cr_scratch/step18_engineer_ledger_verify.js): the corrected text now matches live Mfull to
+       float tolerance (relGap <= 1.6e-16) where the stale text disagreed by 26%-305% (this script's
+       own normalisation; the Systems Engineer's 26%-75% figure used a different denominator, same
+       finding). This is a documentation-only fix to the published expression string; it changes no
+       computation, so this pin move is a claims/expression-block change (DERIVATION, inside this
+       pin's hash), not a coefficient change. EXT3 caught exactly this: stored 02138b8c no longer
+       matched a recompute (acbd5349). 02138b8c to the value below, recomputed by
+       pinOfKnobData(KNOB_DATA) on the patched file and read off the app's own function rather than
+       typed. */
+    __pin: "acbd5349"
   };
 
   root.KNOB_DATA = KNOB_DATA;
@@ -10547,8 +10566,73 @@ function modelCore(a){
      The Step 67 gate ran the unscaled solve first and re-solved scaled only where that root overdrew. Just above the power
      where a scaled trial stops overdrawing by its tolerance, it kept an isolated root at x = request whose landed fab mass
      had consumed the plant (about 7 t at The Commercial Break 2055), so modelCore() jumped in standing power there. */
-  let fabSol = fleetLedger ? (function(){ const xR = kWeRequested * fSolEff, t0 = fabTrial(xR, true); uFleet = Math.max(0, VALUE.L.value * (kWeRequested - t0.kWeAchievedUnscaled));
-    const st = (uFleet > 0) ? fabTrial(xR, true) : t0; return { passes: 1, converged: true, x: st.xResult, st: st }; })() : solveFab(true);   // R7 M3: mining does not depend on x on a fleet state
+  /* GAMEPLAN STEP 18 (REL-05 fix, bisection). On a fleet state x is pinned at xR = kWeRequested *
+     fSol (R7 M3: mining does not depend on x there) and the only unknown left is uFleet itself,
+     which is BOTH an input to fabTrial (the power ceiling Ofull/Mfull read, Math.max(0, power -
+     uFleet)/power) and an output of it (kWeAchievedUnscaled, through the metals -> alloy ->
+     silicon chain, is the only path kWeAchieved has back to uFleet; the substrate ceiling never
+     reads uFleet at all). The retired form below took exactly one step of that loop: evaluate
+     once at uFleet = 0, take the uFleet that trial implies, evaluate once more, stop -- a single
+     Picard iterate, not a solved fixed point, and a damped 40-pass version of the same iterate
+     (tried and discarded) diverged harder (Mfull's published-vs-computed gap widened from 1.3%
+     to 16.9%) rather than converging.
+     THE FIXED POINT IS BRACKETED THE WAY solveFab BRACKETS xResult - x, not by appeal to a
+     monotonicity solveFab can prove and this loop cannot assume. Define g(u) = max(0, L *
+     (kWeRequested - kWeAchievedUnscaled(u))), the same right-hand side the Evidence Ledger's
+     inSituUnbuilt relation publishes, evaluated at trial uFleet = u; uFleet* is the u with
+     g(u) = u. kWeAchievedUnscaled(u) >= 0 always (it is a min of non-negative ceilings), so g(u)
+     <= L * kWeRequested at every u: g(0) - 0 = g(0) >= 0 and g(L*kWeRequested) - L*kWeRequested
+     <= 0 HOLD BY CONSTRUCTION, not by measurement, at every state -- the same bracket-at-the-
+     endpoints guarantee F2 opens with. h(u) = g(u) - u is continuous (fabTrial is built entirely
+     of +, *, Math.min and Math.max of continuous terms), so by the intermediate value theorem
+     alone a root sits inside [0, L*kWeRequested] and bisection finds it to 1e-9 in a bounded
+     60 passes, with no damping factor and no limit cycle to fall into: unlike solveFab's own x,
+     u never re-enters fabTrial as the xAssumed argument, so it cannot trip the Math.max(0, ...)
+     mining collapse that ruled out full-replacement iteration on THAT loop (see the note above
+     solveFab). kWeAchievedUnscaled(u) is in fact non-increasing in u besides -- Ofull and Mfull's
+     shared ratio term is non-increasing in u and propagates one-way, by yield fractions alone,
+     through metalProduced -> alloy -> siProcessed -> siliconLow -> kWeFromSilicon, one of the
+     three ceilings kWeAchieved mins over -- so g is non-decreasing and this is in fact the
+     physical root, not an arbitrary crossing of a bracket that merely happens to change sign. */
+  let fabSol = fleetLedger ? (function(){
+    const xR = kWeRequested * fSolEff;
+    const L = VALUE.L.value;
+    let uHi0 = Math.max(0, L * kWeRequested);
+    /* THE ENDPOINT AT u = 0 IS CHECKED FIRST, EXACTLY, before any bisection pass. Wherever the
+       array is already fully achieved with no unbuilt-array power penalty at all (silicon and
+       substrate both clear the full request at u = 0), g is flat at 0 across the WHOLE bracket
+       -- the same shape the retired one-shot Picard step happened to get exactly right, in one
+       trial, because g(0) - 0 already equals 0 there. Bisecting that case by halving uHi0 down
+       from L*kWeRequested (which can be large even though the true root is exactly 0: uHi0 is
+       sized off the REQUEST, not off the eventual shortfall) never lands on exactly 0 in a
+       bounded pass count; it lands on a shrinking-but-nonzero residual (measured 8e-10 at 42
+       passes on Agency Led Baseline/2055, Metals-production split 0.9/Construction split 0),
+       which is nothing in absolute terms but reads as a 100%-scale relative miss against REL-05's
+       own tolerance once inSituUnbuilt's true value is itself exactly 0 -- a regression this
+       early-out closes by matching the exact answer the flat case always had, in the one trial
+       the retired code already spent getting it right, rather than grinding toward it. */
+    uFleet = 0;
+    let st0 = fabTrial(xR, true);
+    let passes = 1, converged = false, u = 0, st = st0;
+    if (Math.max(0, L * (kWeRequested - st0.kWeAchievedUnscaled)) < 1e-9) {
+      converged = true;
+    } else {
+      let uLo = 0, uHi = uHi0;
+      const tol = 1e-9 * Math.max(1, uHi0);   // R7 M4, on the F3/2F bisections' own scaled-tolerance precedent (kept consistent within this file)
+      for (let _pass = 0; _pass < 60; _pass++) {
+        passes = _pass + 1;
+        u = (uLo + uHi) / 2;
+        uFleet = u;
+        st = fabTrial(xR, true);
+        const g = Math.max(0, L * (kWeRequested - st.kWeAchievedUnscaled));
+        const h = g - u;
+        if (Math.abs(uHi - uLo) < tol || Math.abs(h) < tol) { converged = true; break; }
+        if (h > 0) uLo = u; else uHi = u;
+      }
+    }
+    uFleet = u;   // the outer closure variable, read directly by fabTrial and by inSituUnbuilt below, settles at the converged root
+    return { passes, converged, x: st.xResult, st };
+  })() : solveFab(true);   // R7 M3: mining does not depend on x on a fleet state
   /* R6 F3. Above the in-situ break-even, fabProd > 1 / (L fSol), each unit of fab output frees L - 1 / (fabProd fSol) of landed
      mass, the trial map can rise, and the first down-crossing can be a root with the plant starved. Scan 17 trials from the
      request down; the highest x with xResult >= x brackets the top crossing, bisected as F2 bisects. The root reported is the
