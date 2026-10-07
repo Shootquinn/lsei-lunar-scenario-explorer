@@ -21,7 +21,7 @@ references, the exclusions and the slug table. Everything the document asserts c
 
 A selection from the menu, which is a class plus whatever that class needs.
 
-The writing guides at `writing-guides/`, vendored inside this repository rather than fetched. If they
+The writing guides at `writing-guides/`, inside this repository. If they
 are not on disk, you stop. That is a refusal and it is specified below rather than left to judgement.
 
 ## Step 1, read the app and say which one you read
@@ -42,10 +42,9 @@ of a generated document actually needs is the name of the app it came from and t
 both of which are cheap and neither of which rots. Comparing two live copies of a file against each
 other is a different thing and it stays, in the build tools where it belongs.
 
-## Step 2, read the writing guides' vendor stamp, and this stamp is an observation rather than a check
+## Step 2, read the writing guides
 
-The guides ship inside this repository, vendored rather than fetched, at the same relative paths
-below.
+The guides ship inside this repository at the same relative paths below.
 
 ```
 writing-guides/style.md
@@ -55,29 +54,19 @@ writing-guides/reporting-copy.md
 writing-guides/signs_of_ai_writing.md
 ```
 
-Read the five files from disk, and read `writing-guides/SOURCE.md` for the commit sha they were
-vendored at and the vendor date.
+Read the five files from disk.
 
 ```bash
 cat writing-guides/style.md
-cat writing-guides/SOURCE.md
 ```
 
-**A missing file is a refusal, not a fallback.** If any of the five, or `SOURCE.md` itself, is not
-on disk, stop and say so. Do not write from memory of the guides, and above all do not record a sha
-you did not read from `SOURCE.md`. Recording an unread sha converts a gap into a false assurance,
-which is worse than the gap, because the next reader has no way to tell the two apart.
+**A missing file is a refusal, not a fallback.** If any of the five is not on disk, stop and say so.
+Do not write from memory of the guides.
 
-**The guides stamp is a recorded observation and the document says so.** It is a vendor-time sha
-copied from `SOURCE.md` rather than a live comparison against a branch, because this repository
-carries no network dependency for these five files at all. A stamp printed without saying what kind
-of stamp it is reads as a check, and this one is not one.
-
-**The guides stamp is the one stamp that cannot be skipped.** A drifted figure is recoverable by
-recomputation, because the app still holds the right number and anyone can rerun the model. A
-drifted register is detectable by nothing mechanical at all. Nothing in this file or anywhere else
-can measure whether a document reads like this project's work. For register, the stamp is the only
-evidence there will ever be, so it is the one stamp that cannot be skipped.
+A drifted figure is recoverable by recomputation, because the app still holds the right number and
+anyone can rerun the model. A drifted register is detectable by nothing mechanical at all. Nothing in
+this file or anywhere else can measure whether a document reads like this project's work, so reading
+the guides is the one step that cannot be skipped.
 
 ## Step 3, resolve names from the app's own slug table
 
@@ -328,7 +317,6 @@ time a format seems tidier without it, which has already happened once.
 ```
 Generated from the Lunar Scenario Explorer.
 Source            <app filename>, <n> slugs read
-Writing guides    vendored at <sha> on <date>   recorded observation, vendored at generation
 Verifier          forward <n>/<n>, backward <n>/<n>, run after generation
 Generated         <date>
 ```
@@ -346,7 +334,7 @@ that much and no more, which is why it is written here in the generator's own vo
 to be worked out from the code.
 
 The honest reading of the whole instrument is narrower still. Two of the three properties it enforces
-are mechanical and will hold. The third, register, rests on a vendored copy read at generation time
+are mechanical and will hold. The third, register, rests on the guides read at generation time
 and a human eye, and if that step is skipped nothing downstream will notice.
 
 ## The verifier
