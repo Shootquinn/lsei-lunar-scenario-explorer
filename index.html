@@ -557,7 +557,7 @@
 
         <div class="knob ovr" id="phiC0KnobWrap">
           <div class="krow"><span class="klabel">Non-productive downmass</span><span class="kval" id="v_phic0"></span></div>
-          <input type="range" class="ovr" id="k_phic0" min="0" max="0.75" step="0.01" value="0.10">
+          <input type="range" class="ovr" id="k_phic0" min="0" max="0.75" step="0.01" value="0.50">
         </div>
         <div class="advnote">Advanced sliders override the scenario defaults for the current session.</div>
 
@@ -1483,16 +1483,16 @@
   "note": "The transmission term adds to M_power as its own term and applies identically to the fission and solar branches. The term is (transmission / 1000) x transDistKm x power, 0.03 t/kWe at the 3 km distance, 20 percent of the 0.15 fission coefficient, and it is never folded into fFis or fSol. transDistKm is fixed at 3 km, with no slider. The coefficient is 10 kg/kWe/km, and every figure attributed to the five documents is a source-stated mass divided by that source's stated power and distance."
  },
  "phiC0": {
-  "value": 0.1,
+  "value": 0.5,
   "unit": "fraction",
   "band": {
    "kind": "NO_BAND",
    "rule": "NOT-CENTRABLE",
    "disposition": "STANDS",
-   "reason": "phiC0 has no band; 0.10 is the fraction of raw landed mass allotted to non-productive support."
+   "reason": "phiC0 has no band; 0.50 is the fraction of landed mass allotted to non-productive support."
   },
-  "source": "For this analysis, 0.10 was used to represent phi_c0, the fraction of raw landed mass that is consumables, spares, crew support, science payload and tourism, the non-productive downmass. See [[productive-mass-fraction]].",
-  "note": "phiC0 is the flat default of the non-productive downmass fraction, used when phi_c0 is omitted and by the Advanced slider before any preset has been clicked. The default 0.10 matches the slider's starting position, so opening the Advanced panel with no drag reproduces the live 0.10. An explicit drag overrides to the slider's value, including 0. The presets read phiC0ByEra, whose nine values apply at each scenario and era."
+  "source": "For this analysis, 0.50 was used to represent phi_c0, the fraction of landed mass that is consumables, spares, crew support, science payload and tourism and landing losses, the non-productive downmass. See [[productive-mass-fraction]].",
+  "note": "phiC0 is the non-productive downmass fraction, 0.50 at the Advanced slider's starting position and at each of the nine preset states. A drag overrides to the slider's value, including 0. The presets read phiC0ByEra, whose nine values apply at each scenario and era."
  },
  "eO2": {
   "value": 55,
@@ -1632,7 +1632,7 @@
    "reason": "phiC0ByEra is a scenario allocation of the non-productive downmass share by scenario and era and has no band. It is a user allocation of the same class as phiCByEra and phiMByEra, with nine values, one per scenario and era."
   },
   "source": "phiC0ByEra holds the nine default values of phi_c0, the share of each landing's raw mass that is non-productive, one per scenario and era. The nine values are the knots of a per-year curve for phi_c0 (2030 to 2055, ceilinged at 0.75 to match its Advanced-panel slider), and every reader of the table reads the curve's value at that year, which equals the table at the three anchor years.",
-  "note": "The nine values of phiC0ByEra override the flat phiC0 default at every preset, and phiC0 (0.10) applies only when a caller omits phi_c0 entirely (model()'s functional default) or when the Advanced slider is read before any preset has been clicked. phi_c0 is uniform across the three scenarios at 2030, so ice grade is the only difference between them at that era. The preset buttons and the era buttons index the table the same way."
+  "note": "The nine values of phiC0ByEra apply at every preset. phi_c0 is uniform across the three scenarios at 2030, so ice grade is the only difference between them at that era. The preset buttons and the era buttons index the table the same way."
  },
  "phiOByEra": {
   "value": "The default oxygen split phi_o is 0.01 at each of the nine preset states (Agency Led Baseline, Early Shift to Mars and The Commercial Break at 2030, 2040 and 2055).",
@@ -1945,7 +1945,7 @@
    "target": 0.02,
    "reason": "fabProd's range of 0.02 to 5 kWe/(yr t) is set by the model, and the reader drags it."
   },
-  "source": "fabProd is the in-situ solar rate, the kWe of array the fab builds per year per tonne of fab, and the reader drags it across a rail from 0.02 to 5 kWe/(yr t). The model sets the range, log-spaced like the landing-rate rails. A default landmark for a 400 kg, 3,500 m^2/yr unit at etaPV 0.05 computes to 595 kWe/(yr t) by arithmetic on the figures above. The era defaults are 0.02 at 2030 and 0.02 at 2040, below the crossing, and 0.35 at 2055, the first rail step above it.",
+  "source": "fabProd is the in-situ solar rate, the kWe of array the fab builds per year per tonne of fab, and the reader drags it across a rail from 0.02 to 5 kWe/(yr t). The model sets the range, log-spaced like the landing-rate rails. A default landmark for a 400 kg, 3,500 m^2/yr unit at etaPV 0.05 computes to 595 kWe/(yr t) by arithmetic on the figures above. The era defaults are {fabEra2030} at 2030, {fabEra2040} at 2040 and {fabEra2055} at 2055.",
   "note": "The fabProd rail sets whether the fab technology is worth using at all, independent of era and funding, and the era's buildout ceiling fabCeiling sets how much of the array has been built by a given year. The applied in-situ share equals the ceiling wherever the rail clears its crossing, threshFab = 1 / (fSol * L), 0.337 kWe/(yr t) at fSol 0.27 and L 11 yr, and is 0 below it. Holding the rail on the winning side of the crossing and sweeping era moves the applied share and leaves the mass-payback verdict unchanged."
  }
 };
@@ -2471,8 +2471,8 @@
    "reason": "The model has no term for the propellant mass that in-situ production displaces. Propellant mass leverage is the mass of propellant delivered to the vehicle per kg of plant landed over one production campaign, power system excluded. A Mars ascent plant of 1.7 t hardware (1.68 t before rounding) makes 29.7 t propellant in a 480 day campaign, a leverage of 17.7 (Kleinhenz and Paz 2017, Figure 13). A lunar polar water plant of 4.9 t makes 11.7 t of propellant, 10 t of oxygen and 1.7 t of hydrogen, in 225 days, a leverage of 11.7 / 4.9 = 2.4 (Kleinhenz and Paz 2020, Table 3 p9 and Table 4 p10)."
   },
   "productive-mass-fraction": {
-   "source": "CONFIG.phiC0 is 0.10 and is the non-productive down-mass share of raw landed mass. The scenario presets set phi_c0 to 0.50 at every one of the nine preset states.",
-   "reason": "CONFIG.phiC0 is 0.10 and is the non-productive down-mass share of raw landed mass. The scenario presets set phi_c0 to 0.50 at every one of the nine preset states."
+   "source": "CONFIG.phiC0 is 0.50 and is the non-productive down-mass share of raw landed mass at every one of the nine preset states.",
+   "reason": "CONFIG.phiC0 is 0.50 and is the non-productive down-mass share of raw landed mass at every one of the nine preset states."
   },
   "falling-launch-price": {
    "source": "LANDED_COST is a dial from $1,000 to $1,000,000 per kg. The era defaults are $100,000 per kg in 2030, $35,000 in 2040 and $5,000 in 2055.",
@@ -2836,7 +2836,7 @@
   },
   "REGIME-POWER": {
    "key": "REGIME-POWER",
-   "text": "Power limited: water scales with power here, and adding mass does not help because the plant already out-processes what the power can sublime. {presetRollCall} Landed power is an output of the yearly fleet, so the reader reaches this regime through landed mass, ice grade and the splits. The throughput ceiling rests on kExc = 64 t of regolith per year per t of plant, the geometric centre of two published plants' masses and rates (43.93 and 92.31), applied across the water, construction, oxygen and alloy products.",
+   "text": "Power limited: water scales with power here, and adding plant mass alone does not help because the plant already out-processes what the power can sublime. Power is bought with landed mass, so more landed mass raises water through the power it buys. {presetRollCall} Landed power is an output of the yearly fleet, so the reader reaches this regime through landed mass, ice grade and the splits. The throughput ceiling rests on kExc = 64 t of regolith per year per t of plant, the geometric centre of two published plants' masses and rates (43.93 and 92.31), applied across the water, construction, oxygen and alloy products.",
    "claims": [
     "min-of-two-limits",
     "throughput-coefficient"
@@ -3347,7 +3347,7 @@
    "label": "non-productive downmass allocation, set per scenario and era",
    "claim": null,
    "kind": "config",
-   "claimNote": "phiC0ByEra is a scenario-owner allocation of the non-productive down-mass share by scenario and era, 0.50 at all nine preset states. It overrides CONFIG.phiC0's flat 0.10 fallback at every preset."
+   "claimNote": "phiC0ByEra is a scenario-owner allocation of the non-productive down-mass share by scenario and era, 0.50 at all nine preset states."
   },
   "phiOByEra": {
    "label": "oxygen split, set per scenario and era",
@@ -3516,7 +3516,7 @@
    "label": "non-productive downmass phi_c0",
    "claim": null,
    "kind": "config",
-   "claimNote": "For this analysis, 0.10 was used to represent the non-productive down-mass share when a state sets none. Its home in the register is [[productive-mass-fraction]], which records the quantity as modeled."
+   "claimNote": "For this analysis, 0.50 was used to represent phi_c0, the fraction of landed mass that is consumables, spares, crew support, science payload and tourism and landing losses, the non-productive downmass. Its home in the register is [[productive-mass-fraction]], which records the quantity as modeled."
   },
   "decayRate": {
    "label": "equipment decay rate (declining balance)",
@@ -3538,7 +3538,7 @@
    ]
   },
   "BIND-POWER": {
-   "text": "Power binds here: cap = W_power < W_thr, so adding landed mass does not raise output. {envelopeRollCall} Water scales with power only inside this regime. Landed power is an output of the yearly fleet, which leaves this regime wherever it can buy the plant to match.",
+   "text": "Power binds here: cap = W_power < W_thr, so adding plant mass alone does not raise output. Output rises with power, and power is bought with landed mass. {envelopeRollCall} Water scales with power only inside this regime. Landed power is an output of the yearly fleet, which leaves this regime wherever it can buy the plant to match.",
    "claims": [
     "min-of-two-limits",
     "binding-regime-labels"
@@ -3657,7 +3657,7 @@
    "claims": []
   },
   "PHIC0-ACTIVE": {
-   "text": "phi_c0 removes a fraction of raw landed mass before the power system is costed out of what remains, representing consumables, spares, crew support, science payload and tourism carried on the same lander as ISRU plant. For this analysis, 0.10 was used to represent that fraction when a state sets none, and each of the nine preset states sets 0.50. mPwr is unaffected at every value of phi_c0.",
+   "text": "phi_c0 removes a fraction of raw landed mass before the power system is costed out of what remains, representing consumables, spares, crew support, science payload, tourism and landing losses carried on the same lander as ISRU plant. For this analysis, 0.50 was used to represent that fraction at each of the nine preset states. mPwr is unaffected at every value of phi_c0.",
    "claims": []
   },
   "DECAY-ACTIVE": {
@@ -7830,7 +7830,7 @@
        number inside those six objects moves. After such an edit, compute pinOfKnobData(KNOB_DATA)
        on the patched file with the app's own function, read the value off the EXT3 failure line,
        and write it below. */
-    __pin: "6d85c1b3"
+    __pin: "a53ebd18"
   };
 
   root.KNOB_DATA = KNOB_DATA;
@@ -10925,10 +10925,10 @@ function runTests(fileText){
   }
 
   // ---- PHIC0-01..06, non-productive downmass ----
-  // PHIC0-01: readout, near 0.10 as the UI-suggested value.
+  // PHIC0-01: readout, 0.50.
   {
-    const ok = Math.abs(CONFIG.phiC0.value-0.10)<1e-9;
-    rec('PHIC0-01','GATE','phi_c0 CONFIG entry reads near 0.10 as its UI-suggested value', ok, 'value='+CONFIG.phiC0.value);
+    const ok = Math.abs(CONFIG.phiC0.value-0.50)<1e-9;
+    rec('PHIC0-01','GATE','phi_c0 CONFIG entry reads 0.50', ok, 'value='+CONFIG.phiC0.value);
   }
   // PHIC0-02: bit-identical endpoint at the live 0.10 identity. An explicit phi_c0:0 is a
   // DIFFERENT, more optimistic call than the omitted-argument default; the identity endpoint that
@@ -11187,10 +11187,10 @@ function runTests(fileText){
     rec('FLIP-TRANS-RO','GATE','the 3 km transmission distance is a fixed assumption with no control: no k_transdist element survives in the cockpit markup, and model()\'s own live default is still 3 km (DECOY: an internal-fallback-still-0 mutant is confirmed to fail)',
         roOK && wireOK && decoyFires, 'sliderAbsentFromMarkup='+roOK+' transDistKm='+m.transDistKm);
   }
-  // FLIP-PHIC0-RO/WIRE: the phi_c0 functional default is live at 0.10,
-  // matching CONFIG.phiC0.value and the k_phic0 slider's own markup default.
+  // FLIP-PHIC0-RO/WIRE: the phi_c0 functional default is live at 0.10 and the k_phic0 slider's
+  // markup default is CONFIG.phiC0.value.
   {
-    const roOK = (typeof fileText === 'string' && fileText.length) ? /id="k_phic0"[^>]*value="0.10"/.test(fileText) : true;
+    const roOK = (typeof fileText === 'string' && fileText.length) ? /id="k_phic0"[^>]*value="0.50"/.test(fileText) : true;
     const m = model({ice:5,power:100,mass:1000,fission:true});
     const wireOK = Math.abs(m.phi_c0-0.10)<1e-12 && Math.abs(m.massEff-1000*0.90)<1e-9;
     const noteStale = !/functional default is 0 whatever position the slider shows/.test(CONFIG.phiC0.note);
@@ -14391,6 +14391,13 @@ function scaledRegimeText(m){
   }
   return null;
 }
+/* The model at a preset state's own defaults: the three splits phi_c, phi_o and phi_m and the non-productive
+   downmass phi_c0 the hero paints at that scenario and era. Every figure a sentence prints about a preset
+   state reads this call, so it equals the hero tile at that state. */
+function presetStateModel(presetId, era){
+  const p=PRESETS[presetId], e=ENVELOPE[p.funding][era], fs=scenFleet(p.funding, era);
+  return model(withPresetLearning({ice:p.ice, power:fs.power, mass:fs.mass, fission:e.fission, phi_c:phiDefaultAt('phi_c', presetId, era), phi_o:snapVal('phi_o', phiDefaultAt('phi_o', presetId, era)), phi_m:phiDefaultAt('phi_m', presetId, era), phi_c0:PHI_C0_BY_ERA[era][presetId]}, fs, era, p.funding));
+}
 function _presetWaterAt(presetId, phase){
   const p=PRESETS[presetId], e=ENVELOPE[p.funding][phase];
   /* Through the fleet layer, at the phase being compared. The ratio two of these
@@ -14410,7 +14417,7 @@ function _presetWaterAt(presetId, phase){
      curve sampled at this anchor year. It is bit
      identical to PHI_M_BY_ERA[phase][presetId] by construction (curveKnots() seeds the curve's
      knots from this exact table). */
-  return model(withPresetLearning({ice:p.ice, power:fs.power, mass:fs.mass, fission:e.fission, phi_c:0, phi_m:phiDefaultAt('phi_m', presetId, phase)}, fs, phase, p.funding)).water;
+  return presetStateModel(presetId, phase).water;
 }
 function _presetRatio(a, b, phase){
   if(!phase) throw new Error('a comparative ratio needs the phase it is comparing at');
@@ -14435,8 +14442,7 @@ function presetCensus(){
     /* phi_c/phi_m are read through phiDefaultAt(): each scenario's own unmoved
        curve sampled at this anchor year. It is bit identical to PHI_C_BY_ERA/PHI_M_BY_ERA[era][id]
        by construction. */
-    var m=model(withPresetLearning({ice:p.ice, power:fs.power, mass:fs.mass, fission:e.fission,
-                 funding:p.funding, phase:era, phi_c:phiDefaultAt('phi_c', id, era), phi_m:phiDefaultAt('phi_m', id, era)}, fs, era)); /* at the preset's own metals-production split; a census at phi_m 0, which no
+    var m=presetStateModel(id, era); /* at the preset's own metals-production split; a census at phi_m 0, which no
                     preset runs, would paint headroom 1.8 to 23.9 where the presets read 1.9 to 45.8 */
     /* The water peak on the POWER rail at this cell. Power buys water until the power
        system's own landed mass crowds out the mining plant; past that point a kilowatt
@@ -15347,8 +15353,8 @@ function composeDerivation(state, m, v){
      override is dragged). transDistKm reads the live app-layer state, never
      a CONFIG value, since it is a model INPUT, not a coefficient; phiC0's
      row shows the FUNCTIONAL value applied (state.phi_c0, default
-     0), never CONFIG.phiC0.value (the slider's suggested 0.10
-     starting position), so the table never claims a coefficient is
+     0), never CONFIG.phiC0.value (the slider's starting
+     position), so the table never claims a coefficient is
      live when the number it fed the model was 0. ---- */
   const coeffKeys = ['ice','power','mass','phi_c','landed_cost','E1','H','duty','captureEff',
                      ...(m.fission?['fFis','fSol']:['fSol']),'kExc','eSinter','ySinter','L',
@@ -15357,7 +15363,11 @@ function composeDerivation(state, m, v){
      answer. A caller that omits the argument prints a coefficient row of 3 km beside a step
      computed at 3 km. */
   const _liveTransDistKm = (state.transDistKm != null) ? state.transDistKm : 3;
-  const _livePhiC0 = (state.phi_c0 != null) ? state.phi_c0 : 0;
+  const _livePhiC0 = (state.phi_c0 != null) ? state.phi_c0 : m.phi_c0;
+  /* The slider sits at its default when the live value is one of the era's tabled values (the preset
+     states) or, with no era, CONFIG.phiC0. */
+  const _phiC0Tabled = (state.phase && PHI_C0_BY_ERA[state.phase]) ? Object.keys(PHI_C0_BY_ERA[state.phase]).map(function(k){ return PHI_C0_BY_ERA[state.phase][k]; }) : [CONFIG.phiC0.value];
+  const _phiC0Dragged = (state.phi_c0 != null) && _phiC0Tabled.indexOf(_livePhiC0) < 0;
   const inputVal = {ice:m.ice, power:m.power, mass:m.mass, phi_c:m.phi_c, landed_cost:D, transDistKm:_liveTransDistKm};
   const coeffRows = coeffKeys.map(k=>{
     const meta = DERIVATION.coeff[k];
@@ -15380,7 +15390,7 @@ function composeDerivation(state, m, v){
       const _isPhiC0=(k==='phiC0');
       value=(k==='fFis')?_fisLive:((k==='fSol')?_solLive:(_isPhiC0?_livePhiC0:c.value));
       unit=c.unit;
-      grade=_isPhiC0?(_livePhiC0>0?'ADVANCED, dragged live':'ADVANCED, functional default 0 (inert)')
+      grade=_isPhiC0?(_phiC0Dragged?'ADVANCED, dragged live':'')
            :(_isFisOvr||_isSolOvr)?'ADVANCED OVERRIDE':'';
     }
     else {
@@ -15404,8 +15414,8 @@ function composeDerivation(state, m, v){
        of the seven collides with an existing sym in coeffKeys). Painting them here, where the
        step-by-step arithmetic already prints their values in prose, lets a reader walk a relation
        hand to hand. */
-    {sym:'f_pwr', label:'Power-system specific mass, as applied this call', value:m.fPwr, unit:'t/kWe',
-     grade:'model output, M_power’s own operand'},
+    {sym:'f_pwr', label:'Blended power-system specific mass, mix * fFis + (1 - mix) * fSol', value:m.fPwr, unit:'t/kWe',
+     grade:'model output; M_power adds the in-situ solar credit and the transmission term, so M_power / power is '+((m.power>0 && isFinite(m.mPwr)) ? (m.mPwr/m.power).toFixed(3) : 'undefined at zero power')+' t/kWe'},
     {sym:'M_eff', label:'Effective landed mass after non-productive downmass', value:m.massEff, unit:'t',
      grade:'model output, M_mining’s own operand'},
     {sym:'cap', label:'Water full-allocation potential', value:m.cap, unit:'t/yr',
@@ -21894,10 +21904,8 @@ const LEDGER_TOKENS = {
       // constant. This function claims "at each scenario's preset settings" and the live preset
       // does not sit at the flat constant, so using it here would print a water figure the app's
       // own preset state does not produce.
-      // All three are read through phiDefaultAt(), bit identical by construction to PHI_C_BY_ERA/
-      // PHI_O_BY_ERA/PHI_M_BY_ERA['2030'][id] read directly.
-      w[id] = model(withPresetLearning({ice:p.ice, power:fs.power, mass:fs.mass, fission:e.fission, phi_c:phiDefaultAt('phi_c', id, '2030'),
-                     phi_o:snapVal('phi_o', phiDefaultAt('phi_o', id, '2030')), phi_m:phiDefaultAt('phi_m', id, '2030')}, fs, '2030', p.funding)).water;
+      // presetStateModel() reads the three splits and phi_c0 of the preset state, so the figure equals the hero tile.
+      w[id] = presetStateModel(id, '2030').water;
     });
     const r = w.artemis > 0 ? w.contested / w.artemis : NaN;
     const same = Math.abs(w.artemis - w.commercial) <= Math.max(1e-6, w.artemis * 1e-6);
@@ -23275,9 +23283,8 @@ document.getElementById('v_fisovr').textContent=fmtOvr(state.fisOvr);
    shown and the number the answer is computed from cannot come apart. */
 const TRANS_DIST_FIXED_KM = model({ice:5, power:1, mass:1, fission:true}).transDistKm;
 
-/* Non-productive downmass phi_c0. The slider's UI-suggested starting position (0.10) and model()'s
-   functional default are the SAME value: opening the Advanced panel shows the live 0.10 reading
-   without requiring a drag. state.phiC0Ovr stays null (functionally CONFIG.phiC0.value, 0.10) until
+/* Non-productive downmass phi_c0. The slider's starting position is CONFIG.phiC0.value (0.50), the
+   value each preset state sets. state.phiC0Ovr stays null (functionally CONFIG.phiC0.value, 0.50) until
    the first input event, at which point it becomes whatever the slider then reads, including a drag
    back down to 0 for the fully-inert exploration point. */
 state.phiC0Ovr = null;
@@ -24323,9 +24330,9 @@ function render(){
   document.getElementById('keyN').textContent='non-productive '+fmtNum(nonProd,nonProd<10?1:0)+' t';
   /* CLOSE-OUT T1: the total over the bar is the mass its four segments divide, m.mass, the fleet's own standing mass. The
      buildout layer's fs.mass counts an 11-year window and leaves out the fission cohorts 12 to 20 years old, so the bar's parts
-     never summed to the number printed above them. At Agency Led Baseline 2055 that is 19 reactors beyond the window: 19 x 18 t
-     = 342 t of hardware; grossed up by 1/(1 - phi_c0), phi_c0 = 0.10, each is 20 t landed, 19 x 20 = 380 t, and the 38 t
-     difference is downmass. The bar's total is 380 t above the fleet layer's. */
+     never summed to the number printed above them. At Agency Led Baseline 2055 that is 18 reactors beyond the window: 18 x 18 t
+     = 324 t of hardware; grossed up by 1/(1 - phi_c0), phi_c0 = 0.50, each is 36 t landed, 18 x 36 = 648 t, and the 324 t
+     difference is downmass. The bar's total is 648 t above the fleet layer's. */
   __standingMassPainted = m.mass;
   document.getElementById('keyTot').innerHTML=fmtNum(m.mass,0)+'<span class="u2">t</span>';
   document.getElementById('keyPwr').innerHTML=fmtNum(m.power - (m.landedSolarDemand || 0),0)+'<span class="u2">kWe</span>';   // R7 P1: less the in-situ array the fab did not make
@@ -24757,7 +24764,7 @@ function scenLine(){
       const fs=scenFleet(p.funding, ph);
       /* phi_m is read through phiDefaultAt(), bit identical to PHI_M_BY_ERA[ph][id]
          by construction. */
-      return fmtT(model(withPresetLearning({ice:p.ice, power:fs.power, mass:fs.mass, fission:e.fission, phi_c:0, phi_m:phiDefaultAt('phi_m', id, ph)}, fs, ph, p.funding)).water);
+      return fmtT(presetStateModel(id, ph).water);
     });
     return p.label+' '+cells.join('/')+' t/yr';
   }).join(', ');
@@ -24806,7 +24813,7 @@ function buildRefBody(){
       const fs=scenFleet(p.funding, ph);
       /* phi_m is read through phiDefaultAt(), bit identical to (PHI_M_BY_ERA[ph]||{})[id]
          by construction at every era this table carries. */
-      scen.push(model(withPresetLearning({ice:p.ice, power:fs.power, mass:fs.mass, fission:e.fission, phi_c:0, phi_m:phiDefaultAt('phi_m', id, ph)}, fs, ph, p.funding))); } }
+      scen.push(presetStateModel(id, ph)); } }
   const nScen=scen.length, nPow=scen.filter(mm=>mm.binding==='power').length, nBal=scen.filter(mm=>mm.binding==='balanced').length;   // RELATIONS
   /* THE VALUE COLUMN IS THE VALUE IN PLAY.
      This table is rebuilt by renderEqnsTab() at every state and prints the applied value.
@@ -24834,10 +24841,10 @@ function buildRefBody(){
     const app = (_appliedNow[k] != null) ? _appliedNow[k] : cv.value;
     const val = (String(app) === String(cv.value)) ? fmtConstVal(cv.value)
               : fmtConstVal(app)+' <span style="color:var(--muted)">applied; model default '+fmtConstVal(cv.value)+'</span>';
-    return '<tr><td class="mono">'+k+'</td><td class="mono">'+val+'</td><td class="mono">'+cv.unit+'</td><td>'+linkify(cv.source)+'</td></tr>';
+    return '<tr><td class="mono">'+k+'</td><td class="mono">'+val+'</td><td class="mono">'+cv.unit+'</td><td>'+linkify(String(cv.source).replace(/\{fabEra(\d{4})\}/g, function(w, y){ return FAB_RATE_ERA_DEFAULT[y] != null ? FAB_RATE_ERA_DEFAULT[y].toFixed(2) : w; }))+'</td></tr>';
   }).join('');
   return '<h3 style="font-family:var(--mono);font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--ice);margin:22px 0 8px">Coefficients and sources</h3>'+
-    '<p>At the three named scenarios the model gives: '+scenLine()+'.</p>'+
+    '<p>Water produced at each preset state, 2030 / 2040 / 2055, at the state\u2019s own splits and non-productive downmass: '+scenLine()+'.</p>'+
     '<div class="refscroll"><table class="reftbl"><thead><tr><th>Symbol</th><th>Value</th><th>Unit</th><th>Source / basis</th></tr></thead><tbody>'+coefRows+'</tbody></table></div>'+
     '<h3 style="font-family:var(--mono);font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--ice);margin:22px 0 8px">Ice concentration range: provenance</h3>'+
     '<p>The ice knob carries '+DETENTS.ice.length+' detents spanning '+DETENTS.ice[0]+' to '+DETENTS.ice[DETENTS.ice.length-1]+' wt% ('+DETENTS.ice.join(', ')+' wt%), inside the study’s adopted modeling envelope of 1 to 30 wt%. LCROSS measured about 5.6 wt% at Cabeus (Colaprete et al. 2010).</p>'+
