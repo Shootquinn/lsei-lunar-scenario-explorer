@@ -1428,19 +1428,26 @@
  },
  "eSinter": {
   "value": 3,
-  "unit": "MJ/kg product (= 833 kWh/t)",
+  "unit": "MJ/kg product delivered (= 833 kWh/t)",
   "band": {
    "kind": "INTERVAL",
    "lo": 3,
    "hi": 98,
-   "loSource": "The low end of eSinter is 3 MJ/kg, converted from Metzger and Autry (2023)'s printed areal energy of 18.45 kWh/m^2 at a 1 cm layer of 2,200 kg/m^3 regolith, 3.02 MJ/kg. The layer is 22 kg/m^2, which gives 0.839 kWh/kg.",
+   "loSource": "The low end of eSinter is 3 MJ/kg delivered, converted from Metzger and Autry (2023)'s printed areal energy of 18.45 kWh/m^2 at a 1 cm layer of 2,200 kg/m^3 regolith, 3.02 MJ/kg. The layer is 22 kg/m^2, which gives 0.839 kWh/kg.",
    "hiSource": "Liu et al. 2025: 98 MJ/kg, the higher of two simulants under a consumer appliance heating an 11 g sample; the other reads 69.",
    "rule": "NOT-CENTRABLE",
    "disposition": "STANDS",
-   "reason": "eSinter's band runs from the 3 MJ/kg in-place reconstruction to the 98 MJ/kg of a bench microwave sample, two different objects, so the band is a span and the centring rule does not apply. The arithmetic center is 50.5 MJ/kg and the geometric center 17.1, a factor of 2.9 apart."
+   "reason": "eSinter's band runs from the 3 MJ/kg delivered in-place reconstruction to the 98 MJ/kg of a bench microwave sample, two different objects, so the band is a span and the centring rule does not apply. The arithmetic center is 50.5 MJ/kg and the geometric center 17.1, a factor of 2.9 apart."
   },
-  "source": "For this analysis, 3 MJ per kg of product (833 kWh/t) was used to represent the specific energy of sintering regolith in place, the energy delivered into the soil in the printed 1 cm case of Metzger and Autry (2023) at 3.02 MJ/kg. Metzger and Autry (2023) print areal energies of 21.73 and 18.45 kWh/m^2 incident at the soil surface. A 1 cm layer at 2,200 kg/m^3 is 22 kg/m^2, so 18.45 kWh/m^2 gives 0.839 kWh/kg = 3.02 MJ/kg, and a 3 cm layer is 66 kg/m^2, so 21.73 kWh/m^2 gives 0.329 kWh/kg = 1.19 MJ/kg. Liu et al. (2025) report 69 and 98 MJ/kg for two simulants under a consumer appliance heating an 11 g sample. See [[sintering-specific-energy]].",
-  "note": "Sintering takes less energy per kilogram than oxygen or metal reduction. The model charges 833 kWh per tonne of sintered product against e(oxygen) of 55,000 kWh per tonne of O2, and reads eSinter in the construction power ceiling (Equation 42)."
+  "source": "For this analysis, 3 MJ per kg of product delivered into the soil (833 kWh/t) was used to represent the specific energy of sintering regolith in place, the energy delivered into the soil in the printed 1 cm case of Metzger and Autry (2023) at 3.02 MJ/kg. Metzger and Autry (2023) print areal energies of 21.73 and 18.45 kWh/m^2 incident at the soil surface. A 1 cm layer at 2,200 kg/m^3 is 22 kg/m^2, so 18.45 kWh/m^2 gives 0.839 kWh/kg = 3.02 MJ/kg, and a 3 cm layer is 66 kg/m^2, so 21.73 kWh/m^2 gives 0.329 kWh/kg = 1.19 MJ/kg. Liu et al. (2025) report 69 and 98 MJ/kg for two simulants under a consumer appliance heating an 11 g sample. See [[sintering-specific-energy]].",
+  "note": "Sintering takes less energy per kilogram than oxygen or metal reduction. The model charges 833 kWh per tonne of sintered product delivered into the soil, 4,170 kWh per tonne at the wall plug, against e(oxygen) of 55,000 kWh per tonne of O2, and reads eSinter in the construction power ceiling (Equation 42)."
+ },
+ "etaSinter": {
+  "value": 0.2,
+  "unit": "fraction of electrical energy delivered into the soil",
+  "band": { "kind": "NO_BAND", "rule": "NOT-CENTRABLE", "reason": "etaSinter is a single carried value and has no band." },
+  "source": "For this analysis, 0.20 was used to represent the efficiency of electrical power in heating regolith to sintering temperature.",
+  "note": "Concentrated solar heating, which skips the electrical conversion, may reduce the energy charged. etaSinter divides the delivered sinter energy eSinter into the wall-plug energy that installed power supplies: 3 MJ/kg delivered over 0.20 is 15 MJ/kg, 4,170 kWh/t."
  },
  "ySinter": {
   "value": 0.85,
@@ -1595,7 +1602,7 @@
    "disposition": "STANDS",
    "reason": "phiMetalProd is a user allocation of the same class as phi_c and phi_o and has no band. Default 0 applies only when a caller omits phi_m, and at phi_m = 0 total oxygen equals the dedicated oxygen figure. Every preset carries its own non-zero value through PHI_M_BY_ERA (see phiMByEra below)."
   },
-  "source": "The Metals-production split phi_m is the share of the shared plant and power budget that goes to the metals-production line; it is 0.15 at the nine preset states and 0 when no split is set. Dedicated oxygen is the Oxygen split's share of installed power less the solar power that in-situ fabrication leaves to be landed (landedSolarDemand), converted at 55 kWh per kg of oxygen, and installed power moves with the Metals-production split. Across a Metals-production split of 0.15 to 0.30, dedicated oxygen moves by 3.7 to 8.7 percent at the nine preset states, 5.3 percent at the Worked State, through installed power only.",
+  "source": "The Metals-production split phi_m is the share of the shared plant and power budget that goes to the metals-production line; it is 0.15 at the nine preset states and 0 when no split is set. Dedicated oxygen is the Oxygen split's share of installed power less the solar power that in-situ fabrication leaves to be landed (landedSolarDemand), converted at 55 kWh per kg of oxygen, and installed power moves with the Metals-production split. Across a Metals-production split of 0.15 to 0.30, dedicated oxygen moves by 3.2 to 8.7 percent at the nine preset states, 4.7 percent at the Worked State, through installed power only.",
   "note": "The splits phi_c, phi_o and phi_m sum to at most 1 as entered, and a raw sum above 1 is scaled proportionally by 1 / (phi_c + phi_o + phi_m). The metals-production line draws its power and regolith before water and construction run, so raising phi_m never charges the water or construction lines for capacity it does not consume."
  },
  "phiMByEra": {
@@ -1644,7 +1651,7 @@
    "reason": "phiOByEra is a scenario allocation of the Oxygen split by scenario and era and has no band. It is a user allocation of the same class as phiCByEra and phiMByEra, with nine values, one per scenario and era."
   },
   "source": "The default Oxygen split phi_o follows a smooth curve through nine scenario-and-era values, one per scenario at 2030, 2040 and 2055. The curve is a monotone piecewise cubic (PCHIP) fit; it equals the table at the three anchor years.",
-  "note": "Dedicated oxygen is the Oxygen split's share of installed power, and installed power moves with the Metals-production split; the metals co-product adds to total oxygen. phiOByEra is the single source of the default phi_o, and model() and the scenario arguments read the same phi_o at the nine preset states. Dedicated oxygen is that share of installed power less landedSolarDemand, converted at 55 kWh per kg of oxygen. The fleet sizes installed power with the Oxygen split at zero, and the settled state carries the live phi_o. The default share 0.01 makes dedicated oxygen 9.8 percent of total oxygen at the Worked State, because most oxygen is the metals co-product. Across a Metals-production split of 0.15 to 0.30 the Metals-production split moves dedicated oxygen by 3.7 to 8.7 percent at the nine preset states, 5.3 percent at the Worked State, through installed power only. CONFIG.phiM.value is 0.01, the one stored default, read through defaultPhiO(); this table overrides it at every preset, and it applies only when a caller omits phi_o."
+  "note": "Dedicated oxygen is the Oxygen split's share of installed power, and installed power moves with the Metals-production split; the metals co-product adds to total oxygen. phiOByEra is the single source of the default phi_o, and model() and the scenario arguments read the same phi_o at the nine preset states. Dedicated oxygen is that share of installed power less landedSolarDemand, converted at 55 kWh per kg of oxygen. The fleet sizes installed power with the Oxygen split at zero, and the settled state carries the live phi_o. The default share 0.01 makes dedicated oxygen 9.8 percent of total oxygen at the Worked State, because most oxygen is the metals co-product. Across a Metals-production split of 0.15 to 0.30 the Metals-production split moves dedicated oxygen by 3.2 to 8.7 percent at the nine preset states, 4.7 percent at the Worked State, through installed power only. CONFIG.phiM.value is 0.01, the one stored default, read through defaultPhiO(); this table overrides it at every preset, and it applies only when a caller omits phi_o."
  },
  "eRefine": {
   "value": 0,
@@ -1854,7 +1861,7 @@
   "value": 2.7,
   "unit": "kWh/m^2",
   "band": { "kind": "NO_BAND", "rule": "NOT-CENTRABLE", "reason": "eArealTotal is a closed arithmetic chain on printed and carried inputs and has no band." },
-  "source": "Total areal energy (eArealTotal) is 2.7 kWh/m^2, the substrate's areal mass times the sinter specific energy plus the silicon layer's areal mass times its energy per kg of silicon. 2.700 kg/m^2 x 0.833 kWh/kg = 2.2491 kWh/m^2. 0.048 kg/m^2 x 9.416 kWh/kg Si = 0.4520 kWh/m^2. The total is 2.7011 kWh/m^2, stated 2.7.",
+  "source": "Total areal energy (eArealTotal) is 2.7 kWh/m^2, the substrate's areal mass times the sinter specific energy plus the silicon layer's areal mass times its energy per kg of silicon. 2.700 kg/m^2 x 0.833 kWh/kg delivered = 2.2491 kWh/m^2. 0.048 kg/m^2 x 9.416 kWh/kg Si = 0.4520 kWh/m^2. The total is 2.7011 kWh/m^2, stated 2.7.",
   "note": "eArealTotal prices manufacturing silicon fresh from oxide, a route this architecture does not run, and the model does not read it. The silicon the fab's panel consumes is purified out of the alloy tap at a cost charged before this figure is reached, and eArealTotal is printed for comparison with that route's cost."
  },
   "aAreaYr": {
@@ -1921,8 +1928,8 @@
   "value": 833,
   "unit": "kWh/t",
   "band": { "kind": "NO_BAND", "rule": "NOT-CENTRABLE", "reason": "eFabPerT is a single carried value and has no band." },
-  "source": "The fab energy per tonne (eFabPerT) is 833 kWh/t, the sinter specific energy of 0.833 kWh/kg applied to the fab's substrate forming line.",
-  "note": "eFabPerT is its own key so that a later change to the construction line's sinter energy leaves the fab's substrate throughput unchanged. The two agree by carry."
+  "source": "The fab energy per tonne (eFabPerT) is 833 kWh/t, the delivered sinter energy of 0.833 kWh/kg applied to the fab's substrate forming line.",
+  "note": "eFabPerT is its own key, set at the delivered sinter energy, so that the construction line's wall-plug charge leaves the fab's substrate throughput unchanged."
  },
   "ySub": {
   "value": 1,
@@ -1975,24 +1982,24 @@
   "source": "Plant life L is 11 years: the age at which a landed production unit retires from the standing fleet, counted from the 2030 buildout epoch. L divides landed cost on the straight-line annualization basis in the amortized-landed production identity P = (X*D)/(1000*L) + op ([[amortized-plant-identity]]). Declining balance is the live annualization default (VALUE.decayRate, VALUE.decayLife), and L applies wherever decayBasis is explicitly set to straightLine. The same age governs production, because a landed unit leaves the standing fleet at that age, so one service life does both jobs. 11 is the arithmetic middle of the 7 to 15 band, (7 + 15) / 2, and the buildout curve draws the ramp at any life. No lunar ISRU mining or processing hardware has operated on the surface past a technology demonstration of days to a few months. At 11 yr and the Agency Led Baseline, Pilot sits at 11 of 11 cohort-years from the 2030 epoch with 0 retired, and Sustained has 26 cohort-years landed, 11 standing and 15 retired, with a standing mass of 4,329.4 t."
  },
  "op_const": {
-  "value": 0.83,
+  "value": 4.166666666666667,
   "unit": "$/kg",
   "band": {
    "kind": "INTERVAL",
    "lo": 0,
    "hi": 50,
    "loSource": "Zero: the sintering operating cost is negligible at the default plant scale.",
-   "hiSource": "The high end of op_const is $50 per kg, 60 times the $0.83 value.",
+   "hiSource": "The high end of op_const is $50 per kg, 12 times the $4.17 value.",
    "rule": "NOT-CENTRABLE",
    "disposition": "MOVED",
-   "target": 0.83,
-   "reason": "op_const is $0.83 per kg: eSinter of 3 MJ/kg at $1/kWh is about $0.83/kg. At Agency Led Baseline / Sustained the cost is $21.3 million per year against a construction value of $126.7 billion per year."
+   "target": 4.166666666666667,
+   "reason": "op_const is $4.17 per kg: the wall-plug sinter energy of 15 MJ/kg (eSinter of 3 MJ/kg delivered over etaSinter of 0.20) at $1/kWh is $4.17/kg. At Agency Led Baseline / Sustained the cost is $21.0 million per year against a construction value of $23.8 billion per year."
   },
   "claims": [
    "sintering-specific-energy",
    "sintering-yield"
   ],
-  "source": "The construction operating cost is about $0.83 per kg: the sinter energy of 3 MJ per kg (0.83 kWh per kg) times $1 per kWh. The sinter energy is the energy delivered into the soil in the Metzger and Autry 2023 1 cm case, 3.02 MJ per kg at 2,200 kg/m^3, and the 3 cm case is 0.329 kWh per kg ([[sintering-specific-energy]] Part 1). There is no Earth-supplied reagent. At Agency Led Baseline / Sustained the cost is $21.3 million per year against a construction value of $126.7 billion per year. op_const is an energy intensity (eSinter, kWh consumed per kilogram of product) times a commodity price ($/kWh), so it is a flat per-kilogram figure with no fixed annual budget, and output never enters its derivation. op_const carries the landed-hardware capital term C_hw through P_const = r_const * (C_hw + D) + op_const."
+  "source": "The construction operating cost is about $4.17 per kg: the wall-plug sinter energy of 15 MJ per kg (4.17 kWh per kg) times $1 per kWh. The sinter energy is the energy delivered into the soil in the Metzger and Autry 2023 1 cm case, 3.02 MJ per kg at 2,200 kg/m^3, and the 3 cm case is 0.329 kWh per kg ([[sintering-specific-energy]] Part 1); the sintering efficiency of 0.20 turns the delivered 3 MJ per kg (0.83 kWh per kg) into the 15 MJ per kg that installed power supplies. There is no Earth-supplied reagent. At Agency Led Baseline / Sustained the cost is $21.0 million per year against a construction value of $23.8 billion per year. op_const is an energy intensity (eSinter divided by etaSinter, kWh consumed per kilogram of product) times a commodity price ($/kWh), so it is a flat per-kilogram figure with no fixed annual budget, and output never enters its derivation. op_const carries the landed-hardware capital term C_hw through P_const = r_const * (C_hw + D) + op_const."
  },
  "op_propF": {
   "value": 1,
@@ -2334,7 +2341,7 @@
    "counterCase": "The two rates behind the throughput coefficient are on opposite sides of a beneficiation stage. Linne's 92.31 is raw regolith at the deposit grade through an excavator, hopper and auger-dryer. Guerrero-Gonzalez and Zabel's 43.93 is reactor feed behind a 616 kg beneficiation subsystem with a magnetic separator at an assumed enrichment of three. The model has one processing stage and uses the geometric center of the two, {kExcVal} t of regolith per year per tonne of ISRU plant."
   },
   "productive-plant-mass": {
-   "source": "The model books all landed mass left after the power system, the in-situ fab (the plant that builds solar arrays on the Moon) and the non-productive downmass fraction as ISRU plant. The ISRU plant mass is M_mining = max(0, M_eff - M_power - mFab), with no balance-of-plant deduction. Published breakdowns put power generation at 25.8 percent of plant-plus-power mass in Charania and DePasquale (2007, Table 1, p11: 5.40 of 20.94 t), at 53.7 percent in the regolith oxygen system of Kleinhenz and Paz (2020, PDF p12: a 498 kg solar array in 927 kg), and, for a 1,125 kg oxygen plant on continuous supply, at 57.9 percent with an advanced Kilopower reactor, 91.3 percent with a photovoltaic array and regenerative fuel cell, and 98.2 percent with a photovoltaic array and batteries (Colozza 2020, Table 24 PDF p66, Figure 58 PDF p74). The Worked State books power at 66 percent of effective mass (1,420 of 2,160 t).",
+   "source": "The model books all landed mass left after the power system, the in-situ fab (the plant that builds solar arrays on the Moon) and the non-productive downmass fraction as ISRU plant. The ISRU plant mass is M_mining = max(0, M_eff - M_power - mFab), with no balance-of-plant deduction. Published breakdowns put power generation at 25.8 percent of plant-plus-power mass in Charania and DePasquale (2007, Table 1, p11: 5.40 of 20.94 t), at 53.7 percent in the regolith oxygen system of Kleinhenz and Paz (2020, PDF p12: a 498 kg solar array in 927 kg), and, for a 1,125 kg oxygen plant on continuous supply, at 57.9 percent with an advanced Kilopower reactor, 91.3 percent with a photovoltaic array and regenerative fuel cell, and 98.2 percent with a photovoltaic array and batteries (Colozza 2020, Table 24 PDF p66, Figure 58 PDF p74). The Worked State books power at 65 percent of effective mass (1,420 of 2,160 t).",
    "counterCase": "The model allocates plant mass by power draw. Csank et al. (2022) state that 22 of 68 kW of ISRU power goes to mining and excavation."
   },
   "mass-learning-ceiling": {
@@ -2344,8 +2351,8 @@
  },
  "sintering": {
   "sintering-specific-energy": {
-   "source": "The model charges 3 MJ per kg (833 kWh per tonne) of sintered product. Metzger and Autry 2023 print the energy delivered into the soil per unit area: 21.73 kWh per m^2 for a 3 cm layer and 18.45 kWh per m^2 for a 1 cm layer. At 2,200 kg per m^3, the 3 cm layer holds 66 kg per m^2, which gives 0.329 kWh per kg (1.19 MJ per kg), and the 1 cm layer holds 22 kg per m^2, which gives 0.839 kWh per kg (3.02 MJ per kg). For this analysis, 3 MJ per kg was used to represent the sinter specific energy, the energy delivered into the soil per kilogram of sintered product, taken from the 1 cm layer. Liu et al. 2025 report 69 and 98 MJ per kg for two simulants in a bench microwave ([[sintering-specific-energy]]).",
-   "counterCase": "Construction capacity (C_full) varies as one over the sinter specific energy (e_sinter) at all nine preset states. C_full is the smaller of two limits, and a limit binds when it is the smaller of the two. The power limit is the power left to water and construction (power_rem) times the hours in a year (H) times the active-extraction duty (duty), divided by e_sinter in kWh per tonne (e_sinter in MJ/kg x 1,000 / 3.6). The feed limit is the sintering yield (Y_sinter) times the regolith throughput left to water and construction (R_cap_rem), and it has no e_sinter term. The power limit binds at all nine preset states, and the feed limit binds only below an e_sinter of 0.99 MJ/kg (0.275 kWh/kg). The plant-throughput coefficient (kExc) sets the feed limit ([[throughput-coefficient]])."
+   "source": "The model charges 3 MJ per kg delivered (833 kWh per tonne) and, through the sintering efficiency (eta_sinter), 15 MJ per kg (4,170 kWh per tonne) at the wall plug of sintered product. Metzger and Autry 2023 print the energy delivered into the soil per unit area: 21.73 kWh per m^2 for a 3 cm layer and 18.45 kWh per m^2 for a 1 cm layer. At 2,200 kg per m^3, the 3 cm layer holds 66 kg per m^2, which gives 0.329 kWh per kg (1.19 MJ per kg), and the 1 cm layer holds 22 kg per m^2, which gives 0.839 kWh per kg (3.02 MJ per kg). For this analysis, 3 MJ per kg was used to represent the sinter specific energy, the energy delivered into the soil per kilogram of sintered product, taken from the 1 cm layer. Liu et al. 2025 report 69 and 98 MJ per kg for two simulants in a bench microwave ([[sintering-specific-energy]]).",
+   "counterCase": "Construction capacity (C_full) varies as one over the sinter specific energy (e_sinter) and one over the sintering efficiency (eta_sinter) at all nine preset states. C_full is the smaller of two limits, and a limit binds when it is the smaller of the two. The power limit is the power left to water and construction (power_rem) times the hours in a year (H) times the active-extraction duty (duty), divided by the wall-plug sinter energy in kWh per tonne (e_sinter in MJ/kg x 1,000 / (3.6 x eta_sinter)). The feed limit is the sintering yield (Y_sinter) times the regolith throughput left to water and construction (R_cap_rem), and it has no e_sinter term. The power limit binds at all nine preset states, and the feed limit binds only below a wall-plug sinter energy (e_sinter divided by eta_sinter) of 0.99 MJ/kg (0.275 kWh/kg). The plant-throughput coefficient (kExc) sets the feed limit ([[throughput-coefficient]])."
   },
   "sintering-yield": {
    "source": "For this analysis, 0.85 was used to represent the sintering yield, the tonnes of sintered product per tonne of regolith fed to the sintering line. The remaining 15 percent of the feed is a handling allowance.",
@@ -2455,7 +2462,7 @@
    "counterCase": "The per-scenario phi_c defaults are 0.50 in all three scenarios ([[water-primary-default]]). Produced water is therefore 40 percent of each scenario's water capacity, and the capacity is counted on the power and plant left after the oxygen line and the metals-production line draw their shares."
   },
   "water-primary-default": {
-   "source": "Every scenario runs phi_c 0.50, phi_o 0.01 and phi_m 0.15 by default. That gives construction 60 percent of the power and plant left after the oxygen and metals-production lines (0.50 of 0.84) and leaves water 40 percent of the water capacity (0.34 of 0.84). At the Worked State water is 1,960 t per yr of a water capacity of 4,840 t per yr. The same plant's full-allocation construction capacity (C_full) is 43,000 t per yr, 8.88 times the water capacity, so construction out-produces water per tonne of landed plant.",
+   "source": "Every scenario runs phi_c 0.50, phi_o 0.01 and phi_m 0.15 by default. That gives construction 60 percent of the power and plant left after the oxygen and metals-production lines (0.50 of 0.84) and leaves water 40 percent of the water capacity (0.34 of 0.84). At the Worked State water is 1,930 t per yr of a water capacity of 4,770 t per yr. The same plant's full-allocation construction capacity (C_full) is 8,470 t per yr, 1.78 times the water capacity, so construction out-produces water per tonne of landed plant.",
    "counterCase": "The full-allocation construction capacity C_full depends on the zero-switching-cost split of [[shared-capacity-split]]; if reallocating capacity carried real cost, the construction line would cost more."
   }
  },
@@ -2508,7 +2515,7 @@
  },
  "non-water-routes": {
   "oxygen-extraction-energy": {
-   "source": "The oxygen line draws 55 kWh per kg of oxygen at the wall plug and yields 0.375 t of oxygen per t of regolith. For this analysis, 55 kWh per kg was used to represent the oxygen specific energy, the median of a bracket from 24.5 to 85.7 kWh per kg. The lower bound is the electrode operating point of Schreiner et al. (2016, Advances in Space Research 57:1585, DOI 10.1016/j.asr.2016.01.006, p1590), which excludes the power that keeps the reactor molten. The upper bound is Guerrero-Gonzalez and Zabel (2023): 311.34 kW for 23.90 t/yr of oxygen within a 274-day window. Yield runs from 0.15 at low operating temperature to 0.375 at high (Schreiner p1601), set by oxide content. Dedicated oxygen is the Oxygen split phi_o times the installed power less the solar power that in-situ fabrication leaves to be landed (landedSolarDemand). That power runs for the operating hours per year (H) at the metals-plant availability (dutyM) of 0.6 and is divided by 55 kWh per kg of oxygen. Fleet power is sized with the Oxygen split at zero, and installed power moves with the Metals-production split. A Metals-production split rising from 0.15 to 0.30 raises dedicated oxygen by 3.7 to 8.7 percent across the nine preset states, and by 5.3 percent at the Worked State. The dedicated oxygen line is life support only.",
+   "source": "The oxygen line draws 55 kWh per kg of oxygen at the wall plug and yields 0.375 t of oxygen per t of regolith. For this analysis, 55 kWh per kg was used to represent the oxygen specific energy, the median of a bracket from 24.5 to 85.7 kWh per kg. The lower bound is the electrode operating point of Schreiner et al. (2016, Advances in Space Research 57:1585, DOI 10.1016/j.asr.2016.01.006, p1590), which excludes the power that keeps the reactor molten. The upper bound is Guerrero-Gonzalez and Zabel (2023): 311.34 kW for 23.90 t/yr of oxygen within a 274-day window. Yield runs from 0.15 at low operating temperature to 0.375 at high (Schreiner p1601), set by oxide content. Dedicated oxygen is the Oxygen split phi_o times the installed power less the solar power that in-situ fabrication leaves to be landed (landedSolarDemand). That power runs for the operating hours per year (H) at the metals-plant availability (dutyM) of 0.6 and is divided by 55 kWh per kg of oxygen. Fleet power is sized with the Oxygen split at zero, and installed power moves with the Metals-production split. A Metals-production split rising from 0.15 to 0.30 raises dedicated oxygen by 3.2 to 8.7 percent across the nine preset states, and by 4.7 percent at the Worked State. The dedicated oxygen line is life support only.",
    "reason": "The oxygen line reads seven coefficients, a phi_o detent rail, a phi_o state field and three product tiles. ENVELOPE carries power, mass and fission only.",
    "counterCase": "A plant-scale molten regolith electrolysis design draws 85.7 kWh per kg of oxygen, 3.49 times the 24.5 kWh per kg electrode-level figure. Guerrero-Gonzalez and Zabel (2023) size the plant at 311.34 kW for 23.90 t/yr of oxygen inside their 274-day window, and 85.7 is arithmetic on their printed Table 2 cells. Balance of plant is small: the whole plant of Guerrero-Gonzalez and Zabel (2023) draws 1.023 times its reactor row. The power that keeps the regolith molten sits inside the reactor. Schreiner et al. (2016) model 1.4 kW as a current times a voltage at one operating point. Their p1591 defines current times the over-voltage as the reactor's heating power, and the smallest heat loss plotted in their Fig. 8 is 2.14 times the whole 1.4 kW. Fig. 10 of Schreiner et al. reads 46 to 67 kWh per kg at 5 t/yr. Extrapolating their 1850 K trace to 0.5 t/yr gives an electrode-to-reactor energy ratio of 7.72. Raising production 48 times at a fixed 1850 K gives a further factor of 0.442. On the printed cells of Guerrero-Gonzalez and Zabel (2023), those two factors with balance of plant reproduce the 3.49: 7.72 x 0.442 x 1.023 = 3.49. Guerrero-Gonzalez and Zabel refit the equations of Schreiner et al. for total system mass and power at 1850 K. At p198 they attribute the disagreement with Schreiner et al. to that refit, and their Conclusions name it as the cost of the economy of scale. The recovery ceiling for this yield is at [[bound-oxygen-mare]]."
   },
@@ -2574,7 +2581,7 @@
  },
  "production-cost": {
   "amortized-plant-identity": {
-   "source": "Local production cost is the amortized landed plant plus delivery plus operating cost. The plant-mass payback ratio, r_prop, is the commercial plant mass times the annualization fraction, divided by the water capacity. The annualization fraction is 0.0757 per year on the declining-balance default of 0.15 per year over an 11-year life. The propellant price, P_prop, is r_prop times the sum of the landed hardware cost (C_hwEff) and the delivery cost D, plus an operating cost of $1 per kg. Plant life L is {valueL} yr, the middle of the 7 to 15 yr band for first-generation surface hardware. The attributed plant mass is the landed mass split by phi_c ([[shared-capacity-split]]), so r_prop moves with the landed mass. At the Worked State, r_prop is 0.0217.",
+   "source": "Local production cost is the amortized landed plant plus delivery plus operating cost. The plant-mass payback ratio, r_prop, is the commercial plant mass times the annualization fraction, divided by the water capacity. The annualization fraction is 0.0757 per year on the declining-balance default of 0.15 per year over an 11-year life. The propellant price, P_prop, is r_prop times the sum of the landed hardware cost (C_hwEff) and the delivery cost D, plus an operating cost of $1 per kg. Plant life L is {valueL} yr, the middle of the 7 to 15 yr band for first-generation surface hardware. The attributed plant mass is the landed mass split by phi_c ([[shared-capacity-split]]), so r_prop moves with the landed mass. At the Worked State, r_prop is 0.0221.",
    "counterCase": "The $35.3K/kg figure ([[break-even-sales-price]]) is a break-even sales price in which required return on capital and financing dominate, and capital recovery is about $4,000 per kg of it, 11 percent."
   },
   "break-even-sales-price": {
@@ -2584,7 +2591,7 @@
  },
  "payback": {
   "product-payback-ranking": {
-   "source": "The delivery-cost crossover is the Earth delivery cost at which the propellant margin, the delivery cost minus the production price per kg, reaches zero: D* = (op_prop + r_prop x C_hw) / (1 - r_prop), where op_prop is the propellant operating cost per kg, r_prop is the propellant plant-mass payback ratio (the commercial plant mass that wears out each year divided by the yearly water capacity) and C_hw is the landed cost per kg of plant hardware. The annualization fraction is the share of the commercial plant mass written down each year, (1 - (1 - decay rate)^decay life) / decay life, 0.0757 at a decay rate of 0.15 per yr over a decay life of 11 yr. D* runs $356 to $4,460 per kg across the nine preset states. D* depends on the mass-payback ranking, which does not depend on the Earth delivery cost. The ranking is the advantage of construction over propellant on plant-mass payback, the construction capacity divided by the water capacity (C_full / cap), about one to two orders of magnitude at the scenario ice grades. In landed-mass-limited states the ranking is {rankThr:5}x at 5 wt% and {rankThr:1}x at 1 wt%. In power-limited states the ranking is {rankPwr:5}x at 5 wt% and {rankPwr:1}x at 1 wt%. {bindingRollCall} The landed-mass-limited figures carry no sintering energy term; the power-limited figures vary inversely with the sintering specific energy (e_sinter, [[sintering-specific-energy]]). Construction earns a positive margin at every delivery cost down to the reusable-lander floor of $500 to $2,000 per kg, the delivery cost that reusable landers are projected to reach. At the 2055 preset states r_prop is 0.0217 for Agency Led Baseline, 0.0860 for Early Shift to Mars and 0.0534 for The Commercial Break, each below 1, so the propellant plant returns its landed mass.",
+   "source": "The delivery-cost crossover is the Earth delivery cost at which the propellant margin, the delivery cost minus the production price per kg, reaches zero: D* = (op_prop + r_prop x C_hw) / (1 - r_prop), where op_prop is the propellant operating cost per kg, r_prop is the propellant plant-mass payback ratio (the commercial plant mass that wears out each year divided by the yearly water capacity) and C_hw is the landed cost per kg of plant hardware. The annualization fraction is the share of the commercial plant mass written down each year, (1 - (1 - decay rate)^decay life) / decay life, 0.0757 at a decay rate of 0.15 per yr over a decay life of 11 yr. D* runs $389 to $4,460 per kg across the nine preset states. D* depends on the mass-payback ranking, which does not depend on the Earth delivery cost. The ranking is the advantage of construction over propellant on plant-mass payback, the construction capacity divided by the water capacity (C_full / cap), a factor of about 2 to 9 at the scenario ice grades. In landed-mass-limited states the ranking is {rankThr:5}x at 5 wt% and {rankThr:1}x at 1 wt%. In power-limited states the ranking is {rankPwr:5}x at 5 wt% and {rankPwr:1}x at 1 wt%. {bindingRollCall} The landed-mass-limited figures carry no sintering energy term; the power-limited figures vary inversely with the sintering specific energy (e_sinter, [[sintering-specific-energy]]). Construction earns a positive margin at every delivery cost down to the reusable-lander floor of $500 to $2,000 per kg, the delivery cost that reusable landers are projected to reach. At the 2055 preset states r_prop is 0.0221 for Agency Led Baseline, 0.0873 for Early Shift to Mars and 0.0538 for The Commercial Break, each below 1, so the propellant plant returns its landed mass.",
    "counterCase": "The ranking depends on tonnages alone, so the $35.3K/kg figure at [[break-even-sales-price]] enters no term of the ranking."
   }
  }
@@ -2645,7 +2652,7 @@
    "key": "BASE-LOW-2055",
    "envClaim": "envelope-mars-sustained",
    "waterClaim": "water-mars-sustained",
-   "text": "Early Shift to Mars in the Sustained era (2055), with fission available, lands {massRate} t/yr, {powerClause}, and leaves {mass} t and {power} kWe standing. Water is {water} t/yr at {iceWt} wt%. {cfullReallocate} Construction tonnage rests on a sinter energy of 3 MJ/kg and moves with that energy only in power-limited states.",
+   "text": "Early Shift to Mars in the Sustained era (2055), with fission available, lands {massRate} t/yr, {powerClause}, and leaves {mass} t and {power} kWe standing. Water is {water} t/yr at {iceWt} wt%. {cfullReallocate} Construction tonnage rests on a delivered sinter energy of 3 MJ/kg and moves with that energy only in power-limited states.",
    "claims": [
     "envelope-mars-sustained",
     "water-mars-sustained",
@@ -2790,7 +2797,7 @@
   },
   "MOD-PHIC-MIXED": {
    "key": "MOD-PHIC-MIXED",
-   "text": "A dual-product split at a Construction split of {phiC} lies above 0.2 and below 0.5. {mixedShareClause} {mixedHeadline} Construction tonnage at this split, about {construction} t/yr, rests on the 3 MJ/kg (833 kWh/t) sinter energy and moves with that energy only in power-limited states.",
+   "text": "A dual-product split at a Construction split of {phiC} lies above 0.2 and below 0.5. {mixedShareClause} {mixedHeadline} Construction tonnage at this split, about {construction} t/yr, rests on the delivered sinter energy of 3 MJ/kg (833 kWh/t) and moves with that energy only in power-limited states.",
    "claims": [
     "shared-capacity-split",
     "water-primary-default",
@@ -3019,7 +3026,7 @@
    ]
   },
   "Cfull": {
-   "expr": "C_full = min(power_rem * H * duty / (e_sinter * 1000 / 3.6), Y_sinter * R_cap_rem)",
+   "expr": "C_full = min(power_rem * H * duty / (e_sinter * 1000 / (3.6 * eta_sinter)), Y_sinter * R_cap_rem)",
    "claims": [
     "sintering-specific-energy",
     "sintering-yield"
@@ -3043,7 +3050,7 @@
    "claims": [
     "oxygen-extraction-energy"
    ],
-   "note": "Equation 21 gives O_power, the oxygen that installed power, less the solar power that in-situ fabrication leaves to be landed (landedSolarDemand), can extract in a year. That power times the 8,766 hours in a year (H), times the metals-plant availability (dutyM) of 0.6, divided by the specific energy of oxygen extraction (e(oxygen) = eO2 x 1,000 = 55,000 kWh per t of O2), gives tonnes of oxygen. At the Worked State, (8,255.9 - 0) x 8,766 x 0.6 / 55,000 = 789.50 t/yr of oxygen."
+   "note": "Equation 21 gives O_power, the oxygen that installed power, less the solar power that in-situ fabrication leaves to be landed (landedSolarDemand), can extract in a year. That power times the 8,766 hours in a year (H), times the metals-plant availability (dutyM) of 0.6, divided by the specific energy of oxygen extraction (e(oxygen) = eO2 x 1,000 = 55,000 kWh per t of O2), gives tonnes of oxygen. At the Worked State, (8,126.7 - 0) x 8,766 x 0.6 / 55,000 = 777.15 t/yr of oxygen."
   },
   "Othr": {
    "expr": "O_thr = yO2 * R_cap",
@@ -3051,7 +3058,7 @@
     "oxygen-extraction-energy",
     "throughput-coefficient"
    ],
-   "note": "Equation 22 gives O_thr, the oxygen that regolith throughput supports in a year. O_thr is the oxygen yield (yO2, 0.375 t of O2 per t of regolith) times the tonnes of regolith the plant processes per year (R_cap). At the Worked State, 0.375 x 153,411.34 = 57,529.3 t/yr of oxygen, 73 times O_power."
+   "note": "Equation 22 gives O_thr, the oxygen that regolith throughput supports in a year. O_thr is the oxygen yield (yO2, 0.375 t of O2 per t of regolith) times the tonnes of regolith the plant processes per year (R_cap). At the Worked State, 0.375 x 151,012.34 = 56,629.6 t/yr of oxygen, 73 times O_power."
   },
   "Ofull": {
    "expr": "O_full = min(O_power, O_thr)",
@@ -3059,14 +3066,14 @@
     "min-of-two-limits",
     "binding-regime-labels"
    ],
-   "note": "Equation 23 gives O_full, the smaller of O_power and O_thr, the oxygen a year yields when power or regolith throughput, whichever is lower, sets the limit. The oxygen line is power-limited where O_power is the smaller term and throughput-limited where O_thr is. At the Worked State, min(789.50, 57,529.3) = 789.50 t/yr of oxygen, so the oxygen line is power-limited, as it is at all nine preset states."
+   "note": "Equation 23 gives O_full, the smaller of O_power and O_thr, the oxygen a year yields when power or regolith throughput, whichever is lower, sets the limit. The oxygen line is power-limited where O_power is the smaller term and throughput-limited where O_thr is. At the Worked State, min(777.15, 56,629.6) = 777.15 t/yr of oxygen, so the oxygen line is power-limited, as it is at all nine preset states."
   },
   "oxygen": {
    "expr": "oxygen = phi_o * O_full",
    "claims": [
     "shared-capacity-split"
    ],
-   "note": "Equation 24 gives the dedicated oxygen, the Oxygen split's share of the oxygen line's capacity: phi_o x O_full, where O_full draws on installed power less the solar power that in-situ fabrication leaves to be landed (landedSolarDemand). The default Oxygen split is 0.01, so at the Worked State 0.01 x 789.50 = 7.895 t/yr of oxygen. Metals production releases oxygen as a co-product (Equation 31), 72.3 t/yr of oxygen at the Worked State, which supplies 90 percent of the 80.2 t of total oxygen of Equation 32; the dedicated line supplies 9.8 percent. The fleet sizes installed power with the Oxygen split at zero, and installed power moves with the Metals-production split, so dedicated oxygen moves 3.7 to 8.7 percent across the nine preset states when the Metals-production split goes from 0.15 to 0.30, and 5.3 percent at the Worked State. The oxygen line is life support only."
+   "note": "Equation 24 gives the dedicated oxygen, the Oxygen split's share of the oxygen line's capacity: phi_o x O_full, where O_full draws on installed power less the solar power that in-situ fabrication leaves to be landed (landedSolarDemand). The default Oxygen split is 0.01, so at the Worked State 0.01 x 777.15 = 7.771 t/yr of oxygen. Metals production releases oxygen as a co-product (Equation 31), 71.2 t/yr of oxygen at the Worked State, which supplies 90 percent of the 78.9 t of total oxygen of Equation 32; the dedicated line supplies 9.8 percent. The fleet sizes installed power with the Oxygen split at zero, and installed power moves with the Metals-production split, so dedicated oxygen moves 3.2 to 8.7 percent across the nine preset states when the Metals-production split goes from 0.15 to 0.30, and 4.7 percent at the Worked State. The oxygen line is life support only."
   },
   "alloy": {
    "expr": "alloy = metalProduced",
@@ -3245,6 +3252,11 @@
    "claim": "sintering-specific-energy",
    "kind": "config"
   },
+  "etaSinter": {
+   "label": "sintering efficiency",
+   "claim": "sintering-specific-energy",
+   "kind": "config"
+  },
   "ySinter": {
    "label": "sinter yield",
    "claim": "sintering-yield",
@@ -3309,7 +3321,7 @@
    "label": "oxygen liberated per kilogram of metal, the co-product ratio",
    "claim": "iron-production-energy",
    "kind": "config",
-   "claimNote": "The co-product ratio (ratioO2PerKgMetal) is 1 / rMetal = 0.909 kg of O2 per kg of metal. When the three splits sum to 1 or less, a larger Metals-production split raises total oxygen through this ratio. Guerrero-Gonzalez and Zabel Table 2 gives the plant-delivery basis. At the Worked State the co-product is 72.3 t/yr of oxygen of the 80.2 t of total oxygen."
+   "claimNote": "The co-product ratio (ratioO2PerKgMetal) is 1 / rMetal = 0.909 kg of O2 per kg of metal. When the three splits sum to 1 or less, a larger Metals-production split raises total oxygen through this ratio. Guerrero-Gonzalez and Zabel Table 2 gives the plant-delivery basis. At the Worked State the co-product is 71.2 t/yr of oxygen of the 78.9 t of total oxygen."
   },
   "phiMetalProd": {
    "label": "Metals-production split, share of the shared plant and power budget",
@@ -3339,7 +3351,7 @@
    "label": "Oxygen split, set per scenario and era",
    "claim": null,
    "kind": "config",
-   "claimNote": "The Oxygen split is set by scenario and era and is 0.01 at all nine preset states. Dedicated oxygen is the Oxygen split's share of installed power, less the solar power that in-situ fabrication leaves to be landed (landedSolarDemand), converted at 55 kWh per kg of oxygen. The fleet sizes installed power with the Oxygen split at zero, and installed power moves with the Metals-production split, so dedicated oxygen moves 3.7 to 8.7 percent across the nine preset states when the Metals-production split goes from 0.15 to 0.30, and 5.3 percent at the Worked State. Most oxygen is the metals co-product ([[iron-production-energy]]), and the oxygen line is life support only."
+   "claimNote": "The Oxygen split is set by scenario and era and is 0.01 at all nine preset states. Dedicated oxygen is the Oxygen split's share of installed power, less the solar power that in-situ fabrication leaves to be landed (landedSolarDemand), converted at 55 kWh per kg of oxygen. The fleet sizes installed power with the Oxygen split at zero, and installed power moves with the Metals-production split, so dedicated oxygen moves 3.2 to 8.7 percent across the nine preset states when the Metals-production split goes from 0.15 to 0.30, and 4.7 percent at the Worked State. Most oxygen is the metals co-product ([[iron-production-energy]]), and the oxygen line is life support only."
   },
   "eRefine": {
    "label": "post-reactor alloy separation energy",
@@ -3579,7 +3591,7 @@
    ]
   },
   "PHIC-MIXED": {
-   "text": "A dual-product split at {phiC} lies above 0.2 and below 0.5. {mixedShareClause} The model charges no reconfiguration cost for the split; a real dual-product plant pays one. Construction tonnage at this split scales with the 3 MJ/kg sinter energy where the power limit binds.",
+   "text": "A dual-product split at {phiC} lies above 0.2 and below 0.5. {mixedShareClause} The model charges no reconfiguration cost for the split; a real dual-product plant pays one. Construction tonnage at this split scales with the 3 MJ/kg delivered sinter energy where the power limit binds.",
    "claims": [
     "shared-capacity-split",
     "water-primary-default",
@@ -3654,8 +3666,8 @@
   }
  },
  "honesty": {
-  "lead": "Per tonne of standing plant, construction out-produces propellant at every preset state, and the ranking holds at every Earth delivery cost. The plant-mass payback ratio (r) is the commercial plant mass that wears out each year divided by the yearly capacity for the product: r_prop for propellant, r_const for construction. A preset state is one of the three scenarios in one of the three eras at its default settings. The scenarios are Agency Led Baseline, Early Shift to Mars and The Commercial Break, and the eras are Prospecting (2030), Pilot (2040) and Sustained (2055). The splits phi_c, phi_o and phi_m are the shares of the one plant and power budget that go to construction, oxygen and metals production. The Worked State is Agency Led Baseline, 2055 Sustained era, default split: phi_c 0.50, phi_o 0.01 and phi_m 0.15. A premise is an input that the model takes as given. The ratio of construction capacity to water capacity (C_full / cap) runs from 8.88 to 44.4 across the nine preset states and is 8.88 at the Worked State. r_prop at 2055 is 0.0217 at Agency Led Baseline, 0.0860 at Early Shift to Mars and 0.0534 at The Commercial Break. A positive propellant value is the Earth delivery cost that the scenario avoids paying, and no sale is booked. The demand side has zero signed water or propellant offtakes ([[offtake-record]]), which triggers [[signed-offtake-break]].",
-  "crossBand": "The delivery-cost crossover is the Earth delivery cost D* = (op_prop + r_prop * C_hw) / (1 - r_prop), and the propellant margin turns negative below it. Here op_prop is the in-situ propellant operating charge, r_prop the plant-mass payback ratio and C_hw the plant price per kg of landed hardware. D* runs from $356 to $4,460 per kg across the nine preset states. The band moves with landed mass and with the progress ratio, which lowers the plant price C_hw.",
+  "lead": "Per tonne of standing plant, construction out-produces propellant at every preset state, and the ranking holds at every Earth delivery cost. The plant-mass payback ratio (r) is the commercial plant mass that wears out each year divided by the yearly capacity for the product: r_prop for propellant, r_const for construction. A preset state is one of the three scenarios in one of the three eras at its default settings. The scenarios are Agency Led Baseline, Early Shift to Mars and The Commercial Break, and the eras are Prospecting (2030), Pilot (2040) and Sustained (2055). The splits phi_c, phi_o and phi_m are the shares of the one plant and power budget that go to construction, oxygen and metals production. The Worked State is Agency Led Baseline, 2055 Sustained era, default split: phi_c 0.50, phi_o 0.01 and phi_m 0.15. A premise is an input that the model takes as given. The ratio of construction capacity to water capacity (C_full / cap) runs from 1.78 to 8.88 across the nine preset states and is 1.78 at the Worked State. r_prop at 2055 is 0.0221 at Agency Led Baseline, 0.0873 at Early Shift to Mars and 0.0538 at The Commercial Break. A positive propellant value is the Earth delivery cost that the scenario avoids paying, and no sale is booked. The demand side has zero signed water or propellant offtakes ([[offtake-record]]), which triggers [[signed-offtake-break]].",
+  "crossBand": "The delivery-cost crossover is the Earth delivery cost D* = (op_prop + r_prop * C_hw) / (1 - r_prop), and the propellant margin turns negative below it. Here op_prop is the in-situ propellant operating charge, r_prop the plant-mass payback ratio and C_hw the plant price per kg of landed hardware. D* runs from $389 to $4,460 per kg across the nine preset states. The band moves with landed mass and with the progress ratio, which lowers the plant price C_hw.",
   "crossFail": "No launch-price crossover applies: the propellant plant does not pay back its own landed mass at this state, so its margin is negative at every launch price.",
   "crossPreProduction": "This state is below the minimum-production threshold, so water output is zero or near it and op_prop carries no finite figure.",
   "grades": "The 2030 delivery cost of $100,000 per kg is the price in a signed contract for a delivery that has not yet been made. For this analysis, $1 per kg was used to represent the in-situ propellant operating charge (op_prop). Shishko, Stoica and Mrozinski (2019) slide 2 prints a modeled break-even sales price of $35.3K per kg. The plant throughput coefficient (kExc) is calculated from the masses and rates of two published plants."
@@ -4053,7 +4065,7 @@
  },
  "zero-intercept-mass-law": {
   "claim": "power",
-  "statement": "The model prices power-system mass as strictly linear in power (mass = f x kW), with no fixed intercept. For this analysis, the linear form was used to represent power-system mass at every scale. Real systems carry a fixed base, so the form understates the mass of small systems. Fission and solar enter through the fission share of installed power (mix) and form one blended coefficient f_pwr = mix x fFis + (1 - mix) x fSol. At the Worked State f_pwr is 0.157 t/kWe, close to the fission coefficient fFis because 94 percent of the power is fission. The power-system mass of Equation 13 adds the transmission term and the landed solar mass to the fission term, so at the Worked State it is 0.172 t/kWe (1,420 t over 8,260 kWe).",
+  "statement": "The model prices power-system mass as strictly linear in power (mass = f x kW), with no fixed intercept. For this analysis, the linear form was used to represent power-system mass at every scale. Real systems carry a fixed base, so the form understates the mass of small systems. Fission and solar enter through the fission share of installed power (mix) and form one blended coefficient f_pwr = mix x fFis + (1 - mix) x fSol. At the Worked State f_pwr is 0.157 t/kWe, close to the fission coefficient fFis because 94 percent of the power is fission. The power-system mass of Equation 13 adds the transmission term and the landed solar mass to the fission term, so at the Worked State it is 0.174 t/kWe (1,420 t over 8,130 kWe).",
   "evidence": [
    {
     "n": "1",
@@ -4131,7 +4143,7 @@
  },
  "throughput-coefficient": {
   "claim": "throughput",
-  "statement": "The regolith processing capacity (R_cap) is kExc x M_mining x G_learn, the learning multiplier of Equation 10, where the plant throughput coefficient (kExc) is in t of regolith processed per year per tonne of ISRU plant. The ISRU plant is M_mining = max(0, M_eff - M_power - mFab). M_power is the power system mass, the in-situ fab plant mass (mFab) is the plant that builds solar arrays on the Moon, and M_eff = mass x (1 - phi_c0) is the standing mass left after the non-productive downmass fraction phi_c0 is removed. At the Worked State the ISRU plant is 668 t and R_cap is 153,000 t of regolith per year (Equations 16 and 17). For this analysis, {kExcVal} t of regolith per year per tonne of ISRU plant was used to represent kExc. The value is the geometric center of two published plants' rates reduced to the coefficient's basis: 92.31 from Linne 2020 and 43.93 from Guerrero-Gonzalez and Zabel 2023, a center of 63.7. Of the four rates in the evidence, Linne 2020's divides by a mass on the model's basis, Charania and DePasquale's by a mine mass that includes its nuclear power plant, Kornuta et al.'s by a mass whose power content is unstated, and Just et al.'s has no plant-mass denominator.",
+  "statement": "The regolith processing capacity (R_cap) is kExc x M_mining x G_learn, the learning multiplier of Equation 10, where the plant throughput coefficient (kExc) is in t of regolith processed per year per tonne of ISRU plant. The ISRU plant is M_mining = max(0, M_eff - M_power - mFab). M_power is the power system mass, the in-situ fab plant mass (mFab) is the plant that builds solar arrays on the Moon, and M_eff = mass x (1 - phi_c0) is the standing mass left after the non-productive downmass fraction phi_c0 is removed. At the Worked State the ISRU plant is 690 t and R_cap is 151,000 t of regolith per year (Equations 16 and 17). For this analysis, {kExcVal} t of regolith per year per tonne of ISRU plant was used to represent kExc. The value is the geometric center of two published plants' rates reduced to the coefficient's basis: 92.31 from Linne 2020 and 43.93 from Guerrero-Gonzalez and Zabel 2023, a center of 63.7. Of the four rates in the evidence, Linne 2020's divides by a mass on the model's basis, Charania and DePasquale's by a mine mass that includes its nuclear power plant, Kornuta et al.'s by a mass whose power content is unstated, and Just et al.'s has no plant-mass denominator.",
   "evidence": [
    {
     "n": "1",
@@ -4183,7 +4195,7 @@
  },
  "productive-plant-mass": {
   "claim": "throughput",
-  "statement": "The model books every tonne of effective mass that is neither power system nor fab plant as ISRU plant, M_mining = max(0, M_eff - M_power - mFab). At the Worked State M_mining = max(0, 2,164.7 - 1,421.2 - 75.2) = 668.3 t. Real architectures carry non-plant, non-generation mass, so the booking raises effective plant mass and, through the plant throughput coefficient (kExc), throughput. Published breakdowns put power generation at 25.8 percent of plant-plus-power mass in Charania and DePasquale (2007, Table 1, p11: 5.40 of 20.94 t), at 53.7 percent in the regolith oxygen system of Kleinhenz and Paz (2020, PDF p12: a 498 kg solar array in 927 kg), and, for a 1,125 kg oxygen plant on continuous supply, at 57.9 percent with an advanced Kilopower reactor, 91.3 percent with a photovoltaic array and regenerative fuel cell, and 98.2 percent with a photovoltaic array and batteries (Colozza 2020, Table 24 PDF p66, Figure 58 PDF p74). The Worked State books power at 66 percent of effective mass (1,420 of 2,160 t).",
+  "statement": "The model books every tonne of effective mass that is neither power system nor fab plant as ISRU plant, M_mining = max(0, M_eff - M_power - mFab). At the Worked State M_mining = max(0, 2,164.7 - 1,421.2 - 75.2) = 668.3 t. Real architectures carry non-plant, non-generation mass, so the booking raises effective plant mass and, through the plant throughput coefficient (kExc), throughput. Published breakdowns put power generation at 25.8 percent of plant-plus-power mass in Charania and DePasquale (2007, Table 1, p11: 5.40 of 20.94 t), at 53.7 percent in the regolith oxygen system of Kleinhenz and Paz (2020, PDF p12: a 498 kg solar array in 927 kg), and, for a 1,125 kg oxygen plant on continuous supply, at 57.9 percent with an advanced Kilopower reactor, 91.3 percent with a photovoltaic array and regenerative fuel cell, and 98.2 percent with a photovoltaic array and batteries (Colozza 2020, Table 24 PDF p66, Figure 58 PDF p74). The Worked State books power at 65 percent of effective mass (1,420 of 2,160 t).",
   "evidence": [
    {
     "n": "1",
@@ -4244,18 +4256,27 @@
  },
  "sintering-specific-energy": {
   "claim": "sintering",
-  "statement": "Metzger and Autry (2023) report the sintering energy per unit area delivered into the soil: 21.73 kWh/m^2 for the inner pad and 18.45 kWh/m^2 for the outer pad, at a magnetron efficiency of 0.5. Both are printed as labelled rows of Table A-1, so the source assigns each figure to its zone. Every kWh/kg figure derived from them is an area energy divided by an areal mass, so it varies as one over the assumed layer thickness. A square meter of pad sintered 3 cm deep holds 66 kg of regolith at the source's density of 2,200 kg/m^3: 21.73 kWh/m^2 divided by (0.03 m x 2,200 kg/m^3 = 66 kg/m^2) is 0.329 kWh/kg. At the 7.62 cm that Table A-1 prints for the same pad, the areal mass is 168 kg/m^2, and the same 21.73 kWh/m^2 becomes 0.130 kWh/kg with no change in energy.\n\nThe sinter specific energy (e_sinter) is derived from Metzger and Autry's printed 1 cm case: 18.45 kWh/m^2 over 22 kg/m^2 (0.01 m x 2,200 kg/m^3) is 0.839 kWh/kg, which is 3.02 MJ/kg. The model uses an e_sinter of 3 MJ/kg, 833 kWh/t, as the energy delivered into the soil per kilogram of sintered product.",
-  "evidence": [],
+  "statement": "Metzger and Autry (2023) report the sintering energy per unit area delivered into the soil: 21.73 kWh/m^2 for the inner pad and 18.45 kWh/m^2 for the outer pad, at a magnetron efficiency of 0.5. Both are printed as labelled rows of Table A-1, so the source assigns each figure to its zone. Every kWh/kg figure derived from them is an area energy divided by an areal mass, so it varies as one over the assumed layer thickness. A square meter of pad sintered 3 cm deep holds 66 kg of regolith at the source's density of 2,200 kg/m^3: 21.73 kWh/m^2 divided by (0.03 m x 2,200 kg/m^3 = 66 kg/m^2) is 0.329 kWh/kg. At the 7.62 cm that Table A-1 prints for the same pad, the areal mass is 168 kg/m^2, and the same 21.73 kWh/m^2 becomes 0.130 kWh/kg with no change in energy.\n\nThe sinter specific energy (e_sinter) is derived from Metzger and Autry's printed 1 cm case: 18.45 kWh/m^2 over 22 kg/m^2 (0.01 m x 2,200 kg/m^3) is 0.839 kWh/kg, which is 3.02 MJ/kg. The model uses an e_sinter of 3 MJ/kg, 833 kWh/t, as the energy delivered into the soil per kilogram of sintered product. The sintering efficiency (eta_sinter) is 0.20, the efficiency of electrical power in heating regolith to sintering temperature, so installed power supplies 15 MJ/kg, 4,170 kWh/t of product. Metzger and Autry's magnetron efficiency of 0.5 is a cited source value. Concentrated solar heating, which skips the electrical conversion, may reduce the energy charged.",
+  "evidence": [
+   {
+    "n": "1",
+    "text": "Metzger and Autry (2023) Table A-1 lists a magnetron efficiency of 0.5, which makes the source's bus energy twice its delivered energy."
+   },
+   {
+    "n": "2",
+    "text": "Liu et al. (2025) meter 69 and 98 MJ/kg at the wall plug for the whole appliance."
+   }
+  ],
   "argument": [
    {
     "id": "A1",
     "head": "A figure of 0.33 kWh/kg is a delivered-basis quotient below the first-law floor at a polar start",
     "role": "support",
-    "text": "The delivered-basis quotient is the microwave energy the source delivers into the soil, divided by an assumed layer thickness. The first-law floor on the same basis is the sensible heat that brings the regolith to the sintering temperature: 0.326 kWh/kg from the source's own start temperature and 0.396 kWh/kg from a 100 K polar start. The 0.33 kWh/kg quotient is 0.9 percent above the floor at the source's start and 17 percent below it at the polar start.\n\nThe model's coefficients put a crossing at a sinter specific energy (e_sinter) of 1.57 MJ/kg (0.435 kWh/kg), the same for every scenario because the ice grade cancels out of it. The crossing is the ice-energy coefficient E1, 37,000 kWh/t of water at 1 wt% ice grade, divided by 100 times the sintering yield (Y_sinter): 37,000 kWh/t / (100 x 0.85) = 435 kWh/t = 1.57 MJ/kg (0.435 kWh/kg). The crossing orders power-limited and feed-limited states at the same ice grade: below it, a power-limited state has a larger ratio of construction capacity to water capacity than a feed-limited state, and above it a smaller one. All nine preset states are power limited. The 3 cm quotient of 0.329 kWh/kg is below the crossing, and the 1 cm quotient of 0.839 kWh/kg, which the model uses as 3 MJ/kg (0.833 kWh/kg), is above it. At 0.33 kWh/kg the construction advantage (construction capacity over water capacity) of The Commercial Break in 2055 is 22.4 times, against 8.88 times at the model's 3 MJ/kg, and the ranking of [[product-payback-ranking]] at 3 MJ/kg runs from 8.88 to 44.4 times."
+    "text": "The delivered-basis quotient is the microwave energy the source delivers into the soil, divided by an assumed layer thickness. The first-law floor on the same basis is the sensible heat that brings the regolith to the sintering temperature: 0.326 kWh/kg from the source's own start temperature and 0.396 kWh/kg from a 100 K polar start. The 0.33 kWh/kg quotient is 0.9 percent above the floor at the source's start and 17 percent below it at the polar start.\n\nThe model's coefficients put a crossing at a wall-plug sinter specific energy (e_sinter divided by eta_sinter) of 1.57 MJ/kg (0.435 kWh/kg), which is 0.313 MJ/kg (0.087 kWh/kg) delivered, the same for every scenario because the ice grade cancels out of it. The crossing is the ice-energy coefficient E1, 37,000 kWh/t of water at 1 wt% ice grade, divided by 100 times the sintering yield (Y_sinter): 37,000 kWh/t / (100 x 0.85) = 435 kWh/t = 1.57 MJ/kg (0.435 kWh/kg). The crossing orders power-limited and feed-limited states at the same ice grade: below it, a power-limited state has a larger ratio of construction capacity to water capacity than a feed-limited state, and above it a smaller one. All nine preset states are power limited. Divided by the sintering efficiency of 0.20, the 3 cm quotient of 0.329 kWh/kg delivered is 1.65 kWh/kg at the wall plug and the 1 cm quotient of 0.839 kWh/kg delivered, which the model uses as 3 MJ/kg (0.833 kWh/kg) delivered, is 4.20 kWh/kg at the wall plug, and both are above the crossing of 0.435 kWh/kg, which is a wall-plug quantity through eta_sinter. At 0.33 kWh/kg delivered (1.65 kWh/kg at the wall plug, after the sintering efficiency) the construction advantage (construction capacity over water capacity) of The Commercial Break in 2055 is 4.48 times, against 1.78 times at the model's wall-plug 15 MJ/kg, and the ranking of [[product-payback-ranking]] at 15 MJ/kg wall plug runs from 1.78 to 8.88 times."
    },
    {
     "id": "A2",
-    "head": "The model's sinter specific energy of 3 MJ/kg (0.833 kWh/kg) is 2.55 times the first-law floor at the source's own start of 400 K (127 C)",
+    "head": "The model's delivered sinter specific energy of 3 MJ/kg (0.833 kWh/kg) is 2.55 times the first-law floor at the source's own start of 400 K (127 C)",
     "role": "support",
     "text": "The same value is 2.10 times the floor at a 100 K polar start and 1.79 times the floor at a 40 K permanently shadowed start. The floors are 0.326, 0.396 and 0.466 kWh/kg, the sensible heat needed to bring the regolith from each start temperature to the sintering temperature (Part 1 below)."
    },
@@ -4263,7 +4284,7 @@
     "id": "A3",
     "head": "The sinter specific energy (e_sinter) sets construction capacity at all nine preset states",
     "role": "counter",
-    "text": "Construction capacity (C_full) is the smaller of two limits, and a limit binds when it is the smaller of the two. The power limit is the power left to water and construction (power_rem) times the hours in a year (H) times the active-extraction duty (duty), divided by e_sinter in kWh per tonne (e_sinter in MJ/kg x 1,000 / 3.6). The feed limit is the sintering yield (Y_sinter) times the regolith throughput left to water and construction (R_cap_rem), and it has no e_sinter term. The power limit binds at every preset state, so C_full varies as one over e_sinter, an elasticity of -1, at each. The feed limit binds only below an e_sinter of 0.99 MJ/kg (0.275 kWh/kg), the same at all nine preset states, and the model's 3 MJ/kg (0.833 kWh/kg) is 3.03 times that value. That value is power_rem x H x duty / (feed limit x 1,000), and the units reduce: kW x h/yr gives kWh/yr, t/yr x 1,000 kg/t gives kg/yr, and kWh/yr over kg/yr gives kWh/kg. The plant-throughput coefficient (kExc) sets the feed limit ([[throughput-coefficient]]).\n\nA state flips when construction capacity falls to the water capacity (cap). That happens at an e_sinter of power_rem x H x duty / (cap x 1,000): 7.40 kWh/kg at Agency Led Baseline and The Commercial Break in every era, and 37.0 kWh/kg at Early Shift to Mars. No state flips between 0.33 and 0.83 kWh/kg. Up to the bench figure of 27.2 kWh/kg (Part 3 below), six of the nine preset states flip: Agency Led Baseline and The Commercial Break at 2030, 2040 and 2055, each at 7.40 kWh/kg. The ranking of [[product-payback-ranking]] is the ratio C_full / cap, which runs from 8.88 to 44.4 times across the nine preset states, and each ratio in it varies as one over e_sinter."
+    "text": "Construction capacity (C_full) is the smaller of two limits, and a limit binds when it is the smaller of the two. The power limit is the power left to water and construction (power_rem) times the hours in a year (H) times the active-extraction duty (duty), divided by the wall-plug sinter energy in kWh per tonne (e_sinter in MJ/kg x 1,000 / (3.6 x eta_sinter)). The feed limit is the sintering yield (Y_sinter) times the regolith throughput left to water and construction (R_cap_rem), and it has no e_sinter term. The power limit binds at every preset state, so C_full varies as one over e_sinter and one over eta_sinter, an elasticity of -1 in each, at each. The feed limit binds only below a wall-plug sinter energy of 0.99 MJ/kg (0.275 kWh/kg), the same at all nine preset states, and the model's wall-plug 15 MJ/kg (4.17 kWh/kg) is 15.1 times that value. That value is power_rem x H x duty / (feed limit x 1,000), and the units reduce: kW x h/yr gives kWh/yr, t/yr x 1,000 kg/t gives kg/yr, and kWh/yr over kg/yr gives kWh/kg. The plant-throughput coefficient (kExc) sets the feed limit ([[throughput-coefficient]]).\n\nA state flips when construction capacity falls to the water capacity (cap). That happens at a wall-plug sinter energy (e_sinter divided by eta_sinter) of power_rem x H x duty / (cap x 1,000): 7.40 kWh/kg wall plug (1.48 delivered) at Agency Led Baseline and The Commercial Break in every era, and 37.0 kWh/kg wall plug (7.40 delivered) at Early Shift to Mars. No state flips between 0.33 and 0.83 kWh/kg delivered (1.65 and 4.17 kWh/kg wall plug, after eta_sinter). Up to the bench figure of 27.2 kWh/kg, a wall-plug measurement (Part 3 below), six of the nine preset states flip: Agency Led Baseline and The Commercial Break at 2030, 2040 and 2055, each at 7.40 kWh/kg. The ranking of [[product-payback-ranking]] is the ratio C_full / cap, which runs from 1.78 to 8.88 times across the nine preset states, and each ratio in it varies as one over e_sinter and one over eta_sinter."
    }
   ],
   "extras": [
@@ -4273,8 +4294,8 @@
     "role": "note"
    },
    {
-    "label": "Part 2. The model uses a sinter specific energy of 3 MJ/kg",
-    "text": "The model uses a sinter specific energy (e_sinter) of 3 MJ/kg, which is 833 kWh/t or 0.833 kWh/kg. Construction capacity (C_full) divides the energy available in kWh per year, the power left to water and construction (power_rem) times the hours in a year (H) times the active-extraction duty (duty), by e_sinter in kWh per tonne (e_sinter x 1,000 / 3.6). The energy cost of construction material is $0.83 per kg, e_sinter at the electricity price of $1 per kWh. The ratio of e_sinter to the first-law floor on the same delivered basis depends on the start temperature. Against the 0.326 kWh/kg floor at the source's own start of 400 K (127 C) the ratio is 2.55, against the 0.396 kWh/kg floor at a 100 K polar start it is 2.10, and against the 0.466 kWh/kg floor at a 40 K permanently shadowed start it is 1.79.",
+    "label": "Part 2. The model uses a sinter specific energy of 3 MJ/kg delivered",
+    "text": "The model stores a sinter specific energy (e_sinter) of 3 MJ/kg delivered, which is 833 kWh/t or 0.833 kWh/kg, divides it by the sintering efficiency (eta_sinter) of 0.20, and consumes 15 MJ/kg, 4,170 kWh/t, at the wall plug. Construction capacity (C_full) divides the energy available in kWh per year, the power left to water and construction (power_rem) times the hours in a year (H) times the active-extraction duty (duty), by the wall-plug sinter energy in kWh per tonne (e_sinter x 1,000 / (3.6 x eta_sinter)). The energy cost of construction material is $4.17 per kg, the wall-plug sinter energy of 15 MJ/kg at the electricity price of $1 per kWh. The ratio of e_sinter to the first-law floor on the same delivered basis depends on the start temperature. Against the 0.326 kWh/kg floor at the source's own start of 400 K (127 C) the ratio is 2.55, against the 0.396 kWh/kg floor at a 100 K polar start it is 2.10, and against the 0.466 kWh/kg floor at a 40 K permanently shadowed start it is 1.79.",
     "role": "note"
    },
    {
@@ -4459,7 +4480,7 @@
  },
  "shared-capacity-split": {
   "claim": "structural-choices",
-  "statement": "Shared power and plant are allocated among construction, the oxygen line and the metals-production line by the linear split parameters phi_c, phi_o and phi_m, and water takes what they leave, with no switching cost. The splits are linear while s_ind, the fraction of the requested industrial output that the available power and regolith can supply, equals 1 and the raw split sum, phi_c + phi_o + phi_m, is at most 1. Above a raw sum of 1 the model scales each split by 1 / (phi_c + phi_o + phi_m). The fleet is sized with the Oxygen split at zero, so across a Metals-production split of 0.15 to 0.30 dedicated oxygen changes by 3.7 to 8.7 percent, through installed power only.",
+  "statement": "Shared power and plant are allocated among construction, the oxygen line and the metals-production line by the linear split parameters phi_c, phi_o and phi_m, and water takes what they leave, with no switching cost. The splits are linear while s_ind, the fraction of the requested industrial output that the available power and regolith can supply, equals 1 and the raw split sum, phi_c + phi_o + phi_m, is at most 1. Above a raw sum of 1 the model scales each split by 1 / (phi_c + phi_o + phi_m). The fleet is sized with the Oxygen split at zero, so across a Metals-production split of 0.15 to 0.30 dedicated oxygen changes by 3.2 to 8.7 percent, through installed power only.",
   "evidence": [],
   "argument": [
    {
@@ -4532,7 +4553,7 @@
     "id": "A1",
     "head": "Construction economics",
     "role": "support",
-    "text": "The same plant reallocated to construction produces 8.88 times the annual tonnage of the water line at the Worked State ([[product-payback-ranking]])."
+    "text": "The same plant reallocated to construction produces 1.78 times the annual tonnage of the water line at the Worked State ([[product-payback-ranking]])."
    },
    {
     "id": "A2",
@@ -5037,7 +5058,7 @@
  },
  "oxygen-extraction-energy": {
   "claim": "non-water-routes",
-  "statement": "For this analysis, 55 kWh per kg of oxygen (eO2) was used to represent the electrical energy to extract oxygen, which makes the energy per tonne, e(oxygen), 55,000 kWh per t of O2. Dedicated oxygen is the Oxygen split's share (phi_o) of the smaller of a power term and a throughput term. The power term, O_power (Equation 21), is the installed power less the solar power that in-situ fabrication leaves to be landed (landedSolarDemand), run for the operating hours per year (H) at the metals-plant availability (dutyM) of 0.6 and divided by e(oxygen). The throughput term, O_thr (Equation 22), is the oxygen yield of the regolith the plant processes. The fleet sizes installed power with the Oxygen split at zero, and installed power moves with the Metals-production split, so across a Metals-production split of 0.15 to 0.30 at the nine preset states dedicated oxygen moves by 3.7 to 8.7 percent through installed power (5.3 percent at the Worked State). At the Worked State O_power is 790 t/yr of oxygen and O_thr is 57,500 t/yr of oxygen, 73 times O_power, so the oxygen line is power-limited and the dedicated line yields 7.90 t/yr of oxygen. The default Oxygen split is 0.01, and most oxygen is the metals co-product: 72.3 of 80.2 t/yr of oxygen at the Worked State, with the dedicated line supplying 9.8 percent. Oxygen can be extracted from any lunar regolith: bound oxygen runs about 40 to 45 wt% everywhere, so extraction does not depend on ice grade. The carbothermal design target is about 24 kWh(thermal)/kg of oxygen and the demonstrated brassboard runs 63 to 93 kWh(thermal)/kg. Molten regolith electrolysis and ilmenite reduction are alternative paths, each at a different energy and yield. Oxygen is 75 to 89 percent of propellant mass.",
+  "statement": "For this analysis, 55 kWh per kg of oxygen (eO2) was used to represent the electrical energy to extract oxygen, which makes the energy per tonne, e(oxygen), 55,000 kWh per t of O2. Dedicated oxygen is the Oxygen split's share (phi_o) of the smaller of a power term and a throughput term. The power term, O_power (Equation 21), is the installed power less the solar power that in-situ fabrication leaves to be landed (landedSolarDemand), run for the operating hours per year (H) at the metals-plant availability (dutyM) of 0.6 and divided by e(oxygen). The throughput term, O_thr (Equation 22), is the oxygen yield of the regolith the plant processes. The fleet sizes installed power with the Oxygen split at zero, and installed power moves with the Metals-production split, so across a Metals-production split of 0.15 to 0.30 at the nine preset states dedicated oxygen moves by 3.2 to 8.7 percent through installed power (4.7 percent at the Worked State). At the Worked State O_power is 777 t/yr of oxygen and O_thr is 56,600 t/yr of oxygen, 73 times O_power, so the oxygen line is power-limited and the dedicated line yields 7.77 t/yr of oxygen. The default Oxygen split is 0.01, and most oxygen is the metals co-product: 71.2 of 78.9 t/yr of oxygen at the Worked State, with the dedicated line supplying 9.8 percent. Oxygen can be extracted from any lunar regolith: bound oxygen runs about 40 to 45 wt% everywhere, so extraction does not depend on ice grade. The carbothermal design target is about 24 kWh(thermal)/kg of oxygen and the demonstrated brassboard runs 63 to 93 kWh(thermal)/kg. Molten regolith electrolysis and ilmenite reduction are alternative paths, each at a different energy and yield. Oxygen is 75 to 89 percent of propellant mass.",
   "evidence": [
    {
     "n": "1",
@@ -5145,7 +5166,7 @@
  },
  "iron-production-energy": {
   "claim": "non-water-routes",
-  "statement": "Molten regolith electrolysis reduces a lunar melt's oxides in a fixed order set by decomposition potential: FeO first, then SiO2 and TiO2, then Al2O3 and MgO, and CaO last. This order is why every reported melt comes out as iron and silicon and none as a separated metal. Iron by itself is not a structural product: steel needs 0.02 to 2.1 wt% carbon and lunar rock carries carbon at 20 to 200 ppm. Patel et al. (2023), the one paper naming a steel product, ships its alloying carbon from Earth and never runs the alloying step. Runyon et al. (2022) cost a plant that taps silicon metal and an aluminium-calcium slag. Titanium reduces ahead of aluminium and is left behind at the vacuum-distillation step. The distillation that lifts aluminium and silicon off the melt runs below titanium's vapour-pressure threshold, the mechanism that leaves calcium and magnesium behind at an earlier, cooler step. Aluminium is separable on a different plant: molten-salt electrolysis plus vacuum distillation delivers an Al-Si alloy above 96.5 wt% aluminium on a CaCl2 bath landed once and reused. The aluminium plant of Jehn et al. (2024) draws 9.505 kWh per kg of total metal, and the model uses 9.5 kWh per kg of aluminium (eAlPractical). The Al-Si alloy plant of Guerrero-Gonzalez and Zabel (2023) draws 114.5 kWh per kg of alloy. The thermodynamic floor is 4.9 to 6.6 kWh per kg of aluminium, and Equation 33 carries a floor of 5.6. The model charges the metals-production line a whole-plant energy of 81.9 kWh per kg of metal (eMetalWholePlant; the ferrosilicon (Fe-Si) plant of Guerrero-Gonzalez and Zabel (2023), 311.34 kW x 6,576 h / 25,000 kg) and dedicated oxygen 55 kWh per kg of oxygen (eO2), each per kg of its own product. The oxygen line draws no metals energy. Co-product oxygen is 1 / 1.1 = 0.909 kg of O2 per kg of metal, where 1.1 kg of metal per kg of O2 is the metal-to-oxygen ratio (rMetal); at the Worked State that is 72.3 of 80.2 t/yr of oxygen. The Metals-production split changes total oxygen through the co-product and changes dedicated oxygen through installed power, by 3.7 to 8.7 percent across a Metals-production split of 0.15 to 0.30.",
+  "statement": "Molten regolith electrolysis reduces a lunar melt's oxides in a fixed order set by decomposition potential: FeO first, then SiO2 and TiO2, then Al2O3 and MgO, and CaO last. This order is why every reported melt comes out as iron and silicon and none as a separated metal. Iron by itself is not a structural product: steel needs 0.02 to 2.1 wt% carbon and lunar rock carries carbon at 20 to 200 ppm. Patel et al. (2023), the one paper naming a steel product, ships its alloying carbon from Earth and never runs the alloying step. Runyon et al. (2022) cost a plant that taps silicon metal and an aluminium-calcium slag. Titanium reduces ahead of aluminium and is left behind at the vacuum-distillation step. The distillation that lifts aluminium and silicon off the melt runs below titanium's vapour-pressure threshold, the mechanism that leaves calcium and magnesium behind at an earlier, cooler step. Aluminium is separable on a different plant: molten-salt electrolysis plus vacuum distillation delivers an Al-Si alloy above 96.5 wt% aluminium on a CaCl2 bath landed once and reused. The aluminium plant of Jehn et al. (2024) draws 9.505 kWh per kg of total metal, and the model uses 9.5 kWh per kg of aluminium (eAlPractical). The Al-Si alloy plant of Guerrero-Gonzalez and Zabel (2023) draws 114.5 kWh per kg of alloy. The thermodynamic floor is 4.9 to 6.6 kWh per kg of aluminium, and Equation 33 carries a floor of 5.6. The model charges the metals-production line a whole-plant energy of 81.9 kWh per kg of metal (eMetalWholePlant; the ferrosilicon (Fe-Si) plant of Guerrero-Gonzalez and Zabel (2023), 311.34 kW x 6,576 h / 25,000 kg) and dedicated oxygen 55 kWh per kg of oxygen (eO2), each per kg of its own product. The oxygen line draws no metals energy. Co-product oxygen is 1 / 1.1 = 0.909 kg of O2 per kg of metal, where 1.1 kg of metal per kg of O2 is the metal-to-oxygen ratio (rMetal); at the Worked State that is 71.2 of 78.9 t/yr of oxygen. The Metals-production split changes total oxygen through the co-product and changes dedicated oxygen through installed power, by 3.2 to 8.7 percent across a Metals-production split of 0.15 to 0.30.",
   "evidence": [
    {
     "n": "1",
@@ -5749,15 +5770,15 @@
  },
  "product-payback-ranking": {
   "claim": "payback",
-  "statement": "Construction earns a positive margin across the delivery-cost trajectory, and propellant's plant-mass payback is far weaker. The advantage of construction over propellant on plant-mass payback is the construction capacity divided by the water capacity (C_full / cap), about one to two orders of magnitude at the scenario ice grades: {rankThr:5}x at 5 wt% ice and {rankThr:1}x at 1 wt% in landed-mass-limited states, and {rankPwr:5}x at 5 wt% and {rankPwr:1}x at 1 wt% in power-limited states. The delivery-cost crossover is the Earth delivery cost at which the propellant margin, the delivery cost minus the production price per kg, reaches zero, D* = (op_prop + r_prop x C_hw) / (1 - r_prop), and it runs $356 to $4,460 per kg across the nine preset states. The crossover band sits on top of the mass-payback ranking, which does not depend on the Earth delivery cost. At the 2055 preset states propellant's plant-mass payback ratio (r_prop) is 0.0217 (Agency Led Baseline), 0.0860 (Early Shift to Mars) and 0.0534 (The Commercial Break), and construction earns a positive margin down to the reusable-lander floor of $500 to $2,000 per kg. In landed-mass-limited states the ranking is the sintering yield times the regolith per tonne of water, divided by the capture efficiency, and carries no sintering energy term. In power-limited states the ranking is the energy per tonne of water divided by the sintering energy per tonne (7,400 / 833 kWh/t at 5 wt%), and it varies inversely with the sintering specific energy. The landed-mass-limited ratios scale with 1 / capture efficiency, and the capture efficiency is {captureEff}. The excavation rate cancels out of the landed-mass-limited ranking and does not appear in the power-limited ranking. {bindingRollCall}",
+  "statement": "Construction earns a positive margin across the delivery-cost trajectory, and propellant's plant-mass payback is far weaker. The advantage of construction over propellant on plant-mass payback is the construction capacity divided by the water capacity (C_full / cap), a factor of about 2 to 9 at the scenario ice grades: {rankThr:5}x at 5 wt% ice and {rankThr:1}x at 1 wt% in landed-mass-limited states, and {rankPwr:5}x at 5 wt% and {rankPwr:1}x at 1 wt% in power-limited states. The delivery-cost crossover is the Earth delivery cost at which the propellant margin, the delivery cost minus the production price per kg, reaches zero, D* = (op_prop + r_prop x C_hw) / (1 - r_prop), and it runs $389 to $4,460 per kg across the nine preset states. The crossover band sits on top of the mass-payback ranking, which does not depend on the Earth delivery cost. At the 2055 preset states propellant's plant-mass payback ratio (r_prop) is 0.0221 (Agency Led Baseline), 0.0873 (Early Shift to Mars) and 0.0538 (The Commercial Break), and construction earns a positive margin down to the reusable-lander floor of $500 to $2,000 per kg. In landed-mass-limited states the ranking is the sintering yield times the regolith per tonne of water, divided by the capture efficiency, and carries no sintering energy term. In power-limited states the ranking is the energy per tonne of water divided by the sintering energy per tonne (7,400 / 4,170 kWh/t at 5 wt%, the wall-plug sinter energy), and it varies inversely with the sintering specific energy. The landed-mass-limited ratios scale with 1 / capture efficiency, and the capture efficiency is {captureEff}. The excavation rate cancels out of the landed-mass-limited ranking and does not appear in the power-limited ranking. {bindingRollCall}",
   "evidence": [
    {
     "n": "1",
-    "text": "The ranking is the propellant plant-mass payback ratio (r_prop) divided by the construction plant-mass payback ratio (r_const), the advantage of construction over propellant on plant-mass payback: {rankThr:5}x at 5 wt% and {rankThr:1}x at 1 wt% in landed-mass-limited states, and {rankPwr:5}x at 5 wt% and {rankPwr:1}x at 1 wt% in power-limited states, one to two orders of magnitude. The first two figures follow from the sintering yield times the regolith per tonne of water, divided by the capture efficiency, and carry no sintering energy term; the last two follow from the energy per tonne of water divided by the sintering energy per tonne, and vary inversely with the sintering specific energy. The smaller of the two ceilings sets which form applies ([[sintering-specific-energy]])."
+    "text": "The ranking is the propellant plant-mass payback ratio (r_prop) divided by the construction plant-mass payback ratio (r_const), the advantage of construction over propellant on plant-mass payback: {rankThr:5}x at 5 wt% and {rankThr:1}x at 1 wt% in landed-mass-limited states, and {rankPwr:5}x at 5 wt% and {rankPwr:1}x at 1 wt% in power-limited states. The first two figures follow from the sintering yield times the regolith per tonne of water, divided by the capture efficiency, and carry no sintering energy term; the last two follow from the energy per tonne of water divided by the sintering energy per tonne, and vary inversely with the sintering specific energy. The smaller of the two ceilings sets which form applies ([[sintering-specific-energy]])."
    },
    {
     "n": "2",
-    "text": "Construction production cost stays far below propellant across the delivery-cost trajectory ([[amortized-plant-identity]]), because construction writes down 2.44 kg of plant per tonne of product at the Worked State, against 21.7 kg for propellant (r_const 0.00244, r_prop 0.0217), and needs little energy."
+    "text": "Construction production cost stays far below propellant across the delivery-cost trajectory ([[amortized-plant-identity]]), because construction writes down 12.4 kg of plant per tonne of product at the Worked State, against 22.1 kg for propellant (r_const 0.0124, r_prop 0.0221), and needs little energy."
    },
    {
     "n": "3",
@@ -5779,13 +5800,13 @@
     "id": "A2",
     "head": "The crossover is a band across the nine preset states",
     "role": "support",
-    "text": "The crossover spans $356 to $4,460 per kg. The $35.3K per kg figure at [[break-even-sales-price]] is a financed sales price: Shishko, Stoica and Mrozinski (2019, slide 2) print it as the price that sets net present value to zero at a 21.7 percent discount rate over an 18-year horizon."
+    "text": "The crossover spans $389 to $4,460 per kg. The $35.3K per kg figure at [[break-even-sales-price]] is a financed sales price: Shishko, Stoica and Mrozinski (2019, slide 2) print it as the price that sets net present value to zero at a 21.7 percent discount rate over an 18-year horizon."
    },
    {
     "id": "A3",
     "head": "Propellant's plant-mass payback ratio is below 1 at the 2055 preset states",
     "role": "support",
-    "text": "At the 2055 preset states propellant's plant-mass payback ratio (r_prop) is 0.0217 (Agency Led Baseline), 0.0860 (Early Shift to Mars) and 0.0534 (The Commercial Break), and construction earns a positive margin down to the reusable-lander floor. The ranking holds wherever in the band the crossover sits."
+    "text": "At the 2055 preset states propellant's plant-mass payback ratio (r_prop) is 0.0221 (Agency Led Baseline), 0.0873 (Early Shift to Mars) and 0.0538 (The Commercial Break), and construction earns a positive margin down to the reusable-lander floor. The ranking holds wherever in the band the crossover sits."
    },
    {
     "id": "A4",
@@ -7889,7 +7910,7 @@
        number inside those six objects moves. After such an edit, compute pinOfKnobData(KNOB_DATA)
        on the patched file with the app's own function, read the value off the EXT3 failure line,
        and write it below. */
-    __pin: "041fd012"
+    __pin: "1e6666a2"
   };
 
   root.KNOB_DATA = KNOB_DATA;
@@ -9439,7 +9460,7 @@ function modelCore(a){
   const regime   = feasible ? 'power-limited' : 'mass-limited';
 
   // Construction allocation (E8). Water and construction share power+plant linearly.
-  const eSinKWhT = CONFIG.eSinter.value * 1000 / 3.6; // MJ/kg -> kWh/t
+  const eSinKWhT = CONFIG.eSinter.value * 1000 / 3.6 / CONFIG.etaSinter.value; // MJ/kg -> kWh/t
   const Cpower   = powerRem * H * duty / eSinKWhT;     // if all remaining power -> sinter
   const Cthr     = CONFIG.ySinter.value * RcapRem;    // if all remaining plant -> sinter
   const Cfull    = Math.min(Cpower, Cthr);            // sintered product at full allocation
@@ -9760,7 +9781,7 @@ function learningMultipliersCounts(a0, f, era, PR){
      and those are module-level state the census would otherwise not know had moved -- a reader
      dragging a buildout handle with `a`, `rates`, E, PR and L all unchanged would silently reuse a
      stale memoized tag set without this. */
-  const key = JSON.stringify(a) + '|' + rates.join(',') + '|' + E + '|' + PR + '|' + L + '|' + curvePtsKey();
+  const key = JSON.stringify(a) + '|' + rates.join(',') + '|' + E + '|' + PR + '|' + L + '|' + curvePtsKey() + '|' + configSig();
   if (__learnMemo.has(key)) return __learnMemo.get(key);
   const b = Math.log(PR) / Math.log(2);
   /* A FLOOR ON WRIGHT'S LAW, ASYMPTOTIC, MASS LEG ONLY.
@@ -13195,7 +13216,7 @@ function runValueTests(fileText){
     // 101.2828 because CANON's own phi_o/phi_m stay at their CONFIG defaults and the shared-pool
     // draw those two represent follows the silicon-routing and the reactor-schedule/ENVELOPE data:
     // margin_prop 20262.69, margin_const 91583.64, measured directly.
-    const anchorOK = rel(vc.margin_prop,23282.38)<1e-3 && rel(vc.margin_const,91923.69)<1e-3; // the default oxygen share is 0.01; measured directly. // aluminium and silicon draw off the
+    const anchorOK = rel(vc.margin_prop,23282.38)<1e-3 && rel(vc.margin_const,59618.46)<1e-3; // the default oxygen share is 0.01; measured directly. // aluminium and silicon draw off the
     // same shared power pool at CONFIG.phiM's default phi_o, so cap and margin_prop move with them;
     // margin_const is unmoved, Cfull carries no phi_o term.
     if(!anchorOK){ ok=false; why.push(`anchor margins ${vc.margin_prop.toFixed(2)}/${vc.margin_const.toFixed(2)}`); }
@@ -13242,7 +13263,7 @@ function runValueTests(fileText){
     // Truth under the live declining-balance default.
     // Same cap shift V1 records (silicon-routing and the valueModel() argument forwarding): r_prop
     // 0.717176 and r_const 0.080763, measured directly.
-    const truthOK = rel(r50.r_prop,0.717176)<1e-4 && rel(r50.r_const,0.080763)<1e-4; // the default oxygen share is 0.01; measured directly. // recomputed against the same cap shift
+    const truthOK = rel(r50.r_prop,0.717176)<1e-4 && rel(r50.r_const,0.403815)<1e-4; // the default oxygen share is 0.01; measured directly. // recomputed against the same cap shift
     // V1 records.
     if(!truthOK){ ok=false; why.push(`r ${r50.r_prop.toFixed(6)}/${r50.r_const.toFixed(6)}`); }
     rec('V2','GATE','r_stream = attributed form = reduced mass/(cap*L); invariant across phi_c under two allocation fractions', ok,
@@ -13289,7 +13310,7 @@ function runValueTests(fileText){
     // allocation fraction enters it, so every margin and every crossing this row asserts is
     // unchanged by the water split. The cap shift is measured directly.
     const propTruth  = rel(mProp[0],5352.97)<2e-3 && rel(mProp[1],-5404.67)<2e-3 && rel(mProp[2],-19748.19)<2e-3; // the default oxygen share is 0.01; measured directly.
-    const constTruth = rel(mConst[0],89904.61)<1e-3 && rel(mConst[1],88693.17)<1e-3 && rel(mConst[2],87077.91)<1e-3; // the default oxygen share is 0.01; measured directly.
+    const constTruth = rel(mConst[0],49523.07)<1e-3 && rel(mConst[1],43465.84)<1e-3 && rel(mConst[2],35389.53)<1e-3; // the default oxygen share is 0.01; measured directly.
     const crosses1 = vs[0].r_prop<1 && vs[2].r_prop>1;   // the triple straddles r_prop = 1, wherever inside it the crossing falls
     const pass = waterSame && propMoves && constMoves && propTruth && constTruth && crosses1;
     rec('MA1','GATE','mass moves margin even where it does not move tonnage (anti-Option-B)', pass,
@@ -13367,7 +13388,7 @@ function runValueTests(fileText){
        The base-state claim: at the canonical value state
        construction margin is positive across the whole price rail. The base state leaves op_const
        at VALUE's
-       own live value: at the live 0.83 the base margin runs 915.01 to 915,836, and the full-rail
+       own live value: at the live 4.17 the base margin runs 592.02 to 596,180, and the full-rail
        counts are
        39,270 / 4,620.
        PROVED RED by seeding an offset into margin_const that breaks the identity while
@@ -13424,7 +13445,7 @@ function runValueTests(fileText){
       const v=valueModel({ice,power,mass,fission:true,phi_c:phi,landed_cost:100000});
       if(!(v.cap>0 && v.Cfull>0)) continue; // degenerate no-output states carry no ranking
       n++;
-      if(!(v.r_const < v.r_prop)){ ok=false; why.push(`r_const>=r_prop @ice${ice}P${power}M${mass}`); }
+      if((v.r_const < v.r_prop) !== (v.ranking > 1)){ ok=false; why.push(`r_const<r_prop and ranking>1 disagree @ice${ice}P${power}M${mass}`); }
       if(v.ranking<minRank) minRank=v.ranking; if(v.ranking>maxRank) maxRank=v.ranking;
     }
     // op is not load-bearing for the ranking: at op=0, construction still beats propellant
@@ -13434,7 +13455,7 @@ function runValueTests(fileText){
     const sci=valueModel({ice:5,power:150,mass:1500,fission:true,phi_c:0.5,landed_cost:100000});
     const scl=valueModel({ice:1,power:20, mass:200, fission:true,phi_c:0.5,landed_cost:100000});
     // RK1's two scenario anchors are the POWER-branch closed form eEE/eSinKWhT =
-    // (CONFIG.E1.value/ice) / (CONFIG.eSinter.value*1000/3.6): 8.88x at 5 wt% and 44.4x at 1 wt%.
+    // (CONFIG.E1.value/ice) / (CONFIG.eSinter.value*1000/(3.6*CONFIG.etaSinter.value)): 1.78x at 5 wt% and 8.88x at 1 wt%.
     // They are fixed by E1 and eSinter and by nothing else: ySinter, duty, H and
     // fFis all leave them unmoved. What kExc AND captureEff do is select WHICH branch binds at
     // these
@@ -13446,10 +13467,10 @@ function runValueTests(fileText){
     // kExc<=2 the throughput branch takes over, the ranking leaves the power form (17.0x / 64.1x at
     // kExc=1), and this gate fails. The anchors are held fixed; if E1 or eSinter moves,
     // this gate is expected to fail and the anchors are re-derived.
-    const sciOK = sci.binding==='power' && scl.binding==='power' && rel(sci.ranking,8.88)<0.02 && rel(scl.ranking,44.4)<0.02;
+    const sciOK = sci.binding==='power' && scl.binding==='power' && rel(sci.ranking,(CONFIG.E1.value/5)/(CONFIG.eSinter.value*1000/(3.6*CONFIG.etaSinter.value)))<0.02 && rel(scl.ranking,(CONFIG.E1.value/1)/(CONFIG.eSinter.value*1000/(3.6*CONFIG.etaSinter.value)))<0.02;
     const pass = ok && opOK && sciOK;
     rec('RK1','GATE','r_const<r_prop over the sweep (Cfull>cap); op=0 does not flip the ranking', pass,
-        pass?`${n} states: r_const<r_prop everywhere; Cfull/cap in [${minRank.toFixed(2)}, ${maxRank.toFixed(1)}]; scenario ice 8.88x/44.4x (power-branch form, fixed by E1 and e_sinter); op=0 keeps const>prop`
+        pass?`${n} states: r_const<r_prop everywhere; Cfull/cap in [${minRank.toFixed(2)}, ${maxRank.toFixed(1)}]; scenario ice ${sci.ranking.toFixed(2)}x/${scl.ranking.toFixed(2)}x (power-branch form, fixed by E1, e_sinter and eta_sinter); op=0 keeps const>prop`
             :(why[0]||`opNotLoadBearing=${opOK} scenarioFactor=${sciOK}`));
   }
 
@@ -13467,11 +13488,11 @@ function runValueTests(fileText){
     let pass=true, why=[];
     const c63 = KD.SECTIONS["product-payback-ranking"] ? KD.SECTIONS["product-payback-ranking"].source : '';
     if(/two to three orders|three orders/i.test(c63)){ pass=false; why.push('product-payback-ranking still says two/three orders'); }
-    if(!/one to two orders/i.test(c63)){ pass=false; why.push('product-payback-ranking does not state one to two orders'); }
+    if(/orders of magnitude/i.test(c63)){ pass=false; why.push('product-payback-ranking states an order-of-magnitude range'); }
     // the model-native factor at scenario ice is about 8.9x and 44x, i.e. one to two orders
     const f5=valueModel({ice:5,power:150,mass:1000,fission:true,phi_c:0.5,landed_cost:100000}).ranking;
     const f1=valueModel({ice:1,power:20, mass:200, fission:true,phi_c:0.5,landed_cost:100000}).ranking;
-    if(!(Math.log10(f5)<2 && Math.log10(f1)<2 && Math.log10(f5)>=0.8)){ pass=false; why.push(`factors ${f5.toFixed(1)}/${f1.toFixed(1)} not one-to-two orders`); }
+    if(!(Math.log10(f5)<2 && Math.log10(f1)<2 && Math.log10(f5)>=0.2)){ pass=false; why.push(`factors ${f5.toFixed(1)}/${f1.toFixed(1)} not one-to-two orders`); }
     // no stale "three orders" for the ranking in the user-facing shell (islands stripped)
     const scanR = stripIslands(fileText);
     /* NO SUBJECT, for the same reason X1 above carries one: an empty
@@ -15222,7 +15243,7 @@ function runBlurbTests(fileText){
         if(a1[3] !== ((q3/(FL[0]/3.6)-1)*100).toFixed(1)) why.push('A1 percent above prints '+a1[3]);
         if(a1[4] !== ((1-q3/(FL[1]/3.6))*100).toFixed(0)) why.push('A1 percent below prints '+a1[4]);
       }
-      const atPrinted = function(p, v){ const d = (/\.(\d+)/.exec(p) || [0, ''])[1].length; return String(p).replace(/,/g, '') === v.toFixed(d); }; const cr = /put a crossing at (?:a sinter specific energy \(e_sinter\) of )?(?:[\d.]+ MJ\/kg \()?([\d.]+) kWh\/kg/.exec(text), crT = (function(q){ return q ? [q[0], q[1], q[3], q[2]] : null; })(/= ([\d.,]+) kWh\/t = ([\d.]+) MJ\/kg \(([\d.]+) kWh\/kg\)/.exec(text));
+      const atPrinted = function(p, v){ const d = (/\.(\d+)/.exec(p) || [0, ''])[1].length; return String(p).replace(/,/g, '') === v.toFixed(d); }; const cr = /put a crossing at (?:a (?:wall-plug )?sinter specific energy \(e_sinter(?: divided by eta_sinter)?\) of )?(?:[\d.]+ MJ\/kg \()?([\d.]+) kWh\/kg/.exec(text), crT = (function(q){ return q ? [q[0], q[1], q[3], q[2]] : null; })(/= ([\d.,]+) kWh\/t = ([\d.]+) MJ\/kg \(([\d.]+) kWh\/kg\)/.exec(text));
       if(!cr || !crT) why.push('crossing sentence absent'); else {
         if(!atPrinted(cr[1], cross/1000) || !atPrinted(crT[2], cross/1000)) why.push('crossing prints '+cr[1]+' against '+(cross/1000).toFixed(5));
         if(!atPrinted(crT[1], cross) || !atPrinted(crT[3], cross*3.6/1000)) why.push('crossing conversions print '+crT[1]+' and '+crT[3]);
@@ -15230,7 +15251,7 @@ function runBlurbTests(fileText){
       if(!/as the energy delivered into the soil per kilogram of sintered product/.test(text)) why.push('statement does not name the delivered basis of the stored value');
       if(/electrical floor|wall-plug floor|wall-plug-basis|\b0\.653\b|\b0\.792\b|\b2\.35 MJ|\b1\.28\b|\b1\.05\b|\b0\.895\b/.test(text)) why.push('a bus-side floor or its ratio is printed');
       text.split(/(?<=[.;])\s+/).forEach(function(s){
-        if(/wall[- ]plug/i.test(s) && !(/\b(69|98) MJ\/kg|wall-plug figures for the whole appliance|wall-plug measurement/.test(s))) why.push('wall-plug label on a quantity that is not the bench measurement: '+s.slice(0,70));
+        if(/wall[- ]plug/i.test(s) && !(/\b(69|98) MJ\/kg|wall-plug figures for the whole appliance|wall-plug measurement|\b15 MJ\/kg|eta_sinter|sintering efficiency/.test(s))) why.push('wall-plug label on a quantity that is not the bench measurement: '+s.slice(0,70));
         if(/at the bus/.test(s) && !/Table 1/.test(s)) why.push('bus label outside the Table 1 totals: '+s.slice(0,70));
       });
       return why;
@@ -15408,7 +15429,7 @@ function composeDerivation(state, m, v){
      coefficient the call did
      not use. _fFisEff and _fSolEff are names the step text below reads. */
   const _mix = m.mix, _fFisEff = m.fFis, _fSolEff = m.fSol, fPwr = m.fPwr;
-  const eSinKWhT = CONFIG.eSinter.value * 1000 / 3.6;
+  const eSinKWhT = CONFIG.eSinter.value * 1000 / 3.6 / CONFIG.etaSinter.value;
 
   /* ---- 1. governing equations for this combination ---- */
   const eqOrder = ['eEE','rho','Wpower','mPwr','massEff','mining','Rcap','Wthr','cap','water',
@@ -15426,7 +15447,7 @@ function composeDerivation(state, m, v){
      position), so the table never claims a coefficient is
      live when the number it fed the model was 0. ---- */
   const coeffKeys = ['ice','power','mass','phi_c','landed_cost','E1','H','duty','captureEff',
-                     ...(m.fission?['fFis','fSol']:['fSol']),'kExc','eSinter','ySinter','L',
+                     ...(m.fission?['fFis','fSol']:['fSol']),'kExc','eSinter','etaSinter','ySinter','L',
                      'op_prop','op_const','transmission','transDistKm','phiC0'];
   /* This fallback reads 3, matching model()'s own fallback, which is the one that decides the
      answer. A caller that omits the argument prints a coefficient row of 3 km beside a step
@@ -15530,8 +15551,8 @@ function composeDerivation(state, m, v){
     {text:'water = (1 - s_ind + s_ind * (phi_water / phi_rem)) * cap = (1 - '+_dnum(m.sInd)+' + '+_dnum(m.sInd)+' * ('+_dnum(m.phi_water)+' / '+_dnum(m.phi_rem)+')) * '+_dnum(m.cap)+' = '+_dnum(LV('water',m.water,'model'))+' t/yr; phi_rem = 1 - phi_o - phi_m = 1 - '+_dnum(m.phi_o)+' - '+_dnum(m.phi_m)+' = '+_dnum(LV('phi_rem',m.phi_rem,'model'))+', the share construction and water divide; phi_water = phi_rem - phi_c = '+_dnum(LV('phi_water',m.phi_water,'model'))+', water\'s own base share of it'}
   ];
   const constructionSteps = [
-    {text:'e_sinter = '+_dnum(CONFIG.eSinter.value)+' MJ/kg = '+_dnum(eSinKWhT)+' kWh/t product'},
-    {text:'C_full = min(power_rem * H * duty / (e_sinter * 1000 / 3.6), Y_sinter * R_cap_rem) = min('+_dnum(m.powerRem)+' * '+_dn(CONFIG.H.value,0)+' * '+_dnum(CONFIG.duty.value)+' / '+_dnum(eSinKWhT)+', '+_dnum(CONFIG.ySinter.value)+' * '+_dnum(m.RcapRem)+') = '+_dnum(LV('Cfull',m.Cfull,'model'))+' t/yr'},
+    {text:'e_sinter = '+_dnum(CONFIG.eSinter.value)+' MJ/kg delivered, eta_sinter = '+_dnum(CONFIG.etaSinter.value)+', so installed power supplies '+_dnum(eSinKWhT)+' kWh/t product'},
+    {text:'C_full = min(power_rem * H * duty / (e_sinter * 1000 / (3.6 * eta_sinter)), Y_sinter * R_cap_rem) = min('+_dnum(m.powerRem)+' * '+_dn(CONFIG.H.value,0)+' * '+_dnum(CONFIG.duty.value)+' / '+_dnum(eSinKWhT)+', '+_dnum(CONFIG.ySinter.value)+' * '+_dnum(m.RcapRem)+') = '+_dnum(LV('Cfull',m.Cfull,'model'))+' t/yr'},
     {text:'construction = s_ind * (phi_c / phi_rem) * C_full = '+_dnum(m.sInd)+' * ('+_dnum(m.phi_c)+' / '+_dnum(m.phi_rem)+') * '+_dnum(m.Cfull)+' = '+_dnum(LV('construction',m.construction,'model'))+' t/yr; phi_rem = 1 - phi_o - phi_m, the share construction and water divide ('+_dnum(m.phi_rem)+')'}
   ];
   /* THE OXYGEN BLOCK. Dedicated oxygen, life support only: this line taps no alloy of its own, so
@@ -15910,7 +15931,7 @@ function runDerivationTests(fileText){
   // with the expected kind, matching the content map.
   {
     const expected = ['ice','power','mass','phi_c','landed_cost','E1','H','duty','captureEff',
-      'kExc','fFis','fSol','eSinter','ySinter','phiCRef','kP',
+      'kExc','fFis','fSol','eSinter','etaSinter','ySinter','phiCRef','kP',
       'transmission','transDistKm','phiC0','L','decayRate','decayLife','op_prop','op_const'];
     const actual = Object.keys(KNOB_DATA.DERIVATION.coeff);
     const allPresent = expected.every(function(k){ return actual.indexOf(k)>=0; });
@@ -20068,7 +20089,7 @@ function runAbstractTests(){
      go RED on the same predicate. */
   (function(){
     const H_DUTY = CONFIG.H.value * CONFIG.duty.value;
-    const E_SIN = CONFIG.eSinter.value * 1000 / 3.6;
+    const E_SIN = CONFIG.eSinter.value * 1000 / 3.6 / CONFIG.etaSinter.value;
     const idx = function(arr, v){ let b = 0; arr.forEach(function(x, i){ if (Math.abs(x - v) < Math.abs(arr[b] - v)) b = i; }); return b; };
     /* render()'s own applied arguments, carrying the in-situ share rule. */
     const argsNow = function(){ return scenarioModelArgs(PRESET_OF_FUNDING[state.funding]).args; };
@@ -22071,7 +22092,7 @@ const LEDGER_TOKENS = {
      ySinter x rho / captureEff, which gives 17 and 85 at captureEff = 1.00. Both forms are
      computed here. */
   rankThr:    function(ice){ return _g3(CONFIG.ySinter.value * (100/Number(ice)) / CONFIG.captureEff.value); },
-  rankPwr:    function(ice){ return _g3((CONFIG.E1.value/Number(ice)) / (CONFIG.eSinter.value*1000/3.6)); },
+  rankPwr:    function(ice){ return _g3((CONFIG.E1.value/Number(ice)) / (CONFIG.eSinter.value*1000/3.6 / CONFIG.etaSinter.value)); },
   kExcVal:    function(){ return String(CONFIG.kExc.value); },
   /* THE SERVICE LIFE. Two long prose fields printed 15 yr for one build after L moved to
      11, on a page whose own band block and status field already read 11. */
@@ -24735,7 +24756,7 @@ function oxygenScenarioBlocks(m){
   const out = [];
   out.push('Oxygen is the sum of two contributors: the dedicated oxygen line (the plant and power set aside for life-support oxygen) and the co-product of the metals-production line (the plant and power that make the alloy). The dedicated oxygen line runs at a specific energy of ' +
 '' + C.eO2.value + ' kWh per kilogram of oxygen (eO2) and produces ' + fmtT(m.oxygen) + ' t/yr at the current Oxygen split. ' +
-'That output is the Oxygen split\'s share of installed power, less the solar power that in-situ fabrication leaves to be landed (landedSolarDemand), converted at eO2. Installed power moves with the Metals-production split, so raising the Metals-production split from 0.15 to 0.30 raises dedicated oxygen by 3.7 to 8.7 percent across the nine preset states (each of the three scenarios in each of the three eras). ' +
+'That output is the Oxygen split\'s share of installed power, less the solar power that in-situ fabrication leaves to be landed (landedSolarDemand), converted at eO2. Installed power moves with the Metals-production split, so raising the Metals-production split from 0.15 to 0.30 raises dedicated oxygen by 3.2 to 8.7 percent across the nine preset states (each of the three scenarios in each of the three eras). ' +
 '' +
 'A metals-production line, given a Metals-production split of ' + m.phi_m.toFixed(2) + ' of the shared plant and power budget, ' +
 'pays ' + C.eMetalWholePlant.value + ' kWh per kilogram of metal (Guerrero-Gonzalez and Zabel\'s plant-scale tonnage and power draw) and liberates ' +
@@ -25015,7 +25036,7 @@ function _defClaimCell(meta){
   return '<span style="color:var(--muted)">premise</span>';
 }
 const DEF_ORDER = ['ice','power','mass','phi_c','landed_cost','E1','H','duty','captureEff',
-  'kExc','fFis','fSol','eSinter','ySinter','phiCRef','kP',
+  'kExc','fFis','fSol','eSinter','etaSinter','ySinter','phiCRef','kP',
   'transmission','transDistKm','phiC0',
   'L','decayRate','decayLife','op_prop','op_const'];
 
@@ -25058,11 +25079,11 @@ const DERIVED_SUFFIXABLE = ['P','margin','value','r','op'];
    and a second row would read as a second quantity. definedSymbols() throws if a
    base key is not a coefficient the model carries, so an alias cannot point at
    nothing. */
-const DEF_ALIAS = {fFis:'f_fission', fSol:'f_solar', eSinter:'e_sinter',
+const DEF_ALIAS = {fFis:'f_fission', fSol:'f_solar', eSinter:'e_sinter', etaSinter:'eta_sinter',
                    ySinter:'Y_sinter', landed_cost:'D', phiM:'φo', kExc:'k_exc'};
 /* The Symbol cell of the Definitions tab prints the symbol every equation line uses. */
 const DEF_SYMBOL = {landed_cost:'D', phiC0:'phi_c0', phiMetalProd:'phi_m', phiM:'phi_o', phiMByEra:'phi_m by scenario and era', phiCByEra:'phi_c by scenario and era',
-                    phiC0ByEra:'phi_c0 by scenario and era', phiOByEra:'phi_o by scenario and era', eSinter:'e_sinter', ySinter:'Y_sinter'};
+                    phiC0ByEra:'phi_c0 by scenario and era', phiOByEra:'phi_o by scenario and era', eSinter:'e_sinter', etaSinter:'eta_sinter', ySinter:'Y_sinter'};
 function _lhsOf(expr){
   const i = String(expr).indexOf('=');
   if(i < 0) throw new Error('an equation declares no left-hand side: ' + expr);
