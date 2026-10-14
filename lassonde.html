@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lassonde Curve Explorer</title>
+<style>
+:root{--bg:#ffffff;--fg:#14171a;--muted:#555d66;--panel:#f3f5f8;--line:#c3cad3;--curve:#1a5fb4;--std:#6b6b6b;--band-a:#e6edf7;--band-b:#f4f7fb;--handle:#b3261e;--shape:#7a3fb3;--mark:#0b7a43;--model:#b35a00;--focus:#000000;--halo:#ffffff}
+@media (prefers-color-scheme: dark){:root{--bg:#101418;--fg:#e8eaed;--muted:#a3abb5;--panel:#1a2028;--line:#3a444f;--curve:#8ab4f8;--std:#b8bec6;--band-a:#1a2531;--band-b:#141b23;--handle:#ff8a80;--shape:#d0a8ff;--mark:#6fd9a0;--model:#ffb74d;--focus:#ffffff;--halo:#101418}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;margin:0;padding:12px 16px 32px;max-width:1100px;margin-left:auto;margin-right:auto;overflow-x:hidden}
+h1{font-size:1.35rem;margin:4px 0 8px}
+h2{font-size:1.05rem;margin:22px 0 8px}
+p{margin:0 0 8px}
+.lead{color:var(--muted)}
+.controls{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin:8px 0 12px}
+.controls label{font-weight:600}
+select,button{font:inherit;color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px 12px;min-height:44px}
+button{cursor:pointer}
+select:focus-visible,button:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.model{color:var(--muted)}
+svg#plot{width:100%;height:auto;max-width:100%;display:block;background:var(--bg);touch-action:pan-y;user-select:none;-webkit-user-select:none}
+svg text{fill:var(--fg);font-size:11px}
+svg .tick{fill:var(--muted)}
+svg .halo{paint-order:stroke;stroke:var(--halo);stroke-width:3px;stroke-linejoin:round}
+.band-a{fill:var(--band-a)}
+.band-b{fill:var(--band-b)}
+.frame{fill:none;stroke:var(--line)}
+.grid{stroke:var(--line);stroke-width:1;stroke-dasharray:2 4}
+#curve-index{fill:none;stroke:var(--curve);stroke-width:2.5;stroke-linejoin:round}
+#curve-standard{fill:none;stroke:var(--std);stroke-width:1.75;stroke-dasharray:6 4}
+.stem{stroke:var(--handle);stroke-width:1;stroke-dasharray:3 3;opacity:.7}
+.tmark{stroke:var(--mark);stroke-width:1;stroke-dasharray:4 3}
+.modelmark{fill:var(--model)}
+[data-handle]{touch-action:none;cursor:grab;fill:var(--handle);fill-opacity:.1;stroke:none;outline:none}
+[data-handle]:active{cursor:grabbing}
+[data-handle]:focus,[data-handle]:focus-visible{stroke:var(--focus);stroke-width:2.5;fill-opacity:.25}
+.dot{pointer-events:none;stroke:var(--bg);stroke-width:1.5}
+.dot.h-time{fill:var(--handle)}
+.dot.h-shape{fill:var(--shape)}
+.dot.h-mark{fill:var(--mark)}
+.lbl{pointer-events:none;font-size:11px;font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:4px 16px;color:var(--muted);margin:6px 0 0;font-size:.9rem}
+.legend i{display:inline-block;width:22px;height:0;border-top:3px solid var(--curve);vertical-align:middle;margin-right:6px}
+.legend i.s{border-top:2px dashed var(--std)}
+.legend i.m{border-top:2px dashed var(--mark)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:4px 24px;padding:0;margin:0;list-style:none}
+.grid2 li{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px solid var(--line)}
+.grid2 .cap{color:var(--fg)}
+.grid2 .eq{color:var(--muted);font-size:.8rem;margin-left:6px;white-space:nowrap}
+output{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-weight:600}
+tr.on td{background:var(--panel)}
+.keys{color:var(--muted);font-size:.9rem}
+.stagetbl .cp,.stagetbl th.cp{display:none}.cpline{color:var(--muted);font-size:.85rem;margin-top:2px}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.strip{margin:0 0 12px}.legend svg{vertical-align:middle;margin-right:6px;fill:var(--model)}
+@media (min-width:521px){.cpline{display:none}.stagetbl .cp,.stagetbl th.cp{display:table-cell}}
+@media (max-width:520px){body{padding:8px 12px 28px}}
+</style></head><body>
+<h1>Lassonde Curve Explorer</h1>
+<p class="lead">The Lassonde curve is the valuation index of a lunar in-situ resource programme against years from 1 January 2030. The index rises through Exploration and Discovery, falls through Feasibility, rises from the trough through Construction and Rampup to 1.00 at the target time, and then follows programme value through Reserve Depletion (Equations 53 to 65). The template is the index shape before the target time, the standard curve is the same shape at target time 12.5 yr with a fixed yearly fall after it, and tT is the target time.</p>
+<div class="controls">
+<label for="scenario">Scenario</label>
+<select id="scenario">
+<option value="artemis">Agency Led Baseline</option>
+<option value="contested">Early Shift to Mars</option>
+<option value="commercial">The Commercial Break</option>
+</select>
+<button id="reset" type="button">Reset</button>
+<button data-snap type="button">Snap tT to model value</button>
+<span class="model">Model value of tT: <output id="model-marker" aria-live="off"></output> yr</span>
+</div>
+<ul class="grid2 strip" id="bracket"></ul>
+<svg id="plot" viewBox="0 0 640 360" role="group" aria-label="Valuation index against project time, with draggable handles">
+<g id="bands"></g>
+<g id="grid"></g>
+<rect id="plot-area" class="frame" x="48" y="14" width="580" height="290" data-ymax="1.1"></rect>
+<g id="ticks"></g>
+<path id="curve-standard" d=""></path>
+<path id="curve-index" d=""></path>
+<line id="tmark" class="tmark"></line>
+<path id="modelmark" class="modelmark" d=""></path>
+<g id="stems"></g>
+<g id="handles"></g>
+<text data-axis="calendar" id="calaxis" class="tick" text-anchor="start">Calendar year</text>
+<text id="xtitle" class="tick" text-anchor="start">Project time (yr)</text>
+<text id="ytitle" class="tick" text-anchor="start">Index</text>
+</svg>
+<div class="legend">
+<span><i></i>Index at the handle settings</span>
+<span><i class="s"></i>Standard curve (reference shape), target time 12.5 yr</span>
+<span><i class="m"></i>Evaluation time t</span>
+<span><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M1 11 L11 11 L6 2 Z"/></svg>Model value of tT</span>
+</div>
+<p class="keys">On a focused handle, the arrow keys move 0.1 yr or 0.01 height, Shift multiplies the move by ten, Home and End go to the range limits, and Escape returns the handle to its default.</p>
+
+<h2>Readouts at the evaluation time</h2>
+<p class="sr" id="status" role="status" aria-live="polite"></p>
+<ul class="grid2" id="readouts"></ul>
+
+<h2>Stages</h2>
+<table class="stagetbl" id="stagetbl">
+<thead><tr><th>Stage</th><th>Years</th><th class="cp">Lunar counterpart</th></tr></thead>
+<tbody></tbody>
+</table>
+
+<h2>Default constants</h2>
+<table id="consts">
+<thead><tr><th>Constant</th><th>Value</th><th>Label</th></tr></thead>
+<tbody></tbody>
+</table>
+<script>
+// CONFIG constants (design memo section 9). Fractions are decimals.
+const K = {
+  waterTarget: 100, lasPeak1: 0.66, lasTrough: 0.36, lasEndExp: 0.09,
+  lasF1: 0.28, lasF2: 0.42, lasF3: 0.61, lasF4: 0.87,
+  lasRefT: 12.5, lasDecline: 0.069, lasHorizon: 26, lasMinClock: 1,
+  hurdle: 0.10, life: 11
+};
+
+// ---- Pure Tier I functions -------------------------------------------------------------------
+// rows: 26 yearly rows {year, water, construction, mprop, mconst, V}; year Y sits at project time Y - 2030 + 1/2.
+// Every function reaches the others through F, so a caller can replace one function and the composites follow.
+const F = { K };
+// kStar: index of the first year with water at or above the water target (2030 is 0); 26 where none
+F.kStar = function (water, k) { k = k || F.K; for (let i = 0; i < water.length; i++) if (water[i] >= k.waterTarget) return i; return water.length; };
+// Equation 53
+F.target = function (water, k) {
+  k = k || F.K; const ks = F.kStar(water, k);
+  const wLo = ks > 0 ? water[ks - 1] : 0; const wHi = ks < water.length ? water[ks] : NaN;
+  const tT = ks >= k.lasHorizon ? k.lasHorizon : Math.max(k.lasMinClock, ks - 0.5 + (k.waterTarget - wLo) / (wHi - wLo));
+  return { kStar: ks, wLo, wHi, tT };
+};
+// Equations 54 to 57
+F.stageEnds = function (tT, k) { k = k || F.K; return [tT * k.lasF1, tT * k.lasF2, tT * k.lasF3, tT * k.lasF4]; };
+// Equation 58
+F.uStage = function (t, tT, k) { const b = F.stageEnds(tT, k);
+  return t <= b[0] ? t / b[0] : t <= b[1] ? (t - b[0]) / (b[1] - b[0]) : t <= b[2] ? (t - b[1]) / (b[2] - b[1]) : Math.min(1, (t - b[2]) / (tT - b[2])); };
+// Equation 59
+F.sStep = function (u) { return 3 * u * u - 2 * u * u * u; };
+// Equation 60
+F.hTpl = function (t, tT, k) { k = k || F.K; const b = F.stageEnds(tT, k); const s = F.sStep(F.uStage(t, tT, k));
+  return t <= b[0] ? k.lasEndExp * s : t <= b[1] ? k.lasEndExp + (k.lasPeak1 - k.lasEndExp) * s : t <= b[2] ? k.lasPeak1 - k.lasPeak1 * (1 - k.lasTrough) * s : k.lasPeak1 * k.lasTrough + (1 - k.lasPeak1 * k.lasTrough) * s; };
+// Equation 61
+F.vprog = function (water, construction, mprop, mconst) { return (water > 0 && mprop != null ? water * 1000 * mprop : 0) + (construction > 0 ? construction * 1000 * mconst : 0); };
+// V(t): linear interpolation between yearly values at year centres, held at the 2055 value past 2055
+F.Vat = function (rows, t) { const x = t - 0.5; if (x <= 0) return rows[0].V; if (x >= rows.length - 1) return rows[rows.length - 1].V; const i = Math.floor(x), f = x - i; return rows[i].V * (1 - f) + rows[i + 1].V * f; };
+// Equation 62 (backward recurrence); returns {level, W: [W0..W(L-1)]}
+F.level = function (rows, tT, k) { k = k || F.K; const W = new Array(k.life + 1).fill(0);
+  for (let s = k.life - 1; s >= 0; s--) W[s] = F.Vat(rows, tT + s) + W[s + 1] / (1 + k.hurdle); return { level: W[0], W }; };
+// Equation 63 (running high of V over [tT, t])
+F.vhigh = function (rows, tT, t) { let M = F.Vat(rows, tT);
+  for (let n = Math.ceil(tT - 0.5 + 1e-12); n + 0.5 <= t + 1e-12 && n <= rows.length - 1; n++) if (n + 0.5 > tT) M = Math.max(M, F.Vat(rows, n + 0.5));
+  return Math.max(M, F.Vat(rows, t)); };
+// Equation 64
+F.index = function (rows, tT, t, k) { if (t <= tT + 1e-12) return F.hTpl(t, tT, k); const vh = F.vhigh(rows, tT, t); return vh > 0 ? Math.max(0, F.Vat(rows, t)) / vh : 0; };
+// Equation 65
+F.stageAt = function (t, tT, k) { const b = F.stageEnds(tT, k); return 1 + (t > b[0]) + (t > b[1]) + (t > b[2]) + (t > b[3]) + (t > tT); };
+// Equation 64 for the standard curve (tT = lasRefT, synthetic series (1 - lasDecline)^(t - lasRefT))
+F.standard = function (t, k) { k = k || F.K; return t <= k.lasRefT ? F.hTpl(t, k.lasRefT, k) : Math.pow(1 - k.lasDecline, t - k.lasRefT); };
+// Everything the Appendix prints for one reading
+F.curve = function (rows, k) { k = k || F.K; const tg = F.target(rows.map(r => r.water), k); const tT = tg.tT; const tb = F.stageEnds(tT, k);
+  const L = F.level(rows, tT, k);
+  return { kStar: tg.kStar, wLo: tg.wLo, wHi: tg.wHi, tT, tb, level: L.level, W0: L.W[0], W1: L.W[1], Vprog_T: F.Vat(rows, tT), calT: 2030 + tT, hAtT: F.hTpl(tT, tT, k) }; };
+F.atMarker = function (rows, c, t) { return { t, Vprog: F.Vat(rows, t), Vhigh: t > c.tT ? F.vhigh(rows, c.tT, t) : null, Idx: F.index(rows, c.tT, t), stage: F.stageAt(t, c.tT) }; };
+F.indexSeries = function (rows, c, step) { step = step || 0.25; const o = []; for (let t = 0; t <= 26 + 1e-9; t += step) o.push(F.index(rows, c.tT, t)); return o; };
+
+
+var SERIES={"artemis":[{"year":2030,"water":2.2729113214218337,"construction":5.936309568889966,"mprop":97852.68025734395,"mconst":98787.3199647207,"V":808842577.579954},{"year":2031,"water":4.955214071927077,"construction":12.941853223150721,"mprop":87993.06269979528,"mconst":88881.24346508243,"V":1586312469.7382083},{"year":2032,"water":5.260703846502028,"construction":28.751792273200838,"mprop":77736.35123299717,"mconst":80162.75475065559,"V":2713770794.582854},{"year":2033,"water":5.544971634703055,"construction":50.90869104074211,"mprop":67934.33011295469,"mconst":72170.13263832641,"V":4050780918.3528256},{"year":2034,"water":5.8662983307024,"construction":81.38285778272919,"mprop":58551.15541536869,"mconst":64946.49830541066,"V":5629010180.349373},{"year":2035,"water":8.390771132493551,"construction":143.41572512966798,"mprop":52070.114613336904,"mconst":58546.64073648647,"V":8833417349.692585},{"year":2036,"water":19.335799329351847,"construction":205.4485924766068,"mprop":49112.607641387236,"mconst":52686.14542492216,"V":11773925946.463129},{"year":2037,"water":40.75599403841147,"construction":267.4814598235455,"mprop":45404.63916410446,"mconst":47380.768110535464,"V":14523988224.855381},{"year":2038,"water":74.50272954596387,"construction":329.51432717048425,"mprop":41429.30365013417,"mconst":42592.19123733001,"V":17121333443.40895},{"year":2039,"water":122.11023563366216,"construction":391.547194517423,"mprop":37576.1909399253,"mconst":38275.179859149226,"V":19574976823.389412},{"year":2040,"water":176.50148597037656,"construction":460.98035159321887,"mprop":33932.67036474188,"mconst":34395.42250266998,"V":21844780700.79802},{"year":2041,"water":221.62519233663068,"construction":578.8328552792003,"mprop":29774.493180418234,"mconst":30193.50708375102,"V":24075771694.01626},{"year":2042,"water":247.64956001085835,"construction":757.9259136657557,"mprop":26019.98133308328,"mconst":26526.19828745718,"V":26548730001.728813},{"year":2043,"water":261.1634324004848,"construction":990.247444003461,"mprop":22666.124513303148,"mconst":23305.264612658197,"V":28997541591.62011},{"year":2044,"water":270.57839233119904,"construction":1242.6817850795487,"mprop":19693.261231155677,"mconst":20462.796513954843,"V":30757315463.365402},{"year":2045,"water":279.90996523067435,"construction":1534.3399119678406,"mprop":17068.957952079963,"mconst":17963.297850985007,"V":32339576270.222984},{"year":2046,"water":285.6038771820115,"construction":1885.9987184049692,"mprop":14698.668281152743,"mconst":15761.037495188237,"V":33923293167.167156},{"year":2047,"water":278.224782554821,"construction":2289.5545637540163,"mprop":12528.823211526602,"mconst":13827.770427014431,"V":35145264001.40849},{"year":2048,"water":255.4393224291017,"construction":2745.168723433616,"mprop":10470.097943963898,"mconst":12130.095393704374,"V":35973633211.635895},{"year":2049,"water":215.24499607983103,"construction":3254.090472510148,"mprop":8357.427289964256,"mconst":10639.156038101475,"V":36419670703.40066},{"year":2050,"water":156.04774660965109,"construction":3817.683614999283,"mprop":5724.900364214807,"mconst":9329.740627275212,"V":36511355726.34219},{"year":2051,"water":178.61552537427448,"construction":4306.823185484942,"mprop":4733.270768809182,"mconst":8173.174988006711,"V":36045855182.48247},{"year":2052,"water":362.1998607570043,"construction":4679.020389566575,"mprop":5388.352486555511,"mconst":7148.2183988594,"V":35398320157.67813},{"year":2053,"water":725.7774361759854,"construction":4927.15185895433,"mprop":5385.453146032378,"mconst":6239.822835409633,"V":34653195060.00752},{"year":2054,"water":1278.9094828839602,"construction":5051.217593648208,"mprop":5007.21568122238,"mconst":5433.605998596599,"V":33850101834.624153},{"year":2055,"water":1930.1171589008654,"construction":5041.011873835202,"mprop":4508.841874590721,"mconst":4719.843397855136,"V":32495379680.14872}],"contested":[{"year":2030,"water":0.45458226428436666,"construction":5.936309568889966,"mprop":89267.40128671976,"mconst":98787.3199647207,"V":627011490.1952645},{"year":2031,"water":0.9889420299998336,"construction":12.914419450586061,"mprop":80208.9828213875,"mconst":88923.57277149256,"V":1227718352.1113732},{"year":2032,"water":1.048952333267688,"construction":28.4505323916634,"mprop":66110.9713790939,"mconst":80246.59432518334,"V":2352405588.851995},{"year":2033,"water":1.1036372585850678,"construction":49.77755694147578,"mprop":51818.40563540258,"mconst":72288.58387094397,"V":3655537822.9942656},{"year":2034,"water":1.1642932646749697,"construction":78.39636423409557,"mprop":37439.16384280855,"mconst":65087.78421359621,"V":5146235804.696549},{"year":2035,"water":1.226901930258127,"construction":115.33734837892895,"mprop":23066.04166769326,"mconst":58592.00232796601,"V":6786145955.765139},{"year":2036,"water":2.515457074718445,"construction":177.37021572586772,"mprop":30505.152962134336,"mconst":52786.04621103267,"V":9439406806.600456},{"year":2037,"water":10.85331745997357,"construction":177.37021572586772,"mprop":41367.50893792801,"mconst":47359.524388103906,"V":8849143764.42411},{"year":2038,"water":16.04118584266856,"construction":209.4790151219071,"mprop":37771.33096440009,"mconst":42564.37339465221,"V":9522239957.517735},{"year":2039,"water":19.937294221046795,"construction":260.3576068866111,"mprop":33732.16237865763,"mconst":38291.06980091028,"V":10641899344.548609},{"year":2040,"water":24.308401124760803,"construction":317.4391205704058,"mprop":30121.62180826935,"mconst":34446.57903246277,"V":11666900220.167715},{"year":2041,"water":28.390134891731602,"construction":370.74176152731866,"mprop":26158.47754395807,"mconst":30221.53581671155,"V":11947028130.783894},{"year":2042,"water":32.82209403481616,"construction":428.6179338664229,"mprop":22689.881067920556,"mconst":26511.926154350396,"V":12108216421.146929},{"year":2043,"water":37.438281800760635,"construction":488.8999152805213,"mprop":19651.97481027736,"mconst":23254.62440609572,"V":12104920072.909155},{"year":2044,"water":42.17296900893303,"construction":550.7293599990079,"mprop":16994.685513450575,"mconst":20394.862494150413,"V":11948765914.146542},{"year":2045,"water":46.975613300922454,"construction":613.4462442826346,"mprop":14670.41185727558,"mconst":17884.128021641965,"V":11660102761.518732},{"year":2046,"water":51.825163551527126,"construction":676.7756652022955,"mprop":12637.892915399842,"mconst":15679.872679528351,"V":11266717130.262383},{"year":2047,"water":58.704502743694334,"construction":766.6117417117732,"mprop":10849.578458295684,"mconst":13743.451231880696,"V":11172810194.37582},{"year":2048,"water":63.286098963290506,"construction":826.4419982264997,"mprop":9277.131015612307,"mconst":12042.432331990383,"V":10539485271.50699},{"year":2049,"water":68.15332594495581,"construction":890.0022564576583,"mprop":7912.705533252987,"mconst":10550.249848859741,"V":9929023370.991486},{"year":2050,"water":73.37034118411798,"construction":958.130337816129,"mprop":6728.909372448636,"mconst":9241.26103307216,"V":9348034931.918024},{"year":2051,"water":78.94150149164602,"construction":1030.883137126201,"mprop":5699.484957963039,"mconst":8092.69547853228,"V":8792549203.027033},{"year":2052,"water":84.98588939138345,"construction":1109.8157320521839,"mprop":4806.7368098933875,"mconst":7085.157587468326,"V":8271724157.500337},{"year":2053,"water":91.60326811048455,"construction":1196.23091297221,"mprop":4034.9043627682513,"mconst":6201.586979321653,"V":7788140480.293336},{"year":2054,"water":99.05627702915776,"construction":1293.5584412042956,"mprop":3373.3725048272045,"mconst":5427.362433800017,"V":7354764211.077809},{"year":2055,"water":107.3593481860697,"construction":1401.9867821945572,"mprop":2805.8345632717355,"mconst":4748.8552436116815,"V":6959064851.92969}],"commercial":[{"year":2030,"water":2.2729113214218337,"construction":5.936309568889966,"mprop":95706.3605146879,"mconst":97578.80659610806,"V":796790073.6632532},{"year":2031,"water":8.102572620192065,"construction":21.16201319626634,"mprop":83809.38341721153,"mconst":86525.56819335735,"V":2510126831.3137484},{"year":2032,"water":9.548935993310707,"construction":112.45143609702548,"mprop":63777.28600401918,"mconst":78898.89659125423,"V":9481299450.036697},{"year":2033,"water":56.67211105857219,"construction":236.51717079090298,"mprop":66426.74038459027,"mconst":70668.82121761708,"V":20478933265.85337},{"year":2034,"water":153.80770963906275,"construction":401.70954752790516,"mprop":61320.075583713144,"mconst":63234.311178957774,"V":34833326912.363014},{"year":2035,"water":260.7452909190171,"construction":681.0053480473154,"mprop":55046.3550889302,"mconst":56840.50349424731,"V":53061764736.97916},{"year":2036,"water":405.23365546312425,"construction":1058.3749589742774,"mprop":49423.33964260688,"mconst":51098.24014599687,"V":74109098406.74634},{"year":2037,"water":591.6944281687686,"construction":1545.3666241584315,"mprop":44380.795988188016,"mconst":45939.55685214465,"V":97253327591.8388},{"year":2038,"water":823.6761155078844,"construction":2151.248207561769,"mprop":39853.866083194094,"mconst":41302.34809051139,"V":121678279901.18163},{"year":2039,"water":1103.8200742845308,"construction":2882.9183116607746,"mprop":35786.10846532955,"mconst":37131.79732664054,"V":146549363362.40295},{"year":2040,"water":1459.5000582935015,"construction":3811.8707404842044,"mprop":32178.991925156886,"mconst":33407.9909488496,"V":174312183786.87347},{"year":2041,"water":1839.077140145024,"construction":4803.236766025828,"mprop":28123.14511247963,"mconst":29263.693982434237,"V":192281084131.49945},{"year":2042,"water":2343.356706981228,"construction":6120.2963405862665,"mprop":24604.662764177076,"mconst":25648.33714697797,"V":214632925494.21768},{"year":2043,"water":2986.892584602049,"construction":7801.060632725352,"mprop":21521.323595096877,"mconst":22476.822073791634,"V":239624933685.64407},{"year":2044,"water":3796.2990505931693,"construction":9915.039873313926,"mprop":18820.758119759477,"mconst":19695.470921433996,"V":266730605691.19965},{"year":2045,"water":4774.4936118440055,"construction":12469.853903874935,"mprop":16451.938843611144,"mconst":17254.304616272675,"V":293708334689.1448},{"year":2046,"water":5955.098193640009,"construction":15553.31528221273,"mprop":14378.80144450882,"mconst":15114.354358900366,"V":320705493139.9665},{"year":2047,"water":7370.916433049236,"construction":19251.099389846244,"mprop":12565.806400383866,"mconst":13239.217397800443,"V":347490998859.94257},{"year":2048,"water":9058.570405707283,"construction":23658.85447137667,"mprop":10980.962926420023,"mconst":11596.48344965734,"V":373831340106.6084},{"year":2049,"water":11057.211374967543,"construction":28878.834414621113,"mprop":9595.557408652357,"mconst":10157.339152953571,"V":399432222019.399},{"year":2050,"water":13408.373247577872,"construction":35019.51601132104,"mprop":8384.184448345879,"mconst":8896.372431026322,"V":423964931250.9607},{"year":2051,"water":16151.83120648883,"construction":42184.78268047671,"mprop":7324.310880998866,"mconst":7791.139819276783,"V":446968573163.1428},{"year":2052,"water":19325.719659428985,"construction":50474.23252227336,"mprop":6396.7000574205495,"mconst":6822.240948427596,"V":467968208009.0721},{"year":2053,"water":22955.83768007014,"construction":59955.246646771426,"mprop":5585.476802655612,"mconst":5973.210710165865,"V":486344620248.6905},{"year":2054,"water":27076.89669759528,"construction":70718.4831396018,"mprop":4875.906456895369,"mconst":5229.14187648722,"V":501821397067.44086},{"year":2055,"water":31693.50508198502,"construction":82775.97797883148,"mprop":4254.706384295133,"mconst":4576.749090256269,"V":513691440322.7018}]};
+var STAGES=['Exploration','Discovery','Feasibility','Construction','Rampup','Reserve Depletion'];
+var COUNTERPART=[
+ 'Orbital sensing is complete, and the stage closes with the first surface measurement of ice grade and depth at a permanently shadowed region tract.',
+ 'A resource declaration for water at a named tract and the first water offtake.',
+ 'A pilot-scale plant that excavates, extracts, captures, purifies and electrolyzes water from icy regolith in permanently shadowed conditions, followed by the financing decision.',
+ 'The first financed plant is landed, assembled and commissioned at the site, with extraction plant, power and processing standing and rated.',
+ "Throughput growth from the plant's first water to the water target of 100 t/yr, which is 11.4 kg/h.",
+ 'Plant retirement at the end of the 11-year plant life and margin erosion as the Earth delivery cost falls.'];
+var EPS=0.01;
+var D={f:[K.lasF1,K.lasF2,K.lasF3,K.lasF4],peak1:K.lasPeak1,trough:K.lasTrough,endexp:K.lasEndExp,t:25.5};
+var S={sc:'artemis',f:D.f.slice(),peak1:D.peak1,trough:D.trough,endexp:D.endexp,t:D.t,tT:0,drag:null};
+function cl(v,a,b){return Math.max(a,Math.min(b,v))}
+function rnd(v){return Math.round(v*1e6)/1e6}
+function water(){return SERIES[S.sc].map(function(r){return r.water})}
+function modelT(){return F.target(water(),K).tT}
+function kk(){return Object.assign({},K,{lasF1:S.f[0],lasF2:S.f[1],lasF3:S.f[2],lasF4:S.f[3],lasPeak1:S.peak1,lasTrough:S.trough,lasEndExp:S.endexp})}
+function fixF(){var e=EPS/S.tT,i;S.f[0]=Math.max(S.f[0],e);for(i=1;i<4;i++)S.f[i]=Math.max(S.f[i],S.f[i-1]+e);S.f[3]=Math.min(S.f[3],1-e);for(i=2;i>=0;i--)S.f[i]=Math.min(S.f[i],S.f[i+1]-e)}
+function lo(i){return i?S.tT*S.f[i-1]+EPS:EPS}
+function hi(i){return (i<3?S.tT*S.f[i+1]:S.tT)-EPS}
+var H={};
+H.tT={ax:'t',step:0.1,unit:' yr',get:function(){return S.tT},min:function(){return K.lasMinClock},max:function(){return K.lasHorizon},set:function(v){S.tT=cl(v,K.lasMinClock,K.lasHorizon);fixF()},def:function(){return modelT()}};
+[0,1,2,3].forEach(function(i){
+  H['tb'+(i+1)]={ax:'t',step:0.1,unit:' yr',get:function(){return S.tT*S.f[i]},min:function(){return lo(i)},max:function(){return hi(i)},
+    set:function(v){S.f[i]=cl(v,lo(i),hi(i))/S.tT},def:function(){return S.tT*D.f[i]}};
+});
+H.peak1={ax:'h',step:0.01,unit:'',get:function(){return S.peak1},min:function(){return S.endexp+0.01},max:function(){return 1},set:function(v){S.peak1=cl(v,S.endexp+0.01,1)},def:function(){return D.peak1}};
+H.trough={ax:'h',step:0.01,unit:' of first peak',get:function(){return S.trough},min:function(){return 0.05},max:function(){return 1},set:function(v){S.trough=cl(v,0.05,1)},def:function(){return D.trough}};
+H.endexp={ax:'h',step:0.01,unit:'',get:function(){return S.endexp},min:function(){return 0.01},max:function(){return S.peak1-0.01},set:function(v){S.endexp=cl(v,0.01,S.peak1-0.01)},def:function(){return D.endexp}};
+H.marker={ax:'t',step:0.1,unit:' yr',get:function(){return S.t},min:function(){return 0},max:function(){return K.lasHorizon},set:function(v){S.t=cl(v,0,K.lasHorizon)},def:function(){return D.t}};
+var ORDER=['tT','tb1','tb2','tb3','tb4','peak1','trough','endexp','marker'];
+var LABEL={tT:'Target time tT',tb1:'End of Exploration tb1',tb2:'End of Discovery tb2',tb3:'End of Feasibility tb3',tb4:'End of Construction tb4',peak1:'First peak height lasPeak1',trough:'Trough depth lasTrough',endexp:"Index at end of Exploration lasEndExp",marker:'Evaluation time t'};
+var SHORT={tT:'tT',tb1:'tb1',tb2:'tb2',tb3:'tb3',tb4:'tb4',peak1:'peak 1',trough:'trough',endexp:'end exp',marker:'t'};
+var WHAT={
+ tT:"Target time, Equation 53: the project time at which the programme's yearly water output reaches the water target. Moving it rescales tb1 to tb4 at constant fractions.",
+ tb1:'End of Exploration, Equation 54: sets lasF1 = tb1 / tT.',
+ tb2:'End of Discovery, Equation 55: sets lasF2 = tb2 / tT.',
+ tb3:'End of Feasibility, Equation 56: sets lasF3 = tb3 / tT.',
+ tb4:'End of Construction, Equation 57: sets lasF4 = tb4 / tT.',
+ peak1:'First peak height lasPeak1, Equation 60 anchor at tb2.',
+ trough:'Trough depth lasTrough, the ratio of trough to first peak, Equation 60 anchor at tb3.',
+ endexp:"Index at the end of Exploration lasEndExp, Equation 60 anchor at tb1.",
+ marker:'Evaluation time t at which Equations 58 to 60, 61, 63, 64 and 65 are read.'};
+var MOVES={
+ tT:['tb1','tb2','tb3','tb4','uStage','sStep','hTpl','Wpv','W1','Vhigh','Idx','stage'],
+ tb1:['tb1','uStage','sStep','hTpl','Idx','stage'],tb2:['tb2','uStage','sStep','hTpl','Idx','stage'],tb3:['tb3','uStage','sStep','hTpl','Idx','stage'],
+ tb4:['tb4','stage'],
+ peak1:['hTpl','Idx'],trough:['hTpl','Idx'],endexp:['hTpl','Idx'],
+ marker:['uStage','sStep','hTpl','Vprog','Vhigh','Idx','stage']};
+var ALLQ=['tb1','tb2','tb3','tb4','uStage','sStep','hTpl','Vprog','Wpv','W1','Vhigh','Idx','stage'];
+var EQFMT="Eq {n} {id}";
+var RD=[['tT',53,"Target time (yr): the project time at which the programme's yearly water output reaches the water target"],['kStar',53,"First year at or above the water target for the model value of tT (years after 2030; 2030 is 0; yearly values sit at mid-year)"],['wLo',53,"Water in the year before, for the model value of tT (t/yr)"],['wHi',53,"Water in that year, for the model value of tT (t/yr)"],
+ ['tb1',54,"End of Exploration tb1 (yr)"],['tb2',55,"End of Discovery tb2 (yr)"],['tb3',56,"End of Feasibility tb3 (yr)"],['tb4',57,"End of Construction tb4 (yr)"],
+ ['uStage',58,'Coordinate within the template segment'],['sStep',59,'Smooth step of the coordinate'],['hTpl',60,'Template height'],['Vprog',61,'Programme value at t ($/yr)'],
+ ['Wpv',62,"Level, present value of programme value at tT ($)"],['W1',62,'Present value one year after tT ($)'],['Vhigh',63,'Highest programme value since tT ($/yr)'],['Idx',64,'Index at t'],['stage',65,'Stage number at t'],['stageName',65,'Stage at t']];
+var $=function(s){return document.querySelector(s)};
+var NS='http://www.w3.org/2000/svg';
+function mk(tag,attrs,parent){var e=document.createElementNS(NS,tag);for(var k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+var G={x:48,y:14,w:580,h:290,ymax:1.1,W:640,H:360};
+function px(t){return G.x+t/K.lasHorizon*G.w}
+function py(h){return G.y+G.h-h/G.ymax*G.h}
+RD.forEach(function(r){var li=document.createElement('li');var c=document.createElement('span');c.className='cap';c.appendChild(document.createTextNode(r[2]));
+  var q=document.createElement('span');q.className='eq';q.appendChild(document.createTextNode(EQFMT.replace('{n}',r[1]).replace('{id}',r[0])));c.appendChild(q);
+  var o=document.createElement('output');o.setAttribute('aria-live','off');o.setAttribute('data-eq',String(r[1]));o.setAttribute('data-q',r[0]);li.appendChild(c);li.appendChild(document.createTextNode(' '));li.appendChild(o);$(/^(kStar|wLo|wHi)$/.test(r[0])?'#bracket':'#readouts').appendChild(li)});
+var PV=[['t','marker',2,"Evaluation time t (yr)"],['peak1','peak1',3,"First peak height lasPeak1 (index)"],['trough','trough',3,"Trough depth lasTrough (ratio of first peak)"],['endexp','endexp',3,"Index at end of Exploration lasEndExp (index)"]];
+PV.forEach(function(r){var li=document.createElement('li');var c=document.createElement('span');c.className='cap';c.appendChild(document.createTextNode(r[3]));var o=document.createElement('output');o.setAttribute('aria-live','off');o.setAttribute('data-p',r[0]);li.appendChild(c);li.appendChild(o);$('#readouts').appendChild(li)});
+var CONSTS=[
+ ['waterTarget',K.waterTarget,'100 t/yr',"ASSUMPTION. For this analysis, 100 t/yr was used to represent the water target, the yearly water output at which the programme leaves Rampup. Linne's conceptual pilot plant is designed to extract 1.125 t/yr of water and Kornuta's architecture is sized to process 2,450 t/yr. Accept 50 to 200 t/yr."],
+ ['lasF1',K.lasF1,'0.28 of tT',"DERIVED. For this analysis, 0.28 was used to represent the fraction of the target time at which Exploration ends. The stage separators of the reference shape give 0.279. Accept 0.25 to 0.31."],
+ ['lasF2',K.lasF2,'0.42 of tT',"DERIVED. For this analysis, 0.42 was used to represent the fraction of the target time at which Discovery ends. The stage separators of the reference shape give 0.419. Accept 0.38 to 0.46."],
+ ['lasF3',K.lasF3,'0.61 of tT',"DERIVED. For this analysis, 0.61 was used to represent the fraction of the target time at which Feasibility ends. The stage separators of the reference shape give 0.609. Accept 0.57 to 0.65."],
+ ['lasF4',K.lasF4,'0.87 of tT',"DERIVED. For this analysis, 0.87 was used to represent the fraction of the target time at which Construction ends. The stage separators of the reference shape give 0.870, and Rampup fills the remaining 0.13. Accept 0.83 to 0.91."],
+ ['lasPeak1',K.lasPeak1,'0.66 of second peak',"DERIVED. For this analysis, 0.66 was used to represent the ratio of the first peak to the second peak of the valuation index. Accept 0.55 to 0.80."],
+ ['lasTrough',K.lasTrough,'0.36 of first peak',"DERIVED. For this analysis, 0.36 was used to represent the ratio of the trough to the first peak of the valuation index. The reference shape re-measures at 0.357. The share price of Dacian Gold, which mines gold, fell 60 percent through feasibility and finance, a ratio of 0.40 (Rijsdijk et al., 2022). Accept 0.30 to 0.50."],
+ ['lasEndExp',K.lasEndExp,'0.09 index',"DERIVED. For this analysis, 0.09 was used to represent the valuation index at the end of Exploration. The reference shape re-measures at 0.094. Accept 0.05 to 0.12."],
+ ['lasRefT',K.lasRefT,'12.5 yr',"DERIVED. For this analysis, 12.5 yr was used to represent the target time of the standard curve. The mean of the three scenario target times is 12.53 yr. Accept 11 to 14 yr."],
+ ['lasDecline',K.lasDecline,'0.069 per yr',"DERIVED. For this analysis, 0.069 per yr was used to represent the yearly fall of the standard curve after its second peak. The compound yearly fall takes the standard curve from 1.00 at 12.5 yr to 0.585 at 20 yr and 0.381 at 26 yr. Accept 0.05 to 0.09 per yr."],
+ ['lasHorizon',K.lasHorizon,'26 yr',"DERIVED. For this analysis, 26 yr was used to represent the length of the time axis, from 1 January 2030 to the end of 2055: 26 yearly states."],
+ ['lasMinClock',K.lasMinClock,'1 yr',"ASSUMPTION. For this analysis, 1 yr was used to represent the shortest target time: a crossing earlier than 1 year places the target time at 1 year. Accept 0.5 to 2 yr."],
+ ['lenderHurdle',K.hurdle,'0.10 per yr',"Model input. For this analysis, 0.10 per yr was used to represent the lender hurdle, the discount rate of Equation 62."],
+ ['life',K.life,'11 yr',"Model input. For this analysis, 11 yr was used to represent the plant life of Equation 62, after which a plant retires."]];
+CONSTS.forEach(function(c){var tr=document.createElement('tr');tr.setAttribute('data-const',c[0]);tr.setAttribute('data-v',String(c[1]));
+  [c[0],c[2],c[3]].forEach(function(s){var td=document.createElement('td');td.textContent=s;tr.appendChild(td)});
+  $('#consts tbody').appendChild(tr)});
+var STROWS=[];
+STAGES.forEach(function(n,i){var tr=document.createElement('tr');var a=document.createElement('td');a.textContent=(i+1)+'. '+n;var cp2=document.createElement('div');cp2.className='cpline';cp2.textContent=COUNTERPART[i];a.appendChild(cp2);var b=document.createElement('td');var c=document.createElement('td');c.className='cp';c.textContent=COUNTERPART[i];
+  tr.appendChild(a);tr.appendChild(b);tr.appendChild(c);$('#stagetbl tbody').appendChild(tr);STROWS.push([tr,b])});
+for(var i=0;i<6;i++){mk('rect',{'data-band':String(i+1),'class':i%2?'band-b':'band-a'},$('#bands'))}
+for(var i=0;i<6;i++){var tx=mk('text',{'data-band-label':String(i+1),'class':'halo tick'},$('#bands'));tx.textContent=STAGES[i]}
+var HN={},DOT={},LB={},STEM={};
+ORDER.forEach(function(n){
+  var kind=n==='marker'?'h-mark':(n==='peak1'||n==='trough'||n==='endexp')?'h-shape':'h-time';
+  if(/^tb[123]$/.test(n))STEM[n]=mk('line',{'class':'stem'},$('#stems'));
+  var c=mk('circle',{'data-handle':n,r:22,tabindex:0,role:'slider','aria-label':LABEL[n],'aria-orientation':H[n].ax==='h'?'vertical':'horizontal'},$('#handles'));
+  var notm=ALLQ.filter(function(q){return MOVES[n].indexOf(q)<0});
+  var tip=WHAT[n]+' Moves: '+MOVES[n].join(', ')+'. Not moved by this handle: '+notm.join(', ')+'.';
+  c.setAttribute('title',tip);c.setAttribute('aria-description',tip);
+  var ti=document.createElementNS(NS,'title');ti.textContent=tip;c.appendChild(ti);
+  HN[n]=c;
+  DOT[n]=mk('circle',{'class':'dot '+kind,r:7},$('#handles'));
+  LB[n]=mk('text',{'class':'lbl halo'},$('#handles'));LB[n].textContent=SHORT[n];
+  c.addEventListener('keydown',function(e){
+    var h=H[n],k=e.key,m=e.shiftKey?10:1,v=h.get();
+    if(k==='ArrowRight'||k==='ArrowUp')v=v+h.step*m;
+    else if(k==='ArrowLeft'||k==='ArrowDown')v=v-h.step*m;
+    else if(k==='Home')v=h.min();
+    else if(k==='End')v=h.max();
+    else if(k==='Escape')v=h.def();
+    else return;
+    e.preventDefault();h.set(rnd(v));render();
+  });
+  c.addEventListener('pointerdown',function(e){S.drag=n;try{c.setPointerCapture(e.pointerId)}catch(x){}try{c.focus()}catch(x){}e.preventDefault()});
+  c.addEventListener('pointermove',function(e){
+    if(S.drag!==n)return;
+    var p=$('#plot'),r=p.getBoundingClientRect(),vb=p.getAttribute('viewBox').split(/[ ,]+/).map(Number);
+    var X=vb[0]+(e.clientX-r.left)/r.width*vb[2],Y=vb[1]+(e.clientY-r.top)/r.height*vb[3];
+    var t=(X-G.x)/G.w*K.lasHorizon,h=(G.y+G.h-Y)/G.h*G.ymax;
+    if(n==='trough')H.trough.set(rnd(h/S.peak1));else if(H[n].ax==='t')H[n].set(rnd(t));else H[n].set(rnd(h));
+    render();
+  });
+  function end(e){if(S.drag!==n)return;S.drag=null;try{c.releasePointerCapture(e.pointerId)}catch(x){}}
+  c.addEventListener('pointerup',end);
+  c.addEventListener('pointercancel',end);
+});
+function setQ(q,v,txt){var e=$('[data-q="'+q+'"]');e.setAttribute('data-v',v===null?'':String(v));e.textContent=txt}
+function f3(v){return v.toFixed(3)}
+function bn(v){var b=v/1e9;if(Math.abs(b)<1000)return '$'+b.toPrecision(3)+'B';return '$'+String(Math.round(b/10)*10).replace(/\B(?=(\d{3})+(?!\d))/g,',')+'B'}
+function layout(){
+  var p=$('#plot'),W=Math.round(p.clientWidth)||640;
+  if(W<300)W=300;
+  var Hh=W<520?300:(W<760?340:380);
+  var narrow=W<520;
+  G.W=W;G.H=Hh;G.x=narrow?40:48;G.y=14;G.w=W-G.x-14;G.h=Hh-G.y-52;
+  p.setAttribute('viewBox','0 0 '+W+' '+Hh);
+  var a=$('#plot-area');a.setAttribute('x',G.x);a.setAttribute('y',G.y);a.setAttribute('width',G.w);a.setAttribute('height',G.h);
+  var tk=$('#ticks'),gr=$('#grid');tk.textContent='';gr.textContent='';
+  var stepT=narrow?4:2,i,tx;
+  for(i=0;i<=K.lasHorizon;i+=stepT){tx=mk('text',{'class':'tick',x:px(i),y:G.y+G.h+14,'text-anchor':'middle'},tk);tx.textContent=String(i)}
+  for(i=0;i<=1.0001;i+=0.25){tx=mk('text',{'class':'tick',x:G.x-6,y:py(i)+4,'text-anchor':'end'},tk);tx.textContent=i.toFixed(2);
+    mk('line',{'class':'grid',x1:G.x,x2:G.x+G.w,y1:py(i),y2:py(i)},gr)}
+  var ca=$('#calaxis');ca.setAttribute('x',G.x);ca.setAttribute('y',G.y+G.h+44);
+  ca.textContent=narrow?'Calendar year: 2030 at 0 yr, 2056 at 26 yr':'Calendar year: 2030 at 0 yr, 2043 at 13 yr, 2056 at 26 yr';
+  var xt=$('#xtitle');xt.setAttribute('x',G.x);xt.setAttribute('y',G.y+G.h+30);
+  var yt=$('#ytitle');yt.setAttribute('x',2);yt.setAttribute('y',G.y+8);
+  var hr=22;
+  Object.keys(HN).forEach(function(n){HN[n].setAttribute('r',hr)});
+}
+function render(){
+  fixF();
+  var k=kk(),rows=SERIES[S.sc],tT=S.tT,t=S.t,tg=F.target(water(),K),tb=F.stageEnds(tT,k),L=F.level(rows,tT,k);
+  var u=F.uStage(t,tT,k),Vh=t>tT?F.vhigh(rows,tT,t):null,st=F.stageAt(t,tT,k);
+  var out={tT:tT,kStar:tg.kStar,wLo:tg.wLo,wHi:tg.wHi,tb1:tb[0],tb2:tb[1],tb3:tb[2],tb4:tb[3],uStage:u,sStep:F.sStep(u),hTpl:F.hTpl(t,tT,k),Vprog:F.Vat(rows,t),Wpv:L.W[0],W1:L.W[1],Vhigh:Vh,Idx:F.index(rows,tT,t,k),stage:st};
+  setQ('tT',out.tT,out.tT.toPrecision(3));setQ('kStar',out.kStar,String(out.kStar));setQ('wLo',out.wLo,out.wLo.toPrecision(3));setQ('wHi',out.wHi,isNaN(out.wHi)?'n/a':out.wHi.toPrecision(3));
+  ['tb1','tb2','tb3','tb4'].forEach(function(q){setQ(q,out[q],out[q].toPrecision(3))});
+  setQ('uStage',out.uStage,f3(out.uStage));setQ('sStep',out.sStep,f3(out.sStep));setQ('hTpl',out.hTpl,f3(out.hTpl));
+  setQ('Vprog',out.Vprog,bn(out.Vprog)+'/yr');
+  setQ('Wpv',out.Wpv,bn(out.Wpv));setQ('W1',out.W1,bn(out.W1));
+  setQ('Vhigh',out.Vhigh,out.Vhigh===null?'n/a':bn(out.Vhigh)+'/yr');
+  setQ('Idx',out.Idx,f3(out.Idx));setQ('stage',out.stage,String(out.stage));setQ('stageName',STAGES[out.stage-1],STAGES[out.stage-1]);
+  var mt=modelT();
+  $('#model-marker').setAttribute('data-v',String(mt));$('#model-marker').textContent=mt.toPrecision(3);
+  var edges=[0,tb[0],tb[1],tb[2],tb[3],tT,K.lasHorizon];
+  for(var i=0;i<6;i++){var b=$('[data-band="'+(i+1)+'"]');b.setAttribute('data-t0',String(edges[i]));b.setAttribute('data-t1',String(edges[i+1]));
+    b.setAttribute('x',px(edges[i]));b.setAttribute('y',G.y);b.setAttribute('height',G.h);b.setAttribute('width',Math.max(0,px(edges[i+1])-px(edges[i])));
+    var l=$('[data-band-label="'+(i+1)+'"]');var lx=px(edges[i])+5,ly=G.y+6;
+    l.setAttribute('x',lx);l.setAttribute('y',ly);l.setAttribute('transform','rotate(90 '+lx+' '+ly+')');
+    STROWS[i][0].className=(i+1===out.stage)?'on':'';STROWS[i][1].textContent=edges[i].toPrecision(3)+' to '+edges[i+1].toPrecision(3)}
+  var pi=[],ps=[];for(var s=0;s<=104;s++){var tt=s*0.25;pi.push([tt,F.index(rows,tT,tt,k)]);ps.push([tt,F.standard(tt,K)])}
+  function path(a){return a.map(function(p,j){return (j?'L':'M')+px(p[0]).toFixed(2)+' '+py(p[1]).toFixed(2)}).join('')}
+  $('#curve-index').setAttribute('d',path(pi));$('#curve-index').setAttribute('data-pts',JSON.stringify(pi));
+  $('#curve-standard').setAttribute('d',path(ps));$('#curve-standard').setAttribute('data-pts',JSON.stringify(ps));
+  var tm=$('#tmark');tm.setAttribute('x1',px(t));tm.setAttribute('x2',px(t));tm.setAttribute('y1',G.y);tm.setAttribute('y2',G.y+G.h);
+  var mx=px(mt),my=G.y+G.h;$('#modelmark').setAttribute('d','M'+(mx-6)+' '+(my+1)+' L'+(mx+6)+' '+(my+1)+' L'+mx+' '+(my-9)+' Z');
+  var pos={tT:[tT,1],tb1:[tb[0],F.hTpl(tb[0],tT,k)],tb2:[tb[1],F.hTpl(tb[1],tT,k)],tb3:[tb[2],F.hTpl(tb[2],tT,k)],tb4:[tb[3],F.hTpl(tb[3],tT,k)],
+    peak1:[tb[1],S.peak1],trough:[tb[2],S.peak1*S.trough],endexp:[tb[0],S.endexp],marker:[t,out.Idx]};
+  ORDER.forEach(function(n){var c=HN[n],p=pos[n],h=H[n];
+    var x=px(p[0]),y=/^tb[123]$/.test(n)?py(0):py(p[1]);
+    c.setAttribute('data-t',String(p[0]));c.setAttribute('data-h',String(p[1]));c.setAttribute('cx',x);c.setAttribute('cy',y);
+    DOT[n].setAttribute('cx',x);DOT[n].setAttribute('cy',y);LB[n].setAttribute('x',x+9);LB[n].setAttribute('y',y-9);
+    if(STEM[n]){STEM[n].setAttribute('x1',x);STEM[n].setAttribute('x2',x);STEM[n].setAttribute('y1',py(0));STEM[n].setAttribute('y2',py(p[1]))}
+    c.setAttribute('aria-valuenow',String(rnd(h.get())));c.setAttribute('aria-valuemin',String(rnd(h.min())));c.setAttribute('aria-valuemax',String(rnd(h.max())));
+    c.setAttribute('aria-valuetext',((n==='marker'||h.ax==='h')?rnd(h.get()).toFixed(h.ax==='t'?2:3):rnd(h.get()).toPrecision(3))+h.unit);});
+  PV.forEach(function(r){var e=$('[data-p="'+r[0]+'"]');e.textContent=rnd(H[r[1]].get()).toFixed(r[2])});
+  $('#status').textContent='Index '+f3(out.Idx)+', stage '+out.stage+' '+STAGES[out.stage-1]+', at t '+t.toFixed(2)+' yr';
+}
+$('#scenario').addEventListener('change',function(e){S.sc=e.target.value;S.tT=modelT();render()});
+$('#reset').addEventListener('click',function(){S.sc='artemis';$('#scenario').value='artemis';S.f=D.f.slice();S.peak1=D.peak1;S.trough=D.trough;S.endexp=D.endexp;S.t=D.t;S.tT=modelT();render()});
+$('[data-snap]').addEventListener('click',function(){S.tT=modelT();render()});
+window.addEventListener('resize',function(){layout();render()});
+S.tT=modelT();layout();render();
+</script></body></html>

@@ -6,9 +6,12 @@ The Lunar Scenario Explorer is a single self-contained web page that models thre
 
 The page is live at https://shootquinn.github.io/lsei-lunar-scenario-explorer/. Cloning this repository and opening `index.html` directly from disk runs the identical page. There is no build step, no external dependency, and no network call of any kind; the file that runs on GitHub Pages is the same file that runs offline.
 
+The Lassonde Curve Explorer is a second single self-contained page. It draws the six-stage Lassonde valuation curve (Exploration, Discovery, Feasibility, Construction, Rampup and Reserve Depletion) for each of the three scenarios, and its stage ends, target time, first peak, trough and end level are draggable handles that recompute the valuation equations live. It is live at https://shootquinn.github.io/lsei-lunar-scenario-explorer/lassonde.html, and opening `lassonde.html` from disk runs the identical page.
+
 ## Repository layout
 
 - `index.html`: the app itself.
+- `lassonde.html`: the Lassonde Curve Explorer, a standalone page with draggable curve handles.
 - `literature/`: this project's own summaries of the published sources the app's evidence ledger cites, filed in eight topic folders: `growth-and-industrial-theory`, `isru-processing`, `logistics-and-delivery`, `lunar-ice-and-geology`, `power-and-thermal`, `programme-primaries`, `space-economy-and-markets` and `space-law-and-governance`.
 - `writing-guides/`: five vendored style and structure guides used when generating a document from the app; `writing-guides/SOURCE.md` records where they came from.
 - `report-generator-prompt.md`: a prompt, described below, that a capable model session runs against the app to produce a document.
