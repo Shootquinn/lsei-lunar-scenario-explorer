@@ -442,6 +442,51 @@
     .outs{grid-template-columns:repeat(4,1fr);}
   }
 
+  /* ---------- Valuation tab ---------- */
+  .tabbar{flex-wrap:wrap;}
+  .lashead{font-family:var(--mono); font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--ice); margin:20px 0 8px;}
+  .lasvg{display:block; width:100%; height:auto; max-width:100%; background:var(--panel2); border:1px solid var(--line); border-radius:8px;}
+  .lasvg text{fill:var(--muted); font-family:var(--mono);}
+  .lasvg .las-num{font-size:12px; font-weight:600; fill:var(--text);}
+  .lasvg .las-lab{font-size:11px;}
+  .lasvg .las-tick{font-size:11px; fill:var(--faint);}
+  .lasvg .las-axl{font-size:12px;}
+  .lasvg .las-mklab{font-size:12px; fill:var(--text);}
+  .lasvg .las-axis{stroke:var(--faint); stroke-width:1;}
+  .lasvg .las-grid{stroke:var(--line); stroke-width:1;}
+  .lasvg .las-bnd{stroke:var(--muted); stroke-width:1; stroke-dasharray:3 3;}
+  .lasvg .las-bnd.las-tT{stroke:var(--regolith); stroke-dasharray:5 3; stroke-width:1.5;}
+  .lasvg .las-mk{stroke:var(--text); stroke-width:1.5;}
+  .lasvg .las-mkp{fill:var(--text);}
+  .lasvg .las-cur{stroke:var(--ice); stroke-width:2.5; fill:none;}
+  .lasvg .las-std{stroke:var(--regolith); stroke-width:1.75; fill:none; stroke-dasharray:6 4;}
+  .lasvg .las-dot{fill:var(--text); stroke:var(--bg); stroke-width:2;}
+  .lasvg .las-s1 rect, .lasvg rect.las-s1{fill:var(--faint);}
+  .lasvg .las-s2 rect, .lasvg rect.las-s2{fill:var(--cobalt);}
+  .lasvg .las-s3 rect, .lasvg rect.las-s3{fill:var(--warn);}
+  .lasvg .las-s4 rect, .lasvg rect.las-s4{fill:var(--regolith);}
+  .lasvg .las-s5 rect, .lasvg rect.las-s5{fill:var(--good);}
+  .lasvg .las-s6 rect, .lasvg rect.las-s6{fill:var(--pin);}
+  .lasvg .las-st rect{opacity:.55;}
+  .lasvg rect.las-band{opacity:.12;}
+  .lasleg{list-style:none; margin:10px 0 0; padding:0; display:flex; flex-wrap:wrap; gap:6px 14px; font-size:12px; color:var(--muted);}
+  .lasleg li{border-left:4px solid var(--line); padding-left:7px;}
+  .lasleg li.on{color:var(--text); font-weight:600;}
+  .lasleg li.las-s1{border-left-color:var(--faint);} .lasleg li.las-s2{border-left-color:var(--cobalt);}
+  .lasleg li.las-s3{border-left-color:var(--warn);} .lasleg li.las-s4{border-left-color:var(--regolith);}
+  .lasleg li.las-s5{border-left-color:var(--good);} .lasleg li.las-s6{border-left-color:var(--pin);}
+  .vtiles{display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:12px; margin-top:18px;}
+  .vtiles .out .ovalue{font-size:20px; overflow-wrap:anywhere;}
+  .vtiles .out.val-t .swatch{background:var(--regolith);} .vtiles .out.val-t .ovalue{color:var(--regolith);}
+  .vtiles .out.val-a .swatch{background:var(--ice);} .vtiles .out.val-a .ovalue{color:var(--ice);}
+  .vtiles .out.val-b .swatch{background:var(--cobalt);} .vtiles .out.val-b .ovalue{color:var(--cobalt);}
+  .vtiles .out.val-c .swatch{background:var(--good);} .vtiles .out.val-c .ovalue{color:var(--good);}
+  .vtiles .out.val-d .swatch{background:var(--pin);} .vtiles .out.val-d .ovalue{color:var(--pin);}
+  .valtbl{width:100%; border-collapse:collapse; margin-top:8px; font-size:12.5px;}
+  .valtbl th,.valtbl td{border:1px solid var(--line); padding:7px 9px; text-align:left; vertical-align:top; overflow-wrap:anywhere;}
+  .valtbl th{background:var(--panel2); font-family:var(--mono); font-size:11px; letter-spacing:.04em; text-transform:uppercase; color:var(--muted);}
+  .valtbl td.eqcol{font-family:var(--mono); color:var(--ice); white-space:nowrap;}
+  .valtbl td.mono{font-family:var(--mono);}
 </style>
 </head>
 <!-- ===== CR38-REGION-B-MARKUP:START ===== -->
@@ -711,6 +756,7 @@
           <button type="button" role="tab" aria-selected="false" data-t="notes" data-adv="1" hidden>Notes</button>
           <button type="button" role="tab" aria-selected="false" data-t="defs" data-adv="1" hidden>Definitions</button>
           <button type="button" role="tab" aria-selected="false" data-t="ledger" data-adv="1" hidden>Evidence Ledger</button>
+          <button type="button" role="tab" aria-selected="false" data-t="valuation" data-adv="1" hidden>Valuation</button>
         </div>
 
         <div class="panel" data-t="scenario" role="tabpanel">
@@ -742,6 +788,8 @@
         <div class="panel" data-t="defs" role="tabpanel" hidden id="defsPanel"></div>
 
         <div class="panel" data-t="ledger" role="tabpanel" hidden id="ledgerPanel"></div>
+
+        <div class="panel" data-t="valuation" role="tabpanel" hidden id="valuationPanel"></div>
       </div>
     </section>
   </div>
@@ -22273,6 +22321,7 @@ function selectTab(t){
   if (t === 'regime' && typeof __regimePending !== 'undefined' && __regimePending && __regimeLast) drawField.apply(null, __regimeLast);
   /* An Equations panel left stale by a reader drag is painted when the panel is shown. */
   if (t === 'eqns' && __eqnsStale){ renderEqnsTab(); __eqnsStale = false; }
+  if (t === 'valuation'){ renderValuationTab(); __valStale = false; }
   return true;
 }
 /* Collapsing Advanced while an advanced-only tab is selected must leave a
@@ -22980,7 +23029,7 @@ function syncSliderRange(inputEl, key){
 }
 /* The render a reader's own input starts. __readerDrag is true only for the duration of that
    render() call. */
-var __readerDrag = false, __eqnsStale = false;
+var __readerDrag = false, __eqnsStale = false, __valStale = true;
 function readerRender(){ __readerDrag = true; try { render(); } finally { __readerDrag = false; } }
 /* #k_mass's own keydown handling (MASS-05 tests it directly): one arrow-key press moves the APPLIED
    RATE by a factor of 10^0.1 (a tenth of a
@@ -24241,6 +24290,362 @@ function step60RenderValueTab(m, fs, args){
   kl.value = Math.max(0, LEARN_DETENTS.indexOf(step60Rate));
   document.getElementById('v_learn').textContent = String(step60Rate);
 }
+/* ===== TIER-I-VALUATION:START ===== */
+/* Tier I: valuation on the Lassonde curve, Equations 53 to 65.
+   Reads the yearly outputs of Equations 41, 43 and 49 through valueModel() and writes nothing into
+   Equations 1 to 52. lassondeSeries() borrows `state` and restores it in a finally block. */
+const LAS_STAGES = ['Exploration', 'Discovery', 'Feasibility', 'Construction', 'Rampup', 'Reserve Depletion'];
+
+/* The twelve constants live on CONFIG as non-enumerable properties, so configSig(), the Equations
+   tab and every Object.keys(CONFIG) population keep their base membership. */
+(function(){
+  const defs = {
+    waterTarget: { value: 100, unit: 't/yr', band: [50, 200], status: 'ASSUMPTION',
+      source: 'The water target, the yearly water output at which the programme leaves Rampup, is 100 t/yr. Linne\'s conceptual pilot plant is designed to extract 1.125 t/yr of water and Kornuta\'s architecture is sized to process 2,450 t/yr. Accept 50 to 200 t/yr.' },
+    lasF1: { value: 0.28, unit: '1', band: [0.25, 0.31], status: 'DERIVED',
+      source: 'The fraction of the target time at which Exploration ends is 0.28, read from the stage separators of the Lassonde template image. Accept 0.25 to 0.31.' },
+    lasF2: { value: 0.42, unit: '1', band: [0.38, 0.46], status: 'DERIVED',
+      source: 'The fraction of the target time at which Discovery ends is 0.42, read from the stage separators of the Lassonde template image. Accept 0.38 to 0.46.' },
+    lasF3: { value: 0.61, unit: '1', band: [0.57, 0.65], status: 'DERIVED',
+      source: 'The fraction of the target time at which Feasibility ends is 0.61, read from the stage separators of the Lassonde template image. Accept 0.57 to 0.65.' },
+    lasF4: { value: 0.87, unit: '1', band: [0.83, 0.91], status: 'DERIVED',
+      source: 'The fraction of the target time at which Construction ends is 0.87, read from the stage separators of the Lassonde template image. Rampup fills the remaining 0.13. Accept 0.83 to 0.91.' },
+    lasPeak1: { value: 0.66, unit: '1', band: [0.55, 0.80], status: 'DERIVED',
+      source: 'The ratio of the first peak to the second peak of the valuation index is 0.66, read from the Lassonde template image. Accept 0.55 to 0.80.' },
+    lasTrough: { value: 0.36, unit: '1', band: [0.30, 0.50], status: 'DERIVED',
+      source: 'The ratio of the trough to the first peak of the valuation index is 0.36, read from the Lassonde template image. Dacian Gold, a gold miner, fell 60 percent through feasibility and finance, a ratio of 0.40 (Rijsdijk et al., 2022). Accept 0.30 to 0.50.' },
+    lasEndExp: { value: 0.09, unit: '1', band: [0.05, 0.12], status: 'DERIVED',
+      source: 'The valuation index at the end of Exploration is 0.09, read from the Lassonde template image. Accept 0.05 to 0.12.' },
+    lasRefT: { value: 12.5, unit: 'yr', band: [11, 14], status: 'DERIVED',
+      source: 'The target time of the standard curve is 12.5 yr: the dashed curve peaks at 12 to 13 yr on a 0 to 20 yr axis. Accept 11 to 14 yr.' },
+    lasDecline: { value: 0.069, unit: '1/yr', band: [0.05, 0.09], status: 'DERIVED',
+      source: 'The standard curve falls by the fraction 0.069 of its value per yr after its second peak: 4.82 at 12.5 yr to 2.82 at 20 yr, and 4.82 x (1 - 0.069)^7.5 = 2.82. Accept 0.05 to 0.09 per yr.' },
+    lasHorizon: { value: 2055 - CURVE_EPOCH + 1, unit: 'yr', band: null, status: 'DERIVED',
+      source: 'The time axis is 26 yr long, from 1 January 2030 to the end of 2055: 26 yearly states.' },
+    lasMinClock: { value: 1, unit: 'yr', band: [0.5, 2], status: 'ASSUMPTION',
+      source: 'The shortest target time is 1 yr, a floor that guards the division of Equation 53 where output already exceeds the target in the first year. Accept 0.5 to 2 yr.' }
+  };
+  Object.keys(defs).forEach(function(n){
+    const d = defs[n];
+    Object.defineProperty(CONFIG, n, { value: { value: d.value, unit: d.unit, band: d.band, source: d.source, status: d.status, note: d.source },
+      enumerable: false, writable: true, configurable: true });
+  });
+})();
+
+function lasK(){
+  const k = { hurdle: VALUE.lenderHurdle.value, life: VALUE.L.value };
+  ['waterTarget','lasF1','lasF2','lasF3','lasF4','lasPeak1','lasTrough','lasEndExp','lasRefT','lasDecline','lasHorizon','lasMinClock']
+    .forEach(function(n){ k[n] = CONFIG[n].value; });
+  return k;
+}
+
+/* One row per year 2030 to 2055 at era 2055. A control at its era default reads at its 2055 default;
+   a control the reader has moved reads at the reader's value in every year. */
+function lassondeSeries(){
+  const sn = Object.assign({}, state), pts0 = CURVE.pts, sr = step60Rate;
+  const f = state.funding, id = PRESET_OF_FUNDING[f], ph = state.phase;
+  const rows = [];
+  try {
+    const A = LANDED_COST.eraDefault, dScale = knobVal('landed_cost') / A[ph];
+    if (ph !== '2055'){
+      const atDefault = function(k, tbl){ return state[k] === snapIdx(k, tbl[ph][id]); };
+      if (atDefault('phi_c', PHI_C_BY_ERA)) state.phi_c = snapIdx('phi_c', PHI_C_BY_ERA['2055'][id]);
+      if (atDefault('phi_o', PHI_O_BY_ERA)) state.phi_o = snapIdx('phi_o', PHI_O_BY_ERA['2055'][id]);
+      if (atDefault('phi_m', PHI_M_BY_ERA)) state.phi_m = snapIdx('phi_m', PHI_M_BY_ERA['2055'][id]);
+      if (state.phiC0Ovr === PHI_C0_BY_ERA[ph][id]) state.phiC0Ovr = PHI_C0_BY_ERA['2055'][id];
+      if (state.mix === MIX_ERA_DEFAULT[ph]) state.mix = MIX_ERA_DEFAULT['2055'];
+      if (state.fabProd === FAB_RATE_ERA_DEFAULT[ph]) state.fabProd = FAB_RATE_ERA_DEFAULT['2055'];
+      state.fission = state.fissionPrefSet ? (!!state.fissionPref && ENVELOPE[f]['2055'].fission) : ENVELOPE[f]['2055'].fission;
+      state.mass = ENVELOPE[f]['2055'].M;
+      state.phase = '2055';
+    }
+    const r = scenarioModelArgs(id), fsIn = r.fs, funding = r.args.funding;
+    const a0 = {};
+    Object.keys(r.censusArgs).forEach(function(k){ if (LEARN_ARG_KEYS.indexOf(k) < 0) a0[k] = r.censusArgs[k]; });
+    for (let Y = CURVE_EPOCH; Y <= 2055; Y++){
+      const D = dScale * logLinearBetweenAnchors(Y, 2030, A['2030'], 2040, A['2040'], 2055, A['2055']);
+      const aY = Object.assign({}, a0), kY = applyLearning(aY, fsIn, String(Y), step60Rate);
+      const faY = fleetArgs(aY, fsIn, String(Y), kY, funding);
+      const vm = valueModel(Object.assign({}, faY.args, { landed_cost: D, C_hw: C_HW1 }));
+      rows.push({ year: Y, water: vm.water_tpy || 0, construction: vm.construction_tpy || 0,
+                  mprop: vm.margin_prop, mconst: vm.margin_const, V: vm.value_prop + vm.value_const });
+    }
+  } finally {
+    Object.keys(state).forEach(function(k){ if (!(k in sn)) delete state[k]; });
+    Object.assign(state, sn); CURVE.pts = pts0; step60Rate = sr;
+  }
+  return rows;
+}
+
+/* Equations 53 to 65, pure functions of the yearly rows and the constants. */
+const LAS = {};
+LAS.kStar = function(water, k){ for (let i = 0; i < water.length; i++) if (water[i] >= k.waterTarget) return i; return water.length; };   // LP4
+LAS.target = function(water, k){                                                                                                    // 53
+  const ks = LAS.kStar(water, k), wLo = ks > 0 ? water[ks - 1] : 0, wHi = ks < water.length ? water[ks] : NaN;
+  const Hz = Math.min(k.lasHorizon, water.length), tT = ks >= Hz ? Hz : Math.max(k.lasMinClock, ks - 0.5 + (k.waterTarget - wLo) / (wHi - wLo));
+  return { kStar: ks, wLo: wLo, wHi: wHi, tT: tT };
+};
+LAS.ends = function(tT, k){ return [tT * k.lasF1, tT * k.lasF2, tT * k.lasF3, tT * k.lasF4]; };                                      // 54 to 57
+LAS.u = function(t, tT, k){ const b = LAS.ends(tT, k);                                                                              // 58
+  return t <= b[0] ? t / b[0] : t <= b[1] ? (t - b[0]) / (b[1] - b[0]) : t <= b[2] ? (t - b[1]) / (b[2] - b[1]) : Math.min(1, (t - b[2]) / (tT - b[2])); };
+LAS.s = function(u){ return 3 * u * u - 2 * u * u * u; };                                                                           // 59
+LAS.h = function(t, tT, k){ const b = LAS.ends(tT, k), s = LAS.s(LAS.u(t, tT, k));                                                  // 60
+  return t <= b[0] ? k.lasEndExp * s : t <= b[1] ? k.lasEndExp + (k.lasPeak1 - k.lasEndExp) * s
+       : t <= b[2] ? k.lasPeak1 - k.lasPeak1 * (1 - k.lasTrough) * s : k.lasPeak1 * k.lasTrough + (1 - k.lasPeak1 * k.lasTrough) * s; };
+LAS.Vat = function(rows, t){ const x = t - 0.5; if (x <= 0) return rows[0].V; if (x >= rows.length - 1) return rows[rows.length - 1].V;      // 61, between year centres
+  const i = Math.floor(x), fr = x - i; return rows[i].V * (1 - fr) + rows[i + 1].V * fr; };
+LAS.level = function(rows, tT, k){ const W = new Array(k.life + 1).fill(0);                                                          // 62, R2
+  for (let s = k.life - 1; s >= 0; s--) W[s] = LAS.Vat(rows, tT + s) + W[s + 1] / (1 + k.hurdle);
+  return W[0]; };
+LAS.vhigh = function(rows, tT, t){ let M = LAS.Vat(rows, tT);                                                                       // 63, R3
+  for (let n = Math.ceil(tT - 0.5 + 1e-12); n + 0.5 <= t + 1e-12 && n <= rows.length - 1; n++) if (n + 0.5 > tT) M = Math.max(M, LAS.Vat(rows, n + 0.5));
+  return Math.max(M, LAS.Vat(rows, t)); };
+LAS.index = function(rows, tT, t, k){ if (t <= tT + 1e-12) return LAS.h(t, tT, k);                                                  // 64
+  const vh = LAS.vhigh(rows, tT, t); return vh > 0 ? Math.max(0, LAS.Vat(rows, t)) / vh : 0; };
+LAS.stage = function(t, tT, k){ const b = LAS.ends(tT, k);                                                                          // 65
+  return 1 + (t > b[0]) + (t > b[1]) + (t > b[2]) + (t > b[3]) + (t > tT); };
+LAS.standard = function(t, k){ return t <= k.lasRefT ? LAS.h(t, k.lasRefT, k) : Math.pow(1 - k.lasDecline, t - k.lasRefT); };      // 64 on the synthetic series
+
+function lasReading(rows, t){
+  const k = lasK(), tg = LAS.target(rows.map(function(r){ return r.water; }), k), tT = tg.tT, tb = LAS.ends(tT, k);
+  const u = LAS.u(t, tT, k), s = LAS.s(u), h = LAS.h(t, tT, k), V = LAS.Vat(rows, t);
+  return { k: k, t: t, kStar: tg.kStar, wLo: tg.wLo, wHi: tg.wHi, tT: tT, tb: tb, u: u, s: s, h: h, V: V,
+           W: LAS.level(rows, tT, k), Vhigh: t > tT ? LAS.vhigh(rows, tT, t) : null,
+           Idx: LAS.index(rows, tT, t, k), stage: LAS.stage(t, tT, k), std: LAS.standard(t, k),
+           noTarget: tg.kStar >= Math.min(k.lasHorizon, rows.length) };
+}
+
+/* ---- display ---- */
+const LAS_EQ = [
+  [53, 'lasT', 'tT = kStar >= lasHorizon ? lasHorizon : max(lasMinClock, kStar − 1/2 + (waterTarget − wLo) / (wHi − wLo))'],
+  [54, 'lasB1', 'tb1 = tT * lasF1'],
+  [55, 'lasB2', 'tb2 = tT * lasF2'],
+  [56, 'lasB3', 'tb3 = tT * lasF3'],
+  [57, 'lasB4', 'tb4 = tT * lasF4'],
+  [58, 'lasU', 'uStage = t <= tb1 ? t / tb1 : t <= tb2 ? (t − tb1) / (tb2 − tb1) : t <= tb3 ? (t − tb2) / (tb3 − tb2) : min(1, (t − tb3) / (tT − tb3))'],
+  [59, 'lasS', 'sStep = 3 * uStage^2 − 2 * uStage^3'],
+  [60, 'lasH', 'hTpl = t <= tb1 ? lasEndExp * sStep : t <= tb2 ? lasEndExp + (lasPeak1 − lasEndExp) * sStep : t <= tb3 ? lasPeak1 − lasPeak1 * (1 − lasTrough) * sStep : lasPeak1 * lasTrough + (1 − lasPeak1 * lasTrough) * sStep'],
+  [61, 'lasV', 'Vprog = (water > 0 && margin_prop != null ? water * 1000 * margin_prop : 0) + (construction > 0 ? construction * 1000 * margin_const : 0)'],
+  [62, 'lasPV', 'Wpv = Vprog + Wnext / (1 + lenderHurdle)'],
+  [63, 'lasHigh', 'Vhigh = max(Vprev, Vprog)'],
+  [64, 'lasIdx', 'Idx = t <= tT ? hTpl : (Vhigh > 0 ? max(0, Vprog) / Vhigh : 0)'],
+  [65, 'lasStage', 'stage = 1 + (t > tb1) + (t > tb2) + (t > tb3) + (t > tb4) + (t > tT)']
+];
+function lasP3(v){ return Number(v).toPrecision(3); }
+function lasYr(v){ return _g3(v); }
+function lasB(v){ return _g3(v / 1e9); }
+function lasCal(v){ return (CURVE_EPOCH + v).toFixed(1); }
+function lasEqValue(n, R){
+  switch (n){
+    case 53: return lasYr(R.tT) + ' yr (' + (R.noTarget ? 'end of the time axis' : lasCal(R.tT)) + ')';
+    case 54: return lasYr(R.tb[0]) + ' yr';
+    case 55: return lasYr(R.tb[1]) + ' yr';
+    case 56: return lasYr(R.tb[2]) + ' yr';
+    case 57: return lasYr(R.tb[3]) + ' yr';
+    case 58: return lasP3(R.u);
+    case 59: return lasP3(R.s);
+    case 60: return lasP3(R.h);
+    case 61: return '$' + lasB(R.V) + 'B/yr';
+    case 62: return '$' + lasB(R.W) + 'B';
+    case 63: return R.Vhigh == null ? 'none before tT' : '$' + lasB(R.Vhigh) + 'B/yr';
+    case 64: return lasP3(R.Idx);
+    case 65: return R.stage + ' ' + LAS_STAGES[R.stage - 1];
+  }
+  return '';
+}
+
+/* Table L1 of the Lassonde Appendix: 39 symbols with meaning, unit and source. */
+const LAS_SYMS = [
+  ['tT', 'the target time', 'yr', 'Equation 53'],
+  ['kStar', 'the project time at the start of the first year with water output at or above the water target, counted from the start of 2030', 'yr', 'Equation 53'],
+  ['wLo', 'the water output of the year before that year', 't/yr', 'Equation 53'],
+  ['wHi', 'the water output of that year', 't/yr', 'Equation 53'],
+  ['tb1', 'the end of Exploration', 'yr', 'Equation 54'],
+  ['tb2', 'the end of Discovery', 'yr', 'Equation 55'],
+  ['tb3', 'the end of Feasibility', 'yr', 'Equation 56'],
+  ['tb4', 'the end of Construction', 'yr', 'Equation 57'],
+  ['t', 'a project time', 'yr', 'Equation 58'],
+  ['uStage', 'the coordinate of t within its segment of the template, from 0 at the start of the segment to 1 at its end', '1', 'Equation 58'],
+  ['sStep', 'the smooth step of the coordinate', '1', 'Equation 59'],
+  ['hTpl', 'the template height at t', '1', 'Equation 60'],
+  ['Vprog', 'the yearly value of the programme\'s water and construction output, each priced at its margin', '$/yr', 'Equation 61'],
+  ['Wnext', 'the present value one step later', '$', 'Equation 62'],
+  ['Wpv', 'the present value at the step; at the target time it is the level', '$', 'Equation 62'],
+  ['Vprev', 'the highest programme value before this time', '$/yr', 'Equation 63'],
+  ['Vhigh', 'the highest programme value since the target time', '$/yr', 'Equation 63'],
+  ['Idx', 'the valuation index', '1', 'Equation 64'],
+  ['stage', 'the stage number, 1 to 6', '1', 'Equation 65'],
+  ['water', 'the programme\'s yearly water output (Equation 41)', 't/yr', 'Equation 41'],
+  ['construction', 'the programme\'s yearly construction-material output (Equation 43)', 't/yr', 'Equation 43'],
+  ['margin_prop', 'the margin of the water line (Equation 49)', '$/kg', 'Equation 49'],
+  ['margin_const', 'the margin of the construction line (Equation 49)', '$/kg', 'Equation 49'],
+  ['lenderHurdle', 'the yearly discount rate that reduces the weight of value received in later years', '1/yr', 'Equation 62, 0.10 per yr'],
+  ['waterTarget', 'the water target', 't/yr', { c: 'waterTarget' }],
+  ['lasPeak1', 'the ratio of the first peak to the second peak', '1', { c: 'lasPeak1' }],
+  ['lasTrough', 'the ratio of the trough to the first peak', '1', { c: 'lasTrough' }],
+  ['lasEndExp', 'the index at the end of Exploration', '1', { c: 'lasEndExp' }],
+  ['lasF1', 'the fraction of the target time at which Exploration ends', '1', { c: 'lasF1' }],
+  ['lasF2', 'the fraction of the target time at which Discovery ends', '1', { c: 'lasF2' }],
+  ['lasF3', 'the fraction of the target time at which Feasibility ends', '1', { c: 'lasF3' }],
+  ['lasF4', 'the fraction of the target time at which Construction ends', '1', { c: 'lasF4' }],
+  ['lasRefT', 'the target time of the standard curve', 'yr', { c: 'lasRefT' }],
+  ['lasDecline', 'the yearly fall of the standard curve', '1/yr', { c: 'lasDecline' }],
+  ['lasHorizon', 'the length of the time axis', 'yr', { c: 'lasHorizon' }],
+  ['lasMinClock', 'the shortest target time', 'yr', { c: 'lasMinClock' }],
+  ['LP4', 'the scan of the years from 2030 to 2055 for the first year with water output at or above the water target', 'loop', 'Equation 53'],
+  ['R2', 'the backward recurrence of Equation 62 over the plant life, one step for each year; each step is one year, so programme value in $ per yr counts as dollars for the step and the lender hurdle in 1 per yr counts as a pure number', 'recurrence', 'Equation 62'],
+  ['R3', 'the forward recurrence of Equation 63 from the target time', 'recurrence', 'Equation 63']
+];
+function lasSourceCell(s){
+  if (typeof s === 'string') return esc(s);
+  const c = CONFIG[s.c];
+  return badge(c.status) + ' ' + esc(c.source);
+}
+function lasSymbolTable(){
+  return '<div class="refscroll"><table class="valtbl" id="lasNomTbl"><thead><tr><th>Symbol</th><th>Meaning</th><th>Unit</th><th>Source</th></tr></thead><tbody>' +
+    LAS_SYMS.map(function(r){
+      return '<tr><td class="mono">' + esc(r[0]) + '</td><td>' + esc(r[1]) + '</td><td class="mono">' + esc(r[2]) + '</td><td>' + lasSourceCell(r[3]) + '</td></tr>';
+    }).join('') + '</tbody></table></div>';
+}
+
+/* The lunar counterpart of each stage (Table L2 of the Appendix). */
+function lasCounterparts(k){
+  return [
+    'Orbital sensing is complete, and the stage closes with the first surface measurement of ice grade and depth at a permanently shadowed region tract.',
+    'A resource declaration for water at a named tract and the first water offtake.',
+    'A pilot-scale plant that excavates, extracts, captures, purifies and electrolyzes water from icy regolith in permanently shadowed conditions, followed by the financing decision.',
+    'The first financed plant is landed, assembled and commissioned at the site, with extraction plant, power and processing standing and rated.',
+    'Throughput growth from the plant\'s first water to the water target of ' + k.waterTarget + ' t/yr, which is ' + _g3(k.waterTarget * 1000 / 8766) + ' kg/h.',
+    'Plant retirement at the end of the ' + k.life + '-year plant life and margin erosion as the Earth delivery cost falls.'
+  ];
+}
+
+function lasTimelineSvg(R){
+  const k = R.k, W = 640, H = 156, L = 16, Rt = 16, ax = function(t){ return L + (t / k.lasHorizon) * (W - L - Rt); };
+  const edges = [0, R.tb[0], R.tb[1], R.tb[2], R.tb[3], R.tT, k.lasHorizon];
+  const hint = [
+    'The index rises from 0 to ' + k.lasEndExp + '.',
+    'The index rises to the first peak of ' + k.lasPeak1 + '.',
+    'The index falls to the trough of ' + _g3(k.lasPeak1 * k.lasTrough) + '.',
+    'The index rises from the trough toward 1.00, which it reaches at the target time.',
+    'The index reaches 1.00 at the target time, where Rampup ends.',
+    'The index is programme value over its highest value since the target time.'
+  ];
+  let s = '<svg class="lasvg" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Six-stage timeline with stage ends, target time and evaluation time">';
+  for (let i = 0; i < 6; i++){
+    const x0 = ax(edges[i]), x1 = ax(edges[i + 1]), w = Math.max(0, x1 - x0);
+    s += '<g class="las-st las-s' + (i + 1) + '"><title>' + (i + 1) + ' ' + LAS_STAGES[i] + ': ' + ((i === 5 && R.noTarget) ? 'from the end of the time axis' + ' (' + lasCal(edges[i]) + ')' : lasYr(edges[i]) + ' to ' + lasYr(edges[i + 1]) +
+         ' yr (' + lasCal(edges[i]) + ' to ' + lasCal(edges[i + 1]) + ')') + '. ' + hint[i] + '</title>' +
+         '<rect x="' + x0.toFixed(1) + '" y="52" width="' + w.toFixed(1) + '" height="30" rx="3"/>' +
+         (w >= 16 ? '<text x="' + (x0 + w / 2).toFixed(1) + '" y="72" text-anchor="middle" class="las-num">' + (i + 1) + '</text>' : '') + '</g>';
+  }
+  [['tb1', R.tb[0]], ['tb2', R.tb[1]], ['tb3', R.tb[2]], ['tb4', R.tb[3]], ['tT', R.tT]].forEach(function(p, i){
+    const x = ax(p[1]), y = 38 - (i % 3) * 13;
+    s += '<line x1="' + x.toFixed(1) + '" y1="' + (y + 3) + '" x2="' + x.toFixed(1) + '" y2="86" class="las-bnd' + (p[0] === 'tT' ? ' las-tT' : '') + '"/>' +
+         '<text x="' + x.toFixed(1) + '" y="' + y + '" text-anchor="middle" class="las-lab">' + p[0] + '<title>' + p[0] + ' = ' + lasYr(p[1]) + ' yr (' + lasCal(p[1]) + ')</title></text>';
+  });
+  s += '<line x1="' + L + '" y1="90" x2="' + (W - Rt) + '" y2="90" class="las-axis"/>';
+  for (let y = 0; y <= 25; y += 5){
+    s += '<line x1="' + ax(y).toFixed(1) + '" y1="90" x2="' + ax(y).toFixed(1) + '" y2="95" class="las-axis"/>' +
+         '<text x="' + ax(y).toFixed(1) + '" y="108" text-anchor="middle" class="las-tick">' + y + '</text>';
+  }
+  s += '<text x="' + (W - Rt) + '" y="108" text-anchor="end" class="las-tick">yr</text>';
+  const mx = ax(R.t), anchor = mx > W - 70 ? 'end' : 'start', mxl = anchor === 'end' ? mx - 5 : mx + 5;
+  s += '<line x1="' + mx.toFixed(1) + '" y1="46" x2="' + mx.toFixed(1) + '" y2="122" class="las-mk"/>' +
+       '<polygon points="' + (mx - 5).toFixed(1) + ',128 ' + (mx + 5).toFixed(1) + ',128 ' + mx.toFixed(1) + ',121" class="las-mkp"/>' +
+       '<text x="' + mxl.toFixed(1) + '" y="144" text-anchor="' + anchor + '" class="las-mklab">t = ' + lasYr(R.t) + ' yr, ' + lasCal(R.t) + '</text>';
+  return s + '</svg>';
+}
+
+function lasPlotSvg(rows, R){
+  const k = R.k, W = 640, H = 330, L = 56, Rt = 18, T = 14, B = 54, T26 = k.lasHorizon;
+  const ax = function(t){ return L + (t / T26) * (W - L - Rt); }, ay = function(v){ return T + (1 - v) * (H - T - B); };
+  const edges = [0, R.tb[0], R.tb[1], R.tb[2], R.tb[3], R.tT, T26];
+  let s = '<svg class="lasvg" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Valuation index of the scenario and the standard Lassonde curve">';
+  for (let i = 0; i < 6; i++){
+    s += '<rect class="las-band las-s' + (i + 1) + '" x="' + ax(edges[i]).toFixed(1) + '" y="' + T + '" width="' + Math.max(0, ax(edges[i + 1]) - ax(edges[i])).toFixed(1) +
+         '" height="' + (H - T - B) + '"><title>' + (i + 1) + ' ' + LAS_STAGES[i] + '</title></rect>';
+  }
+  [0, 0.25, 0.5, 0.75, 1].forEach(function(v){
+    s += '<line x1="' + L + '" y1="' + ay(v).toFixed(1) + '" x2="' + (W - Rt) + '" y2="' + ay(v).toFixed(1) + '" class="las-grid"/>' +
+         '<text x="' + (L - 7) + '" y="' + (ay(v) + 4).toFixed(1) + '" text-anchor="end" class="las-tick">' + v.toFixed(2) + '</text>';
+  });
+  for (let y = 0; y <= 25; y += 5){
+    s += '<line x1="' + ax(y).toFixed(1) + '" y1="' + (H - B) + '" x2="' + ax(y).toFixed(1) + '" y2="' + (H - B + 5) + '" class="las-axis"/>' +
+         '<text x="' + ax(y).toFixed(1) + '" y="' + (H - B + 19) + '" text-anchor="middle" class="las-tick">' + y + '</text>';
+  }
+  s += '<line x1="' + L + '" y1="' + (H - B) + '" x2="' + (W - Rt) + '" y2="' + (H - B) + '" class="las-axis"/>' +
+       '<line x1="' + L + '" y1="' + T + '" x2="' + L + '" y2="' + (H - B) + '" class="las-axis"/>';
+  const tx = ax(R.tT).toFixed(1);
+  s += '<line x1="' + tx + '" y1="' + T + '" x2="' + tx + '" y2="' + (H - B) + '" class="las-bnd las-tT"/>' +
+       '<text x="' + (R.tT > T26 - 3 ? (+tx - 4) : (+tx + 4)) + '" y="' + (T + 11) + '" text-anchor="' + (R.tT > T26 - 3 ? 'end' : 'start') + '" class="las-lab">tT</text>';
+  let std = '', scn = '';
+  for (let i = 0; i <= 260; i++){
+    const t = i * 0.1, X = ax(t).toFixed(1);
+    std += (i ? 'L' : 'M') + X + ' ' + ay(Math.max(0, Math.min(1, LAS.standard(t, k)))).toFixed(1);
+    scn += (i ? 'L' : 'M') + X + ' ' + ay(Math.max(0, Math.min(1, LAS.index(rows, R.tT, t, k)))).toFixed(1);
+  }
+  s += '<path d="' + std + '" class="las-std"/><path d="' + scn + '" class="las-cur"/>';
+  s += '<circle cx="' + ax(R.t).toFixed(1) + '" cy="' + ay(Math.max(0, Math.min(1, R.Idx))).toFixed(1) + '" r="5" class="las-dot"><title>t = ' + lasYr(R.t) + ' yr, index ' + lasP3(R.Idx) + '</title></circle>';
+  s += '<text x="' + ((L + W - Rt) / 2) + '" y="' + (H - 10) + '" text-anchor="middle" class="las-axl">Project time, years from 1 January 2030</text>' +
+       '<text transform="translate(14 ' + ((T + H - B) / 2) + ') rotate(-90)" text-anchor="middle" class="las-axl">Valuation index</text>';
+  const lx = L + 10;
+  s += '<line x1="' + lx + '" y1="' + (T + 14) + '" x2="' + (lx + 24) + '" y2="' + (T + 14) + '" class="las-cur"/><text x="' + (lx + 30) + '" y="' + (T + 18) + '" class="las-lab">This scenario</text>' +
+       '<line x1="' + lx + '" y1="' + (T + 32) + '" x2="' + (lx + 24) + '" y2="' + (T + 32) + '" class="las-std"/><text x="' + (lx + 30) + '" y="' + (T + 36) + '" class="las-lab">Standard curve, target time ' + k.lasRefT + ' yr</text>';
+  return s + '</svg>';
+}
+
+function renderValuationTab(){
+  const el = document.getElementById('valuationPanel');
+  if (!el) return null;
+  const rows = lassondeSeries(), t = Number(state.phase) - (CURVE_EPOCH - 0.5), R = lasReading(rows, t), k = R.k;
+  const sc = PRESETS[PRESET_OF_FUNDING[state.funding]].label;
+  el.dataset.era = state.phase; el.dataset.tMark = String(t); el.dataset.scenario = sc;
+  el.dataset.tT = String(R.tT); el.dataset.tb = R.tb.join(',');
+  el.dataset.u = String(R.u); el.dataset.s = String(R.s); el.dataset.h = String(R.h);
+  el.dataset.vprog = String(R.V); el.dataset.level = String(R.W);
+  el.dataset.vhigh = R.Vhigh == null ? '' : String(R.Vhigh);
+  el.dataset.idx = String(R.Idx); el.dataset.stage = String(R.stage);
+  el.dataset.std = String(R.std); el.dataset.series = JSON.stringify(rows);
+  const h3 = function(x){ return '<h3 class="lashead">' + x + '</h3>'; };
+  const tile = function(cls, name, val, unit, cap){
+    return '<div class="out ' + cls + '"><div class="swatch"></div><div class="oname">' + name + '</div><div class="oval"><span class="ovalue">' + val +
+           '</span> <span class="ounit">' + unit + '</span></div><div class="kcap" style="margin-top:8px">' + cap + '</div></div>';
+  };
+  const edges = [0, R.tb[0], R.tb[1], R.tb[2], R.tb[3], R.tT, k.lasHorizon], cp = lasCounterparts(k);
+  const h =
+    '<p class="q" id="lasLead">The Lassonde curve is the share-price cycle of a mining venture, which rises on discovery, falls through assessment, rises again as financing and construction remove risk, and declines at closure. This tab places the programme, the scenario\'s lunar venture that produces water and construction material, on six stages in order: ' +
+    LAS_STAGES.slice(0, 5).join(', ') + ' and ' + LAS_STAGES[5] + '.</p>' +
+    '<p id="lasIdxDef">' + 'The valuation index is the height of the curve: the template height up to the target time, and after it programme value over its highest value since the target time, which is 1.00 where programme value is at that highest value. The template is the curve drawn through five anchors, the start, the end of Exploration, the first peak, the trough and the second peak, with a smooth step between each pair. The standard curve is the template with its target time at ' + k.lasRefT + ' yr and a fall of ' + k.lasDecline + ' per yr after it.' + '</p>' +
+    '<p>' + esc(sc) + ' at era ' + esc(state.phase) + ' is read at ' + '<span class="mono" id="lasT">t = ' + lasYr(t) + ' yr</span>' + ', the middle of calendar year ' + esc(state.phase) + ', counted from project start on 1 January 2030. ' + (R.noTarget ? 'Water output stays below the water target of ' + k.waterTarget + ' t/yr through ' + String(CURVE_EPOCH + rows.length - 1) + ', so tT is placed at the end of the time axis, ' + lasYr(R.tT) + ' yr.' : 'Water output reaches the water target of ' + k.waterTarget + ' t/yr at the target time ' + '<span class="mono">tT = ' + lasYr(R.tT) + ' yr</span>' + ', in ' + Math.floor(CURVE_EPOCH + R.tT) + '.') + ' The yearly series is always read at era 2055, so a change of era moves the marker, the point of the curve at which the index and the stage are read, and leaves tT, the stage ends and the level fixed. The level is the present value of programme value over the plant life.' + '</p>' +
+    h3('Six stages') + lasTimelineSvg(R) +
+    '<ol class="lasleg">' + LAS_STAGES.map(function(n, i){
+      return '<li class="las-s' + (i + 1) + (R.stage === i + 1 ? ' on' : '') + '"><span class="mono">' + (i + 1) + '</span> ' + n + ', ' + ((i === 5 && R.noTarget) ? 'from the end of the time axis' : lasYr(edges[i]) + ' to ' + lasYr(edges[i + 1]) + ' yr') + '</li> ';
+    }).join('') + '</ol>' +
+    '<div class="vtiles">' +
+      tile('val-t', 'Target time tT', lasYr(R.tT), 'yr', (R.noTarget ? 'Equation 53, end of the time axis' : 'Equation 53, calendar ' + lasCal(R.tT))) +
+      tile('val-b', 'Level Wpv', '$' + lasB(R.W) + 'B', '', 'Equation 62, present value of the next ' + k.life + ' yearly values from tT at ' + k.hurdle.toFixed(2) + ' per yr') +
+      tile('val-a', 'Programme value Vprog', '$' + lasB(R.V) + 'B', '/yr', 'Equation 61 at t = ' + lasYr(t) + ' yr') +
+      tile('val-c', 'Index Idx', lasP3(R.Idx), '', 'Equation 64, ' + (t <= R.tT ? 'template height up to tT' : 'Vprog over Vhigh after tT')) +
+      tile('val-d', 'Stage', String(R.stage), LAS_STAGES[R.stage - 1], 'Equation 65') +
+    '</div>' +
+    h3('Valuation index and the standard curve') + lasPlotSvg(rows, R) +
+    h3('Stage counterparts') +
+    '<div class="refscroll"><table class="valtbl" id="lasStageTbl"><thead><tr><th>Stage</th><th>Lunar counterpart</th><th>Span, yr</th></tr></thead><tbody>' +
+    LAS_STAGES.map(function(n, i){
+      return '<tr><td class="mono">' + (i + 1) + ' ' + n + '</td><td>' + esc(cp[i]) + '</td><td class="mono">' + ((i === 5 && R.noTarget) ? 'from the end of the time axis' : lasYr(edges[i]) + ' to ' + lasYr(edges[i + 1])) + '</td></tr>';
+    }).join('') + '</tbody></table></div>' +
+    h3('Equations 53 to 65 at this state') +
+    '<div class="refscroll"><table class="valtbl" id="lasEqTbl"><thead><tr><th>Eq</th><th>Id</th><th>Expression</th><th>Value</th></tr></thead><tbody>' +
+    LAS_EQ.map(function(e){
+      return '<tr><td class="eqcol">' + e[0] + '</td><td class="mono">' + e[1] + '</td><td class="mono">' + esc(e[2]) + '</td><td class="mono" data-eq="' + e[0] + '">' + esc(lasEqValue(e[0], R)) + '</td></tr>';
+    }).join('') + '</tbody></table></div>' +
+    h3('Nomenclature, Table L1') + '<p>' + 'A unit of 1 marks a dimensionless quantity. A loop repeats one step over a list of years, and a recurrence computes each value from the value after it or the value before it.' + '</p>' + lasSymbolTable();
+  el.innerHTML = h;
+  return R;
+}
+/* ===== TIER-I-VALUATION:END ===== */
+
 function render(){
   __renderStamp++;
   /* THE CEILING AND THE CLAMP RUN OUTSIDE model(): the applied share is the lesser of the request
@@ -24463,6 +24868,9 @@ function render(){
   { const _eq = document.querySelector('.panel[data-t="eqns"]');
     if (__readerDrag && _eq && _eq.hidden) __eqnsStale = true;
     else { renderEqnsTab(); __eqnsStale = false; } }
+  { const _vp = document.getElementById('valuationPanel');
+    if (_vp && _vp.hidden) __valStale = true;
+    else if (_vp) { renderValuationTab(); __valStale = false; } }
   /* The regime plot lives in standing-fleet space. The point is placed at the standing
      fleet fleetNow() resolved (fs.mass, fs.power), the same pair m itself was evaluated
      on above, at the landing rates the mass and power rails read only for sizing. */
