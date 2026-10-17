@@ -3,8 +3,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Lassonde Curve Explorer</title>
 <style>
-:root{--bg:#ffffff;--fg:#14171a;--muted:#555d66;--panel:#f3f5f8;--line:#c3cad3;--curve:#1a5fb4;--std:#6b6b6b;--band-a:#e6edf7;--band-b:#f4f7fb;--handle:#b3261e;--shape:#7a3fb3;--mark:#0b7a43;--model:#b35a00;--focus:#000000;--halo:#ffffff;--tail:#00789a}
-@media (prefers-color-scheme: dark){:root{--bg:#101418;--fg:#e8eaed;--muted:#a3abb5;--panel:#1a2028;--line:#3a444f;--curve:#8ab4f8;--std:#b8bec6;--band-a:#1a2531;--band-b:#141b23;--handle:#ff8a80;--shape:#d0a8ff;--mark:#6fd9a0;--model:#ffb74d;--focus:#ffffff;--halo:#101418;--tail:#4dd0e1}}
+:root{--bg:#ffffff;--fg:#14171a;--muted:#555d66;--panel:#f3f5f8;--line:#c3cad3;--curve:#1a5fb4;--std:#6b6b6b;--band-a:#e6edf7;--band-b:#f4f7fb;--handle:#b3261e;--shape:#7a3fb3;--mark:#0b7a43;--model:#b35a00;--focus:#000000;--halo:#ffffff}
+@media (prefers-color-scheme: dark){:root{--bg:#101418;--fg:#e8eaed;--muted:#a3abb5;--panel:#1a2028;--line:#3a444f;--curve:#8ab4f8;--std:#b8bec6;--band-a:#1a2531;--band-b:#141b23;--handle:#ff8a80;--shape:#d0a8ff;--mark:#6fd9a0;--model:#ffb74d;--focus:#ffffff;--halo:#101418}}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;margin:0;padding:12px 16px 32px;max-width:1100px;margin-left:auto;margin-right:auto;overflow-x:hidden}
@@ -28,9 +28,7 @@ svg .halo{paint-order:stroke;stroke:var(--halo);stroke-width:3px;stroke-linejoin
 .grid{stroke:var(--line);stroke-width:1;stroke-dasharray:2 4}
 #curve-index{fill:none;stroke:var(--curve);stroke-width:2.5;stroke-linejoin:round}
 #curve-standard{fill:none;stroke:var(--std);stroke-width:1.75;stroke-dasharray:6 4}
-#curve-tail{fill:none;stroke:var(--tail);stroke-width:2.5;stroke-dasharray:10 3 2 3;stroke-linejoin:round}
 [data-handle="markerY"]{pointer-events:none}
-.legend svg line{stroke:var(--tail);stroke-width:2.5;stroke-dasharray:10 3 2 3}
 .stem{stroke:var(--handle);stroke-width:1;stroke-dasharray:3 3;opacity:.7}
 .tmark{stroke:var(--mark);stroke-width:1;stroke-dasharray:4 3}
 .modelmark{fill:var(--model)}
@@ -67,7 +65,7 @@ tr.on td{background:var(--panel)}
 @media (max-width:520px){body{padding:8px 12px 28px}}
 </style></head><body>
 <h1>Lassonde Curve Explorer</h1>
-<p class="lead">The Lassonde curve is the valuation index of a lunar in-situ resource programme against years from 1 January 2030. The index rises through Exploration and Discovery, falls through Feasibility, rises from the trough through Construction and Rampup to 1.00 at the target time, and then follows programme value through Reserve Depletion (Equations 53 to 65). The template is the index shape before the target time, the standard curve is the same shape at target time 12.5 yr with a fixed yearly fall after it, and tT is the target time.</p>
+<p class="lead">The Lassonde curve is the valuation index of a lunar in-situ resource programme against years from 1 January 2030. The index rises through Exploration and Discovery, falls through Feasibility, rises from the trough through Construction and Rampup to 1.00 at the target time, and then falls through Reserve Depletion as the haul distance, the distance a rover drives from the extractor to the nearest unmined ground, grows (Equations 53 to 65). The template is the index shape before the target time, the standard curve is the same shape at target time 12.5 yr with a fixed yearly fall after it, and tT is the target time.</p>
 <div class="controls">
 <label for="scenario">Scenario</label>
 <select id="scenario">
@@ -87,7 +85,6 @@ tr.on td{background:var(--panel)}
 <g id="ticks"></g>
 <path id="curve-standard" d=""></path>
 <path id="curve-index" d=""></path>
-<path id="curve-tail" d="" data-pts="[]"></path>
 <line id="tmark" class="tmark"></line>
 <path id="modelmark" class="modelmark" d=""></path>
 <g id="stems"></g>
@@ -97,15 +94,14 @@ tr.on td{background:var(--panel)}
 <text id="ytitle" class="tick" text-anchor="start">Index</text>
 </svg>
 <div class="legend">
-<span><i></i>Index at the handle settings</span>
+<span><i></i>Index at the handle settings; after tT it falls as the haul distance grows and passes through the dot</span>
 <span><i class="s"></i>Standard curve (reference shape), target time 12.5 yr</span>
-<span><svg width="22" height="6" viewBox="0 0 22 6" aria-hidden="true"><line x1="0" y1="3" x2="22" y2="3"/></svg>Tail: the haul-distance curve after tT, an extension of Equation 64</span>
 <span><i class="m"></i>Evaluation time t</span>
 <span><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M1 11 L11 11 L6 2 Z"/></svg>Model value of tT</span>
 </div>
 <p class="keys">On a focused handle, the arrow keys move 0.1 yr or 0.01 height. Shift multiplies the move by ten. Home and End go to the range limits. The evaluation marker is the dot labelled t, and a pointer drag on it moves time and height together. It has two Tab stops: the first moves time and the second is the height slider, where PageUp and PageDown also move 0.01. Escape returns the handle to its default, and on either stop of the evaluation marker it returns time and height together.</p>
 
-<p id="mechanism">The tail extends Equation 64 after tT to follow the haul distance at one site. The solid curve after tT follows the scenario's programme value, while the tail follows the haul distance and passes through the dot, so the readout Idx reads the solid curve and the dot reads the tail. Haul distance is the distance a rover drives from the extractor to the nearest unmined ground. The curve is for a typical single site with one main in-situ resource utilization (ISRU) facility whose annual capability grows while haul distance grows; opening additional sites is outside the curve. Haul distance grows with the cumulative excavated area. The round trip lengthens, and each rover delivers fewer tonnes per shift. The site's capability grows with the plant and rover mass landing each year, and that growth offsets most of the longer haul. At the preset, the remainder is the decay rate d, the fall in the index in the first year after tT.</p>
+<p id="mechanism">The solid curve after tT, called the tail in the readouts below, falls as the haul distance grows and passes through the dot; IdxModel reads Equation 64 on the programme value for comparison. The curve is for a typical single site with one main in-situ resource utilization (ISRU) facility whose annual capability grows while haul distance grows; opening additional sites is outside the curve. Haul distance grows with the cumulative excavated area. The round trip lengthens, and each rover delivers fewer tonnes per shift. The site's capability grows with the plant and rover mass landing each year, and that growth offsets most of the longer haul. At the preset, the remainder is the decay rate d, the fall in the index in the first year after tT.</p>
 
 <h2>Readouts at the evaluation time</h2>
 <p class="sr" id="status" role="status" aria-live="polite"></p>
@@ -238,15 +234,15 @@ var MOVES={
  marker:['uStage','sStep','hTpl','Vprog','Vhigh','Idx','stage']};
 var ALLQ=['tb1','tb2','tb3','tb4','uStage','sStep','hTpl','Vprog','Wpv','W1','Vhigh','Idx','stage'];
 LABEL.markerY='Tail index at the evaluation time';SHORT.markerY='t';
-WHAT.markerY="Tail index at the evaluation time, the height of the tail after tT, an extension of Equation 64. The tail starts at 1.00 at tT and passes through this point. The height sets d, the fall in the first year after tT.";
-WHAT.marker="Evaluation time t at which Equations 58 to 60, 61, 63, 64 and 65 and the tail are read. A pointer drag moves time and height together and sets d, so it also moves tailD, tailT and tailH. The arrow keys on this handle move time only.";
-MOVES.markerY=['tailD','tailT','tailH'];MOVES.marker.push('tailT');MOVES.tT.push('tailT','tailH');
-ALLQ.push('tailD','tailT','tailH');
+WHAT.markerY="Tail index at the evaluation time, the height of the tail, which is the solid curve after tT and an extension of Equation 64. The tail starts at 1.00 at tT and passes through this point. The height sets d, the fall in the first year after tT.";
+WHAT.marker="Evaluation time t at which Equations 58 to 60, 61, 63, 64 and 65 and the tail are read. A pointer drag moves time and height together and sets d, so it also moves the curve after tT, Idx, tailD, tailT and tailH. The arrow keys on this handle move time only.";
+MOVES.markerY=['Idx','tailD','tailT','tailH'];MOVES.marker.push('tailT');MOVES.tT.push('tailT','tailH');
+ALLQ.push('tailD','tailT','tailH','IdxModel');['tT','tb1','tb2','tb3','peak1','trough','endexp','marker'].forEach(function(n){MOVES[n].push('IdxModel')});
 var EQFMT="Eq {n} {id}";
 var RD=[['tT',53,"Target time (yr): the project time at which the programme's yearly water output reaches the water target"],['kStar',53,"First year at or above the water target for the model value of tT (years after 2030; 2030 is 0; yearly values sit at mid-year)"],['wLo',53,"Water in the year before, for the model value of tT (t/yr)"],['wHi',53,"Water in that year, for the model value of tT (t/yr)"],
  ['tb1',54,"End of Exploration tb1 (yr)"],['tb2',55,"End of Discovery tb2 (yr)"],['tb3',56,"End of Feasibility tb3 (yr)"],['tb4',57,"End of Construction tb4 (yr)"],
  ['uStage',58,'Coordinate within the template segment'],['sStep',59,'Smooth step of the coordinate'],['hTpl',60,'Template height'],['Vprog',61,'Programme value at t ($/yr)'],
- ['Wpv',62,"Level, present value of programme value at tT ($)"],['W1',62,'Present value one year after tT ($)'],['Vhigh',63,'Highest programme value since tT ($/yr)'],['Idx',64,'Index at t'],['stage',65,'Stage number at t'],['stageName',65,'Stage at t']];
+ ['Wpv',62,"Level, present value of programme value at tT ($)"],['W1',62,'Present value one year after tT ($)'],['Vhigh',63,'Highest programme value since tT ($/yr)'],['Idx',64,'Index at t on the solid curve: the template to tT, then the one-site haul-distance tail after tT (extension of Equation 64)'],['IdxModel',64,'Index at t, Equation 64 on the scenario programme value'],['stage',65,'Stage number at t'],['stageName',65,'Stage at t']];
 var $=function(s){return document.querySelector(s)};
 var NS='http://www.w3.org/2000/svg';
 function mk(tag,attrs,parent){var e=document.createElementNS(NS,tag);for(var k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
@@ -256,7 +252,7 @@ function py(h){return G.y+G.h-h/G.ymax*G.h}
 RD.forEach(function(r){var li=document.createElement('li');var c=document.createElement('span');c.className='cap';c.appendChild(document.createTextNode(r[2]));
   var q=document.createElement('span');q.className='eq';q.appendChild(document.createTextNode(EQFMT.replace('{n}',r[1]).replace('{id}',r[0])));c.appendChild(q);
   var o=document.createElement('output');o.setAttribute('aria-live','off');o.setAttribute('data-eq',String(r[1]));o.setAttribute('data-q',r[0]);li.appendChild(c);li.appendChild(document.createTextNode(' '));li.appendChild(o);$(/^(kStar|wLo|wHi)$/.test(r[0])?'#bracket':'#readouts').appendChild(li)});
-[['tailD',"Decay rate d, the fall in the first year after tT (per yr)"],['tailT','Tail index at t'],['tailH','Tail index at the end of the time axis']].forEach(function(r){var li=document.createElement('li');var c=document.createElement('span');c.className='cap';c.appendChild(document.createTextNode(r[1]));
+[['tailD',"Tail decay rate d, the fall in the first year after tT (per yr)"],['tailT','Tail index at t: the haul-distance curve after tT, the same curve as Idx there'],['tailH','Tail index at the end of the time axis']].forEach(function(r){var li=document.createElement('li');var c=document.createElement('span');c.className='cap';c.appendChild(document.createTextNode(r[1]));
   var q=document.createElement('span');q.className='eq';q.appendChild(document.createTextNode('extension of Eq 64 '+r[0]));c.appendChild(q);
   var o=document.createElement('output');o.setAttribute('aria-live','off');o.setAttribute('data-ext','64');o.setAttribute('data-q',r[0]);li.appendChild(c);li.appendChild(document.createTextNode(' '));li.appendChild(o);$('#readouts').appendChild(li)});
 var PV=[['t','marker',2,"Evaluation time t (yr)"],['peak1','peak1',3,"First peak height lasPeak1 (index)"],['trough','trough',3,"Trough depth lasTrough (ratio of first peak)"],['endexp','endexp',3,"Index at end of Exploration lasEndExp (index)"]];
@@ -334,6 +330,7 @@ ORDER.forEach(function(n){
   c.addEventListener('pointerup',end);
   c.addEventListener('pointercancel',end);
 });
+$('#handles').appendChild(HN.marker);$('#handles').appendChild(HN.markerY);$('#handles').appendChild(DOT.marker);$('#handles').appendChild(LB.marker);
 mk('path',{id:'vcue','class':'vcue','aria-hidden':'true',d:''},$('#plot'));
 function setQ(q,v,txt){var e=$('[data-q="'+q+'"]');e.setAttribute('data-v',v===null?'':String(v));e.textContent=txt}
 function f3(v){return v.toFixed(3)}
@@ -363,14 +360,14 @@ function render(){
   fixF();
   var k=kk(),rows=SERIES[S.sc],tT=S.tT,t=S.t,tg=F.target(water(),K),tb=F.stageEnds(tT,k),L=F.level(rows,tT,k);
   var u=F.uStage(t,tT,k),Vh=t>tT?F.vhigh(rows,tT,t):null,st=F.stageAt(t,tT,k);
-  var out={tT:tT,kStar:tg.kStar,wLo:tg.wLo,wHi:tg.wHi,tb1:tb[0],tb2:tb[1],tb3:tb[2],tb4:tb[3],uStage:u,sStep:F.sStep(u),hTpl:F.hTpl(t,tT,k),Vprog:F.Vat(rows,t),Wpv:L.W[0],W1:L.W[1],Vhigh:Vh,Idx:F.index(rows,tT,t,k),stage:st};
+  var out={tT:tT,kStar:tg.kStar,wLo:tg.wLo,wHi:tg.wHi,tb1:tb[0],tb2:tb[1],tb3:tb[2],tb4:tb[3],uStage:u,sStep:F.sStep(u),hTpl:F.hTpl(t,tT,k),Vprog:F.Vat(rows,t),Wpv:L.W[0],W1:L.W[1],Vhigh:Vh,Idx:hMark(),IdxModel:F.index(rows,tT,t,k),stage:st};
   setQ('tT',out.tT,out.tT.toPrecision(3));setQ('kStar',out.kStar,String(out.kStar));setQ('wLo',out.wLo,out.wLo.toPrecision(3));setQ('wHi',out.wHi,isNaN(out.wHi)?'n/a':out.wHi.toPrecision(3));
   ['tb1','tb2','tb3','tb4'].forEach(function(q){setQ(q,out[q],out[q].toPrecision(3))});
   setQ('uStage',out.uStage,f3(out.uStage));setQ('sStep',out.sStep,f3(out.sStep));setQ('hTpl',out.hTpl,f3(out.hTpl));
   setQ('Vprog',out.Vprog,bn(out.Vprog)+'/yr');
   setQ('Wpv',out.Wpv,bn(out.Wpv));setQ('W1',out.W1,bn(out.W1));
   setQ('Vhigh',out.Vhigh,out.Vhigh===null?'n/a':bn(out.Vhigh)+'/yr');
-  setQ('Idx',out.Idx,f3(out.Idx));setQ('stage',out.stage,String(out.stage));setQ('stageName',STAGES[out.stage-1],STAGES[out.stage-1]);
+  setQ('Idx',out.Idx,f3(out.Idx));setQ('IdxModel',out.IdxModel,f3(out.IdxModel));setQ('stage',out.stage,String(out.stage));setQ('stageName',STAGES[out.stage-1],STAGES[out.stage-1]);
   var mt=modelT();
   $('#model-marker').setAttribute('data-v',String(mt));$('#model-marker').textContent=mt.toPrecision(3);
   var edges=[0,tb[0],tb[1],tb[2],tb[3],tT,K.lasHorizon];
@@ -379,13 +376,14 @@ function render(){
     var l=$('[data-band-label="'+(i+1)+'"]');var lx=px(edges[i])+5,ly=G.y+6;
     l.setAttribute('x',lx);l.setAttribute('y',ly);l.setAttribute('transform','rotate(90 '+lx+' '+ly+')');
     STROWS[i][0].className=(i+1===out.stage)?'on':'';STROWS[i][1].textContent=edges[i].toPrecision(3)+' to '+edges[i+1].toPrecision(3)}
-  var pi=[],ps=[];for(var s=0;s<=104;s++){var tt=s*0.25;pi.push([tt,F.index(rows,tT,tt,k)]);ps.push([tt,F.standard(tt,K)])}
+  var pi=[],ps=[];for(var s=0;s<=104;s++){var tt=s*0.25;ps.push([tt,F.standard(tt,K)])}
   function path(a){return a.map(function(p,j){return (j?'L':'M')+px(p[0]).toFixed(2)+' '+py(p[1]).toFixed(2)}).join('')}
-  $('#curve-index').setAttribute('d',path(pi));$('#curve-index').setAttribute('data-pts',JSON.stringify(pi));
-  $('#curve-standard').setAttribute('d',path(ps));$('#curve-standard').setAttribute('data-pts',JSON.stringify(ps));
+    $('#curve-standard').setAttribute('d',path(ps));$('#curve-standard').setAttribute('data-pts',JSON.stringify(ps));
   var hm=hMark(),dd=S.d,tD=tT>=K.lasHorizon-1e-9?[]:(function(){var a=[tT],g,x=1e-5,e=tT;for(;x<1;x*=1.3){if(tT+x<K.lasHorizon-1e-9){e=tT+x;a.push(e)}}for(g=0;g<=104;g++){var q=g*0.25;if(q>e+1e-9)a.push(q)}if(t>tT+1e-9&&!a.some(function(x){return Math.abs(x-t)<1e-9}))a.push(t);a.sort(function(x,y){return x-y});return a})();
-  var tp=tD.map(function(x){return [x,tailF(x-tT,dd)]});
-  $('#curve-tail').setAttribute('d',path(tp));$('#curve-tail').setAttribute('data-pts',JSON.stringify(tp));
+  var st2=Math.min(0.25,tT/80),n2=Math.ceil(tT/st2-1e-9),tg2=[],i2,lp=-1;for(i2=0;i2<n2;i2++)tg2.push(i2*st2);if(t<tT-1e-9)tg2.push(t);tg2.sort(function(a,b){return a-b});
+  tg2.forEach(function(t2){if(t2<tT-1e-9&&t2-lp>1e-9){pi.push([t2,F.hTpl(t2,tT,k)]);lp=t2}});
+  tD.forEach(function(x){pi.push([x,x<=tT+1e-12?F.hTpl(tT,tT,k):tailF(x-tT,dd)])});if(!tD.length)pi.push([tT,F.hTpl(tT,tT,k)]);
+  $('#curve-index').setAttribute('d',path(pi));$('#curve-index').setAttribute('data-pts',JSON.stringify(pi));
   var tAt=t>tT?tailF(t-tT,dd):null,tH=tT>=K.lasHorizon-1e-9?1:tailF(K.lasHorizon-tT,dd);
   setQ('tailD',dd,fd(dd));setQ('tailT',tAt,tAt===null?'n/a':f3(tAt));setQ('tailH',tH,f3(tH));
   var tm=$('#tmark');tm.setAttribute('x1',px(t));tm.setAttribute('x2',px(t));tm.setAttribute('y1',G.y);tm.setAttribute('y2',G.y+G.h);
@@ -399,6 +397,9 @@ function render(){
     if(STEM[n]){STEM[n].setAttribute('x1',x);STEM[n].setAttribute('x2',x);STEM[n].setAttribute('y1',py(0));STEM[n].setAttribute('y2',py(p[1]))}
     c.setAttribute('aria-valuenow',String(rnd(h.get())));c.setAttribute('aria-valuemin',String(rnd(h.min())));c.setAttribute('aria-valuemax',String(rnd(h.max())));
     c.setAttribute('aria-valuetext',((n==='marker'||h.ax==='h')?rnd(h.get()).toFixed(h.ax==='t'?2:3):rnd(h.get()).toPrecision(3))+h.unit);});
+  var dx9=px(t)-px(tT),nr9=Math.abs(dx9)<40;
+  LB.tT.setAttribute('text-anchor',nr9&&dx9>=0?'end':'start');LB.tT.setAttribute('x',px(tT)+(nr9&&dx9>=0?-9:9));
+  LB.marker.setAttribute('text-anchor',nr9&&dx9<0?'end':'start');LB.marker.setAttribute('x',px(t)+(nr9&&dx9<0?-9:9));
   HN.markerY.setAttribute('aria-disabled',dis()?'true':'false');
   var off=dis(),cxm=px(t),cym=py(hm);
   HN.marker.setAttribute('class',off?'off':'');DOT.marker.setAttribute('class','dot h-mark'+(off?' off':''));
@@ -407,7 +408,6 @@ function render(){
   setTips();
   PV.forEach(function(r){var e=$('[data-p="'+r[0]+'"]');e.textContent=rnd(H[r[1]].get()).toFixed(r[2])});
   $('#status').textContent='Index '+f3(out.Idx)+', stage '+out.stage+' '+STAGES[out.stage-1]+', at t '+t.toFixed(2)+' yr';
-  if(t>tT)$('#status').textContent+=', tail index '+f3(tAt);
 }
 $('#scenario').addEventListener('change',function(e){S.sc=e.target.value;S.tT=modelT();render()});
 $('#reset').addEventListener('click',function(){S.sc='artemis';$('#scenario').value='artemis';S.f=D.f.slice();S.peak1=D.peak1;S.trough=D.trough;S.endexp=D.endexp;S.t=D.t;S.d=XK.haulDecay;S.tT=modelT();render()});
