@@ -3,8 +3,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Lassonde Curve Explorer</title>
 <style>
-:root{--bg:#ffffff;--fg:#14171a;--muted:#555d66;--panel:#f3f5f8;--line:#c3cad3;--curve:#1a5fb4;--std:#6b6b6b;--band-a:#e6edf7;--band-b:#f4f7fb;--handle:#b3261e;--shape:#7a3fb3;--mark:#0b7a43;--model:#b35a00;--focus:#000000;--halo:#ffffff}
-@media (prefers-color-scheme: dark){:root{--bg:#101418;--fg:#e8eaed;--muted:#a3abb5;--panel:#1a2028;--line:#3a444f;--curve:#8ab4f8;--std:#b8bec6;--band-a:#1a2531;--band-b:#141b23;--handle:#ff8a80;--shape:#d0a8ff;--mark:#6fd9a0;--model:#ffb74d;--focus:#ffffff;--halo:#101418}}
+:root{--bg:#ffffff;--fg:#14171a;--muted:#555d66;--panel:#f3f5f8;--line:#c3cad3;--curve:#1a5fb4;--std:#6b6b6b;--band-a:#e6edf7;--band-b:#f4f7fb;--handle:#b3261e;--shape:#7a3fb3;--mark:#0b7a43;--model:#b35a00;--focus:#000000;--halo:#ffffff;--tail:#00789a}
+@media (prefers-color-scheme: dark){:root{--bg:#101418;--fg:#e8eaed;--muted:#a3abb5;--panel:#1a2028;--line:#3a444f;--curve:#8ab4f8;--std:#b8bec6;--band-a:#1a2531;--band-b:#141b23;--handle:#ff8a80;--shape:#d0a8ff;--mark:#6fd9a0;--model:#ffb74d;--focus:#ffffff;--halo:#101418;--tail:#4dd0e1}}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;margin:0;padding:12px 16px 32px;max-width:1100px;margin-left:auto;margin-right:auto;overflow-x:hidden}
@@ -28,12 +28,21 @@ svg .halo{paint-order:stroke;stroke:var(--halo);stroke-width:3px;stroke-linejoin
 .grid{stroke:var(--line);stroke-width:1;stroke-dasharray:2 4}
 #curve-index{fill:none;stroke:var(--curve);stroke-width:2.5;stroke-linejoin:round}
 #curve-standard{fill:none;stroke:var(--std);stroke-width:1.75;stroke-dasharray:6 4}
+#curve-tail{fill:none;stroke:var(--tail);stroke-width:2.5;stroke-dasharray:10 3 2 3;stroke-linejoin:round}
+[data-handle="markerY"]{pointer-events:none}
+.legend svg line{stroke:var(--tail);stroke-width:2.5;stroke-dasharray:10 3 2 3}
 .stem{stroke:var(--handle);stroke-width:1;stroke-dasharray:3 3;opacity:.7}
 .tmark{stroke:var(--mark);stroke-width:1;stroke-dasharray:4 3}
 .modelmark{fill:var(--model)}
 [data-handle]{touch-action:none;cursor:grab;fill:var(--handle);fill-opacity:.1;stroke:none;outline:none}
 [data-handle]:active{cursor:grabbing}
 [data-handle]:focus,[data-handle]:focus-visible{stroke:var(--focus);stroke-width:2.5;fill-opacity:.25}
+[data-handle="markerY"],[data-handle="markerY"]:focus,[data-handle="markerY"]:focus-visible{fill-opacity:0}
+[data-handle="markerY"]:focus,[data-handle="markerY"]:focus-visible{stroke-dasharray:5 3;stroke-width:3}
+[data-handle="marker"]{cursor:move}
+[data-handle="marker"].off{cursor:ew-resize}
+.dot.h-mark.off{fill:var(--bg);stroke:var(--mark);stroke-width:2}
+.vcue{pointer-events:none;fill:none;stroke:var(--mark);stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
 .dot{pointer-events:none;stroke:var(--bg);stroke-width:1.5}
 .dot.h-time{fill:var(--handle)}
 .dot.h-shape{fill:var(--shape)}
@@ -78,6 +87,7 @@ tr.on td{background:var(--panel)}
 <g id="ticks"></g>
 <path id="curve-standard" d=""></path>
 <path id="curve-index" d=""></path>
+<path id="curve-tail" d="" data-pts="[]"></path>
 <line id="tmark" class="tmark"></line>
 <path id="modelmark" class="modelmark" d=""></path>
 <g id="stems"></g>
@@ -89,10 +99,13 @@ tr.on td{background:var(--panel)}
 <div class="legend">
 <span><i></i>Index at the handle settings</span>
 <span><i class="s"></i>Standard curve (reference shape), target time 12.5 yr</span>
+<span><svg width="22" height="6" viewBox="0 0 22 6" aria-hidden="true"><line x1="0" y1="3" x2="22" y2="3"/></svg>Tail: the haul-distance curve after tT, an extension of Equation 64</span>
 <span><i class="m"></i>Evaluation time t</span>
 <span><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M1 11 L11 11 L6 2 Z"/></svg>Model value of tT</span>
 </div>
-<p class="keys">On a focused handle, the arrow keys move 0.1 yr or 0.01 height, Shift multiplies the move by ten, Home and End go to the range limits, and Escape returns the handle to its default.</p>
+<p class="keys">On a focused handle, the arrow keys move 0.1 yr or 0.01 height. Shift multiplies the move by ten. Home and End go to the range limits. The evaluation marker is the dot labelled t, and a pointer drag on it moves time and height together. It has two Tab stops: the first moves time and the second is the height slider, where PageUp and PageDown also move 0.01. Escape returns the handle to its default, and on either stop of the evaluation marker it returns time and height together.</p>
+
+<p id="mechanism">The tail extends Equation 64 after tT to follow the haul distance at one site. The solid curve after tT follows the scenario's programme value, while the tail follows the haul distance and passes through the dot, so the readout Idx reads the solid curve and the dot reads the tail. Haul distance is the distance a rover drives from the extractor to the nearest unmined ground. The curve is for a typical single site with one main in-situ resource utilization (ISRU) facility whose annual capability grows while haul distance grows; opening additional sites is outside the curve. Haul distance grows with the cumulative excavated area. The round trip lengthens, and each rover delivers fewer tonnes per shift. The site's capability grows with the plant and rover mass landing each year, and that growth offsets most of the longer haul. At the preset, the remainder is the decay rate d, the fall in the index in the first year after tT.</p>
 
 <h2>Readouts at the evaluation time</h2>
 <p class="sr" id="status" role="status" aria-live="polite"></p>
@@ -178,6 +191,13 @@ var COUNTERPART=[
 var EPS=0.01;
 var D={f:[K.lasF1,K.lasF2,K.lasF3,K.lasF4],peak1:K.lasPeak1,trough:K.lasTrough,endexp:K.lasEndExp,t:25.5};
 var S={sc:'artemis',f:D.f.slice(),peak1:D.peak1,trough:D.trough,endexp:D.endexp,t:D.t,tT:0,drag:null};
+var XK={haulDecay:0.02,haulFleetGrowth:0.27,haulFactorLoss:0.06,haulSpeed:0.2,haulLoadDump:7.5,haulStandoff:100,haulArea:0.39,lasTailHFloor:0.01,lasTailSpanMin:0.05};
+S.vy=false;S.d=XK.haulDecay;
+// Tail after tT, an extension of Equation 64: h = (1 - d) / (1 - d + d x), x = t - tT. h(tT) = 1.00, h(tT + 1) = 1 - d, asymptote 0.
+function tailF(x,d){return (1-d)/(1-d+d*x)}
+function tailInv(h,x){return (1-h)/(1-h+h*x)}
+function hMark(){return S.t<=S.tT?F.hTpl(S.t,S.tT,kk()):tailF(S.t-S.tT,S.d)}
+function dis(){return (S.t-S.tT)<XK.lasTailSpanMin}
 function cl(v,a,b){return Math.max(a,Math.min(b,v))}
 function rnd(v){return Math.round(v*1e6)/1e6}
 function water(){return SERIES[S.sc].map(function(r){return r.water})}
@@ -196,7 +216,8 @@ H.peak1={ax:'h',step:0.01,unit:'',get:function(){return S.peak1},min:function(){
 H.trough={ax:'h',step:0.01,unit:' of first peak',get:function(){return S.trough},min:function(){return 0.05},max:function(){return 1},set:function(v){S.trough=cl(v,0.05,1)},def:function(){return D.trough}};
 H.endexp={ax:'h',step:0.01,unit:'',get:function(){return S.endexp},min:function(){return 0.01},max:function(){return S.peak1-0.01},set:function(v){S.endexp=cl(v,0.01,S.peak1-0.01)},def:function(){return D.endexp}};
 H.marker={ax:'t',step:0.1,unit:' yr',get:function(){return S.t},min:function(){return 0},max:function(){return K.lasHorizon},set:function(v){S.t=cl(v,0,K.lasHorizon)},def:function(){return D.t}};
-var ORDER=['tT','tb1','tb2','tb3','tb4','peak1','trough','endexp','marker'];
+H.markerY={ax:'h',step:0.01,unit:' index',get:function(){return cl(hMark(),XK.lasTailHFloor,1)},min:function(){return XK.lasTailHFloor},max:function(){return 1},set:function(v){if(dis())return;S.d=tailInv(cl(v,XK.lasTailHFloor,1),S.t-S.tT)},def:function(){return cl(tailF(D.t-S.tT,XK.haulDecay),XK.lasTailHFloor,1)}};
+var ORDER=['tT','tb1','tb2','tb3','tb4','peak1','trough','endexp','marker','markerY'];
 var LABEL={tT:'Target time tT',tb1:'End of Exploration tb1',tb2:'End of Discovery tb2',tb3:'End of Feasibility tb3',tb4:'End of Construction tb4',peak1:'First peak height lasPeak1',trough:'Trough depth lasTrough',endexp:"Index at end of Exploration lasEndExp",marker:'Evaluation time t'};
 var SHORT={tT:'tT',tb1:'tb1',tb2:'tb2',tb3:'tb3',tb4:'tb4',peak1:'peak 1',trough:'trough',endexp:'end exp',marker:'t'};
 var WHAT={
@@ -216,6 +237,11 @@ var MOVES={
  peak1:['hTpl','Idx'],trough:['hTpl','Idx'],endexp:['hTpl','Idx'],
  marker:['uStage','sStep','hTpl','Vprog','Vhigh','Idx','stage']};
 var ALLQ=['tb1','tb2','tb3','tb4','uStage','sStep','hTpl','Vprog','Wpv','W1','Vhigh','Idx','stage'];
+LABEL.markerY='Tail index at the evaluation time';SHORT.markerY='t';
+WHAT.markerY="Tail index at the evaluation time, the height of the tail after tT, an extension of Equation 64. The tail starts at 1.00 at tT and passes through this point. The height sets d, the fall in the first year after tT.";
+WHAT.marker="Evaluation time t at which Equations 58 to 60, 61, 63, 64 and 65 and the tail are read. A pointer drag moves time and height together and sets d, so it also moves tailD, tailT and tailH. The arrow keys on this handle move time only.";
+MOVES.markerY=['tailD','tailT','tailH'];MOVES.marker.push('tailT');MOVES.tT.push('tailT','tailH');
+ALLQ.push('tailD','tailT','tailH');
 var EQFMT="Eq {n} {id}";
 var RD=[['tT',53,"Target time (yr): the project time at which the programme's yearly water output reaches the water target"],['kStar',53,"First year at or above the water target for the model value of tT (years after 2030; 2030 is 0; yearly values sit at mid-year)"],['wLo',53,"Water in the year before, for the model value of tT (t/yr)"],['wHi',53,"Water in that year, for the model value of tT (t/yr)"],
  ['tb1',54,"End of Exploration tb1 (yr)"],['tb2',55,"End of Discovery tb2 (yr)"],['tb3',56,"End of Feasibility tb3 (yr)"],['tb4',57,"End of Construction tb4 (yr)"],
@@ -230,6 +256,9 @@ function py(h){return G.y+G.h-h/G.ymax*G.h}
 RD.forEach(function(r){var li=document.createElement('li');var c=document.createElement('span');c.className='cap';c.appendChild(document.createTextNode(r[2]));
   var q=document.createElement('span');q.className='eq';q.appendChild(document.createTextNode(EQFMT.replace('{n}',r[1]).replace('{id}',r[0])));c.appendChild(q);
   var o=document.createElement('output');o.setAttribute('aria-live','off');o.setAttribute('data-eq',String(r[1]));o.setAttribute('data-q',r[0]);li.appendChild(c);li.appendChild(document.createTextNode(' '));li.appendChild(o);$(/^(kStar|wLo|wHi)$/.test(r[0])?'#bracket':'#readouts').appendChild(li)});
+[['tailD',"Decay rate d, the fall in the first year after tT (per yr)"],['tailT','Tail index at t'],['tailH','Tail index at the end of the time axis']].forEach(function(r){var li=document.createElement('li');var c=document.createElement('span');c.className='cap';c.appendChild(document.createTextNode(r[1]));
+  var q=document.createElement('span');q.className='eq';q.appendChild(document.createTextNode('extension of Eq 64 '+r[0]));c.appendChild(q);
+  var o=document.createElement('output');o.setAttribute('aria-live','off');o.setAttribute('data-ext','64');o.setAttribute('data-q',r[0]);li.appendChild(c);li.appendChild(document.createTextNode(' '));li.appendChild(o);$('#readouts').appendChild(li)});
 var PV=[['t','marker',2,"Evaluation time t (yr)"],['peak1','peak1',3,"First peak height lasPeak1 (index)"],['trough','trough',3,"Trough depth lasTrough (ratio of first peak)"],['endexp','endexp',3,"Index at end of Exploration lasEndExp (index)"]];
 PV.forEach(function(r){var li=document.createElement('li');var c=document.createElement('span');c.className='cap';c.appendChild(document.createTextNode(r[3]));var o=document.createElement('output');o.setAttribute('aria-live','off');o.setAttribute('data-p',r[0]);li.appendChild(c);li.appendChild(o);$('#readouts').appendChild(li)});
 var CONSTS=[
@@ -247,6 +276,8 @@ var CONSTS=[
  ['lasMinClock',K.lasMinClock,'1 yr',"ASSUMPTION. For this analysis, 1 yr was used to represent the shortest target time: a crossing earlier than 1 year places the target time at 1 year. Accept 0.5 to 2 yr."],
  ['lenderHurdle',K.hurdle,'0.10 per yr',"Model input. For this analysis, 0.10 per yr was used to represent the lender hurdle, the discount rate of Equation 62."],
  ['life',K.life,'11 yr',"Model input. For this analysis, 11 yr was used to represent the plant life of Equation 62, after which a plant retires."]];
+var SCOPE_SENTENCE="The curve is for a typical single site with one main in-situ resource utilization (ISRU) facility whose annual capability grows while haul distance grows; opening additional sites is outside the curve.";
+[["haulDecay",0.02,"0.02 per yr","ASSUMPTION","For this analysis, 0.02 per yr was used to represent the fall in the first year after the target time in the value of the site's output, the share of landed mass that reaches the mining fleet offsetting most but not all of the longer haul.","per yr","0.00",0.06,true],["haulFleetGrowth",0.27,"0.27 per yr","DERIVED","For this analysis, 0.27 per yr was used to represent the first-year growth of the mining-plant mass at the site after the target time.","per yr",0.07,0.83],["haulFactorLoss",0.06,"0.06 per yr","DERIVED","For this analysis, 0.06 per yr was used to represent the fraction of the site's productivity lost in the first year after the target time as the nearest unmined ground sits farther from the extractor.","per yr",0.04,0.08],["haulSpeed",0.2,"0.2 m/s","SOURCED","For this analysis, 0.2 m/s was used to represent the speed of a loaded or empty regolith rover on the haul route.","m/s",0.1,0.5,false,"Linne et al. (2020) assume this velocity for the lunar excavator."],["haulLoadDump",7.5,"7.5 min per load","DERIVED","For this analysis, 7.5 min was used to represent the time to load and dump one rover load.","min per load",5,15],["haulStandoff",100,"100 m","SOURCED","For this analysis, 100 m was used to represent the distance from the extractor to the nearest ground before mining begins.","m",50,200,false,"Kleinhenz and Paz (2020) fix the mine-to-extraction-site distance at 100 m."],["haulArea",0.39,"0.39 t per m2","DERIVED","For this analysis, 0.39 t per m2 was used to represent the mass of ore per square metre of mined ground.","t per m2",0.2,0.78],["lasTailHFloor",0.01,"0.01 index","ASSUMPTION","For this analysis, 0.01 was used to represent the lowest tail height the height axis accepts.","index",0.005,0.05],["lasTailSpanMin",0.05,"0.05 yr","ASSUMPTION","For this analysis, 0.05 yr was used to represent the shortest time after the target time at which the tail height sets the yearly fall.","yr",0.02,0.25]].forEach(function(r){CONSTS.push([r[0],XK[r[0]],r[2],r[3]+'. '+r[4]+(r[8]?' '+SCOPE_SENTENCE:'')+(r[9]?' '+r[9]:'')+' Accept '+r[6]+' to '+r[7]+' '+r[5]+'.'])});
 CONSTS.forEach(function(c){var tr=document.createElement('tr');tr.setAttribute('data-const',c[0]);tr.setAttribute('data-v',String(c[1]));
   [c[0],c[2],c[3]].forEach(function(s){var td=document.createElement('td');td.textContent=s;tr.appendChild(td)});
   $('#consts tbody').appendChild(tr)});
@@ -255,20 +286,32 @@ STAGES.forEach(function(n,i){var tr=document.createElement('tr');var a=document.
   tr.appendChild(a);tr.appendChild(b);tr.appendChild(c);$('#stagetbl tbody').appendChild(tr);STROWS.push([tr,b])});
 for(var i=0;i<6;i++){mk('rect',{'data-band':String(i+1),'class':i%2?'band-b':'band-a'},$('#bands'))}
 for(var i=0;i<6;i++){var tx=mk('text',{'data-band-label':String(i+1),'class':'halo tick'},$('#bands'));tx.textContent=STAGES[i]}
-var HN={},DOT={},LB={},STEM={};
+var HN={},DOT={},LB={},STEM={},TI={};
+function tipOf(n){var notm=ALLQ.filter(function(q){return MOVES[n].indexOf(q)<0});
+  var st=(n==='marker'||n==='markerY')?' '+(dis()?'The height axis applies after tT and is off now: t is less than tT plus '+XK.lasTailSpanMin+' yr.':'The height axis applies after tT and is on now.'):'';
+  return WHAT[n]+st+' Moves: '+MOVES[n].join(', ')+'. Not moved by this handle'+(n==='marker'?' with the arrow keys':'')+': '+notm.join(', ')+'.'}
+function setTips(){['marker','markerY'].forEach(function(n){var tip=tipOf(n);HN[n].setAttribute('title',tip);HN[n].setAttribute('aria-description',tip);TI[n].textContent=tip})}
+function ptr(e){var p=$('#plot'),r=p.getBoundingClientRect(),vb=p.getAttribute('viewBox').split(/[ ,]+/).map(Number);return [vb[0]+(e.clientX-r.left)/r.width*vb[2],vb[1]+(e.clientY-r.top)/r.height*vb[3]]}
+function gap(q,m){var c=HN[m];return Math.sqrt(Math.pow(q[0]-Number(c.getAttribute('cx')),2)+Math.pow(q[1]-Number(c.getAttribute('cy')),2))}
+// DES F6: a press inside several handle discs starts on the nearest centre
+function nearest(e,n){if(n==='markerY'||!isFinite(e.clientX)||!isFinite(e.clientY))return n;var q=ptr(e),best=n,bd=gap(q,n);if(bd>Number(HN[n].getAttribute('r')))return n;
+  ORDER.forEach(function(m){if(m==='markerY'||m===n)return;var d=gap(q,m);if(d<=Number(HN[m].getAttribute('r'))&&d<bd-0.5){bd=d;best=m}});return best}
 ORDER.forEach(function(n){
   var kind=n==='marker'?'h-mark':(n==='peak1'||n==='trough'||n==='endexp')?'h-shape':'h-time';
   if(/^tb[123]$/.test(n))STEM[n]=mk('line',{'class':'stem'},$('#stems'));
   var c=mk('circle',{'data-handle':n,r:22,tabindex:0,role:'slider','aria-label':LABEL[n],'aria-orientation':H[n].ax==='h'?'vertical':'horizontal'},$('#handles'));
-  var notm=ALLQ.filter(function(q){return MOVES[n].indexOf(q)<0});
-  var tip=WHAT[n]+' Moves: '+MOVES[n].join(', ')+'. Not moved by this handle: '+notm.join(', ')+'.';
+  var tip=tipOf(n);
   c.setAttribute('title',tip);c.setAttribute('aria-description',tip);
-  var ti=document.createElementNS(NS,'title');ti.textContent=tip;c.appendChild(ti);
+  var ti=document.createElementNS(NS,'title');ti.textContent=tip;c.appendChild(ti);TI[n]=ti;
   HN[n]=c;
+  if(n==='markerY'){DOT[n]=DOT.marker;LB[n]=LB.marker}else{
   DOT[n]=mk('circle',{'class':'dot '+kind,r:7},$('#handles'));
-  LB[n]=mk('text',{'class':'lbl halo'},$('#handles'));LB[n].textContent=SHORT[n];
+  LB[n]=mk('text',{'class':'lbl halo'},$('#handles'));LB[n].textContent=SHORT[n]}
   c.addEventListener('keydown',function(e){
     var h=H[n],k=e.key,m=e.shiftKey?10:1,v=h.get();
+    if((n==='marker'||n==='markerY')&&k==='Escape'){e.preventDefault();S.t=D.t;S.d=XK.haulDecay;render();return}
+    if(n==='markerY'){if(k==='PageUp')k='ArrowUp';else if(k==='PageDown')k='ArrowDown';
+      if(dis()){if(/^(ArrowUp|ArrowDown|ArrowLeft|ArrowRight|Home|End)$/.test(k))e.preventDefault();return}}
     if(k==='ArrowRight'||k==='ArrowUp')v=v+h.step*m;
     else if(k==='ArrowLeft'||k==='ArrowDown')v=v-h.step*m;
     else if(k==='Home')v=h.min();
@@ -277,21 +320,24 @@ ORDER.forEach(function(n){
     else return;
     e.preventDefault();h.set(rnd(v));render();
   });
-  c.addEventListener('pointerdown',function(e){S.drag=n;try{c.setPointerCapture(e.pointerId)}catch(x){}try{c.focus()}catch(x){}e.preventDefault()});
+  c.addEventListener('pointerdown',function(e){var w=nearest(e,n),cw=HN[w];S.drag=w;S.vy=!dis();try{cw.setPointerCapture(e.pointerId)}catch(x){}try{cw.focus()}catch(x){}e.preventDefault()});
   c.addEventListener('pointermove',function(e){
     if(S.drag!==n)return;
     var p=$('#plot'),r=p.getBoundingClientRect(),vb=p.getAttribute('viewBox').split(/[ ,]+/).map(Number);
     var X=vb[0]+(e.clientX-r.left)/r.width*vb[2],Y=vb[1]+(e.clientY-r.top)/r.height*vb[3];
     var t=(X-G.x)/G.w*K.lasHorizon,h=(G.y+G.h-Y)/G.h*G.ymax;
-    if(n==='trough')H.trough.set(rnd(h/S.peak1));else if(H[n].ax==='t')H[n].set(rnd(t));else H[n].set(rnd(h));
+    if(n==='marker'||n==='markerY'){H.marker.set(rnd(t));if(S.vy&&!dis())S.d=tailInv(cl(rnd(h),XK.lasTailHFloor,1),S.t-S.tT)}else if(n==='trough')H.trough.set(rnd(h/S.peak1));else if(H[n].ax==='t')H[n].set(rnd(t));else H[n].set(rnd(h));
     render();
   });
+  if(n==='markerY'){c.addEventListener('focus',function(){render()});c.addEventListener('blur',function(){render()})}
   function end(e){if(S.drag!==n)return;S.drag=null;try{c.releasePointerCapture(e.pointerId)}catch(x){}}
   c.addEventListener('pointerup',end);
   c.addEventListener('pointercancel',end);
 });
+mk('path',{id:'vcue','class':'vcue','aria-hidden':'true',d:''},$('#plot'));
 function setQ(q,v,txt){var e=$('[data-q="'+q+'"]');e.setAttribute('data-v',v===null?'':String(v));e.textContent=txt}
 function f3(v){return v.toFixed(3)}
+function fd(v){var s=f3(v);return /0$/.test(s)?s.slice(0,-1):s}
 function bn(v){var b=v/1e9;if(Math.abs(b)<1000)return '$'+b.toPrecision(3)+'B';return '$'+String(Math.round(b/10)*10).replace(/\B(?=(\d{3})+(?!\d))/g,',')+'B'}
 function layout(){
   var p=$('#plot'),W=Math.round(p.clientWidth)||640;
@@ -337,10 +383,15 @@ function render(){
   function path(a){return a.map(function(p,j){return (j?'L':'M')+px(p[0]).toFixed(2)+' '+py(p[1]).toFixed(2)}).join('')}
   $('#curve-index').setAttribute('d',path(pi));$('#curve-index').setAttribute('data-pts',JSON.stringify(pi));
   $('#curve-standard').setAttribute('d',path(ps));$('#curve-standard').setAttribute('data-pts',JSON.stringify(ps));
+  var hm=hMark(),dd=S.d,tD=tT>=K.lasHorizon-1e-9?[]:(function(){var a=[tT],g,x=1e-5,e=tT;for(;x<1;x*=1.3){if(tT+x<K.lasHorizon-1e-9){e=tT+x;a.push(e)}}for(g=0;g<=104;g++){var q=g*0.25;if(q>e+1e-9)a.push(q)}if(t>tT+1e-9&&!a.some(function(x){return Math.abs(x-t)<1e-9}))a.push(t);a.sort(function(x,y){return x-y});return a})();
+  var tp=tD.map(function(x){return [x,tailF(x-tT,dd)]});
+  $('#curve-tail').setAttribute('d',path(tp));$('#curve-tail').setAttribute('data-pts',JSON.stringify(tp));
+  var tAt=t>tT?tailF(t-tT,dd):null,tH=tT>=K.lasHorizon-1e-9?1:tailF(K.lasHorizon-tT,dd);
+  setQ('tailD',dd,fd(dd));setQ('tailT',tAt,tAt===null?'n/a':f3(tAt));setQ('tailH',tH,f3(tH));
   var tm=$('#tmark');tm.setAttribute('x1',px(t));tm.setAttribute('x2',px(t));tm.setAttribute('y1',G.y);tm.setAttribute('y2',G.y+G.h);
   var mx=px(mt),my=G.y+G.h;$('#modelmark').setAttribute('d','M'+(mx-6)+' '+(my+1)+' L'+(mx+6)+' '+(my+1)+' L'+mx+' '+(my-9)+' Z');
   var pos={tT:[tT,1],tb1:[tb[0],F.hTpl(tb[0],tT,k)],tb2:[tb[1],F.hTpl(tb[1],tT,k)],tb3:[tb[2],F.hTpl(tb[2],tT,k)],tb4:[tb[3],F.hTpl(tb[3],tT,k)],
-    peak1:[tb[1],S.peak1],trough:[tb[2],S.peak1*S.trough],endexp:[tb[0],S.endexp],marker:[t,out.Idx]};
+    peak1:[tb[1],S.peak1],trough:[tb[2],S.peak1*S.trough],endexp:[tb[0],S.endexp],marker:[t,hm],markerY:[t,hm]};
   ORDER.forEach(function(n){var c=HN[n],p=pos[n],h=H[n];
     var x=px(p[0]),y=/^tb[123]$/.test(n)?py(0):py(p[1]);
     c.setAttribute('data-t',String(p[0]));c.setAttribute('data-h',String(p[1]));c.setAttribute('cx',x);c.setAttribute('cy',y);
@@ -348,11 +399,18 @@ function render(){
     if(STEM[n]){STEM[n].setAttribute('x1',x);STEM[n].setAttribute('x2',x);STEM[n].setAttribute('y1',py(0));STEM[n].setAttribute('y2',py(p[1]))}
     c.setAttribute('aria-valuenow',String(rnd(h.get())));c.setAttribute('aria-valuemin',String(rnd(h.min())));c.setAttribute('aria-valuemax',String(rnd(h.max())));
     c.setAttribute('aria-valuetext',((n==='marker'||h.ax==='h')?rnd(h.get()).toFixed(h.ax==='t'?2:3):rnd(h.get()).toPrecision(3))+h.unit);});
+  HN.markerY.setAttribute('aria-disabled',dis()?'true':'false');
+  var off=dis(),cxm=px(t),cym=py(hm);
+  HN.marker.setAttribute('class',off?'off':'');DOT.marker.setAttribute('class','dot h-mark'+(off?' off':''));
+  $('#vcue').setAttribute('d',off?'':'M'+(cxm-5)+' '+(cym-13)+' L'+cxm+' '+(cym-18)+' L'+(cxm+5)+' '+(cym-13)+' M'+(cxm-5)+' '+(cym+13)+' L'+cxm+' '+(cym+18)+' L'+(cxm+5)+' '+(cym+13));
+  LB.marker.textContent=document.activeElement===HN.markerY?'h':'t';
+  setTips();
   PV.forEach(function(r){var e=$('[data-p="'+r[0]+'"]');e.textContent=rnd(H[r[1]].get()).toFixed(r[2])});
   $('#status').textContent='Index '+f3(out.Idx)+', stage '+out.stage+' '+STAGES[out.stage-1]+', at t '+t.toFixed(2)+' yr';
+  if(t>tT)$('#status').textContent+=', tail index '+f3(tAt);
 }
 $('#scenario').addEventListener('change',function(e){S.sc=e.target.value;S.tT=modelT();render()});
-$('#reset').addEventListener('click',function(){S.sc='artemis';$('#scenario').value='artemis';S.f=D.f.slice();S.peak1=D.peak1;S.trough=D.trough;S.endexp=D.endexp;S.t=D.t;S.tT=modelT();render()});
+$('#reset').addEventListener('click',function(){S.sc='artemis';$('#scenario').value='artemis';S.f=D.f.slice();S.peak1=D.peak1;S.trough=D.trough;S.endexp=D.endexp;S.t=D.t;S.d=XK.haulDecay;S.tT=modelT();render()});
 $('[data-snap]').addEventListener('click',function(){S.tT=modelT();render()});
 window.addEventListener('resize',function(){layout();render()});
 S.tT=modelT();layout();render();
