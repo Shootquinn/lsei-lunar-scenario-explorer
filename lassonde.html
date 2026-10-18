@@ -430,9 +430,8 @@ function render(){
 var FIGTXT={
   xTitle:'Years from project start',yTitle:'Valuation index',
   subtitle:'Lassonde curve, valuation index, 2030 to 2056',
-  lgIdx:'Index curve, d ', lgIdxUnit:' per yr', lgStd:'Standard curve, target time ', lgStdUnit:' yr', lgEv:'Evaluation time t', lgModel:'Model value of tT',kIdx:'Index curve',kStd:'Standard curve, target time',kUnit:' yr',
+  lgIdx:'Index curve, d ', lgIdxUnit:' per yr', lgStd:'Standard curve, target time ', lgStdUnit:' yr', lgEv:'Evaluation time t', lgModel:'Model value of tT',
   evT:'t ', evYr:' yr, index ',
-  pStages:'Stages', pYears:'years from project start', pPeak:'First peak', pTrough:'Trough', pSecond:'Second peak, at tT ', pSecondUnit:' yr', pEvT:'Evaluation time t', pEvIdx:'Index at t', pD:'Tail decay d', pDUnit:' per yr',
   anEnd:'End of Exploration ', anPeak:'First peak ', anTrough:'Trough ', anSecond:'Second peak ',
   fail:'The figure could not be created.'
 };
@@ -445,12 +444,12 @@ var FIGSTY={
     evC:'#0b7a43',evW:4,evDash:[20,15],evD:46,evEdgeC:'#222222',evEdgeW:6.7,evTxt:'#000000',triC:'#b35a00',
     lgFs:67,lgInset:40,lgHandle:167,lgGap:67,lgStep:84,lgGlyph:30,lgPad:15},
   dark:{key:'Dark',dark:true,bg:'#0b1420',font:'"Segoe UI", "Segoe UI Variable", -apple-system, "SF Pro Text", "Helvetica Neue", Roboto, "Noto Sans", Arial, sans-serif',pp:7.7,dpi:200,
-    L:518,R:2687,B:1868,bands:['#0e1826','#142233'],edgeC:'#2c4058',edgeW:4,gridC:'#25384d',gridW:4,spineC:'#a0aabe',spineW:6,tickC:'#b9c7d6',tickW:5,tickLen:25,
+    L:518,R:3724,B:1868,bands:['#0e1826','#142233'],edgeC:'#2c4058',edgeW:4,gridC:'#25384d',gridW:4,spineC:'#a0aabe',spineW:6,tickC:'#b9c7d6',tickW:5,tickLen:25,
     tickFs:67,tickTxt:'#b9c7d6',xTickGap:38,yTickGap:38,axFs:83,axTxt:'#e7eef6',
     col:{artemis:'#4ec9e8',contested:'#e0a54f',commercial:'#7fa8ff'},idxW:14,stdC:'#aeb0b7',stdW:10,stdDash:[42,28],
     aD:36,aEdgeC:'#0b1420',aEdgeW:4,aFs:58,aTxt:'#e7eef6',sFs:54,sTxt:'#b9c7d6',sBase:30,sStep:80,leadC:'#5d6d80',leadW:3,
     evC:'#6fd9a0',evW:4,evDash:[20,15],evD:46,evEdgeC:'#0b1420',evEdgeW:6,evTxt:'#e7eef6',triC:'#ffb74d',
-    panelFill:'#111e2d',panelBorder:'#25384d',panelBW:5,panelR:38,panelX0:2789,panelX1:3773,panelTxtX:2864,panelValX:3690,panelSwX:2861}
+    lgFs:67,lgInset:34,lgHandle:167,lgGap:67,lgStep:84,lgGlyph:30,lgPad:15}
 };
 function figName(name,style){return 'Lassonde_Curve_'+String(name).replace(/\s+/g,'_')+'_'+FIGSTY[style].key+'_4K.png'}
 // State at click time, read from the page: the drawn curve points, the handle positions, the marker, the tail d, the scenario.
@@ -468,7 +467,6 @@ function figSnap(){
 function figTBox(ctx,s,fs,wt,st){ctx.font=(wt||400)+' '+fs+'px '+st.font;var m=ctx.measureText(s),a=m.actualBoundingBoxAscent,d=m.actualBoundingBoxDescent;return {w:m.width,h:(isFinite(a)&&isFinite(d)&&a+d>0)?a+d:1.05*fs}}
 function figBoxAt(x,y,w,h,ha,va){var x0=ha==='left'?x:ha==='right'?x-w:x-w/2,y0=va==='bottom'?y-h:va==='top'?y:va==='alphabetic'?y-0.8*h:y-h/2;return [x0,y0,x0+w,y0+h]}
 function figClipLen(pts,r){var tot=0,i;for(i=0;i<pts.length-1;i++){var p=pts[i],q=pts[i+1],dx=q[0]-p[0],dy=q[1]-p[1],t0=0,t1=1,pr=[-dx,dx,-dy,dy],qr=[p[0]-r[0],r[2]-p[0],p[1]-r[1],r[3]-p[1]],k,dead=false;for(k=0;k<4;k++){if(pr[k]===0){if(qr[k]<0){dead=true;break}}else{var t=qr[k]/pr[k];if(pr[k]<0)t0=Math.max(t0,t);else t1=Math.min(t1,t)}}if(!dead&&t0<t1)tot+=(t1-t0)*Math.sqrt(dx*dx+dy*dy)}return tot}
-function figRR(ctx,x,y,w,h,r){ctx.beginPath();if(typeof ctx.roundRect==='function'){ctx.roundRect(x,y,w,h,r)}else{ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}}
 function figSegRect(p,q,r){ // distance in px from segment p-q to rectangle r=[x0,y0,x1,y1]
   var x0=r[0],y0=r[1],x1=r[2],y1=r[3],dx=q[0]-p[0],dy=q[1]-p[1],t0=0,t1=1,i,pp,qq,t,pr=[-dx,dx,-dy,dy],qr=[p[0]-x0,x1-p[0],p[1]-y0,y1-p[1]];
   for(i=0;i<4;i++){pp=pr[i];qq=qr[i];
@@ -552,7 +550,7 @@ function figLayout(ctx,st,snap,sc){
     if(r.stack){var vy=l.y-0.4*l.fs;slead.push([X(r.mid),T,X(r.mid),vy],[X(r.mid),vy,l.x-12,vy])}else if(r.row>0)slead.push([X(r.mid),T,X(r.mid),l.y]);
     return boxes[m].b});
   // D3: a candidate is rejected when its leader crosses a placed leader or label box, or a placed leader crosses its text box
-  function leadX(q,job){var segs=slead.concat(leads),bxs=placed.concat(sboxes),i,tp=[q.bb[0]-pp,q.bb[1]-pp,q.bb[2]+pp,q.bb[3]+pp];
+  function leadX(q,job){var segs=slead.concat(leads),bxs=boxes.filter(function(b){return b.g==='point'}).map(function(b){return b.b}).concat(sboxes),i,tp=[q.bb[0]-pp,q.bb[1]-pp,q.bb[2]+pp,q.bb[3]+pp];
     for(i=0;i<segs.length;i++)if(figSegRect([segs[i][0],segs[i][1]],[segs[i][2],segs[i][3]],tp)===0)return true;
     if(Math.sqrt(q.c.o[0]*q.c.o[0]+q.c.o[1]*q.c.o[1])>20){var vx=q.ax-job.x,vy=q.ay-job.y,vl=Math.sqrt(vx*vx+vy*vy)||1,c=[job.x+vx/vl*3*pp,job.y+vy/vl*3*pp,q.ax,q.ay];
       for(i=0;i<segs.length;i++)if(figSegX(c,segs[i]))return true;
@@ -582,9 +580,9 @@ function figLayout(ctx,st,snap,sc){
     defs:[snap.hm<0.8?{o:[5,6],ha:'left',va:'bottom'}:{o:[-5,-9],ha:'right',va:'top'}],dx:[0,8,-8,14,-14,22,-22,30,-30,40,-40,50,60,70,80,95],dy:[0,8,-8,14,-14,22,-22,32,-32,44,-44],
     rects:fixedRects,inside:function(b){return b[0]>=L+5&&b[2]<=R&&b[1]>=T&&b[3]<=B}});
   plan.leads=leads;plan.labs=labs;plan.afs=afs;
-  // legend (Light): frameless, first clear position of the scan; Dark carries the key in the stat panel
+  // legend: frameless, first clear position of the scan, both styles
   plan.lg=null;
-  if(!dk){
+  {
     var ents=[{k:'idx',s:TX.lgIdx+fd(snap.d)+TX.lgIdxUnit},{k:'std',s:TX.lgStd+String(snap.refT)+TX.lgStdUnit},{k:'ev',s:TX.lgEv},{k:'tri',s:TX.lgModel}];
     var lsc=sc.legend,lfs=st.lgFs*lsc,mw=0;ents.forEach(function(e){mw=Math.max(mw,figTBox(ctx,e.s,lfs,400,st).w)});
     var lg={fs:lfs,sc:lsc,hl:st.lgHandle*lsc,tx:(st.lgHandle+st.lgGap)*lsc,rc0:st.lgStep/2*lsc,rstep:st.lgStep*lsc,gl:st.lgGlyph*lsc,pad:st.lgPad};
@@ -599,29 +597,6 @@ function figLayout(ctx,st,snap,sc){
     lg.x=lpos[0];lg.y=lpos[1];lg.rect=[lg.x,lg.y,lg.x+lg.lw,lg.y+lg.lh];lg.ents=ents;plan.lg=lg;boxes.push({g:'legend',b:lg.rect});
   }
   return plan;
-}
-// Stat panel geometry (dark): one row size s from 40 to 58 chosen from the measured widths.
-function figPanel(ctx,st,snap,T,col){
-  var TX=FIGTXT,E=snap.edges,i,tp=snap.peak1*snap.trough,x0=2829,x1=3733,lx=2899,top=381;
-  var rowsA=[],g2=[],g3=[],g4=[];
-  for(i=0;i<6;i++)rowsA.push({l:STAGES[i],v:E[i].toPrecision(3)+' to '+E[i+1].toPrecision(3)});
-  g2.push({l:TX.pPeak,v:snap.peak1.toFixed(2)},{l:TX.pTrough,v:tp.toFixed(3)},{l:TX.pSecond+snap.tT.toPrecision(3)+TX.pSecondUnit,v:'1.00'});
-  g3.push({l:TX.pEvT,v:snap.t.toFixed(2)+' yr',gl:'ev'},{l:TX.pEvIdx,v:f3(snap.hm),bold:true},{l:TX.pD,v:fd(snap.d)+TX.pDUnit});
-  g4.push({l:TX.kIdx,v:'',gl:'idx'},{l:TX.kStd,v:String(snap.refT)+TX.kUnit,gl:'std'},{l:TX.lgModel,v:snap.modelT.toPrecision(3)+TX.kUnit,gl:'tri'});
-  function need(){var f=1,all=rowsA.concat(g2,g3,g4);all.forEach(function(r){f=Math.min(f,(904-70-32)/(figTBox(ctx,r.l,58,400,st).w+(r.v===''?0:figTBox(ctx,r.v,58,r.bold?700:400,st).w)))});
-    f=Math.min(f,904/figTBox(ctx,TX.pStages,64,700,st).w,904/figTBox(ctx,TX.pYears,58,400,st).w);return f}
-  var f=need(),s=Math.max(40,Math.floor(58*f));
-  if(s===40&&f<40/58){g2.splice(2,1,{l:'Second peak',v:'1.00'},{l:'Second peak time tT',v:snap.tT.toPrecision(3)+' yr'})} if(s===40&&figTBox(ctx,g4[1].l,40,400,st).w+figTBox(ctx,g4[1].v,40,400,st).w>904-70-32){g4.splice(1,1,{l:'Standard curve',v:'',gl:'std'},{l:'Target time',v:g4[1].v})}
-  var k=s/58,rows=[],y;
-  rowsA.forEach(function(r,j){r.y=272*k+80*k*j;rows.push(r)});
-  var div1=rows[5].y+48*k;y=div1+85*k-0;
-  g2.forEach(function(r,j){r.y=805*k+80*k*j;rows.push(r)});
-  var div2=g2[g2.length-1].y+48*k;
-  g3.forEach(function(r,j){r.y=div2+85*k+80*k*j;rows.push(r)});
-  var div3=g3[g3.length-1].y+48*k;
-  g4.forEach(function(r,j){r.y=div3+85*k+80*k*j;rows.push(r)});
-  var last=g4[g4.length-1].y,bottom=top+last+0.25*s+40*k;
-  return {x0:x0,x1:x1,lx:lx,top:top,k:k,s:s,hs:Math.round(64*s/58),rows:rows,div1:top+div1,div2:top+div2,div3:top+div3,bottom:bottom,height:bottom-top,hy:top+112*k,sy:top+192*k};
 }
 function figInside(b){return b[0]>=FIGIN&&b[2]<=3840-FIGIN&&b[1]>=FIGIN&&b[3]<=2160-FIGIN}
 function figDraw(ctx,styleKey,snap){
@@ -667,28 +642,18 @@ function figDraw(ctx,styleKey,snap){
   plan.labs.forEach(function(l){
     if(l.plate){ctx.save();ctx.globalAlpha=0.85;ctx.fillStyle=st.bg;ctx.fillRect(l.plate[0],l.plate[1],l.plate[2]-l.plate[0],l.plate[3]-l.plate[1]);ctx.restore()}
     txt(l.s,l.x,l.y,plan.afs,l.col,l.ha,l.va==='center'?'middle':l.va)});
-  // legend (Light only)
-  if(!dk){var lg=plan.lg,lsc=lg.sc;
-    if(lg.plate){ctx.save();ctx.globalAlpha=0.85;ctx.fillStyle='#ffffff';ctx.fillRect(lg.x-lg.pad,lg.y-lg.pad,lg.lw+2*lg.pad,lg.lh+2*lg.pad);ctx.restore()}
+  // legend
+  {var lg=plan.lg,lsc=lg.sc;
+    if(lg.plate){ctx.save();ctx.globalAlpha=0.85;ctx.fillStyle=st.bg;ctx.fillRect(lg.x-lg.pad,lg.y-lg.pad,lg.lw+2*lg.pad,lg.lh+2*lg.pad);ctx.restore()}
     lg.ents.forEach(function(e,k){var cy=lg.y+lg.rc0+k*lg.rstep,hc=lg.x+lg.hl/2;
       if(e.k==='idx')line(lg.x,cy,lg.x+lg.hl,cy,col,st.idxW);
       else if(e.k==='std')line(lg.x,cy,lg.x+lg.hl,cy,st.stdC,st.stdW,st.stdDash);
       else if(e.k==='ev'){line(hc,cy-lg.gl,hc,cy+lg.gl,st.evC,st.evW,st.evDash);disc(hc,cy,st.evD*lsc,st.evC,st.evEdgeC,st.evEdgeW)}
       else tri(hc,cy+th*lsc/2,tw*lsc,th*lsc,st.triC);
-      txt(e.s,lg.x+lg.tx,cy,lg.fs,'#000000','left','middle')})}
-  // 12: dark title, subtitle, stat panel
+      txt(e.s,lg.x+lg.tx,cy,lg.fs,st.axTxt,'left','middle')})}
+  // 12: dark title and subtitle
   if(dk){
     txt(snp.name,520,145,111*sc.title,st.axTxt,'left','alphabetic',700);txt(TX.subtitle,526,266,83*sc.title,st.tickTxt,'left','alphabetic');
-    var P=figPanel(ctx,st,snp,T,col);
-    figRR(ctx,st.panelX0,P.top,st.panelX1-st.panelX0,P.height,st.panelR);ctx.fillStyle=st.panelFill;ctx.fill();ctx.strokeStyle=st.panelBorder;ctx.lineWidth=st.panelBW;ctx.stroke();
-    txt(TX.pStages,P.x0,P.top+P.hy-P.top,P.hs,st.axTxt,'left','alphabetic',700);txt(TX.pYears,P.x0,P.sy,P.s,st.tickTxt,'left','alphabetic');
-    P.rows.forEach(function(r){var by=P.top+r.y,cy=by-0.35*P.s,gx=P.x0+23,pk=P.k;
-      if(r.gl==='ev'){line(gx,cy-26*pk,gx,cy+26*pk,st.evC,4,[10,6]);disc(gx,cy,36*pk,st.evC,st.evEdgeC,6*pk)}
-      else if(r.gl==='idx')line(P.x0,cy,P.x0+46,cy,col,14*pk);
-      else if(r.gl==='std')line(P.x0,cy,P.x0+46,cy,st.stdC,10*pk,[18*pk,10*pk]);
-      else if(r.gl==='tri')tri(gx,cy+17*pk,40*pk,34*pk,st.triC);
-      txt(r.l,P.lx,by,P.s,st.tickTxt,'left','alphabetic');if(r.v!=='')txt(r.v,P.x1,by,P.s,st.axTxt,'right','alphabetic',r.bold?700:400)});
-    line(P.x0,P.div1,P.x1,P.div1,st.panelBorder,st.panelBW);line(P.x0,P.div2,P.x1,P.div2,st.panelBorder,st.panelBW);line(P.x0,P.div3,P.x1,P.div3,st.panelBorder,st.panelBW);
   }
 }
 // download
