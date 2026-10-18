@@ -59,7 +59,7 @@ table{border-collapse:collapse;width:100%;font-size:.92rem}
 th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
 th{color:var(--muted);font-weight:600}
 tr.on td{background:var(--panel)}
-.keys{color:var(--muted);font-size:.9rem}
+.keys{color:var(--muted);font-size:.9rem}.figcap{color:var(--muted);font-size:.9rem}
 .stagetbl .cp,.stagetbl th.cp{display:none}.cpline{color:var(--muted);font-size:.85rem;margin-top:2px}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.strip{margin:0 0 12px}.legend svg{vertical-align:middle;margin-right:6px;fill:var(--model)}
 @media (min-width:521px){.cpline{display:none}.stagetbl .cp,.stagetbl th.cp{display:table-cell}}
 @media (max-width:520px){body{padding:8px 12px 28px}}
@@ -75,8 +75,16 @@ tr.on td{background:var(--panel)}
 </select>
 <button id="reset" type="button">Reset</button>
 <button data-snap type="button">Snap tT to model value</button>
+<label for="fig-style">Figure style</label>
+<select id="fig-style">
+<option value="light" selected>Light</option>
+<option value="dark">Dark</option>
+</select>
+<button id="fig-generate" type="button">GENERATE FIGURE</button>
+<span class="sr" id="fig-status"></span>
 <span class="model">Model value of tT: <output id="model-marker" aria-live="off"></output> yr</span>
 </div>
+<p class="figcap" id="fig-help">Drag the knots, pick a style, then GENERATE FIGURE to download a 3840 by 2160 PNG of the curve.</p>
 <ul class="grid2 strip" id="bracket"></ul>
 <svg id="plot" viewBox="0 0 640 360" role="group" aria-label="Valuation index against project time, with draggable handles">
 <g id="bands"></g>
@@ -418,6 +426,312 @@ function render(){
   PV.forEach(function(r){var e=$('[data-p="'+r[0]+'"]');e.textContent=rnd(H[r[1]].get()).toFixed(r[2])});
   $('#status').textContent='Index '+f3(out.Idx)+', stage '+out.stage+' '+STAGES[out.stage-1]+', at t '+t.toFixed(2)+' yr';
 }
+// ---- Figure export: draws a snapshot of the page state to an offscreen 3840 x 2160 canvas and downloads it as a PNG. Reads state; writes nothing back to S, XK, D or the live SVG.
+var FIGTXT={
+  xTitle:'Years from project start',yTitle:'Valuation index',
+  subtitle:'Lassonde curve, valuation index, 2030 to 2056',
+  lgIdx:'Index curve, d ', lgIdxUnit:' per yr', lgStd:'Standard curve, target time ', lgStdUnit:' yr', lgEv:'Evaluation time t', lgModel:'Model value of tT',kIdx:'Index curve',kStd:'Standard curve, target time',kUnit:' yr',
+  evT:'t ', evYr:' yr, index ',
+  pStages:'Stages', pYears:'years from project start', pPeak:'First peak', pTrough:'Trough', pSecond:'Second peak, at tT ', pSecondUnit:' yr', pEvT:'Evaluation time t', pEvIdx:'Index at t', pD:'Tail decay d', pDUnit:' per yr',
+  anEnd:'End of Exploration ', anPeak:'First peak ', anTrough:'Trough ', anSecond:'Second peak ',
+  fail:'The figure could not be created.'
+};
+var FIGSTY={
+  light:{key:'Light',dark:false,bg:'#ffffff',font:'"Times New Roman", Times, "Liberation Serif", Tinos, "Nimbus Roman", "Noto Serif", serif',pp:25/3,dpi:591,
+    L:326,R:3724,T:540,B:1804,bands:['#f2f2f2','#e4e4e4'],edgeC:'#bdbdbd',edgeW:4.2,gridC:'#cccccc',gridW:4.2,spineC:'#000000',spineW:6.7,tickC:'#000000',tickW:6.7,tickLen:29,
+    tickFs:83,tickTxt:'#000000',xTickGap:58,yTickGap:58,axFs:83,axTxt:'#000000',
+    col:{artemis:'#0d7fa0',contested:'#a9691a',commercial:'#1c4e96'},idxW:20,stdC:'#7a7a7a',stdW:11.7,stdDash:[58,35],
+    aD:33,aEdgeC:null,aEdgeW:0,aFs:62.5,aTxt:'#000000',sFs:62.5,sTxt:'#000000',sBase:41,sStep:99.5,leadC:'#888888',leadW:3.3,
+    evC:'#0b7a43',evW:4,evDash:[20,15],evD:46,evEdgeC:'#222222',evEdgeW:6.7,evTxt:'#000000',triC:'#b35a00',
+    lgFs:67,lgInset:40,lgHandle:167,lgGap:67,lgStep:84,lgGlyph:30,lgPad:15},
+  dark:{key:'Dark',dark:true,bg:'#0b1420',font:'"Segoe UI", "Segoe UI Variable", -apple-system, "SF Pro Text", "Helvetica Neue", Roboto, "Noto Sans", Arial, sans-serif',pp:7.7,dpi:200,
+    L:518,R:2687,B:1868,bands:['#0e1826','#142233'],edgeC:'#2c4058',edgeW:4,gridC:'#25384d',gridW:4,spineC:'#a0aabe',spineW:6,tickC:'#b9c7d6',tickW:5,tickLen:25,
+    tickFs:67,tickTxt:'#b9c7d6',xTickGap:38,yTickGap:38,axFs:83,axTxt:'#e7eef6',
+    col:{artemis:'#4ec9e8',contested:'#e0a54f',commercial:'#7fa8ff'},idxW:14,stdC:'#aeb0b7',stdW:10,stdDash:[42,28],
+    aD:36,aEdgeC:'#0b1420',aEdgeW:4,aFs:58,aTxt:'#e7eef6',sFs:54,sTxt:'#b9c7d6',sBase:30,sStep:80,leadC:'#5d6d80',leadW:3,
+    evC:'#6fd9a0',evW:4,evDash:[20,15],evD:46,evEdgeC:'#0b1420',evEdgeW:6,evTxt:'#e7eef6',triC:'#ffb74d',
+    panelFill:'#111e2d',panelBorder:'#25384d',panelBW:5,panelR:38,panelX0:2789,panelX1:3773,panelTxtX:2864,panelValX:3690,panelSwX:2861}
+};
+function figName(name,style){return 'Lassonde_Curve_'+String(name).replace(/\s+/g,'_')+'_'+FIGSTY[style].key+'_4K.png'}
+// State at click time, read from the page: the drawn curve points, the handle positions, the marker, the tail d, the scenario.
+function figSnap(){
+  var sel=$('#scenario'),nm=S.sc,i;for(i=0;i<sel.options.length;i++)if(sel.options[i].value===S.sc)nm=sel.options[i].textContent;
+  function hd(n){return [Number(HN[n].getAttribute('data-t')),Number(HN[n].getAttribute('data-h'))]}
+  var tT=hd('tT')[0],mk=hd('marker');
+  return {sc:S.sc,name:nm,tT:tT,t:mk[0],hm:mk[1],d:S.d,peak1:S.peak1,trough:S.trough,endexp:S.endexp,
+    edges:[0,hd('tb1')[0],hd('tb2')[0],hd('tb3')[0],hd('tb4')[0],tT,K.lasHorizon],
+    an:{endexp:hd('endexp'),peak1:hd('peak1'),trough:hd('trough'),second:hd('tT')},
+    modelT:Number($('#model-marker').getAttribute('data-v')),
+    idx:JSON.parse($('#curve-index').getAttribute('data-pts')),std:JSON.parse($('#curve-standard').getAttribute('data-pts')),
+    refT:K.lasRefT,horizon:K.lasHorizon};
+}
+function figTBox(ctx,s,fs,wt,st){ctx.font=(wt||400)+' '+fs+'px '+st.font;var m=ctx.measureText(s),a=m.actualBoundingBoxAscent,d=m.actualBoundingBoxDescent;return {w:m.width,h:(isFinite(a)&&isFinite(d)&&a+d>0)?a+d:1.05*fs}}
+function figBoxAt(x,y,w,h,ha,va){var x0=ha==='left'?x:ha==='right'?x-w:x-w/2,y0=va==='bottom'?y-h:va==='top'?y:va==='alphabetic'?y-0.8*h:y-h/2;return [x0,y0,x0+w,y0+h]}
+function figClipLen(pts,r){var tot=0,i;for(i=0;i<pts.length-1;i++){var p=pts[i],q=pts[i+1],dx=q[0]-p[0],dy=q[1]-p[1],t0=0,t1=1,pr=[-dx,dx,-dy,dy],qr=[p[0]-r[0],r[2]-p[0],p[1]-r[1],r[3]-p[1]],k,dead=false;for(k=0;k<4;k++){if(pr[k]===0){if(qr[k]<0){dead=true;break}}else{var t=qr[k]/pr[k];if(pr[k]<0)t0=Math.max(t0,t);else t1=Math.min(t1,t)}}if(!dead&&t0<t1)tot+=(t1-t0)*Math.sqrt(dx*dx+dy*dy)}return tot}
+function figRR(ctx,x,y,w,h,r){ctx.beginPath();if(typeof ctx.roundRect==='function'){ctx.roundRect(x,y,w,h,r)}else{ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}}
+function figSegRect(p,q,r){ // distance in px from segment p-q to rectangle r=[x0,y0,x1,y1]
+  var x0=r[0],y0=r[1],x1=r[2],y1=r[3],dx=q[0]-p[0],dy=q[1]-p[1],t0=0,t1=1,i,pp,qq,t,pr=[-dx,dx,-dy,dy],qr=[p[0]-x0,x1-p[0],p[1]-y0,y1-p[1]];
+  for(i=0;i<4;i++){pp=pr[i];qq=qr[i];
+    if(pp===0){if(qq<0){t0=1;t1=0;break}}
+    else{t=qq/pp;if(pp<0){if(t>t1){t0=1;t1=0;break}t0=Math.max(t0,t)}else{if(t<t0){t0=1;t1=0;break}t1=Math.min(t1,t)}}}
+  if(t0<=t1)return 0;
+  function ptRect(c){var ax=Math.max(x0-c[0],0,c[0]-x1),ay=Math.max(y0-c[1],0,c[1]-y1);return Math.sqrt(ax*ax+ay*ay)}
+  function ptSeg(c,a,b){var abx=b[0]-a[0],aby=b[1]-a[1],l2=abx*abx+aby*aby,u=l2===0?0:Math.max(0,Math.min(1,((c[0]-a[0])*abx+(c[1]-a[1])*aby)/l2));return Math.sqrt(Math.pow(c[0]-(a[0]+u*abx),2)+Math.pow(c[1]-(a[1]+u*aby),2))}
+  var d=Math.min(ptRect(p),ptRect(q)),cs=[[x0,y0],[x0,y1],[x1,y0],[x1,y1]];
+  for(i=0;i<4;i++)d=Math.min(d,ptSeg(cs[i],p,q));return d}
+function figPolyRect(pts,r){var m=Infinity,i;for(i=0;i<pts.length-1;i++)m=Math.min(m,figSegRect(pts[i],pts[i+1],r));return m}
+function figSegX(a,b){ // true when segment a=[x0,y0,x1,y1] crosses segment b
+  function o(px,py,qx,qy,rx,ry){var v=(qx-px)*(ry-py)-(qy-py)*(rx-px);return v>0?1:v<0?-1:0}
+  var o1=o(a[0],a[1],a[2],a[3],b[0],b[1]),o2=o(a[0],a[1],a[2],a[3],b[2],b[3]),o3=o(b[0],b[1],b[2],b[3],a[0],a[1]),o4=o(b[0],b[1],b[2],b[3],a[2],a[3]);
+  return o1!==o2&&o3!==o4}
+function figGap(a,b){var dx=Math.max(a[0]-b[2],b[0]-a[2],0),dy=Math.max(a[1]-b[3],b[1]-a[3],0);return Math.sqrt(dx*dx+dy*dy)}
+// polys: [{pts,w}], rects: [[x0,y0,x1,y1]]; rect r is padded by pad; true when something touches it
+function figHit(r,pad,polys,rects){var rp=[r[0]-pad,r[1]-pad,r[2]+pad,r[3]+pad],i;
+  for(i=0;i<polys.length;i++)if(figPolyRect(polys[i].pts,rp)<polys[i].w)return true;
+  for(i=0;i<rects.length;i++)if(figGap(rp,rects[i])<0.5)return true;return false}
+// Stage label rows: depth-first search over rows 0 to 5 and the three alignments; lowest (highest row, sum of rows, non-centre count) wins.
+// When the search has no solution the five earlier labels stack left-aligned in one column with elbow leaders and Reserve Depletion keeps row 0.
+function figRows(ctx,st,edges,ppy,sFs){
+  var items=[],k,best=null;
+  for(k=0;k<6;k++){(function(){var w=figTBox(ctx,STAGES[k],sFs,400,st).w/ppy,mid=(edges[k]+edges[k+1])/2,opts=[];
+    ['c','l','r'].forEach(function(al){var cx=al==='c'?mid:al==='l'?mid-0.1+w/2:mid+0.1-w/2;cx=Math.min(Math.max(cx,w/2+0.05),26.45-w/2);
+      var lo=cx-w/2,hi=cx+w/2;if(lo+0.05<=mid&&mid<=hi-0.05)opts.push({al:al,cx:cx,lo:lo,hi:hi})});
+    items.push({mid:mid,w:w,opts:opts})})()}
+  function ok(i,row,o,j,rj,oj){
+    if(row===rj&&!(o.hi+0.25<=oj.lo||o.lo-0.25>=oj.hi))return false;
+    if(row>rj&&oj.lo-0.12<=items[i].mid&&items[i].mid<=oj.hi+0.12)return false;
+    if(rj>row&&o.lo-0.12<=items[j].mid&&items[j].mid<=o.hi+0.12)return false;
+    if(((i===1&&j===2)||(i===2&&j===1))&&row===rj)return false;return true}
+  function lt(a,b){for(var q=0;q<3;q++){if(a[q]!==b[q])return a[q]<b[q]}return false}
+  function dfs(i,asg){
+    if(i===6){var mx=0,sm=0,nc=0;asg.forEach(function(a){mx=Math.max(mx,a.row);sm+=a.row;if(a.o.al!=='c')nc++});var key=[mx,sm,nc];if(!best||lt(key,best.key))best={key:key,asg:asg.slice()};return}
+    for(var row=0;row<6;row++){if(best&&row>best.key[0])break;
+      items[i].opts.forEach(function(o){var good=true,j;for(j=0;j<i;j++)if(!ok(i,row,o,j,asg[j].row,asg[j].o)){good=false;break}
+        if(good){asg.push({row:row,o:o});dfs(i+1,asg);asg.pop()}})}}
+  dfs(0,[]);
+  if(best)return best.asg.map(function(a,i){return {cx:a.o.cx,row:a.row,mid:items[i].mid,al:'center'}});
+  var xe=items[4].mid+0.25,w5=items[5].w,c5=Math.min(Math.max(items[5].mid,w5/2+0.05),26.45-w5/2),shift=(c5-w5/2-0.25<xe+items[4].w&&c5+w5/2+0.25>xe)?1:0;
+  return items.map(function(it,i){return i<5?{cx:xe,row:4-i+shift,mid:it.mid,al:'left',stack:true}:{cx:c5,row:0,mid:it.mid,al:'center'}});
+}
+var FIGIN=24,FIGGEO={tw:50,th:42};
+// Layout: measures every text with ctx.measureText, places stage labels, the legend and the point labels, and returns one plan. Nothing is drawn here.
+function figLayout(ctx,st,snap,sc){
+  var dk=st.dark,pp=st.pp,TX=FIGTXT,i,L=st.L,R=st.R,B=st.B,ppy=(R-L)/snap.horizon,col=st.col[snap.sc]||st.col.artemis,boxes=[];
+  var sFs=st.sFs*sc.stage,rows=figRows(ctx,st,snap.edges,ppy,sFs),nrow=1;rows.forEach(function(r){nrow=Math.max(nrow,r.row+1)});
+  var T=dk?384+80*(nrow-1):st.T;
+  function X(t){return L+t/snap.horizon*(R-L)}
+  function Y(h){return B-h/1.08*(B-T)}
+  var plan={st:st,snap:snap,sc:sc,T:T,X:X,Y:Y,col:col,rows:rows,sFs:sFs,boxes:boxes};
+  // stage labels
+  plan.stage=rows.map(function(r,k){var tb=figTBox(ctx,STAGES[k],sFs,400,st),by=T-st.sBase-st.sStep*r.row,x=r.al==='left'?X(r.cx):X(r.cx),bb=figBoxAt(x,by,tb.w,tb.h,r.al,'bottom');boxes.push({g:'stage',b:bb});return {s:STAGES[k],x:x,y:by,al:r.al,r:r,fs:sFs}});
+  // axis text boxes (tick labels, titles)
+  var tFs=st.tickFs*sc.axis,aFs=st.axFs*sc.axis,tw;
+  for(i=0;i<=25;i+=5){tw=figTBox(ctx,String(i),tFs,400,st);boxes.push({g:'axis',b:figBoxAt(X(i),B+st.xTickGap,tw.w,tw.h,'center','top')})}
+  for(i=0;i<=5;i++){tw=figTBox(ctx,(i*0.2).toFixed(1),tFs,400,st);boxes.push({g:'axis',b:figBoxAt(L-st.yTickGap,Y(i*0.2),tw.w,tw.h,'right','middle')})}
+  tw=figTBox(ctx,TX.xTitle,aFs,400,st);boxes.push({g:'axis',b:dk?figBoxAt((L+R)/2,2091,tw.w,tw.h,'center','alphabetic'):figBoxAt((L+R)/2,1962,tw.w,tw.h,'center','top')});
+  tw=figTBox(ctx,TX.yTitle,aFs,400,st);boxes.push({g:'axis',b:dk?[112-0.8*tw.h,(T+B)/2-tw.w/2,112+0.2*tw.h,(T+B)/2+tw.w/2]:[88-tw.h/2,(T+B)/2-tw.w/2,88+tw.h/2,(T+B)/2+tw.w/2]});
+  plan.tFs=tFs;plan.aFs=aFs;
+  if(dk){var t1=figTBox(ctx,snap.name,111*sc.title,700,st),t2=figTBox(ctx,TX.subtitle,83*sc.title,400,st);boxes.push({g:'title',b:figBoxAt(520,145,t1.w,t1.h,'left','alphabetic')},{g:'title',b:figBoxAt(526,266,t2.w,t2.h,'left','alphabetic')})}
+  // pixel geometry
+  var idxPx=snap.idx.map(function(p){return [X(p[0]),Y(p[1])]}),stdPx=snap.std.map(function(p){return [X(p[0]),Y(p[1])]});
+  var anc=[{p:snap.an.endexp,txt:TX.anEnd+snap.endexp.toFixed(2),defs:[{o:[6,-2],ha:'left',va:'top'}]},
+    {p:snap.an.peak1,txt:TX.anPeak+snap.peak1.toFixed(2),defs:[{o:[-5,4],ha:'right',va:'bottom'}]},
+    {p:snap.an.trough,txt:TX.anTrough+(snap.peak1*snap.trough).toFixed(3),defs:[{o:[5,-3],ha:'left',va:'top'}]}];
+  if(snap.tT<snap.horizon-1e-9)anc.push({p:snap.an.second,txt:TX.anSecond+'1.00',defs:[{o:[6,6],ha:'left',va:'bottom'},{o:[6,-8],ha:'left',va:'top'}]});
+  anc.forEach(function(a){a.x=X(a.p[0]);a.y=Y(a.p[1])});
+  var evx=X(snap.t),evy=Y(snap.hm),mx=X(snap.modelT),triBase=B-3;
+  function discR(x,y,d){var r=d/2+1.5*pp;return [x-r,y-r,x+r,y+r]}
+  var fixedRects=anc.map(function(a){return discR(a.x,a.y,st.aD)}).concat([discR(evx,evy,st.evD),[mx-FIGGEO.tw/2-pp,triBase-FIGGEO.th-pp,mx+FIGGEO.tw/2+pp,triBase+pp]]);
+  Object.assign(plan,{idxPx:idxPx,stdPx:stdPx,anc:anc,evx:evx,evy:evy,mx:mx,triBase:triBase});
+  // point labels in tiers A to E
+  var labPolys=[{pts:idxPx,w:st.idxW/2+pp},{pts:stdPx,w:st.stdW/2+pp}],placed=[],leads=[],labs=[],axTop=T-0.05*(B-T),afs=st.aFs*sc.point;
+  var GX=[0,8,-8,14,-14,22,-22,30,-30,40,-40,50,-50,60,-60,70,-70,80,-80,95,-95],GY=[0,8,-8,14,-14,22,-22,32,-32,44,-44,60,-60,80,-80];
+  function gridOf(dxs,dys){var g=[];dxs.forEach(function(dx){dys.forEach(function(dy){if(dx||dy)g.push([Math.sqrt(dx*dx+dy*dy),dx,dy])})});g.sort(function(a,b){return a[0]-b[0]});return g.map(function(q){return {o:[q[1],q[2]],ha:q[1]===0?'center':q[1]>0?'left':'right',va:q[2]===0?'center':q[2]>0?'bottom':'top'}})}
+  var gridB=gridOf(GX,GY);
+  var slead=[],sboxes=plan.stage.map(function(l,m){var r=l.r;
+    if(r.stack){var vy=l.y-0.4*l.fs;slead.push([X(r.mid),T,X(r.mid),vy],[X(r.mid),vy,l.x-12,vy])}else if(r.row>0)slead.push([X(r.mid),T,X(r.mid),l.y]);
+    return boxes[m].b});
+  // D3: a candidate is rejected when its leader crosses a placed leader or label box, or a placed leader crosses its text box
+  function leadX(q,job){var segs=slead.concat(leads),bxs=placed.concat(sboxes),i,tp=[q.bb[0]-pp,q.bb[1]-pp,q.bb[2]+pp,q.bb[3]+pp];
+    for(i=0;i<segs.length;i++)if(figSegRect([segs[i][0],segs[i][1]],[segs[i][2],segs[i][3]],tp)===0)return true;
+    if(Math.sqrt(q.c.o[0]*q.c.o[0]+q.c.o[1]*q.c.o[1])>20){var vx=q.ax-job.x,vy=q.ay-job.y,vl=Math.sqrt(vx*vx+vy*vy)||1,c=[job.x+vx/vl*3*pp,job.y+vy/vl*3*pp,q.ax,q.ay];
+      for(i=0;i<segs.length;i++)if(figSegX(c,segs[i]))return true;
+      for(i=0;i<bxs.length;i++)if(figSegRect([c[0],c[1]],[c[2],c[3]],bxs[i])===0)return true}
+    return false}
+  function place(job){
+    var tb=figTBox(ctx,job.txt,afs,400,st),w=tb.w,h=tb.h,blockers=job.rects.concat(placed),pick=null,tier='',k,q;
+    function boxOf(c){var ax=job.x+c.o[0]*pp,ay=job.y-c.o[1]*pp;return {c:c,ax:ax,ay:ay,bb:figBoxAt(ax,ay,w,h,c.ha,c.va)}}
+    var cA=job.defs.concat(gridOf(job.dx,job.dy));
+    for(k=0;k<cA.length&&!pick;k++){q=boxOf(cA[k]);if(job.inside(q.bb)&&!figHit(q.bb,pp,labPolys,blockers)&&!leadX(q,job)){pick=q;tier='A'}}
+    for(k=0;k<gridB.length&&!pick;k++){q=boxOf(gridB[k]);if(job.inside(q.bb)&&!figHit(q.bb,pp,labPolys,blockers)&&!leadX(q,job)){pick=q;tier='B'}}
+    for(k=0;k<gridB.length&&!pick;k++){q=boxOf(gridB[k]);if(job.inside(q.bb)&&!figHit(q.bb,pp,[labPolys[0]],blockers)&&!leadX(q,job)){pick=q;tier='C'}}
+    var plate=false,bestLen=Infinity;
+    for(k=0;k<gridB.length&&!pick;k++){q=boxOf(gridB[k]);if(job.inside(q.bb)&&!figHit(q.bb,pp,[],blockers)&&!leadX(q,job)){var ln=figClipLen(idxPx,q.bb)+figClipLen(stdPx,q.bb);if(ln<bestLen){bestLen=ln;pick=null;plate=q}}}
+    if(!pick&&plate){pick=plate;tier='D'}
+    if(!pick){pick=boxOf(job.defs[0]);tier='E'}
+    var pl=tier==='D'||tier==='E';
+    placed.push([pick.bb[0]-pp,pick.bb[1]-pp,pick.bb[2]+pp,pick.bb[3]+pp]);
+    var ol=Math.sqrt(pick.c.o[0]*pick.c.o[0]+pick.c.o[1]*pick.c.o[1]);
+    if(ol>20){var vx=pick.ax-job.x,vy=pick.ay-job.y,vl=Math.sqrt(vx*vx+vy*vy)||1;leads.push([job.x+vx/vl*3*pp,job.y+vy/vl*3*pp,pick.ax,pick.ay])}
+    labs.push({s:job.txt,x:pick.ax,y:pick.ay,ha:pick.c.ha,va:pick.c.va,col:job.col,tier:tier,plate:pl?[pick.bb[0]-8,pick.bb[1]-8,pick.bb[2]+8,pick.bb[3]+8]:null});
+    boxes.push({g:'point',b:pick.bb})}
+  anc.forEach(function(a,k){
+    place({txt:a.txt,x:a.x,y:a.y,defs:a.defs,dx:[-6,6,0,-14,14,-24,24,-34,34],dy:[6,-6,12,-12,20,-20,30,-30],col:st.aTxt,
+      rects:fixedRects.filter(function(r,m){return m!==k}),inside:function(b){return b[0]>=L&&b[2]<=R&&b[1]>=axTop&&b[3]<=B}})});
+  place({txt:TX.evT+snap.t.toFixed(2)+TX.evYr+f3(snap.hm),x:evx,y:evy,col:st.evTxt,
+    defs:[snap.hm<0.8?{o:[5,6],ha:'left',va:'bottom'}:{o:[-5,-9],ha:'right',va:'top'}],dx:[0,8,-8,14,-14,22,-22,30,-30,40,-40,50,60,70,80,95],dy:[0,8,-8,14,-14,22,-22,32,-32,44,-44],
+    rects:fixedRects,inside:function(b){return b[0]>=L+5&&b[2]<=R&&b[1]>=T&&b[3]<=B}});
+  plan.leads=leads;plan.labs=labs;plan.afs=afs;
+  // legend (Light): frameless, first clear position of the scan; Dark carries the key in the stat panel
+  plan.lg=null;
+  if(!dk){
+    var ents=[{k:'idx',s:TX.lgIdx+fd(snap.d)+TX.lgIdxUnit},{k:'std',s:TX.lgStd+String(snap.refT)+TX.lgStdUnit},{k:'ev',s:TX.lgEv},{k:'tri',s:TX.lgModel}];
+    var lsc=sc.legend,lfs=st.lgFs*lsc,mw=0;ents.forEach(function(e){mw=Math.max(mw,figTBox(ctx,e.s,lfs,400,st).w)});
+    var lg={fs:lfs,sc:lsc,hl:st.lgHandle*lsc,tx:(st.lgHandle+st.lgGap)*lsc,rc0:st.lgStep/2*lsc,rstep:st.lgStep*lsc,gl:st.lgGlyph*lsc,pad:st.lgPad};
+    lg.lw=lg.tx+mw;lg.lh=lg.rstep*4;
+    var ins=st.lgInset,lpad=st.lgPad,evSeg=[[evx,T],[evx,B]],legPolys=[{pts:idxPx,w:st.idxW/2},{pts:stdPx,w:st.stdW/2},{pts:evSeg,w:2}],legBlk=fixedRects.concat(boxes.filter(function(q){return q.g==='point'}).map(function(q){return q.b})),xs=[],ys=[B-ins-lg.lh,T+ins],lx,ly,lpos=null,lbest=null,lbl=Infinity,r0,fbDisc=anc.map(function(a){return [a.x,a.y,st.aD/2+1.5*pp]}).concat([[evx,evy,st.evD/2+1.5*pp]]),fbRect=[[mx-FIGGEO.tw/2,triBase-FIGGEO.th,mx+FIGGEO.tw/2,triBase]].concat(boxes.filter(function(q){return q.g==='point'}).map(function(q){return q.b})); function fbTouch(r){var i,d,dx,dy;for(i=0;i<fbDisc.length;i++){d=fbDisc[i];dx=Math.max(r[0]-d[0],0,d[0]-r[2]);dy=Math.max(r[1]-d[1],0,d[1]-r[3]);if(Math.sqrt(dx*dx+dy*dy)<=d[2])return true}return figHit(r,0,[],fbRect)}
+    for(lx=R-ins-lg.lw;lx>=L+ins;lx-=20)xs.push(lx);if(!xs.length)xs.push(L+ins);
+    for(ly=B-ins-lg.lh-20;ly>T+ins;ly-=20)ys.push(ly);
+    ys.forEach(function(y0){xs.forEach(function(x0){if(lpos)return;r0=[x0,y0,x0+lg.lw,y0+lg.lh];
+      if(!figHit(r0,lpad,legPolys,legBlk)){lpos=[x0,y0];return}
+      if(!fbTouch(r0)){var pr=[r0[0]-lpad,r0[1]-lpad,r0[2]+lpad,r0[3]+lpad],ln=figClipLen(idxPx,pr)+figClipLen(stdPx,pr)+figClipLen(evSeg,pr);if(ln<lbl){lbl=ln;lbest=[x0,y0]}}})});
+    lg.plate=!lpos;if(!lpos)lpos=lbest||[R-ins-lg.lw,B-ins-lg.lh];
+    lg.x=lpos[0];lg.y=lpos[1];lg.rect=[lg.x,lg.y,lg.x+lg.lw,lg.y+lg.lh];lg.ents=ents;plan.lg=lg;boxes.push({g:'legend',b:lg.rect});
+  }
+  return plan;
+}
+// Stat panel geometry (dark): one row size s from 40 to 58 chosen from the measured widths.
+function figPanel(ctx,st,snap,T,col){
+  var TX=FIGTXT,E=snap.edges,i,tp=snap.peak1*snap.trough,x0=2829,x1=3733,lx=2899,top=381;
+  var rowsA=[],g2=[],g3=[],g4=[];
+  for(i=0;i<6;i++)rowsA.push({l:STAGES[i],v:E[i].toPrecision(3)+' to '+E[i+1].toPrecision(3)});
+  g2.push({l:TX.pPeak,v:snap.peak1.toFixed(2)},{l:TX.pTrough,v:tp.toFixed(3)},{l:TX.pSecond+snap.tT.toPrecision(3)+TX.pSecondUnit,v:'1.00'});
+  g3.push({l:TX.pEvT,v:snap.t.toFixed(2)+' yr',gl:'ev'},{l:TX.pEvIdx,v:f3(snap.hm),bold:true},{l:TX.pD,v:fd(snap.d)+TX.pDUnit});
+  g4.push({l:TX.kIdx,v:'',gl:'idx'},{l:TX.kStd,v:String(snap.refT)+TX.kUnit,gl:'std'},{l:TX.lgModel,v:snap.modelT.toPrecision(3)+TX.kUnit,gl:'tri'});
+  function need(){var f=1,all=rowsA.concat(g2,g3,g4);all.forEach(function(r){f=Math.min(f,(904-70-32)/(figTBox(ctx,r.l,58,400,st).w+(r.v===''?0:figTBox(ctx,r.v,58,r.bold?700:400,st).w)))});
+    f=Math.min(f,904/figTBox(ctx,TX.pStages,64,700,st).w,904/figTBox(ctx,TX.pYears,58,400,st).w);return f}
+  var f=need(),s=Math.max(40,Math.floor(58*f));
+  if(s===40&&f<40/58){g2.splice(2,1,{l:'Second peak',v:'1.00'},{l:'Second peak time tT',v:snap.tT.toPrecision(3)+' yr'})} if(s===40&&figTBox(ctx,g4[1].l,40,400,st).w+figTBox(ctx,g4[1].v,40,400,st).w>904-70-32){g4.splice(1,1,{l:'Standard curve',v:'',gl:'std'},{l:'Target time',v:g4[1].v})}
+  var k=s/58,rows=[],y;
+  rowsA.forEach(function(r,j){r.y=272*k+80*k*j;rows.push(r)});
+  var div1=rows[5].y+48*k;y=div1+85*k-0;
+  g2.forEach(function(r,j){r.y=805*k+80*k*j;rows.push(r)});
+  var div2=g2[g2.length-1].y+48*k;
+  g3.forEach(function(r,j){r.y=div2+85*k+80*k*j;rows.push(r)});
+  var div3=g3[g3.length-1].y+48*k;
+  g4.forEach(function(r,j){r.y=div3+85*k+80*k*j;rows.push(r)});
+  var last=g4[g4.length-1].y,bottom=top+last+0.25*s+40*k;
+  return {x0:x0,x1:x1,lx:lx,top:top,k:k,s:s,hs:Math.round(64*s/58),rows:rows,div1:top+div1,div2:top+div2,div3:top+div3,bottom:bottom,height:bottom-top,hy:top+112*k,sy:top+192*k};
+}
+function figInside(b){return b[0]>=FIGIN&&b[2]<=3840-FIGIN&&b[1]>=FIGIN&&b[3]<=2160-FIGIN}
+function figDraw(ctx,styleKey,snap){
+  var st=FIGSTY[styleKey==='dark'?'dark':'light'],dk=st.dark,L=st.L,R=st.R,B=st.B,i,sc={stage:1,point:1,legend:1,title:1,axis:1},plan,it,g;
+  // measure, lay out, then shrink any group whose text leaves the canvas inset; floor 0.70 of the base size
+  for(it=0;it<8;it++){plan=figLayout(ctx,st,snap,sc);var bad={};plan.boxes.forEach(function(q){if(!figInside(q.b))bad[q.g]=1});var any=false;
+    for(g in bad){if(sc[g]>0.7+1e-9){sc[g]=Math.max(0.7,sc[g]*0.9);any=true}}
+    if(!any)break}
+  var T=plan.T,X=plan.X,Y=plan.Y,col=plan.col,pp=st.pp,TX=FIGTXT,snp=snap;
+  function font(sz,wt){return (wt||400)+' '+sz+'px '+st.font}
+  function txt(s,x,y,sz,color,al,bl,wt){ctx.font=font(sz,wt);ctx.fillStyle=color;ctx.textAlign=al;ctx.textBaseline=bl;ctx.fillText(s,x,y)}
+  function line(x0,y0,x1,y1,c,w,dash){ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1,y1);ctx.strokeStyle=c;ctx.lineWidth=w;ctx.setLineDash(dash||[]);ctx.lineCap='butt';ctx.stroke();ctx.setLineDash([])}
+  function poly(pts,c,w,dash){ctx.beginPath();pts.forEach(function(p,j){if(j)ctx.lineTo(p[0],p[1]);else ctx.moveTo(p[0],p[1])});ctx.strokeStyle=c;ctx.lineWidth=w;ctx.lineJoin='round';ctx.lineCap='butt';ctx.setLineDash(dash||[]);ctx.stroke();ctx.setLineDash([])}
+  function disc(x,y,d,fill,edge,ew){ctx.beginPath();ctx.arc(x,y,d/2,0,Math.PI*2);ctx.fillStyle=fill;ctx.fill();if(edge&&ew>0){ctx.strokeStyle=edge;ctx.lineWidth=ew;ctx.stroke()}}
+  function tri(cx,by,w,h,c){ctx.beginPath();ctx.moveTo(cx-w/2,by);ctx.lineTo(cx+w/2,by);ctx.lineTo(cx,by-h);ctx.closePath();ctx.fillStyle=c;ctx.fill()}
+  var tw=FIGGEO.tw,th=FIGGEO.th;
+  // 1 to 9
+  ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=st.bg;ctx.fillRect(0,0,3840,2160);
+  ctx.save();ctx.beginPath();ctx.rect(L-23,T-23,R-L+46,B-T+46);ctx.clip();
+  ctx.fillStyle=st.bg;ctx.fillRect(L,T,R-L,B-T);
+  for(i=0;i<6;i++){ctx.fillStyle=st.bands[i%2];ctx.fillRect(X(snp.edges[i]),T,X(snp.edges[i+1])-X(snp.edges[i]),B-T)}
+  for(i=1;i<=5;i++)line(L,Y(i*0.2),R,Y(i*0.2),st.gridC,st.gridW);
+  for(i=1;i<=5;i++)line(X(snp.edges[i]),T,X(snp.edges[i]),B,st.edgeC,st.edgeW);
+  line(plan.evx,T,plan.evx,B,st.evC,st.evW,st.evDash);
+  poly(plan.stdPx,st.stdC,st.stdW,st.stdDash);
+  poly(plan.idxPx,col,st.idxW);
+  plan.anc.forEach(function(a){disc(a.x,a.y,st.aD,col,st.aEdgeC,st.aEdgeW)});
+  tri(plan.mx,plan.triBase,tw,th,st.triC);
+  disc(plan.evx,plan.evy,st.evD,st.evC,st.evEdgeC,st.evEdgeW);
+  ctx.restore();
+  // 10
+  line(L,T,L,B,st.spineC,st.spineW);line(L,B,R,B,st.spineC,st.spineW);
+  for(i=0;i<=25;i+=5){line(X(i),B,X(i),B+st.tickLen,st.tickC,st.tickW);txt(String(i),X(i),B+st.xTickGap,plan.tFs,st.tickTxt,'center','top')}
+  for(i=0;i<=5;i++){line(L,Y(i*0.2),L-st.tickLen,Y(i*0.2),st.tickC,st.tickW);txt((i*0.2).toFixed(1),L-st.yTickGap,Y(i*0.2),plan.tFs,st.tickTxt,'right','middle')}
+  if(dk)txt(TX.xTitle,(L+R)/2,2091,plan.aFs,st.axTxt,'center','alphabetic');else txt(TX.xTitle,(L+R)/2,1962,plan.aFs,st.axTxt,'center','top');
+  ctx.save();ctx.translate(dk?112:88,(T+B)/2);ctx.rotate(-Math.PI/2);txt(TX.yTitle,0,0,plan.aFs,st.axTxt,'center',dk?'alphabetic':'middle');ctx.restore();
+  // 11: stage labels and leaders
+  plan.stage.forEach(function(l){var r=l.r;
+    if(r.stack){var vy=l.y-0.4*l.fs;ctx.beginPath();ctx.moveTo(X(r.mid),T);ctx.lineTo(X(r.mid),vy);ctx.lineTo(l.x-12,vy);ctx.strokeStyle=st.leadC;ctx.lineWidth=st.leadW;ctx.setLineDash([]);ctx.lineCap='butt';ctx.stroke()}
+    else if(r.row>0)line(X(r.mid),T,X(r.mid),l.y,st.leadC,st.leadW);
+    txt(l.s,l.x,l.y,l.fs,st.sTxt,l.al,'bottom')});
+  plan.leads.forEach(function(l){line(l[0],l[1],l[2],l[3],st.leadC,st.leadW)});
+  plan.labs.forEach(function(l){
+    if(l.plate){ctx.save();ctx.globalAlpha=0.85;ctx.fillStyle=st.bg;ctx.fillRect(l.plate[0],l.plate[1],l.plate[2]-l.plate[0],l.plate[3]-l.plate[1]);ctx.restore()}
+    txt(l.s,l.x,l.y,plan.afs,l.col,l.ha,l.va==='center'?'middle':l.va)});
+  // legend (Light only)
+  if(!dk){var lg=plan.lg,lsc=lg.sc;
+    if(lg.plate){ctx.save();ctx.globalAlpha=0.85;ctx.fillStyle='#ffffff';ctx.fillRect(lg.x-lg.pad,lg.y-lg.pad,lg.lw+2*lg.pad,lg.lh+2*lg.pad);ctx.restore()}
+    lg.ents.forEach(function(e,k){var cy=lg.y+lg.rc0+k*lg.rstep,hc=lg.x+lg.hl/2;
+      if(e.k==='idx')line(lg.x,cy,lg.x+lg.hl,cy,col,st.idxW);
+      else if(e.k==='std')line(lg.x,cy,lg.x+lg.hl,cy,st.stdC,st.stdW,st.stdDash);
+      else if(e.k==='ev'){line(hc,cy-lg.gl,hc,cy+lg.gl,st.evC,st.evW,st.evDash);disc(hc,cy,st.evD*lsc,st.evC,st.evEdgeC,st.evEdgeW)}
+      else tri(hc,cy+th*lsc/2,tw*lsc,th*lsc,st.triC);
+      txt(e.s,lg.x+lg.tx,cy,lg.fs,'#000000','left','middle')})}
+  // 12: dark title, subtitle, stat panel
+  if(dk){
+    txt(snp.name,520,145,111*sc.title,st.axTxt,'left','alphabetic',700);txt(TX.subtitle,526,266,83*sc.title,st.tickTxt,'left','alphabetic');
+    var P=figPanel(ctx,st,snp,T,col);
+    figRR(ctx,st.panelX0,P.top,st.panelX1-st.panelX0,P.height,st.panelR);ctx.fillStyle=st.panelFill;ctx.fill();ctx.strokeStyle=st.panelBorder;ctx.lineWidth=st.panelBW;ctx.stroke();
+    txt(TX.pStages,P.x0,P.top+P.hy-P.top,P.hs,st.axTxt,'left','alphabetic',700);txt(TX.pYears,P.x0,P.sy,P.s,st.tickTxt,'left','alphabetic');
+    P.rows.forEach(function(r){var by=P.top+r.y,cy=by-0.35*P.s,gx=P.x0+23,pk=P.k;
+      if(r.gl==='ev'){line(gx,cy-26*pk,gx,cy+26*pk,st.evC,4,[10,6]);disc(gx,cy,36*pk,st.evC,st.evEdgeC,6*pk)}
+      else if(r.gl==='idx')line(P.x0,cy,P.x0+46,cy,col,14*pk);
+      else if(r.gl==='std')line(P.x0,cy,P.x0+46,cy,st.stdC,10*pk,[18*pk,10*pk]);
+      else if(r.gl==='tri')tri(gx,cy+17*pk,40*pk,34*pk,st.triC);
+      txt(r.l,P.lx,by,P.s,st.tickTxt,'left','alphabetic');if(r.v!=='')txt(r.v,P.x1,by,P.s,st.axTxt,'right','alphabetic',r.bold?700:400)});
+    line(P.x0,P.div1,P.x1,P.div1,st.panelBorder,st.panelBW);line(P.x0,P.div2,P.x1,P.div2,st.panelBorder,st.panelBW);line(P.x0,P.div3,P.x1,P.div3,st.panelBorder,st.panelBW);
+  }
+}
+// download
+function figCrc(b){var t=figCrc.t,c=-1,i;if(!t){t=figCrc.t=[];for(var n=0;n<256;n++){var k=n;for(var j=0;j<8;j++)k=k&1?(k>>>1)^0xEDB88320:k>>>1;t[n]=k>>>0}}for(i=0;i<b.length;i++)c=t[(c^b[i])&255]^(c>>>8);return (c^-1)>>>0}
+// canvas.toBlob writes no pHYs chunk; insert one after IHDR so Word places the image at the print width. Pixel size is unchanged.
+function figPhys(blob,dpi){
+  return new Promise(function(res){
+    function done(buf){try{var b=new Uint8Array(buf),sig=[137,80,78,71,13,10,26,10],k;for(k=0;k<8;k++)if(b[k]!==sig[k]){res(blob);return}
+      var ppm=Math.round(dpi/0.0254),ch=new Uint8Array(21);ch[3]=9;ch[4]=112;ch[5]=72;ch[6]=89;ch[7]=115;
+      ch[8]=ppm>>>24;ch[9]=(ppm>>>16)&255;ch[10]=(ppm>>>8)&255;ch[11]=ppm&255;ch[12]=ch[8];ch[13]=ch[9];ch[14]=ch[10];ch[15]=ch[11];ch[16]=1;
+      var crc=figCrc(ch.subarray(4,17));ch[17]=crc>>>24;ch[18]=(crc>>>16)&255;ch[19]=(crc>>>8)&255;ch[20]=crc&255;
+      // walk the chunks after the signature up to the first IDAT; every pHYs found is dropped and one chunk is written at the first pHYs position, else after IHDR
+      var pos=8,parts=[],at=-1,first=-1,n,ty;
+      while(pos+12<=b.length){n=((b[pos]<<24)|(b[pos+1]<<16)|(b[pos+2]<<8)|b[pos+3])>>>0;ty=String.fromCharCode(b[pos+4],b[pos+5],b[pos+6],b[pos+7]);
+        if(ty==='IDAT'||pos+12+n>b.length)break;
+        if(ty==='pHYs'){if(first<0)first=parts.length;at=pos;parts.push(null)}else parts.push(b.subarray(pos,pos+12+n));
+        pos+=12+n}
+      var out=[b.subarray(0,8)],j;
+      if(first<0){first=Math.min(1,parts.length)}
+      for(j=0;j<=parts.length;j++){if(j===first)out.push(ch);if(j<parts.length&&parts[j])out.push(parts[j])}
+      out.push(b.subarray(pos));
+      res(new Blob(out,{type:'image/png'}))}catch(x){res(blob)}}
+    try{if(blob.arrayBuffer){blob.arrayBuffer().then(done,function(){res(blob)})}else{var fr=new FileReader();fr.onload=function(){done(fr.result)};fr.onerror=function(){res(blob)};fr.readAsArrayBuffer(blob)}}catch(x){res(blob)}})}
+function figFonts(styleKey){
+  var f=styleKey==='dark'?['58px "Segoe UI"','700 111px "Segoe UI"']:['62px "Times New Roman"'];
+  if(!(typeof document!=='undefined'&&document.fonts&&document.fonts.load))return Promise.resolve();
+  return Promise.race([Promise.all(f.map(function(x){return document.fonts.load(x)})),new Promise(function(r){setTimeout(r,1500)})]).catch(function(){})}
+function figFail(){var e=$('#fig-status');if(e)e.textContent=FIGTXT.fail}
+function figGenerate(){
+  var sk=$('#fig-style').value==='dark'?'dark':'light',snap=figSnap();
+  return figFonts(sk).then(function(){
+    var cv=document.createElement('canvas');cv.width=3840;cv.height=2160;var ctx=cv.getContext('2d');
+    if(!ctx){figFail();return}
+    figDraw(ctx,sk,snap);
+    return new Promise(function(res){cv.toBlob(function(b){res(b)},'image/png')}).then(function(blob){
+      cv.width=0;cv.height=0;
+      if(!blob){figFail();return}
+      return figPhys(blob,FIGSTY[sk].dpi).then(function(out){
+        var a=document.createElement('a'),u=URL.createObjectURL(out);a.href=u;a.download=figName(snap.name,sk);a.style.display='none';
+        document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(function(){URL.revokeObjectURL(u)},4000)})})
+  }).catch(function(){figFail()})}
+$('#fig-generate').addEventListener('click',function(){figGenerate()});
+window.lassondeFigure={snapshot:figSnap,draw:figDraw,layout:figLayout,filename:figName,generate:figGenerate,styles:FIGSTY};
 $('#scenario').addEventListener('change',function(e){S.sc=e.target.value;S.tT=modelT();render()});
 $('#reset').addEventListener('click',function(){S.sc='artemis';$('#scenario').value='artemis';S.f=D.f.slice();S.peak1=D.peak1;S.trough=D.trough;S.endexp=D.endexp;S.t=D.t;S.d=XK.haulDecay;S.tT=modelT();render()});
 $('[data-snap]').addEventListener('click',function(){S.tT=modelT();render()});
