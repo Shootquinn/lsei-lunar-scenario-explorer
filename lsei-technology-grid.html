@@ -228,6 +228,8 @@ button:hover { border-color: var(--muted); }
   width: 100%; border: 1px solid var(--line); border-radius: 4px; padding: 4px 6px; background: var(--bg);
 }
 #pop textarea { min-height: 90px; resize: vertical; }
+/* X-M Designer: the evidence box shows about ten lines; 1,000 characters is about 20 at 340 px. */
+#pop #evText { min-height: 150px; }
 #pop .checks { font-size: 12px; margin: 4px 0; padding-left: 18px; }
 #pop .checks:empty { display: none; }
 #pop .err { color: var(--pending); font-weight: 600; font-size: 13px; }
@@ -236,19 +238,27 @@ button:hover { border-color: var(--muted); }
 #pop .row button { min-height: 24px; }
 #pop .inl { display: inline-flex; gap: 4px; align-items: center; margin: 0; font-size: 13px; color: inherit; }
 #pop .rank input { width: 3.6em; min-height: 24px; padding: 1px 4px; border: 1px solid var(--line); border-radius: 4px; background: var(--bg); }
-#pop .crit { padding: 4px 0; border-top: 1px dotted var(--line); }
-#pop .crit:first-of-type { border-top: 0; }
-#pop .crit-head { font-size: 12px; }
-#pop .crit-head b { margin-right: 4px; }
-#pop .dbl { font-size: 11px; font-weight: 700; color: var(--pending); white-space: nowrap; }
-#pop .crit-val { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin-top: 2px; font-size: 12px; color: var(--muted); }
-#pop .cbtns { display: inline-flex; gap: 3px; }
-#pop .cbtns button { min-width: 24px; min-height: 24px; padding: 0 6px; }
-#pop .cbtns button[aria-pressed="true"] { background: var(--fg); color: var(--surface); border-color: var(--fg); }
+#pop button, #pop input, #pop textarea, #pop select { min-width: 24px; min-height: 24px; }
+#pop .computed { font-weight: 600; }
+#pop .computed .out, .mx td.out { font-weight: 700; text-decoration: underline; text-decoration-style: double; }
+#pop .cat { padding: 6px 0; border-top: 1px dotted var(--line); }
+#pop .cat:first-of-type { border-top: 0; }
+#pop .cat-head { font-size: 13px; }
+#pop .cat-label { margin-right: 4px; }
+#pop .cat-measures { color: var(--muted); font-size: 12px; }
+#pop .cat-opts { display: grid; grid-template-columns: auto 1fr; gap: 3px 8px; align-items: center; margin: 4px 0 2px; font-size: 12px; }
+#pop .cat-opts button { min-width: 32px; min-height: 28px; padding: 0 6px; font-weight: 700; }
+#pop .cat-opts button[aria-pressed="true"] { background: var(--fg); color: var(--surface); border-color: var(--fg); }
+#pop .cat-val { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-size: 12px; color: var(--muted); }
+#pop .twin { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin-top: 4px; }
+#pop .twin input[type=text] { flex: 1 1 10em; width: auto; }
+#pop .who-line { font-size: 12px; color: var(--muted); }
+#pop .stalechk, .mx .stalechk { color: var(--pending); font-weight: 600; }
 #pop .pend { color: var(--pending); font-weight: 600; }
+#pop .unsaved { color: var(--pending); font-weight: 700; }
 #pop .row button[aria-pressed="true"] { background: var(--fg); color: var(--surface); border-color: var(--fg); }
 @media (pointer: coarse) {
-  #pop .cbtns button, #pop .row button, #pop .rank input, #pop .close, #pop .moves button, .stale-rec button, #matrix button, #matrix input, .picker button { min-width: 44px; min-height: 44px; }
+  #pop .cat-opts button, #pop .row button, #pop .twin button, #pop .rank input, #pop .close, #pop .moves button, .stale-rec button, #matrix button, #matrix input, .picker button { min-width: 44px; min-height: 44px; }
 }
 @media (max-width: 699px) {
   #pop {
@@ -270,6 +280,8 @@ button:hover { border-color: var(--muted); }
 table.mx { border-collapse: separate; border-spacing: 0; font-size: 13px; width: 100%; }
 .mx th, .mx td { padding: 3px 5px; border-bottom: 1px solid var(--line); text-align: center; white-space: nowrap; background: var(--surface); }
 .mx thead th { font-size: 12px; color: var(--muted); font-weight: 600; }
+/* X-M Designer: headers wrap at word gaps so the 18 columns fit a 1440 px window without sideways scroll. */
+.mx thead th { white-space: normal; vertical-align: bottom; line-height: 1.2; }
 .mx .r { position: sticky; left: 0; z-index: 2; width: 4.2em; min-width: 4.2em; max-width: 4.2em; text-align: right; }
 .mx .t { position: sticky; left: 4.2em; z-index: 2; text-align: left; white-space: normal; min-width: 8.5em; max-width: 13em; box-shadow: 1px 0 0 var(--line); }
 .mx td.r { font-weight: 700; }
@@ -285,7 +297,17 @@ table.mx { border-collapse: separate; border-spacing: 0; font-size: 13px; width:
 .mx tr.dropbelow td { box-shadow: inset 0 -2px 0 var(--focus); }
 .mx .grip { color: var(--muted); margin-right: 4px; letter-spacing: -3px; cursor: grab; }
 .mx .tot { font-weight: 400; color: var(--muted); }
-.mx .tot.done { color: var(--fg); }
+.mx .tot.done { color: var(--fg); font-weight: 700; }
+.mx th.side, .mx td.side { border-left: 1px solid var(--line); }
+.mx td.chk { white-space: normal; min-width: 7em; max-width: 12em; text-align: left; font-size: 12px; }
+.mx details.ev { font-size: 12px; margin-top: 2px; }
+.mx details.ev summary { cursor: pointer; color: var(--focus); }
+.mx details.ev div { white-space: pre-wrap; max-width: 24em; }
+#matrixCriteria { margin: 6px 0 8px; font-size: 13px; }
+#matrixCriteria summary { cursor: pointer; font-weight: 700; min-height: 24px; }
+#matrixCriteria .ctab { overflow-x: auto; max-width: 100%; }
+#matrixCriteria table { border-collapse: collapse; font-size: 12px; }
+#matrixCriteria th, #matrixCriteria td { border: 1px solid var(--line); padding: 3px 5px; text-align: left; vertical-align: top; }
 #matrix .err { color: var(--pending); font-weight: 600; font-size: 13px; }
 #matrix .tools { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 8px 0; }
 .rlist { list-style: none; padding: 0; margin: 4px 0; }
@@ -314,7 +336,7 @@ footer .stale:empty { display: none; }
 <body>
 <header class="top">
   <h1>LSEI Technology Grid</h1>
-  <p class="legend">Open a tile to move it, mark needs split, move it to reserve, rank it or score it. Export saves your changes for sync.</p>
+  <p class="legend">Open a tile to move it, mark needs split, move it to reserve, set its position, or score it on the ranking matrix. Export saves your changes for sync.</p>
   <p class="legend2" id="legend2"></p>
   <div class="controls">
     <label>You are <select id="who"><option value="">pick your name</option></select></label>
@@ -354,14 +376,15 @@ footer .stale:empty { display: none; }
 window.GRID_DATA = {"cards_commit": "47b5eb7", "cards_date": "2026-11-15", "cards_dirty": false, "synced_at": "2026-11-16T05:36:25.653Z", "capacity": 25, "counts": {"a": 16, "b": 13, "c": 11, "d": 8, "e": 14, "f": 22, "g": 11, "h": 4}, "area_names": {"a": "Resource Prospecting and Characterization", "b": "Excavation", "c": "Processing and Extraction", "d": "Feedstock and Consumables Production", "e": "Storage and Transportation", "f": "In-Situ Construction and Manufacturing", "g": "Recycling and Waste Management", "h": "Strategic Resource and Propellant Architecture"}, "technologies": [{"slug": "altimetry-and-illumination-modelling", "path": "context/technologies/resource-prospecting-and-characterization/altimetry-and-illumination-modelling.md", "area": "a", "areas": ["a"], "pointer": false, "author": "quinn", "trl": 6, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "09bdf29b21d250e3", "title": "Laser altimetry modelling", "blurb": "Models built on Lunar Orbiter Laser Altimeter polar elevation data rank polar sites by illumination and shadow. TRL 6 rests on models that reproduced LRO camera shadow features and correlated at 0.9 with the first ShadowCam image, with no lunar-surface check. The products are model outputs that shift with resolution.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "data-fusion-and-geospatial-decision-support", "path": "context/technologies/resource-prospecting-and-characterization/data-fusion-and-geospatial-decision-support.md", "area": "a", "areas": ["a"], "pointer": false, "author": "quinn", "trl": 6, "evidence_level": "model", "status": "fact-checked", "source_hash": "f0e2bd4fa417bddf", "title": "Geospatial data fusion", "blurb": "Fusion workflows combine orbital layers into ranked landing regions, sites and traverses for Artemis planning. TRL 6 is a model built on and checked against flight data; no prototype has run in an operational environment. No cited workflow reports its ranking accuracy, and no landing or in-situ ice measurement has tested a fused site choice.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "downhole-instrumented-drill-strings", "path": "context/technologies/resource-prospecting-and-characterization/downhole-instrumented-drill-strings.md", "area": "a", "areas": ["a"], "pointer": false, "author": "quinn", "trl": 9, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "49b57e353b7a58e9", "title": "Downhole drill strings", "blurb": "Drill strings reached 305 cm on the Moon with a crew-operated drill and 2 m robotically. TRL 9 follows the study rule that any lunar use counts: Chang'e-5 drilled 1 m and logged force and current each second. No drill-string sensor has read a lunar borehole during drilling, and every hole deeper than about 3 m was drilled on Earth.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "gamma-ray-spectrometry", "path": "context/technologies/resource-prospecting-and-characterization/gamma-ray-spectrometry.md", "area": "a", "areas": ["a"], "pointer": false, "author": "quinn", "trl": 9, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "2c023304de0d4b6f", "title": "Gamma-ray spectrometry", "blurb": "Gamma-ray spectrometers map thorium, potassium, iron, titanium and uranium from lunar orbit. TRL 9 covers orbital use only: Kaguya mapped uranium and thorium for 2,674 h from 100 km polar orbit. Small outcrops stay unresolved at a 150 km footprint and 130 km map resolution.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "ground-penetrating-radar", "path": "context/technologies/resource-prospecting-and-characterization/ground-penetrating-radar.md", "area": "a", "areas": ["a"], "pointer": false, "author": "quinn", "trl": 9, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "c97119d7737fb0d8", "title": "Ground-penetrating radar", "blurb": "Radar on a rover images lunar layering; Chang'e-4 reached 40 m. TRL 9 follows the study rule that any lunar use counts: Yutu-2's radar ran 6 h 28 min on the farside surface. No flown lunar radar result in the sources reviewed detects ice.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "heat-flow-probes", "path": "context/technologies/resource-prospecting-and-characterization/heat-flow-probes.md", "area": "a", "areas": ["a"], "pointer": false, "author": "quinn", "trl": 9, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "2044c3a3fa283c87", "title": "Heat-flow probes", "blurb": "Probes in drilled holes measure regolith temperature, gradient and conductivity. TRL 9 follows the study rule that any lunar use counts: the Apollo 15 and 17 probes recorded for more than four years each. LISTER measured only to 0.971 m against a 3 m design depth.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "in-situ-mass-spectrometry", "path": "context/technologies/resource-prospecting-and-characterization/in-situ-mass-spectrometry.md", "area": "a", "areas": ["a"], "pointer": false, "author": "quinn", "trl": 9, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "24e2af485b788209", "title": "Mass spectrometry", "blurb": "Mass spectrometers on the lunar surface analyse gas. TRL 9 follows the study rule that any lunar use counts: Apollo 17 LACE ran ten lunations and MSolo returned 43 scans from IM-2. Neither analysed gas from icy regolith, and no flown instrument has analysed gas evolved from a lunar regolith sample.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "in-situ-optical-composition", "path": "context/technologies/resource-prospecting-and-characterization/in-situ-optical-composition.md", "area": "a", "areas": ["a"], "pointer": false, "author": "quinn", "trl": 9, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "cae480823f330269", "title": "Rover spectrometers", "blurb": "Rover spectrometers read regolith oxides in place. TRL 9 follows the study rule that any lunar use counts and covers APXS and LIBS; Pragyan made 23 APXS measurements near 69.37 deg S. Only one lunar LIBS data set exists and it yields 13 usable investigations of 66; no Raman instrument has operated on the Moon.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "lander-orbiter-sensing-platform", "path": "context/technologies/resource-prospecting-and-characterization/lander-orbiter-sensing-platform.md", "area": "a", "areas": ["a"], "pointer": false, "author": "quinn", "trl": 9, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "622cc2026105d00e", "title": "Landers and orbiters", "blurb": "Orbiters and landers carry sensors to lunar orbit and the lunar surface. TRL 9 rests on Kaguya in orbit and the Chang'e-4 and Blue Ghost landers on the Moon. The level covers the carrier only and sets no instrument's level.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "machine-learning-analysis-software", "path": "context/technologies/resource-prospecting-and-characterization/machine-learning-analysis-software.md", "area": "a", "areas": ["a"], "pointer": false, "author": "quinn", "trl": 6, "evidence_level": "model", "status": "fact-checked", "source_hash": "efdc82e1682d5232", "title": "Machine learning tools", "blurb": "Machine-learning software detects craters and enhances images of permanently shadowed regions on archived lunar data. TRL 6 rests on models trained on LRO NAC images and checked against sunlit images and 50,000 human-vetted ShadowCam detections. Real lunar data has produced no ice-mapping result, and no model has run on flight hardware.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "neutron-spectrometry", "path": "context/technologies/resource-prospecting-and-characterization/neutron-spectrometry.md", "area": "a", "areas": ["a"], "pointer": false, "author": "quinn", "trl": 9, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "6035794e1ef0130d", "title": "Neutron spectrometry", "blurb": "Neutron detectors map polar hydrogen from lunar orbit: 0.1 wt% regional average, 0.49 wt% in Cabeus-1. TRL 9 covers orbital use only: LEND on LRO used 2009-2023 data. No source reviewed reports a neutron spectrometer on the lunar surface.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "psr-optical-imaging", "path": "context/technologies/resource-prospecting-and-characterization/psr-optical-imaging.md", "area": "a", "areas": ["a"], "pointer": false, "author": "quinn", "trl": 9, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "949c1b99215d6a2b", "title": "Shadowed floor imaging", "blurb": "Orbital cameras image permanently shadowed region floors by secondary light. TRL 9 covers orbital use only: ShadowCam on KPLO and the LRO narrow-angle camera. ShadowCam found no widespread surface water ice; its detection limit is 20 to 30 wt%.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "resource-assessment-methodology", "path": "context/technologies/resource-prospecting-and-characterization/resource-assessment-methodology.md", "area": "a", "areas": ["a"], "pointer": false, "author": "quinn", "trl": 4, "evidence_level": "model", "status": "fact-checked", "source_hash": "c81aa97c78585228", "title": "Resource assessment method", "blurb": "The terrestrial reserve-classification method is applied to lunar data to rate resources and simulated ice. TRL 4 follows the study rule for model-only work: the method ran on published data for six resources and on a simulated ice deposit. No source reviewed reports a completed quantitative lunar assessment; water ice classifies only as a speculative unrecoverable resource.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "seismic-sensing", "path": "context/technologies/resource-prospecting-and-characterization/seismic-sensing.md", "area": "a", "areas": ["a"], "pointer": false, "author": "quinn", "trl": 9, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "9482b3cd7457577c", "title": "Seismic sensing", "blurb": "Seismometers and geophones measure moonquakes, crust thickness and an 8.5 m regolith layer. TRL 9 follows the study rule that any lunar use counts: Apollo stations ran on the surface from 1969 to 1977. No cited seismic result detects ice.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "terramechanics-characterization", "path": "context/technologies/resource-prospecting-and-characterization/terramechanics-characterization.md", "area": "a", "areas": ["a"], "pointer": false, "author": "quinn", "trl": 9, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "a00f8ad259ad880f", "title": "Terramechanics", "blurb": "Penetrometers, samplers and rover wheels measure regolith density, cohesion, friction angle and bearing. TRL 9 follows the study rule that any lunar use counts: the Apollo penetrometer reached 76 cm and Yutu-2 wheel data gave shear parameters. Every value comes from the top few metres outside shadowed regions, and icy regolith has been tested only in terrestrial simulant.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "thermal-infrared-radiometry", "path": "context/technologies/resource-prospecting-and-characterization/thermal-infrared-radiometry.md", "area": "a", "areas": ["a"], "pointer": false, "author": "quinn", "trl": 9, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "cd6fc41c793f9fc7", "title": "Thermal infrared imaging", "blurb": "Thermal radiometers map lunar surface temperature; Diviner on LRO has reached 29 K. TRL 9 covers orbital use only: Diviner has measured from polar orbit since 5 July 2009. No cited thermal-infrared instrument has measured from the lunar surface.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "autonomous-excavation-and-hybrid-control", "path": "context/technologies/excavation-systems/autonomous-excavation-and-hybrid-control.md", "area": "b", "areas": ["b"], "pointer": false, "author": "quinn", "trl": 4, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "842e83ba060bda39", "title": "Excavation autonomy", "blurb": "Software digs regolith under autonomy, teleoperation or a hybrid of both. TRL 4 follows the RASSOR 2.0 platform's stated level; the Autodig software ran in a laboratory bin at Kennedy Space Center. All other lunar autonomy results are simulations; none combines autonomy, signal delay and vacuum.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "bucket-drum-excavator", "path": "context/technologies/excavation-systems/bucket-drum-excavator.md", "area": "b", "areas": ["b"], "pointer": false, "author": "quinn", "trl": 5, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "87e006275968a422", "title": "Bucket drum and wheel", "blurb": "Bucket drums, wheels and ladders dig regolith; ladders have reached 2,400 kg/h in sand. TRL 5 rests on vacuum tests of the IPEx drum excavator's actuators; wheel and ladder hardware alone rates a level lower. No such machine has dug in vacuum or true 1/6 g, and mission-scale figures rest on a slide deck and an abstract.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "cold-tolerant-actuators", "path": "context/technologies/excavation-systems/cold-tolerant-actuators.md", "area": "b", "areas": ["b"], "pointer": false, "author": "quinn", "trl": 8, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "20c7b0aedae5c94f", "title": "Cold-tolerant actuators", "blurb": "Actuators, motors and bearings drive rovers and diggers in lunar cold. TRL 8 rests on VIPER mobility actuators that passed thermal-vacuum qualification and acceptance testing, and on NIRISS gearmotors cycled to 35 K. No cited source reports a drive actuator running under load below -50 C.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "conveyors-belt-screw-trough", "path": "context/technologies/excavation-systems/conveyors-belt-screw-trough.md", "area": "b", "areas": ["b"], "pointer": false, "author": "quinn", "trl": 5, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "2df52f843a238e6a", "title": "Belt and screw conveyors", "blurb": "Belt, screw and trough conveyors lift regolith into reactors. TRL 5 comes from heritage: an inclined auger lifted Mauna Kea tephra about 2 m at 1 g, and belt conveyors are routine in terrestrial mining. None has a measured throughput in vacuum or lunar gravity.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "dust-suppression-and-removal", "path": "context/technologies/excavation-systems/dust-suppression-and-removal.md", "area": "b", "areas": ["b"], "pointer": false, "author": "quinn", "trl": 9, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "8d427004036fa2a5", "title": "Dust suppression", "blurb": "Brushes, wipes and an electrodynamic dust shield clear dust from hardware. TRL 9 rests on the Apollo nylon brush, which removed coarse dust on the Moon in 1969-1972; the Blue Ghost shield sits lower. No Apollo method cleared dust fully, and no cleaning fraction from flight is reported.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "dust-tolerant-mechanisms", "path": "context/technologies/excavation-systems/dust-tolerant-mechanisms.md", "area": "b", "areas": ["b"], "pointer": false, "author": "quinn", "trl": 5, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "8023242081b28c34", "title": "Dust-tolerant mechanisms", "blurb": "PTFE lip seals and grease-packed bearings keep lunar simulant out of moving parts. TRL 5 is component evidence: in a vacuum run of 10,000 cycles at room temperature, two lip seals let no simulant past. No cited test ran a seal or bearing in vacuum at lunar temperatures or in reduced gravity.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "excavation-mobile-platform", "path": "context/technologies/excavation-systems/excavation-mobile-platform.md", "area": "b", "areas": ["b"], "pointer": false, "author": "quinn", "trl": 9, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "84c4a9974fec0403", "title": "Excavation platform", "blurb": "A wheeled platform would carry excavation tools over the lunar surface. TRL 9 rests on Yutu-2, Apollo Lunar Roving Vehicle and Lunokhod wheels that ran on the Moon. No excavation-class platform has flown; the Canadian Space Agency lunar utility rover is in concept development.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "excavator-mobility", "path": "context/technologies/excavation-systems/excavator-mobility.md", "area": "b", "areas": ["b"], "pointer": false, "author": "quinn", "trl": 9, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "dd4b08b2f19752ad", "title": "Excavator traction", "blurb": "Wheels give excavators traction in reduced-gravity soil. TRL 9 rests on Yutu-2 wheels that ran on the Moon at slip ratios of -0.1 and 0.1. No wheel has pulled under excavation load on the Moon, in vacuum or at true 1/6 g.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "gravity-fed-hopper-flow", "path": "context/technologies/excavation-systems/gravity-fed-hopper-flow.md", "area": "b", "areas": ["b"], "pointer": false, "author": "quinn", "trl": 6, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "4465474d7ed9afc6", "title": "Hopper and feeder flow", "blurb": "Vibrated hoppers with rotary-pocket feeders move regolith by gravity. TRL 6 rests on eight hopper-and-feeder assemblies that fed in 330 of 330 vibration-on runs at 0.16 g in parabolic flight. Every lunar-gravity hopper test ran in flight or drop-tower windows, none in hard vacuum.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "haul-truck-and-conventional-excavation", "path": "context/technologies/excavation-systems/haul-truck-and-conventional-excavation.md", "area": "b", "areas": ["b"], "pointer": false, "author": "quinn", "trl": 5, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "8d1a1e87363c6c97", "title": "Haul truck", "blurb": "Haul trucks and conventional equipment carry excavated regolith. TRL 5 rests on a wheel-level component: the Daca test-wheel rig ran in GRC-1 simulant at true 1/6 g in parabolic flight. No vehicle has hauled regolith in vacuum or at true 1/6 g, and the OffWorld and Canadian Space Agency vehicles are plans.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "icy-regolith-excavation", "path": "context/technologies/excavation-systems/icy-regolith-excavation.md", "area": "b", "areas": ["b"], "pointer": false, "author": "quinn", "trl": 4, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "db7970a6dbee2d2b", "title": "Icy regolith excavation", "blurb": "Chain trenchers and milling-bit excavators cut hard and icy regolith, moving 62 kg/h of icy simulant. TRL 4 follows competition tests on low-strength material with 5/6 robot-weight offload in one event. No excavator has run in vacuum or lunar polar cold.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "passive-anti-adhesion-surfaces", "path": "context/technologies/excavation-systems/passive-anti-adhesion-surfaces.md", "area": "b", "areas": ["b"], "pointer": false, "author": "quinn", "trl": 9, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "2172c71a800a7584", "title": "Anti-adhesion surfaces", "blurb": "Laser-patterned and coated surfaces shed lunar dust without power. TRL 9 rests on a laser-patterned Ti-6Al-4V coupon that gathered dust and showed a cleaned surface on the Moon in 2025. No coverage, adhesion or cleaning value is reported; the one cleaning, shown only in a caption, has an unknown cause.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "robotic-arm-manipulator", "path": "context/technologies/excavation-systems/robotic-arm-manipulator.md", "area": "b", "areas": ["b"], "pointer": false, "author": "quinn", "trl": 9, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "23cdb5a6d07e6605", "title": "Robotic arm", "blurb": "Robotic arms scoop and trench regolith for sampling. TRL 9 rests on the Surveyor III and Surveyor VII samplers, which trenched and ran bearing tests on the Moon in 1967 and 1968. No arm has dug beyond sampling scale; 2 kg is the largest arm collection reported on the Moon.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "carbothermal-reduction", "path": "context/technologies/resource-processing-and-extraction/carbothermal-reduction.md", "area": "c", "areas": ["c", "b", "d", "h"], "pointer": false, "author": "nikki", "trl": 6, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "ca11e6c91f5cb7b5", "title": "Carbothermal reduction", "blurb": "Carbothermal reactors heat regolith to yield carbon monoxide, then oxygen. TRL 6 is the developers' stated level after thermal-vacuum tests of the Sierra Space COPR reactor; test runs alone support a level lower. The campaign reports no per-test oxygen yield, and the carbon monoxide to oxygen steps lay outside the tested hardware.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "electrostatic-separation-of-regolith", "path": "context/technologies/resource-processing-and-extraction/electrostatic-separation-of-regolith.md", "area": "c", "areas": ["c"], "pointer": false, "author": "nikki", "trl": 5, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "20c42036e4569f80", "title": "Electrostatic separation", "blurb": "Tribocharging sorts ilmenite from regolith; one pass doubled the ilmenite grade of a highland simulant. TRL 5 follows validation in reduced-gravity parabolic flight, and no source states a level. All flight runs were gram-scale single passes in an aircraft cabin; no run on file combines vacuum with reduced gravity.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "helium-3-extraction", "path": "context/technologies/resource-processing-and-extraction/helium-3-extraction.md", "area": "c", "areas": ["c", "a", "b", "d", "e", "h"], "pointer": false, "author": "nikki", "trl": 4, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "e8e2958d2c5c57c3", "title": "Helium-3 extraction", "blurb": "Heated regolith releases helium-3; a heat-exchanger testbed removed up to 96 % of implanted helium-4, the surrogate, at 9.0 g/s. TRL 4 is a laboratory breadboard validation. No extraction unit has reported data from vacuum or reduced gravity.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "hydrogen-reduction-of-ilmenite", "path": "context/technologies/resource-processing-and-extraction/hydrogen-reduction-of-ilmenite.md", "area": "c", "areas": ["c", "d"], "pointer": false, "author": "nikki", "trl": 6, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "7b4137a5f0cdb92b", "title": "Hydrogen reduction", "blurb": "Hydrogen reduces ilmenite in regolith to yield oxygen, a few weight percent of the feed. TRL 6 takes the higher of NASA's 5/6 rating; test runs alone support two levels lower. No reactor has run in vacuum or thermal vacuum.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "in-place-thermal-mining", "path": "context/technologies/resource-processing-and-extraction/in-place-thermal-mining.md", "area": "c", "areas": ["c", "b", "e"], "pointer": false, "author": "nikki", "trl": 5, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "959288bc018fe665", "title": "In-place thermal mining", "blurb": "Heaters sublimate ice from regolith in place. TRL 5 rests on a Block 1 breadboard that ran nearly fifty sublimation tests in a cryogenic-vacuum chamber. Test boundaries do not represent a permanently shadowed region; the capture tent and cold traps for a lunar unit exist only as designs.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "magnetic-separation-of-lunar-soils", "path": "context/technologies/resource-processing-and-extraction/magnetic-separation-of-lunar-soils.md", "area": "c", "areas": ["c"], "pointer": false, "author": "nikki", "trl": 5, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "7e4c36933e9ba117", "title": "Magnetic separation", "blurb": "Magnets concentrate anorthite, ilmenite and metallic iron from lunar soil. TRL 5 takes the higher of NASA's 4/5 rating for mineral separation; test runs alone support a level lower. No separator on file has run in reduced gravity or above gram scale.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "molten-regolith-electrolysis", "path": "context/technologies/resource-processing-and-extraction/molten-regolith-electrolysis.md", "area": "c", "areas": ["c", "d", "f"], "pointer": false, "author": "nikki", "trl": 6, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "2473c895d6f69373", "title": "Regolith electrolysis", "blurb": "Electric current frees oxygen from molten regolith. TRL 6 takes the higher of NASA's 5/6 rating, and a 25 kg reactor run for 9 hours in a vacuum chamber matches it. That level depends on one run that missed its energy-efficiency threshold, and anode, cathode and containment life is unproven.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "molten-salt-electrolysis-ffc", "path": "context/technologies/resource-processing-and-extraction/molten-salt-electrolysis-ffc.md", "area": "c", "areas": ["c", "d", "f"], "pointer": false, "author": "nikki", "trl": 4, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "e160e83650a07a4e", "title": "Molten salt electrolysis", "blurb": "Molten salt cells strip oxygen from regolith; laboratory FFC cells removed 85 to 99 % of it from 24-30 g simulant charges. TRL 4 is the 2026 review's stated level. No run on file is in vacuum or reduced gravity, and the anodes were consumed, broke or passivated.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "reactor-regolith-feed-and-discharge", "path": "context/technologies/resource-processing-and-extraction/reactor-regolith-feed-and-discharge.md", "area": "c", "areas": ["c", "b"], "pointer": false, "author": "nikki", "trl": 6, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "14b23df42e206b3a", "title": "Reactor feed and discharge", "blurb": "Valves and feeders move regolith into and out of reactors. TRL 6 is the authors' level for a thermal-vacuum carbothermal prototype with automated handling; test runs alone support a level lower. No reactor valve has run in lunar gravity, and no measured seal wear life is reported.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "thermal-water-extraction-excavated", "path": "context/technologies/resource-processing-and-extraction/thermal-water-extraction-excavated.md", "area": "c", "areas": ["c", "b", "e"], "pointer": false, "author": "nikki", "trl": 6, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "00dd8db0ab429d93", "title": "Thermal water extraction", "blurb": "Heat drives water out of excavated icy regolith. TRL 6 rests on LUWEX, which extracted and captured water from a 13 kg simulant batch in thermal vacuum at 2.06 g/h. It needs liquid-nitrogen capture cooling and its seals fouled with dust; NASA's continuous auger-dryer reactor stopped two levels lower.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "vacuum-vapour-phase-pyrolysis", "path": "context/technologies/resource-processing-and-extraction/vacuum-vapour-phase-pyrolysis.md", "area": "c", "areas": ["c", "b", "d", "h"], "pointer": false, "author": "nikki", "trl": 4, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "bbeff51639214feb", "title": "Vacuum pyrolysis", "blurb": "Heat in vacuum vaporizes regolith to release oxygen; a breadboard measured 35 mg O2 from 3.38 g of simulant under argon at about 13 mbar. TRL 4 is a laboratory breadboard validation. No high-vacuum or thermal-vacuum run has quantified oxygen; window failure and product condensation stay unresolved.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "hydrogen-liquefaction", "path": "context/technologies/feedstock-and-consumables-production/hydrogen-liquefaction.md", "area": "d", "areas": ["d"], "pointer": false, "author": "quinn", "trl": 5, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "c849cdc38cfbd6cd", "title": "Hydrogen liquefaction", "blurb": "Cryocoolers chill hydrogen gas to liquid for propellant; ground units have liquefied over 200 kg in a 125,000 L tank. TRL 5 rests on the 20 W at 20 K cooler, validated in a vacuum bell jar, and liquefaction itself ran only in ambient air at 1 g. No liquefier has run in vacuum or on electrolyzer gas.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "oxygen-cryocooler-liquefaction", "path": "context/technologies/feedstock-and-consumables-production/oxygen-cryocooler-liquefaction.md", "area": "d", "areas": ["d"], "pointer": false, "author": "federico", "trl": 5, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "0e9c34fa03964e4c", "title": "Oxygen liquefaction", "blurb": "A cryocooler liquefies oxygen inside a lander-scale tank at up to 1.56 kg/h. TRL 5 rests on four months of tank liquefaction in a thermal vacuum chamber against a 250 K Mars cold wall at half lander-tank scale. A flight-class cooler, condensation at reduced gravity and methane remain untested.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "pem-water-electrolysis", "path": "context/technologies/feedstock-and-consumables-production/pem-water-electrolysis.md", "area": "d", "areas": ["d", "c"], "pointer": false, "author": "federico", "trl": 7, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "9e6dd417101d66ba", "title": "PEM electrolysis", "blurb": "PEM stacks split water into hydrogen and oxygen. TRL 7 rests on the ISS Oxygen Generation Assembly, which has run in orbit since 2007 and made 14,598 kg of oxygen on station potable water. No stack has run at lunar gravity or on lunar-derived water; the only lunar-gravity data are 18 s parabolic-flight runs of one cell design.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "product-gas-composition-analysis", "path": "context/technologies/feedstock-and-consumables-production/product-gas-composition-analysis.md", "area": "d", "areas": ["d"], "pointer": false, "author": "federico", "trl": 9, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "0a4b1e0a0b704489", "title": "Product gas analysis", "blurb": "Analyzers measure oxygen purity and carbon monoxide in oxygen-plant product gas. TRL 9 follows the study rule that any lunar use counts: the MSolo analyzer took 43 scans of ambient and lander-vent gas on the Moon. No analyzer has measured plant product gas on the Moon, and the only tank-oxygen acceptance against a purity limit reports no measured values.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "product-gas-drying", "path": "context/technologies/feedstock-and-consumables-production/product-gas-drying.md", "area": "d", "areas": ["d"], "pointer": false, "author": "quinn", "trl": 5, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "418c76ed3ef40249", "title": "Product gas drying", "blurb": "Regenerative desiccant beds dry product gas before liquefaction; a JSC breadboard reached 15 ppmv water in a 4-hour laboratory run. TRL 5 follows ISS heritage for silica gel and zeolite 13X beds. No dryer has a reported outlet moisture in vacuum or over regenerated cycles.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "sabatier-methanation", "path": "context/technologies/feedstock-and-consumables-production/sabatier-methanation.md", "area": "d", "areas": ["d"], "pointer": false, "author": "federico", "trl": 7, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "c5072003a907f3c7", "title": "Sabatier methanation", "blurb": "A Sabatier reactor turns carbon dioxide and hydrogen into methane and water. TRL 7 rests on the ISS Sabatier Assembly, which ran in orbit from 2011 to 2017 and made about 1,081 kg of water. No source reviewed reports a vacuum test, and no lunar carbon feed has Sabatier figures.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "solid-oxide-electrolysis", "path": "context/technologies/feedstock-and-consumables-production/solid-oxide-electrolysis.md", "area": "d", "areas": ["d", "c"], "pointer": false, "author": "federico", "trl": 7, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "64230eae3d66824f", "title": "Solid oxide electrolysis", "blurb": "Solid oxide stacks split carbon dioxide or steam to make oxygen. TRL 7 rests on MOXIE, which produced 49.9 g of oxygen on Mars from atmospheric CO2. No stack has run on lunar feed, and steam electrolysis, the mode a lunar water plant would use, draws on an abstract with no numbers and a NASA claim citing no test report.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "water-cleanup-adsorption-filtration", "path": "context/technologies/feedstock-and-consumables-production/water-cleanup-adsorption-filtration.md", "area": "d", "areas": ["d"], "pointer": false, "author": "federico", "trl": 7, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "04fc2ee9a3bca5b1", "title": "Water cleanup", "blurb": "Filtration, adsorbent and ion-exchange beds and a catalytic reactor clean wastewater. TRL 7 rests on the ISS Water Processor Assembly, which has cleaned crew-loop wastewater in orbit since 2008. The only evidence for cleaning simulated ISRU water is one laboratory paper and slide-level claims.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "active-cooling-zero-boil-off", "path": "context/technologies/storage-and-transportation/active-cooling-zero-boil-off.md", "area": "e", "areas": ["e"], "pointer": false, "author": "federico", "trl": 7, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "17746721476222ee", "title": "Zero boil-off cooling", "blurb": "Active cooling holds cryogenic propellant with no vent: liquid methane for 165 days from ground fill, and liquid hydrogen at zero boil-off in a 125 m3 ground tank. TRL 7 rests on the Robotic Refueling Mission 3 methane hold of about 4 months on the ISS. Hydrogen zero boil-off has no vacuum, lunar-surface or reduced-gravity test.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "automated-fluid-power-data-umbilical", "path": "context/technologies/storage-and-transportation/automated-fluid-power-data-umbilical.md", "area": "e", "areas": ["e"], "pointer": false, "author": "federico", "trl": 4, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "603f3a041bcfe625", "title": "Automated umbilical", "blurb": "A dust-tolerant umbilical mates fluid, power and data lines to a vehicle. TRL 4 rests on a KSC prototype mounted on a vehicle to mate with a pallet and a rover field test, both reported without conditions. No test with fluid or dust simulant is reported, and none covers vacuum, cycle count or leak rate.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "electromagnetic-mass-driver", "path": "context/technologies/storage-and-transportation/electromagnetic-mass-driver.md", "area": "e", "areas": ["e"], "pointer": false, "author": "quinn", "trl": 4, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "b3e97669f21ae3d1", "title": "Mass driver", "blurb": "A track of driven coils throws regolith or product to lunar orbit with no propellant. TRL 4 rests on three laboratory launchers, the fastest a test track at 256 km/h against 1.7 to 2.53 km/s needed. Every lunar launcher remains a paper design.", "locked": true, "split": false, "split_by": "", "split_at": ""}, {"slug": "frozen-water-containment-and-haul", "path": "context/technologies/storage-and-transportation/frozen-water-containment-and-haul.md", "area": "e", "areas": ["e"], "pointer": false, "author": "quinn", "trl": 5, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "ba23f9e4d7fce908", "title": "Frozen water haul", "blurb": "Extracted water freezes in a radiator-cooled tank in a permanently shadowed region and thaws in sunlight at the plant. TRL 5 rests on an aluminium plate that froze water vapour in vacuum at tanker pressure and wall temperature for 50-300 hours. No tank has been loaded through its radiator, hauled or thawed, and the 1/5-scale tanker has no reported test.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "high-pressure-gas-storage", "path": "context/technologies/storage-and-transportation/high-pressure-gas-storage.md", "area": "e", "areas": ["e"], "pointer": false, "author": "federico", "trl": 9, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "90d2b322d0433c8c", "title": "High-pressure gas storage", "blurb": "Tanks hold gas at high pressure. TRL 9 follows the study rule that any lunar use counts: two 130 g nitrogen tanks filled to 30.3 MPa fed LISTER excavation on the lunar surface in March 2025. No oxygen or hydrogen product store has a reported pressure-cycle, permeation or thermal test.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "hydrolox-turbine-power-plant", "path": "context/technologies/storage-and-transportation/hydrolox-turbine-power-plant.md", "area": "e", "areas": ["e"], "pointer": false, "author": "quinn", "trl": 4, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "24df0a884731b4cb", "title": "Hydrolox turbine plant", "blurb": "A closed hydrogen-oxygen turbine loop stores and returns power. TRL 4 comes from heritage: a rated-power oxy-fuel gas generator fired on a test stand and a 1956 semi-closed naval turbine. No source reviewed states round-trip efficiency for the loop or sizes the condenser radiator.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "in-space-cryogenic-transfer", "path": "context/technologies/storage-and-transportation/in-space-cryogenic-transfer.md", "area": "e", "areas": ["e"], "pointer": false, "author": "federico", "trl": 7, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "c2be08c432c8be43", "title": "In-space cryo transfer", "blurb": "Tank-to-tank transfer moves cryogenic propellant between tanks in space. TRL 7 rests on Starship Flight 3, where one vehicle moved liquid oxygen between two of its tanks under settling acceleration in under 100 s. Transferred mass and flow rate are published only in nondimensional form, and no vehicle-to-vehicle, repeated or post-storage transfer has flown.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "mobile-cryogenic-transport-tank", "path": "context/technologies/storage-and-transportation/mobile-cryogenic-transport-tank.md", "area": "e", "areas": ["e"], "pointer": false, "author": "federico", "trl": 4, "evidence_level": "model", "status": "fact-checked", "source_hash": "8f16e32c7c70b45c", "title": "Mobile cryogenic tank", "blurb": "A mobile cryogenic tank on a haul platform would carry lunar product. TRL 4 is the study rule's starting level for model-only work: the lunar tank is one model database entry and roadmap steps in one company briefing, with no stated capacity or boil-off. No built or tested lunar tank exists.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "passive-insulation-vapor-cooling", "path": "context/technologies/storage-and-transportation/passive-insulation-vapor-cooling.md", "area": "e", "areas": ["e"], "pointer": false, "author": "federico", "trl": 7, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "6ba724b20bc36bc5", "title": "Passive tank insulation", "blurb": "Foam, multilayer insulation and a vapor-cooled skirt cut heat load by 51 to 62 percent on a 4 m liquid hydrogen tank in ground thermal vacuum. TRL 7 rests on insulation flown on a 10 liter dewar on the ISS, with a tank temperature as the only result. A lunar-surface or shadowed-region thermal sink and a long hold are untested.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "regenerative-fuel-cells", "path": "context/technologies/storage-and-transportation/regenerative-fuel-cells.md", "area": "e", "areas": ["e"], "pointer": false, "author": "quinn", "trl": 4, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "0347d5290944a8bc", "title": "Regenerative fuel cells", "blurb": "Solar-powered electrolysis makes hydrogen and oxygen by day, and a fuel cell recombines them for night power and water. TRL 4 rests on a NASA Glenn breadboard that ran over 550 h through three simulated day/night cycles. It has had no environmental test.", "locked": true, "split": false, "split_by": "", "split_at": ""}, {"slug": "rf-mass-gauging", "path": "context/technologies/storage-and-transportation/rf-mass-gauging.md", "area": "e", "areas": ["e"], "pointer": false, "author": "quinn", "trl": 9, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "ed4317e7eeb67152", "title": "RF mass gauging", "blurb": "An antenna inside the tank sweeps a radio signal and matches the reflected spectrum to simulated fill levels, so the liquid need not be settled. TRL 9: it gauged oxygen and methane on the IM-1 lander through landing on the Moon. No surface storage tank or flight hydrogen has been gauged.", "locked": true, "split": false, "split_by": "", "split_at": ""}, {"slug": "surface-lander-propellant-fill", "path": "context/technologies/storage-and-transportation/surface-lander-propellant-fill.md", "area": "e", "areas": ["e"], "pointer": false, "author": "quinn", "trl": 6, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "3a8ea80456089a2e", "title": "Lander propellant fill", "blurb": "Cryogenic propellant is loaded into a landed vehicle's tanks. TRL 6 rests on a flight-qualified 216 L tank no-vent filled to 97 percent by mass in a vacuum chamber. No vehicle tank has been filled at lunar gravity or in lunar dust, and none through an autonomously mated connector or with propellant made from lunar material.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "surface-pipelines", "path": "context/technologies/storage-and-transportation/surface-pipelines.md", "area": "e", "areas": ["e"], "pointer": false, "author": "quinn", "trl": 4, "evidence_level": "model", "status": "fact-checked", "source_hash": "1d90ba14632be6c8", "title": "Surface pipelines", "blurb": "Fixed pipelines would move oxygen between lunar plants. TRL 4 rests on one NIAC Phase I model of a 5 km buried gaseous-oxygen line, one laboratory weld pressure-tested to 20 psig and terrestrial vacuum-jacketed line heritage. No pipe segment has run in vacuum or buried in regolith, and none has seen lunar subsurface temperature.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "water-storage", "path": "context/technologies/storage-and-transportation/water-storage.md", "area": "e", "areas": ["e"], "pointer": false, "author": "quinn", "trl": 9, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "b02398bb987384f9", "title": "Water storage", "blurb": "Tanks hold liquid water at the plant and depot. TRL 9 follows the study rule that any lunar use counts: bladder tanks stored water in every Apollo Lunar Module. Every flown store held a few hundred liters or less inside a crew vehicle, and no tank has held ISRU water through a lunar night.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "autonomous-robotic-construction-platforms", "path": "context/technologies/construction-and-manufacturing/autonomous-robotic-construction-platforms.md", "area": "f", "areas": ["f"], "pointer": false, "author": "shaun", "trl": 3, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "a0647fa2c41d0543", "title": "Robotic construction", "blurb": "Robotic platforms unload payloads, fork pallets and scoop sand; a crane test-bed is sized for 1,000 kg on the Moon. TRL 3 rests on a 1 g field test in air under teleoperation plus laboratory autonomy work; fixed work-cell assembly is a level higher. No source reviewed shows terrain construction by a mobile platform under little supervision.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "basalt-fibre-and-glass-from-regolith", "path": "context/technologies/construction-and-manufacturing/basalt-fibre-and-glass-from-regolith.md", "area": "f", "areas": ["f"], "pointer": false, "author": "shaun", "trl": 4, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "d61776bbcbfdaa86", "title": "Basalt fibre and glass", "blurb": "Furnaces draw continuous fibre from mare-type simulants at up to 1,438 MPa mean strength and melt simulant into glass. TRL 4 rests on laboratory furnaces and winders with simulant; highland simulants failed to draw or needed imported B2O3. No fibre has been drawn in vacuum or at 1/6 g.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "binder-jet-regolith-printing", "path": "context/technologies/construction-and-manufacturing/binder-jet-regolith-printing.md", "area": "f", "areas": ["f"], "pointer": false, "author": "shaun", "trl": 3, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "85ee02bc950fdf41", "title": "Binder-jet printing", "blurb": "Binder printing builds simulant parts, including a 1.5 tonne block on a D-Shape printer. TRL 3 rests on a commercial machine run in air; liquid binder delivery in vacuum has only a droplet observation with no test data. No print in vacuum has data, and the one vacuum sintering condition distorted parts.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "cast-and-extruded-molten-regolith", "path": "context/technologies/construction-and-manufacturing/cast-and-extruded-molten-regolith.md", "area": "f", "areas": ["f"], "pointer": false, "author": "shaun", "trl": 3, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "8e61c5fc4726ba61", "title": "Molten regolith casting", "blurb": "Simulant melted in air and cast reached 215 to 391 MPa in compression. TRL 3 rests on laboratory melts solidified in crucibles or cast into small pucks. The sources report no melting, casting or extrusion in vacuum, and the 3 ton, 100 kW furnace has no hardware.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "deployable-and-spray-on-landing-surfaces", "path": "context/technologies/construction-and-manufacturing/deployable-and-spray-on-landing-surfaces.md", "area": "f", "areas": ["f"], "pointer": false, "author": "shaun", "trl": 3, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "bb390c6415a909fc", "title": "Deployable landing pads", "blurb": "A textile blanket holds regolith in place under engine firings in air, and a spray-on pad would use alumina. TRL 3 is the blanket's level before its plume tests; the spray-on form sits a level lower. Neither form has a mass figure from hardware, and neither has a deployment test or vacuum test.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "geopolymer-and-cement-regolith-concrete", "path": "context/technologies/construction-and-manufacturing/geopolymer-and-cement-regolith-concrete.md", "area": "f", "areas": ["f"], "pointer": false, "author": "shaun", "trl": 3, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "55fe4286c18f7c46", "title": "Regolith concrete", "blurb": "Cement-type and geopolymer mixes bind regolith into mortar, reaching 10,970 psi with Apollo 16 soil. TRL 3 rests on small cubes, beams and filaments cured in laboratory air. In the one vacuum test, concrete exposed before four hours of setting lost most of its strength.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "gravel-and-rock-paved-surfaces", "path": "context/technologies/construction-and-manufacturing/gravel-and-rock-paved-surfaces.md", "area": "f", "areas": ["f"], "pointer": false, "author": "shaun", "trl": 3, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "c342db33a82d87cc", "title": "Gravel and rock pads", "blurb": "Gravel and rock form the outer layer of a landing pad; caged anorthosite survived a small rocket plume in Earth atmosphere. TRL 3 is the level a NASA landing-pad paper gives rock piles. No source reviewed reports lunar-capable hardware that collects, sorts or lays rock.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "in-space-manufacturing-from-lunar-feedstock", "path": "context/technologies/construction-and-manufacturing/in-space-manufacturing-from-lunar-feedstock.md", "area": "f", "areas": ["f"], "pointer": false, "author": "shaun", "trl": 3, "evidence_level": "model", "status": "fact-checked", "source_hash": "871cf33da8c8bb48", "title": "In-space manufacturing", "blurb": "Orbital factories would build products from lunar material; the smallest sized case lands roughly 1,000 metric tons on the Moon. TRL 3 rests on heritage from orbital beam printing tested on the ground in thermal vacuum with Earth feedstock. None reports hardware that has processed lunar or simulant feedstock in orbit.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "laser-sintering-and-melting-of-regolith", "path": "context/technologies/construction-and-manufacturing/laser-sintering-and-melting-of-regolith.md", "area": "f", "areas": ["f"], "pointer": false, "author": "shaun", "trl": 4, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "5943d3da07546fdf", "title": "Laser regolith melting", "blurb": "Lasers melt simulant into paving elements about 220 mm across and bench-top domes at up to 10 g/min. TRL 4 rests on laboratory hardware, including specimens made in vacuum. No pad or road section has been built in dirty thermal vacuum, and the sources give no system mass or electrical power.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "metal-additive-manufacturing-of-parts", "path": "context/technologies/construction-and-manufacturing/metal-additive-manufacturing-of-parts.md", "area": "f", "areas": ["f"], "pointer": false, "author": "shaun", "trl": 5, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "a40c47b8b19092be", "title": "Metal part printing", "blurb": "Wire-fed printers make metal parts; a 300 W, 180 kg laser printer made a 316L stainless-steel specimen on the ISS. TRL 5 rests on component operation in space and in vacuum at 0 g. No source reviewed reports lunar-gravity or dust testing, or printing from regolith-derived metal.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "metal-casting-from-regolith-derived-metals", "path": "context/technologies/construction-and-manufacturing/metal-casting-from-regolith-derived-metals.md", "area": "f", "areas": ["f"], "pointer": false, "author": "shaun", "trl": 3, "evidence_level": "model", "status": "fact-checked", "source_hash": "284ae67ab3e3cd53", "title": "Metal casting", "blurb": "Casting and forming would shape metal tapped from a molten regolith electrolysis reactor. TRL 3 rests on heritage: a planned casting stage draws on a built counter-gravity withdrawal device and an operational slag and iron slicer. No source reviewed reports any part made from regolith-derived metal by casting, rolling or forming.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "microwave-sintering-of-regolith", "path": "context/technologies/construction-and-manufacturing/microwave-sintering-of-regolith.md", "area": "f", "areas": ["f"], "pointer": false, "author": "shaun", "trl": 3, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "b90bbd62b1499835", "title": "Microwave sintering", "blurb": "Microwave energy sinters highland simulant in vacuum into slabs as heavy as 1.4 kg, using 2.2 to 2.9 kWh/kg. TRL 3 rests on a fixed applicator above a container of simulant; the mobile version is a concept. The largest vacuum tile cracked, and no applicator has traversed a regolith bed.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "modular-habitat-construction", "path": "context/technologies/construction-and-manufacturing/modular-habitat-construction.md", "area": "f", "areas": ["f"], "pointer": false, "author": "shaun", "trl": 3, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "e6a0f29faee06806", "title": "Modular habitats", "blurb": "Inflatable habitat shells passed ground tests at module scale for burst, leak before burst and vacuum deployment. TRL 3 follows the level stated for the lunar habitat fabric; the surface airlock is a level lower. No source reviewed reports deploying, joining or covering a module under lunar surface conditions.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "polymer-bound-regolith", "path": "context/technologies/construction-and-manufacturing/polymer-bound-regolith.md", "area": "f", "areas": ["f"], "pointer": false, "author": "shaun", "trl": 4, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "45fe3a3c46db7891", "title": "Polymer-bound regolith", "blurb": "A 175 kg gantry prints simulant bound with polylactic acid at 0.6 kg/hr in dirty thermal vacuum. TRL 4 holds because the extruder and gantry are laboratory equipment and strength was measured only at ambient temperature. The binder is launched mass, and no flight print system has a stated mass or power.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "polymer-printing-and-recycling", "path": "context/technologies/construction-and-manufacturing/polymer-printing-and-recycling.md", "area": "f", "areas": ["f", "g"], "pointer": false, "author": "shaun", "trl": 7, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "3cf4cf30c9bb36af", "title": "Polymer printing", "blurb": "Filament printers made 55 ABS parts and over 100 further parts on the ISS. TRL 7 rests on printers making parts in space inside the ISS cabin; the recycler flew with no recycling result reported. No source reviewed reports a test in lunar surface conditions or a local source of polymer.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "regolith-cover-radiation-shielding", "path": "context/technologies/construction-and-manufacturing/regolith-cover-radiation-shielding.md", "area": "f", "areas": ["f"], "pointer": false, "author": "shaun", "trl": 3, "evidence_level": "model", "status": "fact-checked", "source_hash": "07410aaef58dcaf1", "title": "Regolith radiation cover", "blurb": "A regolith cover of 3 m to 7 m shelters crews; tens of g/cm2 stop solar particle events. TRL 3 rests on analysis and beam tests on soil samples; the only built article is a hand-filled fabric bag with no regolith fill. No source reports a machine placing regolith or simulant over a structure.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "regolith-grading-compaction-and-berms", "path": "context/technologies/construction-and-manufacturing/regolith-grading-compaction-and-berms.md", "area": "f", "areas": ["f"], "pointer": false, "author": "shaun", "trl": 5, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "2ba57ed02b608ba5", "title": "Grading and compaction", "blurb": "Rover blades grade regolith and build berms; a 4.1 m blade graded 25 m x 25 m and built a 1.3 m berm in natural sand. TRL 5 rests on a plate compactor validated in vacuum and a grading system run in a large lunar test bed. Grading and berm building have no vacuum or low-gravity result.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "robotic-assembly-of-modular-truss-structures", "path": "context/technologies/construction-and-manufacturing/robotic-assembly-of-modular-truss-structures.md", "area": "f", "areas": ["f"], "pointer": false, "author": "shaun", "trl": 4, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "3c2fc165cb8ee7dc", "title": "Robotic truss assembly", "blurb": "Robots assemble truss structures: a 256-cell lattice shelter and a five-bay 4.5 m tower section. TRL 4 is stated by the authors of the tower demonstration. Both builds ran in air at 1 g with hand-placed parts, and no source reports a test in vacuum, dust or reduced gravity.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "sintered-pavers-and-bricks", "path": "context/technologies/construction-and-manufacturing/sintered-pavers-and-bricks.md", "area": "f", "areas": ["f"], "pointer": false, "author": "shaun", "trl": 4, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "95a8e365728d7085", "title": "Sintered pavers", "blurb": "Kiln-sintered basalt pavers were placed by a tele-operated rover and survived rocket exhaust on Earth with little to no erosion. TRL 4 rests on kiln firing, robotic placement and plume tests in air. No full-size paver has been fired in vacuum, and lunar oven mass and energy come from a model.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "solar-cell-fabrication-from-regolith", "path": "context/technologies/construction-and-manufacturing/solar-cell-fabrication-from-regolith.md", "area": "f", "areas": ["f"], "pointer": false, "author": "shaun", "trl": 3, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "73ebcb50f9594962", "title": "Regolith solar cells", "blurb": "Glass substrates melted from lunar simulant carry perovskite cells that reached 12.1% under AM0, with the absorber imported. TRL 3 rests on substrate melting, film evaporation and small cells shown separately in terrestrial laboratories. Silicon diodes on simulant glass gave no light response.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "solar-concentrator-sintering", "path": "context/technologies/construction-and-manufacturing/solar-concentrator-sintering.md", "area": "f", "areas": ["f"], "pointer": false, "author": "shaun", "trl": 4, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "9e9d42ab7f8d3442", "title": "Solar sintering", "blurb": "Concentrated light sinters JSC-1 and JSC-2A simulant in air to a depth of about 6 mm. TRL 4 rests on laboratory and field hardware with simulant in air. The one element printed in vacuum disintegrated; the sole system mass on record is a concept estimate of 18 t for a 20 m mirror.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "sulfur-concrete", "path": "context/technologies/construction-and-manufacturing/sulfur-concrete.md", "area": "f", "areas": ["f"], "pointer": false, "author": "shaun", "trl": 3, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "214dc3331c67c650", "title": "Sulfur concrete", "blurb": "Sulfur concrete cast with JSC-1 simulant reached about 35 MPa in compression. TRL 3 rests on small cast samples tested in air, in a vacuum chamber and in liquid nitrogen. Sulfur escaped continuously in vacuum at 20 C, and the sulfur supply is only a paper estimate.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "autonomous-maintenance-of-isru-hardware", "path": "context/technologies/recycling-and-waste-management/autonomous-maintenance-of-isru-hardware.md", "area": "g", "areas": ["g"], "pointer": false, "author": "wintta", "trl": 4, "evidence_level": "model", "status": "draft", "source_hash": "247a59fd155b278c", "title": "Autonomous maintenance", "blurb": "Robots would inspect, swap and repair ISRU and excavation hardware. TRL 4 rests on orbital robotic heritage and a spares calculation with a quarter-scale printed model. No source reviewed reports a robot servicing regolith-handling equipment.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "bioregenerative-life-support", "path": "context/technologies/recycling-and-waste-management/bioregenerative-life-support.md", "area": "g", "areas": ["g"], "pointer": false, "author": "wintta", "trl": 7, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "37086a7a7b56fda3", "title": "Biological life support", "blurb": "Bioregenerative life support recycles oxygen and water through plants and microbes for a crew. TRL 7 rests on flown crop chambers: Svet on Mir, Lada and the Biomass Production System on the ISS. Crew-scale closure is ground only (Bios-3, MELiSSA), and none of the 6 sources reviewed reports a lunar test.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "crew-solid-waste-and-trash-processing", "path": "context/technologies/recycling-and-waste-management/crew-solid-waste-and-trash-processing.md", "area": "g", "areas": ["g"], "pointer": false, "author": "wintta", "trl": 7, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "54b7a6fffe2ef55f", "title": "Crew waste processing", "blurb": "Toilets and trash reactors process crew solid waste; the OSCAR reactor burned simulated crew waste in two suborbital flights. TRL 7 rests on the UWMS toilet's limited checkout on the ISS in October-November 2021. That demonstration is incomplete, the unit is in stand-down, and none of the 7 sources reviewed reports operation on the Moon.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "end-of-life-hardware-dismantling-and-reuse", "path": "context/technologies/recycling-and-waste-management/end-of-life-hardware-dismantling-and-reuse.md", "area": "g", "areas": ["g"], "pointer": false, "author": "wintta", "trl": 4, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "d161065cfb67e3e3", "title": "Dismantling and reuse", "blurb": "A centrifugal mill size-reduces space-grade cable for recycling. TRL 4 rests on one laboratory mill test of 22 AWG cable with few trials. No vacuum, dust or lunar-temperature test is reported, and none of the six sources reviewed reports dismantling or retrieval practice beyond design recommendation.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "habitat-atmosphere-and-oxygen-loop-closure", "path": "context/technologies/recycling-and-waste-management/habitat-atmosphere-and-oxygen-loop-closure.md", "area": "g", "areas": ["g"], "pointer": false, "author": "wintta", "trl": 9, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "7e7b37b58d8518b2", "title": "Habitat oxygen loop", "blurb": "The ISS runs oxygen generation, CO2 removal and Sabatier reduction as a loop. TRL 9 rests on orbital use under the study rule; the Oxygen Generation Assembly made 14,598 kg of oxygen since 2007. Oxygen closure is limited to about 50% with methane vented, and no CO2 reduction system operates after the 2024 cancellation of Sabatier 2.0.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "habitat-water-recovery-systems", "path": "context/technologies/recycling-and-waste-management/habitat-water-recovery-systems.md", "area": "g", "areas": ["g"], "pointer": false, "author": "wintta", "trl": 9, "evidence_level": "demonstrated hardware", "status": "draft", "source_hash": "1d03dca5af0fc8c9", "title": "Habitat water recovery", "blurb": "Habitat water recovery reclaims urine and wastewater. TRL 9 rests on orbital use under the study rule: the ISS Urine and Water Processor Assemblies have run since November 2008, with US urine recovery at 87%. The evidence is orbital plus a ground testbed, with no lunar-surface operation reported.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "industrial-ecology-closed-loop-feedstock-reuse", "path": "context/technologies/recycling-and-waste-management/industrial-ecology-closed-loop-feedstock-reuse.md", "area": "g", "areas": ["g"], "pointer": false, "author": "wintta", "trl": 4, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "a50c806a1a2e4cc0", "title": "Feedstock reuse loop", "blurb": "A closed loop would turn lunar plant waste back into feedstock. TRL 4 rests on laboratory molten-salt results with regolith simulant for one component, the FFC process. The loop is reported unbuilt and untested.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "spent-salt-slag-and-electrode-management", "path": "context/technologies/recycling-and-waste-management/spent-salt-slag-and-electrode-management.md", "area": "g", "areas": ["g"], "pointer": false, "author": "wintta", "trl": 4, "evidence_level": "model", "status": "fact-checked", "source_hash": "07802705c221d227", "title": "Spent salt and slag", "blurb": "Equipment would handle spent molten salt, slag and used electrodes after they leave the reactor. TRL 4 rests on mass-balance models of the slag, metal and emission streams. None of the nine sources reviewed reports tested storage, regeneration or stacking hardware; in-reactor slag removal is area (c).", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "tailings-and-spent-regolith-handling", "path": "context/technologies/recycling-and-waste-management/tailings-and-spent-regolith-handling.md", "area": "g", "areas": ["g"], "pointer": false, "author": "wintta", "trl": 5, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "a532c2f694145155", "title": "Tailings handling", "blurb": "Conveyors, hoppers and vehicles move spent regolith to a tailings pile. TRL 5 rests on IPEx bucket-drum actuators run through dig-and-dump tests in vacuum. No pile, stacking or containment test of spent regolith is reported, and tailings mass exceeds product mass by about 16.5 to 87 times.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "waste-gas-and-volatile-byproduct-capture", "path": "context/technologies/recycling-and-waste-management/waste-gas-and-volatile-byproduct-capture.md", "area": "g", "areas": ["g"], "pointer": false, "author": "wintta", "trl": 4, "evidence_level": "model", "status": "fact-checked", "source_hash": "5d233b9c01e982a2", "title": "Waste gas capture", "blurb": "Sorbent beds would capture sulfur, hydrogen, helium and carbon-bearing gases released by heating regolith. TRL 4 rests on analysis: sulfur yield and energy estimates and a literature synthesis of sample heating experiments. None of the 7 sources reviewed reports a capture article tested under stated conditions.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "waste-sorting-classification-and-tracking", "path": "context/technologies/recycling-and-waste-management/waste-sorting-classification-and-tracking.md", "area": "g", "areas": ["g"], "pointer": false, "author": "wintta", "trl": 3, "evidence_level": "concept", "status": "fact-checked", "source_hash": "64a49636a860364f", "title": "Waste sorting", "blurb": "A three-axis classification scheme would sort and track lunar waste. TRL 3 rests on a two-measurement soil classification tested against Apollo 17 samples, which got 48% right for both measures. No sorting or tracking article is reported built or tested.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "cislunar-propellant-supply-architecture", "path": "context/technologies/strategic-downstream-products-architecture/cislunar-propellant-supply-architecture.md", "area": "h", "areas": ["h"], "pointer": false, "author": "wintta", "trl": 4, "evidence_level": "model", "status": "draft", "source_hash": "d9572c1248c91d82", "title": "Cislunar propellant supply", "blurb": "The architecture would supply lunar LOX/LH2 to cislunar customers. TRL 4 is the study's starting level for work that exists only as models; the cost models and studies reviewed report no hardware result. Its economic case rests on assumed plant performance, plant lifetime and campaign size.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "isru-pilot-plant-system-architectures", "path": "context/technologies/strategic-downstream-products-architecture/isru-pilot-plant-system-architectures.md", "area": "h", "areas": ["h"], "pointer": false, "author": "wintta", "trl": 4, "evidence_level": "model", "status": "fact-checked", "source_hash": "1fa99ac3e096d93c", "title": "Pilot plant designs", "blurb": "Pilot-plant architectures size whole plants for lunar oxygen and water. TRL 4 is the study rule's starting level for model-only work; four sources reviewed size plants by analysis with no plant-level test. No integrated plant has been tested, and two studies leave power assumptions unresolved.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "metal-fuel-combustion-energy-storage", "path": "context/technologies/strategic-downstream-products-architecture/metal-fuel-combustion-energy-storage.md", "area": "h", "areas": ["h"], "pointer": false, "author": "wintta", "trl": 4, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "678cafd74f272837", "title": "Metal-fuel energy storage", "blurb": "Burning metal fuel stores heat for the lunar night. TRL 4 rests on the ACME vacuum breadboard, which ignited thermite on simulants with partial propagation. None of the 8 sources reviewed reports a measured energy density or efficiency, or any lunar-night heat output, for a regolith-derived fuel.", "locked": false, "split": false, "split_by": "", "split_at": ""}, {"slug": "metallic-propellant-from-regolith", "path": "context/technologies/strategic-downstream-products-architecture/metallic-propellant-from-regolith.md", "area": "h", "areas": ["h"], "pointer": false, "author": "wintta", "trl": 4, "evidence_level": "demonstrated hardware", "status": "fact-checked", "source_hash": "428c2c0996eb886e", "title": "Regolith metal propellant", "blurb": "Metal fuels made from regolith would burn as rocket propellant. TRL 4 rests on a laboratory breadboard: a bench hybrid motor burned aluminium foil with gaseous oxygen and gave a measured force on Earth. None of the 14 sources reviewed reports an engine test or a measured specific impulse for a regolith-derived metal fuel.", "locked": false, "split": false, "split_by": "", "split_at": ""}]};
 </script>
 <script>
-window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], "criteria": [{"id": "C1", "text": "Near-term Canadian industry benefit (2025–2035)", "weight": 1}, {"id": "C2", "text": "Canadian space-sector positioning (structural necessity vs. substitutable)", "weight": 1}, {"id": "C3", "text": "Alignment with CSA mandate (fundable, defensible over 20 years), gate criterion", "weight": 2}, {"id": "C4", "text": "Technology readiness leverage (build on Canadian TRL 4–7 assets)", "weight": 1}, {"id": "C5", "text": "Risk profile (balanced technical / schedule / commercial risk)", "weight": 1}, {"id": "C6", "text": "International partnership quality (architecturally necessary role)", "weight": 1}, {"id": "C7", "text": "Earth/space dual-use return to the Canadian economy", "weight": 1}, {"id": "C8", "text": "Knowledge-transfer mechanism clarity", "weight": 1}], "format": 1, "order": {"a": {"at": "2026-11-12T00:00:00Z", "by": "quinn", "list": ["neutron-spectrometry", "in-situ-mass-spectrometry", "ground-penetrating-radar", "thermal-infrared-radiometry", "altimetry-and-illumination-modelling", "data-fusion-and-geospatial-decision-support", "resource-assessment-methodology", "terramechanics-characterization", "lander-orbiter-sensing-platform", "psr-optical-imaging", "machine-learning-analysis-software", "downhole-instrumented-drill-strings", "in-situ-optical-composition"]}, "b": {"at": "2026-11-12T00:00:00Z", "by": "quinn", "list": ["icy-regolith-excavation", "bucket-drum-excavator", "haul-truck-and-conventional-excavation", "excavation-mobile-platform", "gravity-fed-hopper-flow", "autonomous-excavation-and-hybrid-control", "dust-tolerant-mechanisms", "excavator-mobility", "dust-suppression-and-removal", "cold-tolerant-actuators", "conveyors-belt-screw-trough", "robotic-arm-manipulator"]}}, "scores": {}, "synced_at": "2026-11-16T05:36:25.653Z", "tiers": {"gamma-ray-spectrometry": {"at": "2026-11-12T00:00:00Z", "by": "quinn", "tier": "reserve"}, "heat-flow-probes": {"at": "2026-11-12T00:00:00Z", "by": "quinn", "tier": "reserve"}, "passive-anti-adhesion-surfaces": {"at": "2026-11-12T00:00:00Z", "by": "quinn", "tier": "reserve"}, "seismic-sensing": {"at": "2026-11-12T00:00:00Z", "by": "quinn", "tier": "reserve"}}};
+window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "checks": {}, "conflicts": [], "criteria": {"areas": {"a": {"first_row": 7, "last_row": 46, "owner": "Quinn", "second_readers": "Wintta, Shaun", "sheet": "(a) Prospecting"}, "b": {"first_row": 7, "last_row": 46, "owner": "Quinn", "second_readers": "Federico, Shaun", "sheet": "(b) Excavation"}, "c": {"first_row": 7, "last_row": 46, "owner": "Nikki", "second_readers": "Federico, Shaun", "sheet": "(c) Processing"}, "d": {"first_row": 7, "last_row": 46, "owner": "Federico", "second_readers": "Quinn, Shaun", "sheet": "(d) Feedstock"}, "e": {"first_row": 7, "last_row": 46, "owner": "Federico", "second_readers": "Quinn, Shaun", "sheet": "(e) Storage, transport"}, "f": {"first_row": 7, "last_row": 43, "owner": "Shaun", "second_readers": "Wintta, Shaun", "sheet": "(f) Construction"}, "g": {"first_row": 7, "last_row": 46, "owner": "Wintta", "second_readers": "Nikki, Shaun", "sheet": "(g) Recycling"}, "h": {"first_row": 7, "last_row": 46, "owner": "Wintta", "second_readers": "Nikki, Shaun", "sheet": "(h) Resource architecture"}}, "categories": [{"column": "C", "d1": "More than 3 times", "d2": "Within 3 times", "d3": "Within 1.5 times the lightest", "id": "1", "label": "1 Mass", "measures": "Landed kg at pilot scale, all units", "readme_label": "1 Mass", "side": "engineering", "tab_header": "1 Mass", "weight": 1}, {"column": "D", "d1": "Over 3 times, or needs fission", "d2": "Within 3 times", "d3": "Within 1.5 times the best", "id": "2", "label": "2 Power", "measures": "kW running and kWh stored for the night, at pilot scale", "readme_label": "2 Power", "side": "engineering", "tab_header": "2 Power", "weight": 1}, {"column": "E", "d1": "Two or more below", "d2": "One level below", "d3": "Highest TRL in the area", "id": "3", "label": "3 Readiness C4", "measures": "TRL now, lowest of the critical parts", "readme_label": "3 Readiness C4", "side": "engineering", "tab_header": "3 Readiness C4", "weight": 1}, {"column": "F", "d1": "High: likely, or stops pathway", "d2": "Medium: in between", "d3": "Low: unlikely, costs one unit", "id": "4", "label": "4 Risk C5", "measures": "Probability of failure in the pilot phase, and its impact", "readme_label": "4 Risk C5", "side": "engineering", "tab_header": "4 Risk C5", "weight": 1}, {"column": "H", "d1": "No Canadian capability", "d2": "Research or prototype", "d3": "Sold in Canada today", "id": "5", "label": "5 Industry C1", "measures": "Near-term Canadian industry benefit", "readme_label": "5 Industry C1", "side": "canada", "tab_header": "5 Industry C1", "weight": 1}, {"column": "I", "d1": "No Canadian supplier", "d2": "Canada is one of several suppliers", "d3": "Canada is sole or one of two suppliers", "id": "6", "label": "6 Position C2", "measures": "Canadian supply moat", "readme_label": "6 Position C2", "side": "canada", "tab_header": "6 Position C2", "weight": 1}, {"column": "J", "d1": "Space only", "d2": "Shown in a field trial", "d3": "Earns money on Earth today", "id": "7", "label": "7 Dual use C7", "measures": "Earth/space dual-use return", "readme_label": "7 Dual use C7", "side": "canada", "tab_header": "7 Dual use C7", "weight": 1}, {"column": "K", "d1": "Overlaps with both ESA and NASA", "d2": "Overlaps with one of ESA or NASA", "d3": "Does not overlap ESA or NASA", "id": "8", "label": "8 Alignment/Transfer C8", "measures": "Alignment with International Partners", "readme_label": "8 Transfer C6", "side": "canada", "tab_header": "8 Alignment C8", "weight": 1}], "columns": [{"cell": "A", "header": "No."}, {"cell": "B", "header": "Technology"}, {"cell": "C", "header": "1 Mass"}, {"cell": "D", "header": "2 Power"}, {"cell": "E", "header": "3 Readiness C4"}, {"cell": "F", "header": "4 Risk C5"}, {"cell": "G", "header": "Engineering out of 12"}, {"cell": "H", "header": "5 Industry C1"}, {"cell": "I", "header": "6 Position C2"}, {"cell": "J", "header": "7 Dual use C7"}, {"cell": "K", "header": "8 Alignment/Transfer C8"}, {"cell": "L", "header": "Canada out of 12"}, {"cell": "M", "header": "Evidence and sources: the numbers behind each score"}, {"cell": "N", "header": "Second reader check"}], "format": 1, "notes": [{"source": "Team_Kickoff_2026-11.pptx slide 9 notes", "text": "Scale: compare every option at pilot scale, the Pilot column of the integrated scenario (50 kW of ISRU power, at least 10 t O2 and 15 t H2O a year), as totals for all units."}, {"source": "Team_Kickoff_2026-11.pptx slide 9 notes", "text": "Needing fission scores Power 1, and needing crew working on it on site, Gateway or a buyer before 2045 scores Risk C5 1."}], "pass_mark": {"cell": "Read me!B23", "side_max": 12, "side_min": 6, "text": "Each side needs 6 of 12. Below 6 on engineering or on Canada takes the technology out.", "total_max": 24}, "scale": [{"cell": "Read me!B20", "text": "Substantially better than the alternatives in the area", "v": 3}, {"cell": "Read me!B21", "text": "Adequate; the alternatives are not clearly better", "v": 2}, {"cell": "Read me!B22", "text": "Poor against the alternatives", "v": 1}], "source": "context/study/ranking_matrix/Ranking_Matrix_2026-11-17.xlsx", "source_sha256": "e0afd9881d08b6e38fc27ce4f301424d3220aab0c5bf5fcc48d85f4f049e58f0"}, "evidence": {}, "format": 2, "order": {"a": {"at": "2026-11-12T00:00:00Z", "by": "quinn", "list": ["neutron-spectrometry", "in-situ-mass-spectrometry", "ground-penetrating-radar", "thermal-infrared-radiometry", "altimetry-and-illumination-modelling", "data-fusion-and-geospatial-decision-support", "resource-assessment-methodology", "terramechanics-characterization", "lander-orbiter-sensing-platform", "psr-optical-imaging", "machine-learning-analysis-software", "downhole-instrumented-drill-strings", "in-situ-optical-composition"]}, "b": {"at": "2026-11-12T00:00:00Z", "by": "quinn", "list": ["icy-regolith-excavation", "bucket-drum-excavator", "haul-truck-and-conventional-excavation", "excavation-mobile-platform", "gravity-fed-hopper-flow", "autonomous-excavation-and-hybrid-control", "dust-tolerant-mechanisms", "excavator-mobility", "dust-suppression-and-removal", "cold-tolerant-actuators", "conveyors-belt-screw-trough", "robotic-arm-manipulator"]}}, "scores": {}, "synced_at": "2026-11-16T05:36:25.653Z", "tiers": {"gamma-ray-spectrometry": {"at": "2026-11-12T00:00:00Z", "by": "quinn", "tier": "reserve"}, "heat-flow-probes": {"at": "2026-11-12T00:00:00Z", "by": "quinn", "tier": "reserve"}, "passive-anti-adhesion-surfaces": {"at": "2026-11-12T00:00:00Z", "by": "quinn", "tier": "reserve"}, "seismic-sensing": {"at": "2026-11-12T00:00:00Z", "by": "quinn", "tier": "reserve"}}};
 </script>
 <script>
 // grid_logic.js: pure functions for the LSEI technology grid page (Step D, D3; D4; D6).
 // Layout, effective state (local moves, splits, edits over the data file), the client text rules
 // (validate.py V1, V2, V3, V4, V5, V7; V6 runs at D4 sync), changes-file export and import,
-// reconcile after a pull, and the localStorage adapter. D6: rank order, tiers and C1-C8 scores over
-// window.RANKING_DATA (display/ranking.json), records with `from`, stale detection, caps, matrix text.
+// reconcile after a pull, and the localStorage adapter. D6: rank order and tiers over window.RANKING_DATA
+// (display/ranking.json), records with `from`, stale detection, caps. X-M: matrix scores 1-8, evidence,
+// second reader check, the xlsx computed fields (matrixResult) and the matrix export (CSV, JSON, Markdown).
 // Loaded by index.html as a classic script (window.GridLogic) and by node tests through require.
 // No clock: every time is an `at` string passed in by the caller. Inputs are never mutated.
 (function (root, factory) {
@@ -436,12 +459,13 @@ window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], 
     s = s || {};
     return {
       moves: copyMap(s.moves), splits: copyMap(s.splits), edits: copyMap(s.edits),
-      order: deepCopy(s.order), tiers: deepCopy(s.tiers), scores: deepCopy(s.scores)
+      order: deepCopy(s.order), tiers: deepCopy(s.tiers), scores: deepCopy(s.scores),
+      evidence: deepCopy(s.evidence), checks: deepCopy(s.checks)
     };
   }
 
   function emptyState() {
-    return { moves: {}, splits: {}, edits: {}, order: {}, tiers: {}, scores: {} };
+    return { moves: {}, splits: {}, edits: {}, order: {}, tiers: {}, scores: {}, evidence: {}, checks: {} };
   }
 
   function entryOf(data, slug) {
@@ -671,13 +695,14 @@ window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], 
 
   // ------------------------------------------------------------------ export, import (A7, A8, A16)
 
-  // D6: format 2 with all six sections (empty sections as {}).
+  // D6: format 2; X-M: all eight sections (empty sections as {}).
   function exportChanges(state, who, cardsCommit, at, syncedAt) {
     var s = cloneState(state);
     return {
       format: 2, by: String(who || "").toLowerCase(), cards_commit: cardsCommit, exported: at,
       synced_at: syncedAt == null ? "" : String(syncedAt),
-      moves: s.moves, splits: s.splits, edits: s.edits, order: s.order, tiers: s.tiers, scores: s.scores
+      moves: s.moves, splits: s.splits, edits: s.edits, order: s.order, tiers: s.tiers, scores: s.scores,
+      evidence: s.evidence, checks: s.checks
     };
   }
 
@@ -710,14 +735,14 @@ window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], 
     return !!v && typeof v === "object" && !Array.isArray(v);
   }
 
-  var SECTIONS = ["moves", "splits", "edits", "order", "tiers", "scores"];
+  var SECTIONS = ["moves", "splits", "edits", "order", "tiers", "scores", "evidence", "checks"];
 
   function stateFrom(o) {
     var s = emptyState();
     ["moves", "splits", "edits"].forEach(function (k) {
       if (isMap(o[k])) s[k] = copyMap(o[k]);
     });
-    ["order", "tiers", "scores"].forEach(function (k) {
+    ["order", "tiers", "scores", "evidence", "checks"].forEach(function (k) {
       if (isMap(o[k])) s[k] = deepCopy(o[k]);
     });
     return s;
@@ -745,17 +770,40 @@ window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], 
       var k = secs[i];
       if (has(o, k) && !isMap(o[k])) return { ok: false, reason: "section " + k + " is not an object" };
     }
+    if (o.format === 2 && isMap(o.scores)) {
+      var bad = scoreKeyProblem(o.scores);
+      if (bad) return { ok: false, reason: bad };
+    }
     var st = stateFrom(o);
-    if (o.format === 1) { st.order = {}; st.tiers = {}; st.scores = {}; }
+    if (o.format === 1) { st.order = {}; st.tiers = {}; st.scores = {}; st.evidence = {}; st.checks = {}; }
     return { ok: true, state: st };
   }
 
-  // ------------------------------------------------------------------ D6 ranking, tiers, scores (A11-A18)
-  // ranking = window.RANKING_DATA (display/ranking.json); null or undefined reads as empty. One value per
-  // field; rank is a position people set. Scores and the weighted total never reorder a list.
+  // ------------------------------------------------------------------ D6 ranking, tiers; X-M matrix scores
+  // ranking = window.RANKING_DATA (display/ranking.json, format 2); null or undefined reads as empty. One
+  // value per field; position rank is set by people; the score rank is computed from the matrix totals.
+  // Neither moves the other.
 
   var TIER_NAMES = ["primary", "reserve"];
-  var CRIT_IDS = ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"];
+  var CAT_IDS = ["1", "2", "3", "4", "5", "6", "7", "8"];  // matrix categories (criteria.json)
+  var D6_KEY = /^C[1-8]$/;
+  var TEXT_MAX = { evidence: 5000, checks: 80 };
+
+  // X-M: a C1-C8 score key (a D6 export) refuses the file; any other key outside 1-8 too.
+  function scoreKeyProblem(scores) {
+    var slugs = Object.keys(scores).sort();
+    for (var i = 0; i < slugs.length; i++) {
+      var f = scores[slugs[i]];
+      if (!isMap(f)) return "scores." + slugs[i] + " is not an object";
+      var keys = Object.keys(f).sort();
+      for (var j = 0; j < keys.length; j++) {
+        var k = keys[j];
+        if (D6_KEY.test(k)) return "scores." + slugs[i] + "." + k + ": D6 rubric key; the matrix uses categories 1-8";
+        if (CAT_IDS.indexOf(k) < 0) return "scores." + slugs[i] + "." + k + ": category must be one of 1-8";
+      }
+    }
+    return "";
+  }
   var DEFAULT_CAP = 25;
 
   function rankingSection(ranking, key) {
@@ -905,7 +953,7 @@ window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], 
 
   function setScore(data, ranking, state, slug, crit, value, at) {
     if (!entryOf(data, slug)) return { ok: false, reason: "unknown technology '" + slug + "'" };
-    if (CRIT_IDS.indexOf(crit) < 0) return { ok: false, reason: "criterion must be one of C1-C8" };
+    if (CAT_IDS.indexOf(crit) < 0) return { ok: false, reason: "category must be one of 1-8" };
     if (value !== null && !isScore(value)) return { ok: false, reason: "a score is 1, 2 or 3 (or Clear)" };
     var s = cloneState(state);
     var cur = dataScore(ranking, slug, crit);
@@ -915,17 +963,6 @@ window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], 
     if (Object.keys(fields).length) s.scores[slug] = fields;
     else delete s.scores[slug];
     return { ok: true, state: s };
-  }
-
-  // Sum of value x weight when every criterion is set (9-27 for C1-C8 with C3 x2), else "k/8".
-  function weightedTotal(values, criteria) {
-    var crit = criteria || [];
-    var k = 0, sum = 0;
-    crit.forEach(function (c) {
-      var v = values ? values[c.id] : null;
-      if (v != null) { k++; sum += v * c.weight; }
-    });
-    return k === crit.length ? sum : k + " of " + crit.length + " set";
   }
 
   function tierCounts(data, ranking, state) {
@@ -960,16 +997,134 @@ window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], 
     if (!state) return 0;
     var n = Object.keys(state.order || {}).length + Object.keys(state.tiers || {}).length;
     Object.keys(state.scores || {}).forEach(function (slug) { n += Object.keys(state.scores[slug] || {}).length; });
-    return n;
+    return n + Object.keys(state.evidence || {}).length + Object.keys(state.checks || {}).length;
   }
 
-  // `by` of the latest `at` across a card's score fields and tier record in the data ("-" when none).
+  // ------------------------------------------------------------------ X-M evidence and second reader check
+  // ranking.evidence / ranking.checks = {slug: {v, by, at}}; local records {from, from_at, to, at}. Text: CRLF
+  // to LF, trimmed; empty = clear; 1-5000 (evidence) or 1-80 (check) characters; a first "=" is refused.
+
+  function dataText(ranking, sec, slug) {
+    var r = rankingSection(ranking, sec)[slug];
+    return r && typeof r.v === "string" ? r : null;
+  }
+
+  function normText(t) {
+    return String(t == null ? "" : t).replace(/\r\n?/g, "\n").trim();
+  }
+
+  function setText(sec, data, ranking, state, slug, text, at) {
+    if (!entryOf(data, slug)) return { ok: false, reason: "unknown technology '" + slug + "'" };
+    var t = normText(text);
+    var name = sec === "evidence" ? "evidence" : "check";
+    if (t) {
+      var n = codeLength(t);
+      if (n > TEXT_MAX[sec]) {
+        return { ok: false, reason: name + " has " + n + " characters (max " + TEXT_MAX[sec] + ")" };
+      }
+      if (t.charAt(0) === "=") return { ok: false, reason: name + " may not start with '=' (a spreadsheet formula)" };
+    }
+    var to = t || null;
+    var rec = dataText(ranking, sec, slug);
+    var cur = rec ? rec.v : null;
+    var s = cloneState(state);
+    if (to === cur) delete s[sec][slug];
+    else s[sec][slug] = { from: cur, from_at: rec ? rec.at : null, to: to, at: at };
+    return { ok: true, state: s };
+  }
+
+  function setEvidence(data, ranking, state, slug, text, at) {
+    return setText("evidence", data, ranking, state, slug, text, at);
+  }
+
+  function setCheck(data, ranking, state, slug, text, at) {
+    return setText("checks", data, ranking, state, slug, text, at);
+  }
+
+  function effectiveText(sec, ranking, state, slug) {
+    var r = state && state[sec] && state[sec][slug];
+    if (r) return r.to == null ? null : r.to;
+    var d = dataText(ranking, sec, slug);
+    return d ? d.v : null;
+  }
+
+  function effectiveEvidence(data, ranking, state, slug) {
+    return effectiveText("evidence", ranking, state, slug);
+  }
+
+  function effectiveCheck(data, ranking, state, slug) {
+    return effectiveText("checks", ranking, state, slug);
+  }
+
+  // `at` of the value the page shows for one field (local record, else the data record; null when none).
+  function shownAt(sec, ranking, state, slug, key) {
+    var loc = state && state[sec] && state[sec][slug];
+    if (key != null) loc = loc && loc[key];
+    if (loc) return loc.at;
+    var d = rankingSection(ranking, sec)[slug];
+    if (key != null) d = d && d[key];
+    return d && d.at ? d.at : null;
+  }
+
+  // Sign helper: "<name> <YYYY-MM-DD>" from the `at` the page passes.
+  function signText(who, at) {
+    return String(who || "") + " " + String(at || "").slice(0, 10);
+  }
+
+  // M10: the check line notes "scores changed after this check" when any score or evidence the page shows
+  // is later than the check. Display only.
+  function checkIsStale(data, ranking, state, slug) {
+    if (effectiveCheck(data, ranking, state, slug) == null) return false;
+    var ct = Date.parse(shownAt("checks", ranking, state, slug));
+    if (isNaN(ct)) return false;
+    var later = function (at) { var t = Date.parse(at); return !isNaN(t) && t > ct; };
+    for (var i = 0; i < CAT_IDS.length; i++) {
+      if (later(shownAt("scores", ranking, state, slug, CAT_IDS[i]))) return true;
+    }
+    return later(shownAt("evidence", ranking, state, slug));
+  }
+
+  // ------------------------------------------------------------------ X-M computed fields (xlsx G, L, O, P, Q, R)
+
+  // rows: [{title, scores: {"1".."8": v}}] in row order (row i is sheet row 7 + i).
+  function matrixResult(rows) {
+    var out = (rows || []).map(function (row, i) {
+      var s = (row && row.scores) || {};
+      var side = function (ids) {
+        var sum = 0;
+        for (var k = 0; k < ids.length; k++) {
+          var v = s[ids[k]];
+          if (typeof v !== "number") return null;
+          sum += v;
+        }
+        return sum;
+      };
+      var eng = side(CAT_IDS.slice(0, 4));
+      var can = side(CAT_IDS.slice(4));
+      var total = null;
+      if (row && row.title && eng !== null && can !== null) total = (eng < 6 || can < 6) ? "Out" : eng + can;
+      var key = typeof total === "number" ? (25 - total) * 1000 + (7 + i) / 1000 : null;
+      return { eng: eng, can: can, total: total, key: key };
+    });
+    out.forEach(function (o) {
+      if (o.key === null) { o.scoreRank = null; o.pick = null; return; }
+      var n = 1;
+      out.forEach(function (x) { if (x.key !== null && x.key < o.key) n++; });
+      o.scoreRank = n;
+      o.pick = n <= 3 ? "Master table" : (n === 4 ? "Spare" : null);
+    });
+    return out;
+  }
+
+  // `by` of the latest `at` across a card's score fields, tier, evidence and check records in the data.
   function lastBy(ranking, slug) {
     var recs = [];
     var sc = rankingSection(ranking, "scores")[slug] || {};
     Object.keys(sc).forEach(function (k) { recs.push(sc[k]); });
-    var t = rankingSection(ranking, "tiers")[slug];
-    if (t) recs.push(t);
+    ["tiers", "evidence", "checks"].forEach(function (sec) {
+      var r = rankingSection(ranking, sec)[slug];
+      if (r) recs.push(r);
+    });
     var best = null, bestT = null;
     recs.forEach(function (r) {
       var ms = Date.parse(r.at);
@@ -979,79 +1134,95 @@ window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], 
     return best || "-";
   }
 
+  function hasLocal(state, slug) {
+    if (!state) return false;
+    return !!((state.tiers && state.tiers[slug]) ||
+      (state.scores && state.scores[slug] && Object.keys(state.scores[slug]).length) ||
+      (state.evidence && state.evidence[slug]) || (state.checks && state.checks[slug]));
+  }
+
+  // The area's primary cards in effective position order with the computed fields over that row order.
   function matrixRows(data, ranking, state, area) {
     var eo = effectiveOrder(data, ranking, state, area);
-    var crit = (ranking && ranking.criteria) || [];
-    var orderPending = !!(state && state.order && state.order[area]);
-    return eo.ranked.concat(eo.unranked).map(function (slug, i) {
-      var e = mustEntry(data, slug);
+    var slugs = eo.ranked.concat(eo.unranked);
+    var rows = slugs.map(function (slug, i) {
       var scores = {};
-      crit.forEach(function (c) { scores[c.id] = effectiveScore(data, ranking, state, slug, c.id); });
-      var local = !!((state && state.tiers && state.tiers[slug]) ||
-        (state && state.scores && state.scores[slug] && Object.keys(state.scores[slug]).length));
+      CAT_IDS.forEach(function (c) { scores[c] = effectiveScore(data, ranking, state, slug, c); });
       return {
-        rank: i < eo.ranked.length ? i + 1 : "unranked", slug: slug,
-        title: effectiveTitle(data, state, slug) || slug, trl: e.trl, scores: scores,
-        total: weightedTotal(scores, crit), by: lastBy(ranking, slug),
-        pending: local || orderPending
+        position: i < eo.ranked.length ? i + 1 : "unranked", slug: slug,
+        title: effectiveTitle(data, state, slug) || slug, scores: scores,
+        evidence: effectiveEvidence(data, ranking, state, slug), check: effectiveCheck(data, ranking, state, slug),
+        by: lastBy(ranking, slug), pending: hasLocal(state, slug)
       };
     });
+    var res = matrixResult(rows);
+    rows.forEach(function (r, i) {
+      r.eng = res[i].eng; r.can = res[i].can; r.total = res[i].total;
+      r.scoreRank = res[i].scoreRank; r.pick = res[i].pick;
+    });
+    return rows;
   }
 
   var CSV_QUOTE = /[,"\n\r]/;
 
   function csvCell(v) {
-    var s = String(v);
+    var s = v == null ? "" : String(v);
     return CSV_QUOTE.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
   }
 
   function mdCell(v) {
-    return String(v).replace(/\|/g, "\\|");
+    return (v == null ? "-" : String(v)).replace(/\|/g, "\\|").replace(/\r?\n/g, " ");
   }
 
-  // The ranking.py matrix bytes. Rows carrying local (unsynced) changes say so in the last column.
-  // Local (unsynced) changes of one matrix row: ["order", "C1, C3", "tier primary", "moved from (f)"].
-  function unsyncedParts(data, ranking, state, area, slug, index, base) {
-    var parts = [];
-    var mv = state && state.moves && state.moves[slug];
-    if (state && state.order && state.order[area] && !(mv && mv.to === area) && base.indexOf(slug) !== index) {
-      parts.push("order");
-    }
-    var sc = Object.keys((state && state.scores && state.scores[slug]) || {}).sort();
-    if (sc.length) parts.push(sc.join(", "));
-    if (state && state.tiers && state.tiers[slug]) parts.push("tier " + state.tiers[slug].to);
-    if (mv && mv.to === area) parts.push("moved from (" + mv.from + ")");
-    return parts;
+  var MD_HEAD = ["Position", "Technology", "1 Mass", "2 Power", "3 Readiness C4", "4 Risk C5", "Engineering /12",
+    "5 Industry C1", "6 Position C2", "7 Dual use C7", "8 Alignment/Transfer C8", "Canada /12", "Total /24",
+    "Score rank", "Pick", "Second reader check"];
+  var CELLS = "ABCDEFGHIJKLMN".split("");
+
+  // Section 1.6: the export rows A-N (G and L blank) in position order, unranked appended.
+  function exportRows(rows) {
+    return rows.map(function (r, i) {
+      var sc = CAT_IDS.map(function (c) { return r.scores[c] == null ? null : r.scores[c]; });
+      return [i + 1, r.title].concat(sc.slice(0, 4), [null], sc.slice(4), [null, r.evidence, r.check]);
+    });
   }
 
-  // The ranking.py matrix bytes when the area holds no local records. With local order, tier, score or move
-  // records: an "Unsynced" column ("<who>: order; C1") and, in Markdown, a draft line above the table.
-  function matrixText(data, ranking, state, area, fmt, who) {
-    var crit = ((ranking && ranking.criteria) || []).map(function (c) { return c.id; });
+  // CSV, JSON or Markdown of an area's matrix: the ranking.py matrix bytes when no exported row carries a
+  // local record. With local records the file name ends _draft, the JSON lists them in `unsynced` and the
+  // Markdown carries a draft line; the CSV stays 14 columns.
+  function matrixExport(data, ranking, state, area, fmt, who) {
+    if (["csv", "json", "md"].indexOf(fmt) < 0) throw new Error("format must be csv, json or md, got '" + fmt + "'");
     var rows = matrixRows(data, ranking, state, area);
-    var base = dataOrder(data, ranking, area);
-    var name = who ? String(who) : "you";
-    var unsynced = rows.map(function (r, i) {
-      var p = unsyncedParts(data, ranking, state, area, r.slug, i, base);
-      return p.length ? name + ": " + p.join("; ") : "";
-    });
-    var draft = !!(state && state.order && state.order[area]) || unsynced.some(function (u) { return u; });
-    var head = ["Rank", "Title", "TRL"].concat(crit, ["Total", "Last changed by"], draft ? ["Unsynced"] : []);
-    var body = rows.map(function (r, i) {
-      return [r.rank, r.title, r.trl].concat(crit.map(function (c) {
-        return r.scores[c] == null ? "-" : r.scores[c];
-      }), [r.total, r.by], draft ? [unsynced[i]] : []);
-    });
+    var crit = (ranking && ranking.criteria) || {};
+    var unsynced = rows.filter(function (r) { return hasLocal(state, r.slug); }).map(function (r) { return r.slug; });
+    var moved = rows.some(function (r) { var m = state && state.moves && state.moves[r.slug]; return !!m; });
+    var draft = unsynced.length > 0 || moved || !!(state && state.order && state.order[area]);
+    var name = "matrix_" + area + (draft ? "_draft" : "") + "." + fmt;
+    var cells = exportRows(rows);
+    var text;
     if (fmt === "csv") {
-      return [head].concat(body).map(function (row) { return row.map(csvCell).join(",") + "\n"; }).join("");
+      var head = (crit.columns || []).map(function (c) { return c.header; });
+      text = [head].concat(cells).map(function (row) { return row.map(csvCell).join(",") + "\n"; }).join("");
+    } else if (fmt === "json") {
+      var area0 = (crit.areas || {})[area] || {};
+      text = JSON.stringify(sortKeys({
+        area: area, sheet: area0.sheet == null ? null : area0.sheet,
+        columns: (crit.columns || []).map(function (c) { return c.header; }), cells: CELLS.slice(),
+        rows: cells, slugs: rows.map(function (r) { return r.slug; }), unsynced: unsynced
+      }), null, 2) + "\n";
+    } else {
+      var lines = ["| " + MD_HEAD.map(mdCell).join(" | ") + " |", "|" + MD_HEAD.map(function () { return "---|"; }).join("")];
+      rows.forEach(function (r, i) {
+        var sc = CAT_IDS.map(function (c) { return r.scores[c]; });
+        var row = [i + 1, r.title].concat(sc.slice(0, 4), [r.eng], sc.slice(4),
+          [r.can, r.total, r.scoreRank, r.pick, r.check]);
+        lines.push("| " + row.map(mdCell).join(" | ") + " |");
+      });
+      var pre = draft ? "Draft by " + (who ? String(who) : "you") +
+        " with unsynced local changes; the team list is ranking.py matrix after a sync.\n\n" : "";
+      text = pre + lines.join("\n") + "\n";
     }
-    if (fmt === "md") {
-      var lines = ["| " + head.map(mdCell).join(" | ") + " |", "|" + head.map(function () { return "---|"; }).join("")];
-      body.forEach(function (row) { lines.push("| " + row.map(mdCell).join(" | ") + " |"); });
-      var pre = draft ? "Draft by " + name + " with unsynced local changes; the team list is ranking.py matrix after a sync.\n\n" : "";
-      return pre + lines.join("\n") + "\n";
-    }
-    throw new Error("format must be csv or md, got '" + fmt + "'");
+    return { name: name, text: text };
   }
 
   // ------------------------------------------------------------------ reconcile (A9)
@@ -1121,6 +1292,10 @@ window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], 
       var known = !!entryOf(data, slug);
       Object.keys(fields).sort().forEach(function (crit) {
         var r = fields[crit];
+        if (known && CAT_IDS.indexOf(crit) < 0) {  // X-M: a D6 C1-C8 record (old localStorage) is dropped, listed
+          dropped.push({ slug: slug, kind: "score", crit: crit, to: r.to });
+          delete fields[crit]; return;
+        }
         if (!known) {
           dropped.push({ slug: slug, kind: "score", crit: crit, to: r.to });
           delete fields[crit]; orphaned++; return;
@@ -1134,6 +1309,26 @@ window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], 
         }
       });
       if (!Object.keys(fields).length) delete s.scores[slug];
+    });
+    // X-M evidence and check records: applied when `to` equals the data text; stale when from_at (or, without
+    // it, from) differs from the data record.
+    ["evidence", "checks"].forEach(function (sec) {
+      var kind = sec === "evidence" ? "evidence" : "check";
+      Object.keys(s[sec]).sort().forEach(function (slug) {
+        var r = s[sec][slug];
+        if (!entryOf(data, slug)) {
+          dropped.push({ slug: slug, kind: kind, to: r.to });
+          delete s[sec][slug]; orphaned++; return;
+        }
+        var rec = dataText(ranking, sec, slug);
+        var cur = rec ? rec.v : null;
+        if (r.to === cur) { delete s[sec][slug]; applied++; return; }
+        var isStale = has(r, "from_at") ? r.from_at !== (rec ? rec.at : null) : r.from !== cur;
+        if (isStale) {
+          stale.push({ ref: { kind: kind, slug: slug }, from: r.from, to: r.to, current: cur,
+            by: rec ? rec.by : null, at: rec ? rec.at : null });
+        }
+      });
     });
     Object.keys(s.order).sort().forEach(function (area) {
       var r = s.order[area];
@@ -1221,6 +1416,16 @@ window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], 
       else s.tiers[ref.slug] = { from: ct, to: t.to, at: at };
       return s;
     }
+    if (ref.kind === "evidence" || ref.kind === "check") {
+      var sec = ref.kind === "evidence" ? "evidence" : "checks";
+      var x = s[sec][ref.slug];
+      if (!x) return s;
+      var dr = dataText(ranking, sec, ref.slug);
+      var dv = dr ? dr.v : null;
+      if (x.to === dv) delete s[sec][ref.slug];
+      else s[sec][ref.slug] = { from: dv, from_at: dr ? dr.at : null, to: x.to, at: at };
+      return s;
+    }
     if (ref.kind === "score") {
       var f = s.scores[ref.slug] && s.scores[ref.slug][ref.crit];
       if (!f) return s;
@@ -1250,6 +1455,8 @@ window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], 
       else if (kind === "tier") { rec = s.tiers[key]; ref = { kind: "tier", slug: key }; }
       else if (kind === "move") { rec = s.moves[key]; ref = { kind: "move", slug: key }; }
       else if (kind === "split") { rec = s.splits[key]; ref = { kind: "split", slug: key }; }
+      else if (kind === "evidence") { rec = s.evidence[key]; ref = { kind: "evidence", slug: key }; }
+      else if (kind === "check") { rec = s.checks[key]; ref = { kind: "check", slug: key }; }
       else if (kind === "score") {
         var j = key.lastIndexOf(".");
         var sl = key.slice(0, j), cr = key.slice(j + 1);
@@ -1276,6 +1483,8 @@ window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], 
     else if (ref.kind === "split") delete s.splits[ref.slug];
     if (ref.kind === "order") delete s.order[ref.area];
     else if (ref.kind === "tier") delete s.tiers[ref.slug];
+    else if (ref.kind === "evidence") delete s.evidence[ref.slug];
+    else if (ref.kind === "check") delete s.checks[ref.slug];
     else if (ref.kind === "score" && s.scores[ref.slug]) {
       delete s.scores[ref.slug][ref.crit];
       if (!Object.keys(s.scores[ref.slug]).length) delete s.scores[ref.slug];
@@ -1329,12 +1538,15 @@ window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], 
     reapplyMove: reapplyMove, editProblems: editProblems, loadState: loadState, saveState: saveState,
     storageMessage: storageMessage, titleKey: titleKey,
     // D6
-    CRIT_IDS: CRIT_IDS.slice(), effectiveTier: effectiveTier, effectiveOrder: effectiveOrder,
+    CAT_IDS: CAT_IDS.slice(), effectiveTier: effectiveTier, effectiveOrder: effectiveOrder,
     dataOrder: dataOrder, moveRank: moveRank, setRank: setRank, setOrder: setOrder, setTier: setTier,
-    effectiveScore: effectiveScore, setScore: setScore, weightedTotal: weightedTotal, tierCounts: tierCounts,
+    effectiveScore: effectiveScore, setScore: setScore, tierCounts: tierCounts,
     capWarnings: capWarnings, rankingPending: rankingPending, staleRecords: staleRecords,
-    reapplyRecord: reapplyRecord, dropRecord: dropRecord, matrixRows: matrixRows, matrixText: matrixText,
-    lastBy: lastBy
+    reapplyRecord: reapplyRecord, dropRecord: dropRecord, matrixRows: matrixRows, lastBy: lastBy,
+    // X-M
+    setEvidence: setEvidence, setCheck: setCheck, effectiveEvidence: effectiveEvidence,
+    effectiveCheck: effectiveCheck, matrixResult: matrixResult, matrixExport: matrixExport,
+    signText: signText, checkIsStale: checkIsStale, TEXT_MAX: { evidence: 5000, checks: 80 }
   };
 });
 </script>
@@ -1344,7 +1556,13 @@ window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], 
   var GL = window.GridLogic;
   var data = window.GRID_DATA;
   var ranking = window.RANKING_DATA || null;
-  var CRITERIA = (ranking && ranking.criteria) || [];
+  // X-M: the matrix criteria (context/study/ranking_matrix/criteria.json, embedded in ranking.json)
+  var CRITERIA = (ranking && ranking.criteria && typeof ranking.criteria === "object" && !Array.isArray(ranking.criteria)) ? ranking.criteria : {};
+  var CATS = Array.isArray(CRITERIA.categories) ? CRITERIA.categories : [];
+  function catLabel(id) {
+    for (var i = 0; i < CATS.length; i++) if (CATS[i].id === id) return CATS[i].label;
+    return "category " + id;
+  }
   var ROSTER = ["quinn", "eytan", "federico", "shaun", "wintta", "nikki", "carlos"];
   var WHO_KEY = GL.STORAGE_KEY + "-who";
   var BASE_KEY = GL.STORAGE_KEY + "-base";
@@ -1373,7 +1591,9 @@ window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], 
   function droppedText(list) {
     if (!list || !list.length) return "";
     return " Dropped: " + list.map(function (x) {
-      return x.kind === "tier" ? x.slug + " tier " + x.to : x.slug + " " + x.crit + " " + (x.to == null ? "cleared" : x.to);
+      if (x.kind === "tier") return x.slug + " tier " + x.to;
+      if (x.kind === "evidence" || x.kind === "check") return x.slug + " " + x.kind;
+      return x.slug + " " + x.crit + " " + (x.to == null ? "cleared" : x.to);
     }).join("; ") + " (the card was renamed or removed; set the value again on the card under its new name).";
   }
 
@@ -1467,12 +1687,15 @@ window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], 
   var base = readBase();
   var notes = [];
   if (rec.applied) notes.push(rec.applied + " local change" + (rec.applied === 1 ? " was" : "s were") + " already synced and dropped.");
-  if (rec.orphaned) notes.push(rec.orphaned + " local change" + (rec.orphaned === 1 ? "" : "s") + " for technologies no longer in the data dropped." + droppedText(rec.dropped));
+  if (rec.orphaned) notes.push(rec.orphaned + " local change" + (rec.orphaned === 1 ? "" : "s") + " for technologies no longer in the data dropped." + droppedText(rec.dropped.filter(function (x) { return !/^C[1-8]$/.test(x.crit || ""); })));
+  var d6Drop = rec.dropped.filter(function (x) { return /^C[1-8]$/.test(x.crit || ""); });
+  if (d6Drop.length) notes.push(d6Drop.length + " old C1-C8 score" + (d6Drop.length === 1 ? "" : "s") + " from before the ranking matrix dropped (" +
+    d6Drop.map(function (x) { return x.slug + " " + x.crit + " " + (x.to == null ? "cleared" : x.to); }).join("; ") + "); score the card again on categories 1-8.");
   if (rec.conflicts.length) notes.push(rec.conflicts.length + " local move" + (rec.conflicts.length === 1 ? " was" : "s were") + " made from an area a sync has since changed; open the tile to re-apply or drop.");
   if (rec.invalid.length) notes.push(rec.invalid.length + " local edit" + (rec.invalid.length === 1 ? " no longer passes" : "s no longer pass") + " the text rules against the current cards; open the tile to fix or drop.");
   if (rec.superseded) notes.push(rec.superseded + " local needs-split change" + (rec.superseded === 1 ? " was" : "s were") + " overtaken by a later synced change and dropped; toggle again if you still disagree.");
   if (rec.stale.length) notes.push(rec.stale.length + " local ranking change" + (rec.stale.length === 1 ? " was" : "s were") + " made against a value someone has since changed: Re-apply or Drop below.");
-  if (rec.applied || rec.orphaned || rec.superseded) persist();
+  if (rec.applied || rec.orphaned || rec.superseded || d6Drop.length) persist();
 
   function persist() {
     storageOk = GL.saveState(storage, state) && loaded.ok;
@@ -1543,6 +1766,10 @@ window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], 
   function showVal(v) {
     if (v == null) return "unset";
     if (Array.isArray(v)) return "the older order";
+    if (typeof v === "string" && !/^(primary|reserve)$/.test(v)) {
+      var s = v.replace(/\n/g, " ");
+      return '"' + (s.length > 40 ? s.slice(0, 40) + '..." (' + v.length + " characters)" : s + '"');
+    }
     return String(v);
   }
 
@@ -1552,7 +1779,9 @@ window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], 
     if (ref.kind === "tier") return titleOf(ref.slug) + " tier";
     if (ref.kind === "move") return titleOf(ref.slug) + " area";
     if (ref.kind === "split") return titleOf(ref.slug) + " needs split";
-    return titleOf(ref.slug) + " " + ref.crit;
+    if (ref.kind === "evidence") return titleOf(ref.slug) + " evidence";
+    if (ref.kind === "check") return titleOf(ref.slug) + " second reader check";
+    return titleOf(ref.slug) + " " + catLabel(ref.crit);
   }
 
   function otherVal(ref, v) {
@@ -1628,6 +1857,8 @@ window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], 
     if (state.tiers[slug]) bits.push("moved to " + state.tiers[slug].to);
     var ns = Object.keys(state.scores[slug] || {}).length;
     if (ns) bits.push(ns + " score" + (ns === 1 ? "" : "s") + " changed");
+    if (state.evidence[slug]) bits.push("evidence changed");
+    if (state.checks[slug]) bits.push("second reader check changed");
     return bits;
   }
 
@@ -1647,7 +1878,7 @@ window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], 
     var bits = pendingBits(slug);
     var pend = bits.length > 0;
     var label = shownTitle(slug) + (pendText ? " (text pending)" : "") + ", TRL " + t.trl +
-      (reserve ? ", reserve" : rank ? ", rank " + rank : "") +
+      (reserve ? ", reserve" : rank ? ", position " + rank : "") +
       (pend ? ", pending: " + bits.join(", ") : "") + (split ? ", needs split" : "");
     var titleDiv = pendText
       ? '<div class="title tpend" aria-hidden="true" data-slug-words="' + esc(shownTitle(slug).replace(/-/g, " ")) + '"></div>'
@@ -1758,7 +1989,7 @@ window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], 
     if (popSlug) renderPop();
   }
 
-  // ------------------------------------------------------------ matrix view (D6)
+  // ------------------------------------------------------------ matrix view (D6; X-M ranking matrix)
   var view = "grid";
   var matrixArea = "a";
   var mxNote = "";
@@ -1780,11 +2011,33 @@ window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], 
       (v == null ? "-" : esc(v)) + (local ? "&#10033;" : "") + "</td>";
   }
 
+  function dash(v) { return v == null ? "-" : esc(v); }
+
+  // The "Matrix criteria" disclosure: rating scale, pass mark, the slide 9 notes and the property table.
+  function criteriaHtml() {
+    var h = '<details id="matrixCriteria"><summary>Matrix criteria</summary>';
+    h += "<p><b>Rating scale</b> (each category scored 3, 2 or 1 against the other options in the area):</p><ul>" +
+      (CRITERIA.scale || []).map(function (s) { return "<li><b>" + esc(s.v) + "</b> " + esc(s.text) + "</li>"; }).join("") + "</ul>";
+    h += "<p><b>Pass mark.</b> " + esc((CRITERIA.pass_mark || {}).text) + " Total out of " +
+      esc((CRITERIA.pass_mark || {}).total_max || 24) + "; rank by total, ties by row order (position); ranks 1-3 go to the Master table, rank 4 is the Spare.</p>";
+    h += "<p><b>Scale and notes</b> (kickoff slide 9):</p><ul>" +
+      (CRITERIA.notes || []).map(function (n) { return "<li>" + esc(n.text) + "</li>"; }).join("") + "</ul>";
+    h += '<div class="ctab"><table><thead><tr><th scope="col">Category</th><th scope="col">What it measures</th>' +
+      '<th scope="col">3</th><th scope="col">2</th><th scope="col">1</th><th scope="col">Weight</th></tr></thead><tbody>' +
+      CATS.map(function (c) {
+        return "<tr><td>" + esc(c.label) + "</td><td>" + esc(c.measures) + "</td><td>" + esc(c.d3) + "</td><td>" +
+          esc(c.d2) + "</td><td>" + esc(c.d1) + "</td><td>" + esc(c.weight) + "</td></tr>";
+      }).join("") + "</tbody></table></div>";
+    h += '<p class="note">Categories 1-4 make Engineering (out of 12), 5-8 make Canada (out of 12). Source: ' +
+      esc(CRITERIA.source || "the ranking matrix workbook") + ".</p></details>";
+    return h;
+  }
+
   function renderMatrix() {
     var L = matrixArea;
     var rows = GL.matrixRows(data, ranking, state, L);
     var counts = GL.tierCounts(data, ranking, state);
-    var nRanked = rows.filter(function (r) { return r.rank !== "unranked"; }).length;
+    var nRanked = rows.filter(function (r) { return r.position !== "unranked"; }).length;
     var reserve = data.technologies.filter(function (t) {
       return GL.effectiveArea(data, state, t.slug) === L && GL.effectiveTier(data, ranking, state, t.slug) === "reserve";
     }).map(function (t) { return t.slug; }).sort(function (x, y) {
@@ -1792,49 +2045,76 @@ window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], 
       return a < b ? -1 : a > b ? 1 : 0;
     });
     var staleOrder = staleList().filter(function (x) { return x.ref.kind === "order" && x.ref.area === L; });
+    var eng = CATS.filter(function (c) { return c.side === "engineering"; });
+    var can = CATS.filter(function (c) { return c.side === "canada"; });
     var h = '<h2 id="mxTitle">Ranking matrix</h2>' +
-      '<p class="note">Primary cards in the order people set (drag a row, or Move up / Move down / Set rank). ' +
-      "C1-C8 and the total sit beside the rank as information and never reorder it. Score a card from its details.</p>" +
+      '<p class="note">Two ranks. <b>Position</b> is the order people set (drag a row, or Move up / Move down / Set rank). ' +
+      "<b>Score rank</b> is computed from the scores as the spreadsheet does (Out rows and rows with a side incomplete have none; " +
+      "ties go by position). Scoring never moves a card's position. Score a card from its details (open the title).</p>" +
       '<div class="picker" role="group" aria-label="Area">' + LETTERS.map(function (x) {
         return '<button type="button" data-mact="area" data-area="' + x + '" aria-pressed="' + (x === L) + '" title="' +
           esc(areaLabel(x)) + '">(' + x + ")</button>";
       }).join("") + "</div>" +
-      '<p class="row"><b>' + esc(areaLabel(L)) + "</b>: " + rows.length + " primary (" + nRanked + " ranked, " +
+      '<p class="row"><b>' + esc(areaLabel(L)) + "</b>: " + rows.length + " primary (" + nRanked + " with a position, " +
       (rows.length - nRanked) + " unranked), " + reserve.length + " reserve. " + tierLine(L, counts) +
       (state.order[L] ? ' <span class="pend">&#10033; order changed here, not yet synced</span>' : "") + "</p>";
+    h += criteriaHtml();
     staleOrder.forEach(function (x) { h += '<p class="err">' + staleHtml(x) + "</p>"; });
     if (mxNote) h += '<p class="err" role="alert">' + esc(mxNote) + "</p>";
-    h += '<div class="mwrap"><table class="mx primary"><thead><tr><th class="r" scope="col">Rank</th>' +
-      '<th class="t" scope="col">Title</th><th scope="col">Rank controls</th><th scope="col">TRL</th>' +
-      CRITERIA.map(function (c) { return '<th scope="col" title="' + esc(c.text) + '">' + esc(c.id) + (c.weight > 1 ? " x" + c.weight : "") + "</th>"; }).join("") +
-      '<th scope="col">Total</th><th scope="col">Last changed by</th></tr></thead><tbody>';
+    var th = function (txt, cls) { return '<th scope="col"' + (cls ? ' class="' + cls + '"' : "") + ">" + esc(txt) + "</th>"; };
+    h += '<div class="mwrap"><table class="mx primary"><thead><tr><th class="r" scope="col">Position</th>' +
+      '<th class="t" scope="col">Technology</th>' + th("Position controls") +
+      eng.map(function (c) { return '<th scope="col" title="' + esc(c.measures) + '">' + esc(c.label) + "</th>"; }).join("") +
+      th("Engineering /12", "side") +
+      can.map(function (c) { return '<th scope="col" title="' + esc(c.measures) + '">' + esc(c.label) + "</th>"; }).join("") +
+      th("Canada /12", "side") + th("Total /24", "side") + th("Score rank") + th("Pick") + th("Check") + th("Last changed by") +
+      "</tr></thead><tbody>";
     rows.forEach(function (r, i) {
-      var un = r.rank === "unranked";
-      var local = !!(state.tiers[r.slug] || Object.keys(state.scores[r.slug] || {}).length);
+      var un = r.position === "unranked";
+      var local = !!(state.tiers[r.slug] || Object.keys(state.scores[r.slug] || {}).length || state.evidence[r.slug] || state.checks[r.slug]);
+      var out = r.total === "Out";
+      var chkStale = GL.checkIsStale(data, ranking, state, r.slug);
       h += '<tr data-slug="' + esc(r.slug) + '"' + (un ? ' class="unranked"' : "") + (finePointer ? ' draggable="true"' : "") + ">" +
-        '<td class="r">' + (finePointer ? '<span class="grip" aria-hidden="true">&#8942;&#8942;</span>' : "") + (un ? "unranked" : r.rank) + "</td>" +
-        '<td class="t"><button type="button" class="tl" data-mact="open">' + esc(r.title) + "</button></td>" +
+        '<td class="r">' + (finePointer ? '<span class="grip" aria-hidden="true">&#8942;&#8942;</span>' : "") + (un ? "unranked" : r.position) + "</td>" +
+        '<td class="t"><button type="button" class="tl" data-mact="open">' + esc(r.title) + "</button>" +
+        (r.evidence ? '<details class="ev"><summary>Evidence</summary><div>' + esc(r.evidence) + "</div></details>" : "") + "</td>" +
         '<td class="acts"><button type="button" data-mact="up" aria-label="Move up ' + esc(r.title) + '" title="Move up"' + (i === 0 ? " disabled" : "") + ">&#9650;</button> " +
         '<button type="button" data-mact="down" aria-label="Move down ' + esc(r.title) + '" title="Move down"' + (i === rows.length - 1 ? " disabled" : "") + ">&#9660;</button> " +
-        '<input type="number" data-mact="set" min="1" max="' + rows.length + '" value="' + (i + 1) + '" aria-label="Set rank of ' + esc(r.title) + '" title="Set rank"></td>' +
-        "<td>" + esc(r.trl) + "</td>" +
-        CRITERIA.map(function (c) { return scoreCell(r.slug, c.id, r.scores[c.id]); }).join("") +
-        '<td class="tot' + (typeof r.total === "number" ? " done" : "") + '">' + esc(r.total) + "</td>" +
+        '<input type="number" data-mact="set" min="1" max="' + rows.length + '" value="' + (i + 1) + '" aria-label="Set position rank of ' + esc(r.title) + '" title="Set position rank"></td>' +
+        eng.map(function (c) { return scoreCell(r.slug, c.id, r.scores[c.id]); }).join("") +
+        '<td class="tot side' + (r.eng != null ? " done" : "") + '" data-col="eng">' + dash(r.eng) + "</td>" +
+        can.map(function (c) { return scoreCell(r.slug, c.id, r.scores[c.id]); }).join("") +
+        '<td class="tot side' + (r.can != null ? " done" : "") + '" data-col="can">' + dash(r.can) + "</td>" +
+        '<td class="tot side' + (r.total != null ? " done" : "") + (out ? " out" : "") + '" data-col="total"' +
+        (out ? ' title="Out: a side below 6 of 12"' : "") + ">" + dash(r.total) + "</td>" +
+        '<td data-col="score-rank">' + dash(r.scoreRank) + "</td>" +
+        '<td data-col="pick">' + dash(r.pick) + "</td>" +
+        '<td class="chk' + (state.checks[r.slug] ? " pend" : "") + '">' + (r.check ? esc(r.check) : "-") +
+        (chkStale ? ' <span class="stalechk">scores changed after this check</span>' : "") + "</td>" +
         (local ? '<td class="pend" title="Your change, not yet synced">' + esc(who || "you") + " &#10033;</td>" : "<td>" + esc(r.by) + "</td>") +
         "</tr>";
     });
-    if (!rows.length) h += '<tr><td class="r"></td><td class="t">No primary cards in this area.</td><td colspan="' + (CRITERIA.length + 4) + '"></td></tr>';
+    if (!rows.length) h += '<tr><td class="r"></td><td class="t">No primary cards in this area.</td><td colspan="16"></td></tr>';
     h += "</tbody></table></div>";
-    h += '<div class="tools"><span>Export the primary list (rank order' +
-      (GL.rankingPending(state) || Object.keys(state.moves).length ? "; your unsynced changes are marked as a draft" : "") + "):</span>" +
-      '<button type="button" data-mact="csv">CSV</button><button type="button" data-mact="md">Markdown</button></div>';
-    h += "<h3>Reserve (" + reserve.length + "/" + capFor("reserve") + "): not ranked, not exported</h3>";
+    var draftNow = rows.some(function (r) { return r.pending; }) || !!state.order[L] ||
+      rows.some(function (r) { return !!state.moves[r.slug]; });
+    h += '<div class="tools"><span>Export (' + esc(areaLabel(L)) + ", primary cards in position order" +
+      (draftNow ? "; your unsynced changes make it a draft" : "") + "):</span>" +
+      '<button type="button" data-mact="csv" title="Columns A-N of the spreadsheet tab: paste at A7 with Paste Special, Skip blanks">CSV for the spreadsheet</button>' +
+      '<button type="button" data-mact="json" title="Columns A-N by cell letter, for Copilot or Claude filling the spreadsheet">JSON for the spreadsheet</button>' +
+      '<button type="button" data-mact="md" title="A readable table with the computed columns; not for pasting">Markdown to read</button></div>' +
+      '<p class="note">CSV and JSON hold the tab\'s columns A-N (No., Technology, the eight scores, Evidence, Second reader check) with the total columns G and L blank: paste the CSV at A7 of the area tab with Paste Special, Skip blanks, so the formulas keep computing the totals and ranks. ' +
+      'The JSON holds the same cells by column letter for Copilot, Claude in Excel or Claude in Chrome to fill the tab. The Markdown is a table to read, not to paste.</p>';
+    h += "<h3>Reserve (" + reserve.length + "/" + capFor("reserve") + "): no position, not exported</h3>";
     h += reserve.length ? '<ul class="rlist">' + reserve.map(function (s) {
       return '<li data-slug="' + esc(s) + '"><button type="button" class="tl" data-mact="open">' + esc(titleOf(s)) + "</button>" +
         (state.tiers[s] ? '<span class="pend">&#10033; pending</span>' : "") +
         '<button type="button" data-mact="primary">Move to primary</button></li>';
     }).join("") + "</ul>" : '<p class="note">No reserve cards in this area.</p>';
+    var det = document.getElementById("matrixCriteria");
+    var open = det ? det.open : false;
     $("matrix").innerHTML = h;
+    if (open) $("matrixCriteria").open = true;
   }
 
   function mxSlug(el) {
@@ -1856,7 +2136,7 @@ window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], 
     else if (act === "up" || act === "down") { mxNote = ""; setState(GL.moveRank(data, ranking, state, slug, act === "up" ? -1 : 1, nowIso())); }
     else if (act === "primary") setState(GL.setTier(data, ranking, state, slug, "primary", nowIso()));
     else if (act === "open") openPop(slug, false, true);
-    else if (act === "csv" || act === "md") exportMatrix(act);
+    else if (act === "csv" || act === "json" || act === "md") exportMatrix(act);
   });
   $("matrix").addEventListener("change", function (e) {
     var inp = e.target.closest("[data-mact='set']");
@@ -1907,12 +2187,14 @@ window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], 
   }
 
   function exportMatrix(fmt) {
-    var text = GL.matrixText(data, ranking, state, matrixArea, fmt, who || "you");
-    var draft = text.split(/\n/)[0].indexOf("Unsynced") >= 0 || text.indexOf("Draft by ") === 0;
-    var name = "ranking_" + matrixArea + (draft ? "_draft" : "") + (fmt === "csv" ? ".csv" : ".md");
-    showExport("Matrix (" + matrixArea + ")" + (draft ? ", draft" : ""), text, name, fmt === "csv" ? "text/csv" : "text/markdown",
-      "Primary cards of (" + matrixArea + ") in rank order. " + (draft ?
-        "This is a draft: the Unsynced column names your changes that no sync has applied yet. " : "") +
+    var e = GL.matrixExport(data, ranking, state, matrixArea, fmt, who || "you");
+    var draft = /_draft\./.test(e.name);
+    var mime = fmt === "csv" ? "text/csv" : fmt === "json" ? "application/json" : "text/markdown";
+    var use = fmt === "md" ? "A readable table with the computed columns (Engineering /12, Canada /12, Total /24, Score rank, Pick); not for pasting into the spreadsheet. " :
+      "Columns A-N of the spreadsheet tab (G and L blank). Paste at A7 of the area tab with Paste Special, Skip blanks, so the formulas compute the totals and ranks. ";
+    showExport("Matrix (" + matrixArea + "), " + (fmt === "md" ? "Markdown" : fmt.toUpperCase()) + (draft ? ", DRAFT" : ""), e.text, e.name, mime,
+      use + (draft ? "This is a DRAFT: it carries your unsynced changes (file name ends _draft" +
+        (fmt === "json" ? "; the unsynced list names the cards" : "") + "). " : "") +
       "The team list is `ranking.py matrix` after a sync.");
   }
 
@@ -1923,13 +2205,56 @@ window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], 
   var hoverTimer = null;
   var leaveTimer = null;
   var editOpen = false;
+  var popNote = "";
 
   function areaLabel(L) { return "(" + L + ") " + data.area_names[L]; }
+
+  // X-M Designer: unsaved evidence and check text survives a re-render of the popover (a score, Move up,
+  // a tier change, a failed Save) and closing it; it is kept per card until Save or until it matches the
+  // saved value again, and is marked "not saved" meanwhile. Page memory only: a reload loses it.
+  var drafts = {};
+  function normText(s) { return String(s == null ? "" : s).replace(/\r\n?/g, "\n").trim(); }
+  function captureDrafts() {
+    var s = pop.getAttribute("data-for");
+    if (!s) return;
+    [["ev", "evText"], ["ck", "ckText"]].forEach(function (p) {
+      var el = $(p[1]);
+      if (!el) return;
+      var d = drafts[s] || (drafts[s] = {});
+      if (el.value !== el.getAttribute("data-shown")) d[p[0]] = el.value;
+      else delete d[p[0]];
+      if (!Object.keys(d).length) delete drafts[s];
+    });
+  }
+  // The draft to show for a field, or null once it equals the saved (effective) value.
+  function draftOf(slug, key, saved) {
+    var d = drafts[slug];
+    if (!d || d[key] == null) return null;
+    if (normText(d[key]) === normText(saved)) { delete d[key]; if (!Object.keys(d).length) delete drafts[slug]; return null; }
+    return d[key];
+  }
+  // Which popover control had focus, so a re-render puts focus back on the same control.
+  function focusKey() {
+    var a = document.activeElement;
+    if (!a || !pop.contains(a)) return null;
+    if (a.id) return "#" + cssq(a.id);
+    var act = a.getAttribute("data-act");
+    if (!act) return null;
+    var sel = '[data-act="' + act + '"]';
+    if (a.getAttribute("data-c")) sel += '[data-c="' + a.getAttribute("data-c") + '"]';
+    if (a.getAttribute("data-v")) sel += '[data-v="' + a.getAttribute("data-v") + '"]';
+    if (a.getAttribute("data-to")) sel += '[data-to="' + a.getAttribute("data-to") + '"]';
+    return sel;
+  }
 
   function renderPop() {
     var slug = popSlug;
     var t = bySlug[slug];
     if (!t) { closePop(); return; }
+    var same = pop.getAttribute("data-for") === slug;
+    captureDrafts();
+    var fKey = same ? focusKey() : null;
+    var popScroll = same ? pop.scrollTop : 0;
     var title = GL.effectiveTitle(data, state, slug);
     var blurb = GL.effectiveBlurb(data, state, slug);
     var here = GL.effectiveArea(data, state, slug);
@@ -1986,11 +2311,11 @@ window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], 
       var ri = eo.ranked.indexOf(slug);
       var pos = ri >= 0 ? ri + 1 : eo.ranked.length + eo.unranked.indexOf(slug) + 1;
       h += '<div class="row rank" data-rank="' + (ri >= 0 ? ri + 1 : "unranked") + '"><span>' +
-        (ri >= 0 ? "Rank " + (ri + 1) + " of " + k + " in (" + here + ")" : "unranked in (" + here + "), " + k + " primary") +
+        (ri >= 0 ? "Position rank " + (ri + 1) + " of " + k + " in (" + here + ")" : "Position: unranked in (" + here + "), " + k + " primary") +
         "</span>" + (state.order[here] ? ' <span class="pend">(&#10033; order pending)</span>' : "") +
         ' <button type="button" data-act="rank-up"' + (pos <= 1 ? " disabled" : "") + ">Move up</button>" +
         ' <button type="button" data-act="rank-down"' + (pos >= k ? " disabled" : "") + ">Move down</button>" +
-        ' <label class="inl">Set rank <input type="number" data-act="rank-set" min="1" max="' + k + '" value="' + pos + '"></label>' +
+        ' <label class="inl">Set rank <input type="number" data-act="rank-set" min="1" max="' + k + '" value="' + pos + '" aria-label="Set position rank"></label>' +
         '<span class="err" id="rankErr" role="alert"></span></div>';
       mine.filter(function (x) { return x.ref.kind === "order" && x.ref.area === here; }).forEach(function (x) {
         h += '<p class="row err">' + staleHtml(x) + "</p>";
@@ -2004,31 +2329,83 @@ window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], 
         (L === here ? ' aria-current="true" disabled' : "") + ">(" + L + ")</button>";
     });
     h += "</div></div>";
-    // criteria C1-C8 (D6): one shared value per criterion, with who set it
+    // X-M ranking matrix: eight categories scored 3 / 2 / 1, one shared value each with who set it; the
+    // computed line (Engineering, Canada, Out, score rank, Pick); evidence and second reader check.
     var vals = {};
-    CRITERIA.forEach(function (c) { vals[c.id] = GL.effectiveScore(data, ranking, state, slug, c.id); });
-    h += '<div class="section"><div class="row">Scores, 1 (low) to 3 (high). Total: ' +
-      esc(GL.weightedTotal(vals, CRITERIA)) + " (C3 counts double; shown beside the rank, never reorders it).</div>";
-    CRITERIA.forEach(function (c) {
+    CATS.forEach(function (c) { vals[c.id] = GL.effectiveScore(data, ranking, state, slug, c.id); });
+    var nSet = CATS.filter(function (c) { return vals[c.id] != null; }).length;
+    var mres = GL.matrixResult([{ title: shownTitle(slug) || slug, scores: vals }])[0];
+    var mrow = null;
+    if (tier === "primary") {
+      GL.matrixRows(data, ranking, state, here).forEach(function (r) { if (r.slug === slug) mrow = r; });
+    }
+    var comp;
+    if (mres.total === "Out") {
+      var low = [];
+      if (mres.eng < 6) low.push("Engineering " + mres.eng + " of 12");
+      if (mres.can < 6) low.push("Canada " + mres.can + " of 12");
+      comp = '<span class="out">Out</span>: ' + esc(low.join(", ")) + " (each side needs 6 of 12)";
+    } else if (typeof mres.total === "number") {
+      comp = "Total " + mres.total + " of 24" + (tier !== "primary" ? "; reserve cards have no score rank" :
+        mrow && mrow.scoreRank ? "; Score rank " + mrow.scoreRank + (mrow.pick ? ", " + esc(mrow.pick) : "") : "");
+    } else {
+      comp = nSet + " of 8 scored";
+    }
+    h += '<div class="section"><div class="row"><b>Ranking matrix</b>: score each category 3, 2 or 1 against the other options in (' +
+      esc(here) + ") at pilot scale. Scores never move the card's position.</div>" +
+      '<p class="row computed" data-computed>' + "Engineering " + (mres.eng == null ? "-" : mres.eng) + "/12 &middot; Canada " +
+      (mres.can == null ? "-" : mres.can) + "/12 &middot; " + comp + "</p>";
+    CATS.forEach(function (c) {
       var v = vals[c.id];
       var local = state.scores[slug] && state.scores[slug][c.id];
       var drec = ranking && ranking.scores && ranking.scores[slug] && ranking.scores[slug][c.id];
-      var who2 = local ? '<span class="pend">&#10033; pending, not yet synced</span>' :
-        drec ? "set by " + esc(drec.by) : "";
-      h += '<div class="crit" data-crit="' + esc(c.id) + '"><div class="crit-head"><b>' + esc(c.id) + "</b>" +
-        '<span class="crit-text">' + esc(c.text) + "</span>" +
-        (c.weight > 1 ? ' <span class="dbl">counts double</span>' : "") + "</div>" +
-        '<div class="crit-val"><span>' + (v == null ? "unset" : "Value " + esc(v)) + (who2 ? ", " + who2 : "") + "</span>" +
-        '<span class="cbtns" role="group" aria-label="' + esc(c.id) + ' score">' +
-        [1, 2, 3].map(function (n) {
-          return '<button type="button" data-act="score" data-c="' + esc(c.id) + '" data-v="' + n + '" aria-pressed="' + (v === n) + '">' + n + "</button>";
-        }).join("") +
-        '<button type="button" data-act="score" data-c="' + esc(c.id) + '" data-v=""' + (v == null ? " disabled" : "") + ">Clear</button></span></div></div>";
+      var by = local ? '<span class="pend">&#10033; ' + (v == null ? "cleared" : esc(v)) + ", pending, not yet synced</span>" :
+        drec ? esc(v) + ", set by " + esc(drec.by) : "not scored";
+      h += '<div class="cat" data-cat="' + esc(c.id) + '"><div class="cat-head"><b class="cat-label">' + esc(c.label) + "</b> " +
+        '<span class="cat-measures">' + esc(c.measures) + "</span></div>" +
+        '<div class="cat-opts" role="group" aria-label="' + esc(c.label) + ' score">' +
+        [3, 2, 1].map(function (n) {
+          return '<button type="button" data-act="score" data-c="' + esc(c.id) + '" data-v="' + n + '" aria-pressed="' + (v === n) +
+            '" aria-label="' + esc(c.label) + " " + n + ": " + esc(c["d" + n]) + '">' + n + "</button>" +
+            '<span class="cat-d' + n + '">' + esc(c["d" + n]) + "</span>";
+        }).join("") + "</div>" +
+        '<div class="cat-val"><span class="cat-by">' + by + "</span>" +
+        '<button type="button" data-act="score-clear" data-c="' + esc(c.id) + '"' + (v == null ? " disabled" : "") + ">Clear</button></div></div>";
       mine.filter(function (x) { return x.ref.kind === "score" && x.ref.slug === slug && x.ref.crit === c.id; }).forEach(function (x) {
         h += '<p class="row err">' + staleHtml(x) + "</p>";
       });
     });
     h += "</div>";
+    // evidence and second reader check
+    var ev = GL.effectiveEvidence(data, ranking, state, slug);
+    var evRec = ranking && ranking.evidence && ranking.evidence[slug];
+    var ck = GL.effectiveCheck(data, ranking, state, slug);
+    var ckRec = ranking && ranking.checks && ranking.checks[slug];
+    var whoLine = function (sec, rec) {
+      if (state[sec][slug]) return '<span class="pend">&#10033; pending, not yet synced</span>';
+      return rec ? "set by " + esc(rec.by) + " " + esc(String(rec.at).slice(0, 10)) : "none yet";
+    };
+    var evDraft = draftOf(slug, "ev", ev), ckDraft = draftOf(slug, "ck", ck);
+    var unsaved = function (k, on) {
+      return '<span class="unsaved" data-unsaved="' + k + '"' + (on ? "" : " hidden") + ">&#9998; not saved: press Save to keep this text</span>";
+    };
+    h += '<div class="section"><label for="evText">Evidence and sources: the numbers behind each score (up to 5000 characters)</label>' +
+      '<textarea id="evText" data-act="evidence" maxlength="5000" data-shown="' + esc(ev || "") + '">' + esc(evDraft != null ? evDraft : ev || "") + "</textarea>" +
+      '<div class="twin"><button type="button" data-act="evidence-save">Save</button><span class="who-line">' + whoLine("evidence", evRec) +
+      " " + unsaved("evText", evDraft != null) + "</span></div>";
+    mine.filter(function (x) { return x.ref.kind === "evidence" && x.ref.slug === slug; }).forEach(function (x) {
+      h += '<p class="row err">' + staleHtml(x) + "</p>";
+    });
+    h += '<label for="ckText">Second reader check (initials and date, up to 80 characters)</label>' +
+      '<div class="twin"><input type="text" id="ckText" data-act="check" maxlength="80" data-shown="' + esc(ck || "") + '" value="' + esc(ckDraft != null ? ckDraft : ck || "") + '">' +
+      '<button type="button" data-act="check-sign" title="Fill in your name and today\'s date">Sign</button>' +
+      '<button type="button" data-act="check-save">Save</button></div>' +
+      '<div class="who-line">' + whoLine("checks", ckRec) + " " + unsaved("ckText", ckDraft != null) +
+      (GL.checkIsStale(data, ranking, state, slug) ? '; <span class="stalechk">scores changed after this check</span>' : "") + "</div>";
+    mine.filter(function (x) { return x.ref.kind === "check" && x.ref.slug === slug; }).forEach(function (x) {
+      h += '<p class="row err">' + staleHtml(x) + "</p>";
+    });
+    h += '<p class="err" role="alert">' + esc(popNote) + "</p></div>";
     h += '<div class="section">';
     if (GL.canEdit(data, slug, who)) {
       if (!editOpen) {
@@ -2051,6 +2428,9 @@ window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], 
     }
     h += "</div>";
     pop.innerHTML = h;
+    pop.setAttribute("data-for", slug);
+    pop.scrollTop = popScroll;
+    if (fKey) { var fe = pop.querySelector(fKey); if (fe && !fe.disabled) fe.focus({ preventScroll: true }); }
     if (editOpen) {
       var form = $("editForm");
       var run = function () {
@@ -2094,7 +2474,7 @@ window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], 
 
   function openPop(slug, byHover, focusIt) {
     clearTimeout(leaveTimer);
-    if (popSlug !== slug) editOpen = false;
+    if (popSlug !== slug) { editOpen = false; popNote = ""; }
     var prev = popSlug ? tileEl(popSlug) : null;
     if (prev) prev.classList.remove("open");
     popSlug = slug;
@@ -2111,6 +2491,8 @@ window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], 
     var slug = popSlug;
     popSlug = null;
     editOpen = false;
+    captureDrafts();
+    pop.removeAttribute("data-for");
     pop.hidden = true;
     pop.innerHTML = "";
     var el = tileEl(slug);
@@ -2137,14 +2519,34 @@ window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], 
       setState(GL.setTier(data, ranking, state, slug, tnow === "primary" ? "reserve" : "primary", nowIso()));
     }
     else if (act === "rank-up" || act === "rank-down") setState(GL.moveRank(data, ranking, state, slug, act === "rank-up" ? -1 : 1, nowIso()));
-    else if (act === "score") {
-      var raw = b.getAttribute("data-v");
+    else if (act === "score" || act === "score-clear") {
+      var raw = act === "score" ? b.getAttribute("data-v") : "";
       var r = GL.setScore(data, ranking, state, slug, b.getAttribute("data-c"), raw === "" ? null : Number(raw), nowIso());
       if (r.ok) setState(r.state);
+    }
+    else if (act === "evidence-save" || act === "check-save") {
+      var isEv = act === "evidence-save";
+      var fld = pop.querySelector(isEv ? "[data-act='evidence']" : "[data-act='check']");
+      var rr = (isEv ? GL.setEvidence : GL.setCheck)(data, ranking, state, slug, fld ? fld.value : "", nowIso());
+      if (rr.ok) { popNote = ""; setState(rr.state); }
+      else { popNote = (isEv ? "Evidence" : "Check") + " not saved: " + rr.reason + "."; renderPop(); }
+    }
+    else if (act === "check-sign") {
+      var ci = pop.querySelector("[data-act='check']");
+      if (!who) { popNote = "Pick your name under \"You are\" to sign."; renderPop(); }
+      else if (ci) { ci.value = GL.signText(who, nowIso()); markUnsaved(ci); ci.focus(); }
     }
     else if (act === "move") setState(GL.move(data, state, slug, b.getAttribute("data-to"), nowIso()));
     else if (act === "edit") { editOpen = true; renderPop(); var ti = $("edTitle"); if (ti) ti.focus(); }
     else if (act === "cancel") { editOpen = false; renderPop(); }
+  });
+  // The "not saved" mark follows the evidence and check fields as they are typed in (and Sign).
+  function markUnsaved(el) {
+    var m = pop.querySelector('[data-unsaved="' + el.id + '"]');
+    if (m) m.hidden = el.value === el.getAttribute("data-shown");
+  }
+  pop.addEventListener("input", function (e) {
+    if (e.target.id === "evText" || e.target.id === "ckText") markUnsaved(e.target);
   });
   pop.addEventListener("change", function (e) {
     var inp = e.target.closest && e.target.closest("[data-act='rank-set']");
@@ -2340,6 +2742,8 @@ window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], 
   // ------------------------------------------------------------ start
   fillWho();
   renderChips();
+  var areaParam = urlParam("area");
+  if (areaParam && LETTERS.indexOf(areaParam) >= 0) matrixArea = areaParam;
   if (urlParam("view") === "matrix") setView("matrix");
   else renderAll();
   if (urlParam("pop") && bySlug[urlParam("pop")]) openPop(urlParam("pop"), false, false);
@@ -2352,9 +2756,10 @@ window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], 
   var minOf = function (a) { return a.length ? r2(Math.min.apply(null, a)) : 0; };
   function hscrollNow() { return document.documentElement.scrollWidth > document.documentElement.clientWidth; }
 
-  // &view=matrix: every area through the picker, in turn.
+  // &view=matrix: every area through the picker, in turn (&area=x: that area only).
   function matrixBlock() {
-    return LETTERS.map(function (L) {
+    var list = areaParam && LETTERS.indexOf(areaParam) >= 0 ? [areaParam] : LETTERS;
+    return list.map(function (L) {
       var b = document.querySelector('#matrix .picker button[data-area="' + L + '"]');
       if (b) b.click();
       var ctl = Array.prototype.filter.call(
@@ -2369,7 +2774,17 @@ window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], 
     });
   }
 
+  // &pop=<slug>: sideways scroll and the size of the visible popover controls.
+  function popBlock() {
+    var ctl = Array.prototype.filter.call(pop.querySelectorAll("button, input, textarea, select"),
+      function (el) { return el.getClientRects().length > 0; });
+    var w = [], hh = [];
+    ctl.forEach(function (el) { var r = el.getBoundingClientRect(); w.push(r.width); hh.push(r.height); });
+    return { hscroll: hscrollNow(), controls: { count: ctl.length, min_w: minOf(w), min_h: minOf(hh) } };
+  }
+
   function runSelftest() {
+    var popInfo = popSlug ? popBlock() : null;
     var matrix = view === "matrix" ? matrixBlock() : null;
     var areas = Array.prototype.map.call(document.querySelectorAll("section.area"), function (s) {
       var r = s.getBoundingClientRect();
@@ -2402,6 +2817,7 @@ window.RANKING_DATA = {"caps": {"primary": 25, "reserve": 25}, "conflicts": [], 
       titles: titles
     };
     if (matrix) block.matrix = matrix;
+    if (popInfo) block.pop = popInfo;
     var pre = document.createElement("pre");
     pre.id = "selftest";
     pre.textContent = JSON.stringify(block);
